@@ -49,6 +49,8 @@ stoke build
 | `stoke init` | Interactive project setup, generates `stoke.toml` |
 | `stoke build [target]` | Build a target (or the default target if not specified) |
 | `stoke build --force` | Ignore cache and rebuild everything |
+| `stoke watch [target]` | Watch for file changes and rebuild automatically |
+| `stoke hot-reload [target]` | Watch, rebuild, and restart the running process on changes |
 | `stoke clean [target]` | Delete build artifacts (venv, cache, `__pycache__`) |
 | `stoke clean --all` | Delete everything including the lock file |
 | `stoke python list` | List all Python versions detected on the system |
@@ -105,8 +107,8 @@ On `stoke build`, stoke:
 
 ## Roadmap
 
-- **v0.1** (current) — Python build (venv, deps, syntax check, incremental builds)
-- **v0.2** — Watch mode (`stoke watch`), hot-reload
+- **v0.1** — Python build (venv, deps, syntax check, incremental builds)
+- **v0.2** (current) — Watch mode (`stoke watch`), hot-reload (`stoke hot-reload`)
 - **v0.3** — Java support
 - **v0.4** — C/C++ support with `.so` reload and process restart modes
 - **v0.5** — Package registry and `stoke install`, `stoke publish`

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "stoke-build"
-version = "0.1.0"
+version = "0.2.0"
 description = "A multi-language build tool with automatic venv management and reproducible builds"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -24,6 +24,9 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
     "Topic :: Software Development :: Build Tools",
+]
+dependencies = [
+    "watchdog>=4.0.0",
 ]
 
 [project.urls]

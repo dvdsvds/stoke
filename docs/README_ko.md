@@ -49,6 +49,8 @@ stoke build
 | `stoke init` | 대화형 프로젝트 초기화, `stoke.toml` 생성 |
 | `stoke build [target]` | 타겟 빌드 (미지정 시 기본 타겟) |
 | `stoke build --force` | 캐시 무시하고 전체 재빌드 |
+| `stoke watch [target]` | 파일 변경 감지 시 자동 재빌드 |
+| `stoke hot-reload [target]` | 파일 변경 감지 시 재빌드 + 실행 중인 프로세스 재시작 |
 | `stoke clean [target]` | 빌드 산출물 삭제 (venv, 캐시, `__pycache__`) |
 | `stoke clean --all` | lock 파일 포함 완전 초기화 |
 | `stoke python list` | 시스템에 설치된 파이썬 목록 |
@@ -105,8 +107,8 @@ pip specifier 문법을 그대로 따라요:
 
 ## 로드맵
 
-- **v0.1** (현재) — 파이썬 빌드 (venv, 의존성, 문법 체크, 증분 빌드)
-- **v0.2** — Watch 모드 (`stoke watch`), hot-reload
+- **v0.1** — 파이썬 빌드 (venv, 의존성, 문법 체크, 증분 빌드)
+- **v0.2** (현재) — Watch 모드 (`stoke watch`), hot-reload (`stoke hot-reload`)
 - **v0.3** — Java 지원
 - **v0.4** — C/C++ 지원 (`.so` 재로드 + 프로세스 재시작)
 - **v0.5** — 패키지 레지스트리, `stoke install`, `stoke publish`

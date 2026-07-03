@@ -27,7 +27,6 @@ def main():
     python_sub = python_parser.add_subparsers(dest="python_command", required=True)
     python_sub.add_parser("list", help="List installed Python versions")
 
-    # stoke init
     clean_parser = subparsers.add_parser("clean", help="Clean build artifacts")
     clean_parser.add_argument(
         "--all",
@@ -40,6 +39,23 @@ def main():
         help="Target name (default: all targets)",
     )
 
+    # stoke init
+    subparsers.add_parser("init", help="Initialize a new stoke project")
+
+    # stoke watch [target]
+    watch_parser = subparsers.add_parser(
+        "watch",
+        help="Watch for file changes and rebuild automatically",
+    )
+    watch_parser.add_argument("target", nargs="?", help="Target name")
+
+    # stoke hot-reload [target]
+    hotreload_parser = subparsers.add_parser(
+        "hot-reload",
+        help="Watch, rebuild, and restart the running process on changes",
+    )
+    hotreload_parser.add_argument("target", nargs="?", help="Target name")
+
     args = parser.parse_args()
 
     if args.command == "build":
@@ -51,7 +67,10 @@ def main():
             cmd_python_list()
     elif args.command == "init":
         cmd_init()
-
+    elif args.command == "watch":
+        cmd_watch(args.target)
+    elif args.command == "hot-reload":
+        cmd_hot_reload(args.target)
 
 def cmd_build(target_name, force: bool = False):
     try:
@@ -198,3 +217,75 @@ def cmd_python_list():
         default_mark = " (default)" if install.is_default else ""
         print(f"  Python {install.version}{default_mark}")
         print(f"    -> {install.executable}")
+
+def cmd_watch(target_name):
+    try:
+        config = load_config()
+    except FileNotFoundError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
+    except ValueError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    if target_name is None:
+        target_name = next(iter(config.targets))
+        print(f"No target specified, watching default: {target_name}")
+
+    if target_name not in config.targets:
+        print(
+            f"Error: target '{target_name}' not found in stoke.toml",
+            file=sys.stderr,
+        )
+        print(
+            f"Available targets: {', '.join(config.targets.keys())}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    target = config.targets[target_name]
+    project_root = config.config_path.parent
+
+    from stoke.watcher import watch
+
+    try:
+        watch(target, config, project_root)
+    except RuntimeError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
+
+def cmd_hot_reload(target_name):
+    try:
+        config = load_config()
+    except FileNotFoundError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
+    except ValueError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    if target_name is None:
+        target_name = next(iter(config.targets))
+        print(f"No target specified, hot-reloading default: {target_name}")
+
+    if target_name not in config.targets:
+        print(
+            f"Error: target '{target_name}' not found in stoke.toml",
+            file=sys.stderr,
+        )
+        print(
+            f"Available targets: {', '.join(config.targets.keys())}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    target = config.targets[target_name]
+    project_root = config.config_path.parent
+
+    from stoke.hot_reload import hot_reload
+
+    try:
+        hot_reload(target, config, project_root)
+    except RuntimeError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
