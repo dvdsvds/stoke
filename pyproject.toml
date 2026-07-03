@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "stoke-build"
+version = "0.1.0"
+description = "A multi-language build tool with automatic venv management and reproducible builds"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [
+    { name = "dvdsvds", email = "c130vy@gmail.com" }
+]
+keywords = ["build", "build-tool", "python", "venv", "dependency-management"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Software Development :: Build Tools",
+]
+
+[project.urls]
+Homepage = "https://github.com/dvdsvds/stoke"
+Repository = "https://github.com/dvdsvds/stoke"
+Issues = "https://github.com/dvdsvds/stoke/issues"
+
+[project.scripts]
+stoke = "stoke.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
