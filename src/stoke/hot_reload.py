@@ -7,6 +7,7 @@ from pathlib import Path
 
 from watchdog.observers import Observer
 
+from stoke.adapters import make_adapter
 from stoke.adapters.python import PythonAdapter
 from stoke.config import Config, Target
 from stoke.watcher import _DebouncedHandler, _watch_roots_from_target
@@ -96,7 +97,7 @@ def _run_build(target: Target, config: Config, project_root: Path) -> bool:
     print(f"[hot-reload] Rebuilding '{target.name}'...")
     print("=" * 50)
     try:
-        adapter = PythonAdapter(target, config.project, project_root)
+        adapter = make_adapter(target, config.project, project_root)
         adapter.build()
         return True
     except RuntimeError as e:
@@ -111,8 +112,7 @@ def hot_reload(target: Target, config: Config, project_root: Path):
     """hot-reload 진입점."""
     if target.language != "python":
         raise RuntimeError(
-            f"Hot-reload currently only supports Python targets, "
-            f"got '{target.language}'"
+            f"Hot-reload currently only supports Python targets, got '{target.language}'"
         )
 
     if not target.entry:

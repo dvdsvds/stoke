@@ -1,11 +1,10 @@
 import argparse
 import sys
 
-from stoke.adapters.python import PythonAdapter
+from stoke.adapters import make_adapter
 from stoke.config import load_config
 from stoke.init import cmd_init
 from stoke.python_versions import detect_all
-
 
 def main():
     parser = argparse.ArgumentParser(
@@ -96,18 +95,11 @@ def cmd_build(target_name, force: bool = False):
 
     project_root = config.config_path.parent
 
-    if target.language == "python":
-        adapter = PythonAdapter(target, config.project, project_root)
-        try:
-            adapter.build(force=force)
-        except RuntimeError as e:
-            print(f"Error: {e}", file=sys.stderr)
-            sys.exit(1)
-    else:
-        print(
-            f"Error: language '{target.language}' not supported yet",
-            file=sys.stderr,
-        )
+    try:
+        adapter = make_adapter(target, config.project, project_root)
+        adapter.build(force=force)
+    except RuntimeError as e:
+        print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
 
 

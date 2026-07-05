@@ -6,7 +6,7 @@ from pathlib import Path
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
-from stoke.adapters.python import PythonAdapter
+from stoke.adapters import make_adapter
 from stoke.config import Config, Target
 
 
@@ -118,7 +118,7 @@ def _run_build(target: Target, config: Config, project_root: Path):
     print(f"[watch] Rebuilding '{target.name}'...")
     print("=" * 50)
     try:
-        adapter = PythonAdapter(target, config.project, project_root)
+        adapter = make_adapter(target, config.project, project_root)
         adapter.build()
     except RuntimeError as e:
         print(f"\n[watch] Build failed: {e}", file=sys.stderr)
@@ -130,12 +130,6 @@ def _run_build(target: Target, config: Config, project_root: Path):
 
 def watch(target: Target, config: Config, project_root: Path):
     """watch 모드 진입점."""
-    if target.language != "python":
-        raise RuntimeError(
-            f"Watch mode currently only supports Python targets, "
-            f"got '{target.language}'"
-        )
-
     # 감시 루트 결정
     roots = _watch_roots_from_target(project_root, target)
     if not roots:

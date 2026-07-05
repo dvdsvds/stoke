@@ -3,6 +3,7 @@ import sys
 from pathlib import Path
 from dataclasses import dataclass
 
+from stoke.adapters.base import BaseAdapter
 from stoke.cache import (
     BuildCache,
     load_cache,
@@ -25,16 +26,14 @@ class SyntaxCheckResult:
     ok: bool
     error: str = ""
 
-class PythonAdapter:
+class PythonAdapter(BaseAdapter):
     def __init__(
         self,
         target: Target,
         project: ProjectInfo,
         project_root: Path,
     ):
-        self.target = target
-        self.project = project
-        self.project_root = project_root
+        super().__init__(target, project, project_root)
         self.venv_dir = project_root / ".stoke" / "venv" / target.name
 
     def resolve_python(self) -> tuple[PythonInstall, bool]:
