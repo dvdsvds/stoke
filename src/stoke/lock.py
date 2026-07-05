@@ -11,9 +11,17 @@ class PythonLock:
 
 
 @dataclass
+class JavaLock:
+    version: str
+    major_version: int
+    java_home: str
+
+
+@dataclass
 class LockFile:
-    python: PythonLock
-    packages: dict[str, str]  # {패키지명: 버전} 예: {"requests": "2.31.0"}
+    python: PythonLock | None
+    java: JavaLock | None
+    packages: dict[str, str]
     created_at: str
     stoke_version: str
 
@@ -37,20 +45,39 @@ def load_lock(project_root: Path, lock_mode: str) -> LockFile | None:
     with open(path, "rb") as f:
         data = tomllib.load(f)
 
-    if "python" not in data:
-        raise ValueError(f"Invalid lock file at {path}: missing [python] section")
+    # python 또는 java 중 하나는 있어야 함
+    python_lock = None
+    java_lock = None
 
-    python_data = data["python"]
-    if "version" not in python_data:
-        raise ValueError(f"Invalid lock file at {path}: missing python.version")
+    if "python" in data:
+        python_data = data["python"]
+        if "version" not in python_data:
+            raise ValueError(f"Invalid lock file at {path}: missing python.version")
+        python_lock = PythonLock(
+            version=python_data["version"],
+            executable=python_data.get("executable", ""),
+        )
+
+    if "java" in data:
+        java_data = data["java"]
+        if "version" not in java_data:
+            raise ValueError(f"Invalid lock file at {path}: missing java.version")
+        java_lock = JavaLock(
+            version=java_data["version"],
+            major_version=java_data.get("major_version", 0),
+            java_home=java_data.get("java_home", ""),
+        )
+
+    if python_lock is None and java_lock is None:
+        raise ValueError(
+            f"Invalid lock file at {path}: missing [python] or [java] section"
+        )
 
     meta = data.get("meta", {})
 
     return LockFile(
-        python=PythonLock(
-            version=python_data["version"],
-            executable=python_data.get("executable", ""),
-        ),
+        python=python_lock,
+        java=java_lock,
         packages=data.get("packages", {}),
         created_at=meta.get("created_at", ""),
         stoke_version=meta.get("stoke_version", ""),
@@ -60,32 +87,50 @@ def load_lock(project_root: Path, lock_mode: str) -> LockFile | None:
 def save_lock(
     project_root: Path,
     lock_mode: str,
-    python_version: str,
-    python_executable: str,
+    python_version: str | None = None,
+    python_executable: str | None = None,
+    java_version: str | None = None,
+    java_major_version: int | None = None,
+    java_home: str | None = None,
     packages: dict[str, str] | None = None,
 ) -> Path:
-    """lock 파일 쓰기. 저장된 경로 반환."""
+    """
+    lock 파일 쓰기. 저장된 경로 반환.
+    python_* 또는 java_* 중 하나만 사용.
+    """
     path = _lock_path(project_root, lock_mode)
     path.parent.mkdir(parents=True, exist_ok=True)
 
-    escaped_exe = python_executable.replace("\\", "\\\\")
     now = datetime.now().isoformat(timespec="seconds")
 
-    content = f'''[python]
+    content = ""
+
+    if python_version is not None:
+        escaped_exe = (python_executable or "").replace("\\", "\\\\")
+        content += f'''[python]
 version = "{python_version}"
 executable = "{escaped_exe}"
 
-[packages]
 '''
+
+    if java_version is not None:
+        escaped_home = (java_home or "").replace("\\", "\\\\")
+        content += f'''[java]
+version = "{java_version}"
+major_version = {java_major_version or 0}
+java_home = "{escaped_home}"
+
+'''
+
+    content += "[packages]\n"
     if packages:
-        # 알파벳순으로 저장 (diff 안정성)
         for name in sorted(packages.keys()):
             content += f'{name} = "{packages[name]}"\n'
 
     content += f'''
 [meta]
 created_at = "{now}"
-stoke_version = "0.1.0"
+stoke_version = "0.3.0"
 '''
     path.write_text(content, encoding="utf-8")
     return path

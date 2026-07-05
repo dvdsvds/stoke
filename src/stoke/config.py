@@ -3,10 +3,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 
-# ============================================================
-# 데이터 클래스: 설정 파일 내용을 담을 그릇
-# ============================================================
-
+# 데이터 클래스: 설정 파일 내용
 @dataclass
 class ProjectInfo:
     name: str
@@ -21,6 +18,8 @@ class Target:
     entry: str | None = None
     deps: dict[str, str] = field(default_factory=dict)
     python_version: str | None = None
+    java_version: str | None = None
+    main_class: str | None = None
 
 @dataclass
 class Config:
@@ -29,10 +28,7 @@ class Config:
     config_path: Path  # stoke.toml 파일 위치 (나중에 상대 경로 처리에 필요)
 
 
-# ============================================================
 # stoke.toml 파일 찾기: 현재 → 상위 → 상위 → ... 로 올라감
-# ============================================================
-
 def find_config_file(start_dir: Path | None = None) -> Path:
     if start_dir is None:
         start_dir = Path.cwd()
@@ -97,6 +93,8 @@ def load_config(config_path: Path | None = None) -> Config:
         entry=target_config.get("entry"),
         deps=target_config.get("deps", {}),
         python_version=target_config.get("python_version"),
+        java_version=target_config.get("java_version"),
+        main_class=target_config.get("main_class"),
     )
 
     if not targets:

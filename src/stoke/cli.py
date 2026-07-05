@@ -26,6 +26,13 @@ def main():
     python_sub = python_parser.add_subparsers(dest="python_command", required=True)
     python_sub.add_parser("list", help="List installed Python versions")
 
+    # stoke java list
+    java_parser = subparsers.add_parser("java", help="Java (JDK) version tools")
+    java_sub = java_parser.add_subparsers(dest="java_command", required=True)
+    java_sub.add_parser("list", help="List installed JDKs")
+
+    #stoke c/c++ list
+
     clean_parser = subparsers.add_parser("clean", help="Clean build artifacts")
     clean_parser.add_argument(
         "--all",
@@ -48,6 +55,13 @@ def main():
     )
     watch_parser.add_argument("target", nargs="?", help="Target name")
 
+    # stoke run [target]
+    run_parser = subparsers.add_parser(
+        "run",
+        help="Run the compiled target (currently: Java only)",
+    )
+    run_parser.add_argument("target", nargs="?", help="Target name")
+
     # stoke hot-reload [target]
     hotreload_parser = subparsers.add_parser(
         "hot-reload",
@@ -64,12 +78,17 @@ def main():
     elif args.command == "python":
         if args.python_command == "list":
             cmd_python_list()
+    elif args.command == "java":
+        if args.java_command == "list":
+            cmd_java_list()
     elif args.command == "init":
         cmd_init()
     elif args.command == "watch":
         cmd_watch(args.target)
     elif args.command == "hot-reload":
         cmd_hot_reload(args.target)
+    elif args.command == "run":
+        cmd_run(args.target)
 
 def cmd_build(target_name, force: bool = False):
     try:
@@ -209,6 +228,69 @@ def cmd_python_list():
         default_mark = " (default)" if install.is_default else ""
         print(f"  Python {install.version}{default_mark}")
         print(f"    -> {install.executable}")
+
+def cmd_java_list():
+    from stoke.java_versions import detect_all as detect_java
+
+    installs = detect_java()
+    if not installs:
+        print("No JDK detected.")
+        print("Install a JDK or set the JAVA_HOME environment variable.")
+        return
+
+    print(f"Detected {len(installs)} JDK(s):\n")
+    for install in installs:
+        default_mark = " (default)" if install.is_default else ""
+        print(f"  Java {install.version} (major: {install.major_version}){default_mark}")
+        print(f"    JAVA_HOME: {install.java_home}")
+        print(f"    javac:     {install.javac}")
+        print(f"    java:      {install.java}")
+        print()
+
+def cmd_run(target_name):
+    try:
+        config = load_config()
+    except FileNotFoundError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
+    except ValueError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    if target_name is None:
+        target_name = next(iter(config.targets))
+        print(f"No target specified, running default: {target_name}")
+
+    if target_name not in config.targets:
+        print(
+            f"Error: target '{target_name}' not found in stoke.toml",
+            file=sys.stderr,
+        )
+        print(
+            f"Available targets: {', '.join(config.targets.keys())}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    target = config.targets[target_name]
+    project_root = config.config_path.parent
+
+    if target.language != "java":
+        print(
+            f"Error: 'stoke run' currently only supports Java targets, got '{target.language}'",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    from stoke.adapters import make_adapter
+
+    try:
+        adapter = make_adapter(target, config.project, project_root)
+        exit_code = adapter.run()
+        sys.exit(exit_code)
+    except RuntimeError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
 
 def cmd_watch(target_name):
     try:

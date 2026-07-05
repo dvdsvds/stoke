@@ -17,13 +17,12 @@ def make_adapter(
         from stoke.adapters.python import PythonAdapter
         return PythonAdapter(target, project, project_root)
 
-    # 나중에 자바, C/C++ 추가 예정
-    # elif target.language == "java":
-    #     from stoke.adapters.java import JavaAdapter
-    #     return JavaAdapter(target, project, project_root)
+    if target.language == "java":
+        from stoke.adapters.java import JavaAdapter
+        return JavaAdapter(target, project, project_root)
 
     raise RuntimeError(
         f"Unsupported language: '{target.language}'\n"
-        f"  Currently supported: python\n"
-        f"  Coming soon: java, cpp"
+        f"  Currently supported: python, java\n"
+        f"  Coming soon: cpp"
     )
