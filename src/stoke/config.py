@@ -20,6 +20,9 @@ class Target:
     python_version: str | None = None
     java_version: str | None = None
     main_class: str | None = None
+    c_standard: str | None = None
+    cpp_standard: str | None = None
+    includes: list[str] = field(default_factory=list)
 
 @dataclass
 class Config:
@@ -95,6 +98,9 @@ def load_config(config_path: Path | None = None) -> Config:
         python_version=target_config.get("python_version"),
         java_version=target_config.get("java_version"),
         main_class=target_config.get("main_class"),
+        c_standard=target_config.get("c_standard"),
+        cpp_standard=target_config.get("cpp_standard"),
+        includes=target_config.get("includes", []),
     )
 
     if not targets:

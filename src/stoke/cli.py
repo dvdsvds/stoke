@@ -32,7 +32,15 @@ def main():
     java_sub = java_parser.add_subparsers(dest="java_command", required=True)
     java_sub.add_parser("list", help="List installed JDKs")
 
-    #stoke c/c++ list
+    # stoke c list
+    c_parser = subparsers.add_parser("c", help="C compiler tools")
+    c_sub = c_parser.add_subparsers(dest="c_command", required=True)
+    c_sub.add_parser("list", help="List installed C compilers")
+
+    # stoke cpp list
+    cpp_parser = subparsers.add_parser("cpp", help="C++ compiler tools")
+    cpp_sub = cpp_parser.add_subparsers(dest="cpp_command", required=True)
+    cpp_sub.add_parser("list", help="List installed C++ compilers")
 
     clean_parser = subparsers.add_parser("clean", help="Clean build artifacts")
     clean_parser.add_argument(
@@ -87,6 +95,12 @@ def main():
     elif args.command == "java":
         if args.java_command == "list":
             cmd_java_list()
+    elif args.command == "c":
+        if args.c_command == "list":
+            cmd_c_list()
+    elif args.command == "cpp":
+        if args.cpp_command == "list":
+            cmd_cpp_list()
     elif args.command == "init":
         cmd_init()
     elif args.command == "watch":
@@ -181,6 +195,18 @@ def cmd_clean(target_name: str | None = None, delete_lock: bool = False):
                 shutil.rmtree(lang_target_dir)
                 print(f"Deleted Java target dir: {lang_target_dir}")
                 deleted_count += 1
+        elif target.language == "c":
+            lang_target_dir = project_root / ".stoke" / "c" / name
+            if lang_target_dir.exists():
+                shutil.rmtree(lang_target_dir)
+                print(f"Deleted C target dir: {lang_target_dir}")
+                deleted_count += 1
+        elif target.language == "cpp":
+            lang_target_dir = project_root / ".stoke" / "cpp" / name
+            if lang_target_dir.exists():
+                shutil.rmtree(lang_target_dir)
+                print(f"Deleted C++ target dir: {lang_target_dir}")
+                deleted_count += 1
 
     # 1.5. .stoke/python, .stoke/java 등 언어 폴더가 비었으면 삭제
     for lang in ["python", "java", "c", "cpp"]:
@@ -265,6 +291,39 @@ def cmd_java_list():
         print(f"    JAVA_HOME: {install.java_home}")
         print(f"    javac:     {install.javac}")
         print(f"    java:      {install.java}")
+        print()
+
+def cmd_c_list():
+    from stoke.c_versions import detect_all as detect_c
+
+    installs = [i for i in detect_c() if i.kind == "c"]
+    if not installs:
+        print("No C compiler detected.")
+        print("Install gcc or ensure it's in your PATH.")
+        return
+
+    print(f"Detected {len(installs)} C compiler(s):\n")
+    for install in installs:
+        default_mark = " (default)" if install.is_default else ""
+        print(f"  gcc {install.version} (major: {install.major_version}){default_mark}")
+        print(f"    executable: {install.executable}")
+        print()
+
+
+def cmd_cpp_list():
+    from stoke.c_versions import detect_all as detect_c
+
+    installs = [i for i in detect_c() if i.kind == "cpp"]
+    if not installs:
+        print("No C++ compiler detected.")
+        print("Install g++ or ensure it's in your PATH.")
+        return
+
+    print(f"Detected {len(installs)} C++ compiler(s):\n")
+    for install in installs:
+        default_mark = " (default)" if install.is_default else ""
+        print(f"  g++ {install.version} (major: {install.major_version}){default_mark}")
+        print(f"    executable: {install.executable}")
         print()
 
 def cmd_run(target_name):
