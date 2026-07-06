@@ -18,9 +18,15 @@ class JavaLock:
 
 
 @dataclass
+class JavaDep:
+    version: str
+    sha1: str
+
+@dataclass
 class LockFile:
     python: PythonLock | None
     java: JavaLock | None
+    java_deps: dict[str, JavaDep]
     packages: dict[str, str]
     created_at: str
     stoke_version: str
@@ -68,6 +74,23 @@ def load_lock(project_root: Path, lock_mode: str) -> LockFile | None:
             java_home=java_data.get("java_home", ""),
         )
 
+    # java_deps 파싱
+    java_deps = {}
+    if "java_deps" in data:
+        for name, dep_data in data["java_deps"].items():
+            if not isinstance(dep_data, dict):
+                raise ValueError(
+                    f"Invalid lock file at {path}: java_deps.{name} must be a table"
+                )
+            if "version" not in dep_data:
+                raise ValueError(
+                    f"Invalid lock file at {path}: missing java_deps.{name}.version"
+                )
+            java_deps[name] = JavaDep(
+                version=dep_data["version"],
+                sha1=dep_data.get("sha1", ""),
+            )
+
     if python_lock is None and java_lock is None:
         raise ValueError(
             f"Invalid lock file at {path}: missing [python] or [java] section"
@@ -78,6 +101,7 @@ def load_lock(project_root: Path, lock_mode: str) -> LockFile | None:
     return LockFile(
         python=python_lock,
         java=java_lock,
+        java_deps=java_deps,
         packages=data.get("packages", {}),
         created_at=meta.get("created_at", ""),
         stoke_version=meta.get("stoke_version", ""),
@@ -93,6 +117,7 @@ def save_lock(
     java_major_version: int | None = None,
     java_home: str | None = None,
     packages: dict[str, str] | None = None,
+    java_deps: dict[str, "JavaDep"] | None = None,
 ) -> Path:
     """
     lock 파일 쓰기. 저장된 경로 반환.
@@ -121,6 +146,13 @@ major_version = {java_major_version or 0}
 java_home = "{escaped_home}"
 
 '''
+    # java_deps 섹션
+    if java_deps:
+        content += "[java_deps]\n"
+        for name in sorted(java_deps.keys()):
+            dep = java_deps[name]
+            content += f'"{name}" = {{ version = "{dep.version}", sha1 = "{dep.sha1}" }}\n'
+        content += "\n"
 
     content += "[packages]\n"
     if packages:

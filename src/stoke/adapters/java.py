@@ -160,15 +160,16 @@ class JavaAdapter(BaseAdapter):
         """
         Eclipse/VSCode Java 확장용 .classpath, .project 파일 생성.
         VSCode용 .vscode/settings.json도 생성.
+        IntelliJ 등을 위한 pom.xml도 생성.
         빌드 성공 후에만 호출.
         """
         from stoke.ide.java_eclipse import write_ide_files
         from stoke.ide.vscode import write_project_settings, make_java_settings
+        from stoke.ide.maven import write_pom
 
         source_dirs = self._source_dirs()
         if not source_dirs:
             return
-
         jar_files = self._existing_jars()
 
         # Eclipse 형식 (.classpath, .project)
@@ -184,8 +185,20 @@ class JavaAdapter(BaseAdapter):
         java_settings = make_java_settings(jar_files, self.project_root)
         write_project_settings(self.project_root, java_settings)
 
-        print(f"IDE files generated: .classpath, .project, .vscode/settings.json")
+        # Maven pom.xml (IntelliJ 등)
+        java_version = str(self.target.java_version or "25")
+        write_pom(
+            project_root=self.project_root,
+            project_name=self.target.name,
+            project_version=self.project.version or "0.1.0",
+            java_version=java_version,
+            source_dirs=source_dirs,
+            output_dir=self.classes_dir,
+            deps=self.target.deps or {},
+        )
 
+        print(f"IDE files generated: .classpath, .project, .vscode/settings.json, pom.xml")
+        
     def compile_all(
         self,
         jdk: JavaInstall,
@@ -264,35 +277,62 @@ class JavaAdapter(BaseAdapter):
 
         return results, skipped
 
-    def install_deps(self) -> list[Path]:
+    def install_deps(self) -> dict[str, dict]:
         """
         stoke.toml의 deps를 Maven Central에서 다운로드.
-        반환: 다운로드된 JAR 파일들의 경로 리스트.
+        반환: {name: {"version": str, "sha1": str, "path": Path}}
         """
+        import hashlib
         from stoke.maven import parse_coordinate, download_jar
 
         if not self.target.deps:
-            return []
+            return {}
 
         print(f"Installing {len(self.target.deps)} dependency(ies)...")
 
-        jars = []
+        installed = {}
         for name, version in self.target.deps.items():
             try:
                 coord = parse_coordinate(name, version)
                 jar_path = download_jar(coord, self.deps_dir)
-                jars.append(jar_path)
+                # SHA-1 계산 (다운로드된 파일 기준)
+                sha1 = hashlib.sha1(jar_path.read_bytes()).hexdigest()
+                installed[name] = {
+                    "version": version,
+                    "sha1": sha1,
+                    "path": jar_path,
+                }
             except (ValueError, RuntimeError) as e:
                 raise RuntimeError(f"Failed to install {name}:{version}\n  {e}")
 
-        print(f"  Installed {len(jars)} JAR(s)")
-        return jars
+        print(f"  Installed {len(installed)} JAR(s)")
+        return installed
 
     def _existing_jars(self) -> list[Path]:
         """이미 deps_dir에 있는 JAR 파일들."""
         if not self.deps_dir.exists():
             return []
         return sorted(self.deps_dir.glob("*.jar"))
+
+    def _deps_changed(self, lock, installed_deps: dict[str, dict]) -> bool:
+        """
+        현재 설치된 의존성이 lock 파일과 다른지 확인.
+        다르면 True (lock 갱신 필요), 같으면 False (skip).
+        """
+        if lock is None or not lock.java_deps:
+            return bool(installed_deps)
+
+        if set(lock.java_deps.keys()) != set(installed_deps.keys()):
+            return True
+
+        for name, info in installed_deps.items():
+            lock_dep = lock.java_deps[name]
+            if lock_dep.version != info["version"]:
+                return True
+            if lock_dep.sha1 != info["sha1"]:
+                return True
+
+        return False
 
     def _classpath(self) -> str:
         """
@@ -316,10 +356,11 @@ class JavaAdapter(BaseAdapter):
         print(f"  JAVA_HOME: {jdk.java_home}")
 
         # 의존성 설치
+        installed_deps = {}
         if self.target.deps:
             print("\n--- Installing dependencies ---")
             try:
-                self.install_deps()
+                installed_deps = self.install_deps()
             except RuntimeError as e:
                 self._ensure_gitignore()
                 raise
@@ -355,16 +396,30 @@ class JavaAdapter(BaseAdapter):
             )
 
         # lock 파일 저장
-        need_save_lock = should_update_lock or (
-            lock is None or lock.java is None
+        # deps가 있거나 JDK 정보가 바뀌었으면 lock 갱신
+        need_save_lock = (
+            should_update_lock
+            or lock is None
+            or lock.java is None
+            or self._deps_changed(lock, installed_deps)
         )
         if need_save_lock:
+            # installed_deps를 JavaDep 형식으로 변환
+            from stoke.lock import JavaDep
+            java_deps_for_lock = {}
+            for name, info in installed_deps.items():
+                java_deps_for_lock[name] = JavaDep(
+                    version=info["version"],
+                    sha1=info["sha1"],
+                )
+
             lock_path = save_lock(
                 self.project_root,
                 self.project.lock_mode,
                 java_version=jdk.version,
                 java_major_version=jdk.major_version,
                 java_home=str(jdk.java_home),
+                java_deps=java_deps_for_lock,
             )
             print(f"\nLock file saved: {lock_path}")
 

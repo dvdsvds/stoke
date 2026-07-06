@@ -58,7 +58,7 @@ class BaseAdapter(ABC):
         needed_entries = [".stoke/"]
         # 자바 프로젝트일 경우 IDE 파일도 추가
         if self.target.language == "java":
-            needed_entries.extend([".classpath", ".project"])
+            needed_entries.extend([".classpath", ".project", "pom.xml"])
 
         existing = ""
         if gitignore_path.exists():
