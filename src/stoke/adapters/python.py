@@ -483,3 +483,59 @@ class PythonAdapter(BaseAdapter):
 
         # 빌드 완료 요약
         print(f"\nBuild complete: {self.target.name}")
+
+    def run(self) -> int:
+        """
+        컴파일된 venv 파이썬으로 entry 파일 실행.
+        반환: 종료 코드
+        """
+        if not self.target.entry:
+            raise RuntimeError(
+                f"Target '{self.target.name}' has no 'entry' field in stoke.toml.\n"
+                f"  Add 'entry = \"src/main.py\"' under [targets.{self.target.name}]"
+            )
+
+        entry_path = self.project_root / self.target.entry
+        if not entry_path.exists():
+            raise RuntimeError(
+                f"Entry file not found: {entry_path}\n"
+                f"  Check the 'entry' field in stoke.toml"
+            )
+
+        if not self.venv_exists():
+            raise RuntimeError(
+                f"venv not found at {self.venv_dir}\n"
+                f"  Run 'stoke build' first."
+            )
+
+        venv_python = self.venv_python_exe()
+
+        print(f"Running: {entry_path}\n")
+        result = subprocess.run(
+            [str(venv_python), str(entry_path)],
+            cwd=str(self.project_root),
+        )
+        return result.returncode
+
+    def get_run_command(self) -> list[str]:
+        """hot-reload용 실행 명령어."""
+        if not self.target.entry:
+            raise RuntimeError(
+                f"Target '{self.target.name}' has no 'entry' field in stoke.toml.\n"
+                f"  Add 'entry = \"src/main.py\"' under [targets.{self.target.name}]"
+            )
+
+        entry_path = self.project_root / self.target.entry
+        if not entry_path.exists():
+            raise RuntimeError(
+                f"Entry file not found: {entry_path}\n"
+                f"  Check the 'entry' field in stoke.toml"
+            )
+
+        if not self.venv_exists():
+            raise RuntimeError(
+                f"venv not found at {self.venv_dir}\n"
+                f"  Run 'stoke build' first."
+            )
+
+        return [str(self.venv_python_exe()), str(entry_path)]

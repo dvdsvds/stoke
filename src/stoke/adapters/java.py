@@ -300,3 +300,25 @@ class JavaAdapter(BaseAdapter):
         print(f"Running: {self.target.main_class}\n")
         result = subprocess.run(cmd)
         return result.returncode
+
+    def get_run_command(self) -> list[str]:
+        """hot-reload용 실행 명령어."""
+        if not self.target.main_class:
+            raise RuntimeError(
+                f"Target '{self.target.name}' has no 'main_class' field in stoke.toml.\n"
+                f"  Add 'main_class = \"com.example.Main\"' under [targets.{self.target.name}]"
+            )
+
+        if not self.classes_dir.exists():
+            raise RuntimeError(
+                f"Classes directory not found: {self.classes_dir}\n"
+                f"  Run 'stoke build' first."
+            )
+
+        jdk, _ = self.resolve_jdk()
+
+        return [
+            str(jdk.java),
+            "-cp", str(self.classes_dir),
+            self.target.main_class,
+        ]

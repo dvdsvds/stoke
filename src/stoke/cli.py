@@ -58,7 +58,7 @@ def main():
     # stoke run [target]
     run_parser = subparsers.add_parser(
         "run",
-        help="Run the compiled target (currently: Java only)",
+        help="Run the built target (Python: entry file, Java: main_class)",
     )
     run_parser.add_argument("target", nargs="?", help="Target name")
 
@@ -274,13 +274,6 @@ def cmd_run(target_name):
 
     target = config.targets[target_name]
     project_root = config.config_path.parent
-
-    if target.language != "java":
-        print(
-            f"Error: 'stoke run' currently only supports Java targets, got '{target.language}'",
-            file=sys.stderr,
-        )
-        sys.exit(1)
 
     from stoke.adapters import make_adapter
 

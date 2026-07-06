@@ -29,6 +29,25 @@ class BaseAdapter(ABC):
         """
         pass
 
+    def run(self) -> int:
+        """
+        빌드된 타겟 실행. 반환: 종료 코드.
+        기본 구현은 지원 안 함 에러. 어댑터가 오버라이드.
+        """
+        raise RuntimeError(
+            f"'stoke run' is not supported for language '{self.target.language}'"
+        )
+
+    def get_run_command(self) -> list[str]:
+        """
+        서브프로세스로 실행할 명령어 리스트 반환.
+        hot-reload와 같이 프로세스 관리가 필요한 곳에서 사용.
+        기본 구현은 지원 안 함 에러. 어댑터가 오버라이드.
+        """
+        raise RuntimeError(
+            f"Running as subprocess is not supported for language '{self.target.language}'"
+        )
+
     def _ensure_gitignore(self) -> None:
         """
         .stoke/ 를 .gitignore에 자동 추가.

@@ -11,6 +11,11 @@ from stoke.config import Config, Target
 
 
 DEBOUNCE_SECONDS = 0.3
+# 언어별 소스 파일 확장자
+LANGUAGE_EXTENSIONS = {
+    "python": {".py"},
+    "java": {".java"},
+}
 
 
 class _DebouncedHandler(FileSystemEventHandler):
@@ -138,8 +143,13 @@ def watch(target: Target, config: Config, project_root: Path):
             f"Check the 'sources' patterns in stoke.toml."
         )
 
-    # 소스 확장자 (지금은 파이썬만)
-    source_extensions = {".py"}
+    # 언어별 소스 확장자 결정
+    source_extensions = LANGUAGE_EXTENSIONS.get(target.language)
+    if not source_extensions:
+        raise RuntimeError(
+            f"Watch mode not supported for language '{target.language}'.\n"
+            f"  Supported: {', '.join(sorted(LANGUAGE_EXTENSIONS.keys()))}"
+        )
 
     # 첫 빌드
     _run_build(target, config, project_root)

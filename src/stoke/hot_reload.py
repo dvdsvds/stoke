@@ -1,4 +1,3 @@
-import signal
 import subprocess
 import sys
 import time
@@ -8,9 +7,8 @@ from pathlib import Path
 from watchdog.observers import Observer
 
 from stoke.adapters import make_adapter
-from stoke.adapters.python import PythonAdapter
 from stoke.config import Config, Target
-from stoke.watcher import _DebouncedHandler, _watch_roots_from_target
+from stoke.watcher import _DebouncedHandler, _watch_roots_from_target, LANGUAGE_EXTENSIONS
 
 
 GRACEFUL_TIMEOUT_SECONDS = 5
@@ -18,13 +16,17 @@ GRACEFUL_TIMEOUT_SECONDS = 5
 
 class ProcessManager:
     """
-    entry 파일을 서브프로세스로 실행하고 재시작을 관리.
+    빌드된 타겟을 서브프로세스로 실행하고 재시작을 관리.
+    실행 명령은 어댑터의 get_run_command()에서 얻음.
     """
 
-    def __init__(self, venv_python: Path, entry: Path, project_root: Path):
-        self.venv_python = venv_python
-        self.entry = entry
+    def __init__(self, project_root: Path, get_command):
+        """
+        project_root: 프로젝트 루트 (subprocess의 cwd)
+        get_command: 실행할 명령어 리스트를 반환하는 콜러블 (매 시작마다 새로 호출)
+        """
         self.project_root = project_root
+        self._get_command = get_command
         self._process: subprocess.Popen | None = None
         self._lock = threading.Lock()
 
@@ -34,10 +36,19 @@ class ProcessManager:
             if self._process is not None and self._process.poll() is None:
                 return
 
-            print(f"[hot-reload] Starting: {self.entry}")
+            try:
+                cmd = self._get_command()
+            except RuntimeError as e:
+                print(f"[hot-reload] Cannot start process: {e}", file=sys.stderr)
+                self._process = None
+                return
+
+            # 사용자한테 뭘 실행하는지 짧게 표시
+            display = cmd[-1] if cmd else "?"
+            print(f"[hot-reload] Starting: {display}")
             try:
                 self._process = subprocess.Popen(
-                    [str(self.venv_python), str(self.entry)],
+                    cmd,
                     cwd=str(self.project_root),
                 )
             except OSError as e:
@@ -110,23 +121,11 @@ def _run_build(target: Target, config: Config, project_root: Path) -> bool:
 
 def hot_reload(target: Target, config: Config, project_root: Path):
     """hot-reload 진입점."""
-    if target.language != "python":
+    # 언어 지원 여부 확인
+    if target.language not in LANGUAGE_EXTENSIONS:
         raise RuntimeError(
-            f"Hot-reload currently only supports Python targets, got '{target.language}'"
-        )
-
-    if not target.entry:
-        raise RuntimeError(
-            f"Target '{target.name}' has no 'entry' field in stoke.toml.\n"
-            f"  Hot-reload needs an entry file to execute.\n"
-            f"  Add 'entry = \"path/to/main.py\"' under [targets.{target.name}]"
-        )
-
-    entry_path = project_root / target.entry
-    if not entry_path.exists():
-        raise RuntimeError(
-            f"Entry file not found: {entry_path}\n"
-            f"  Check the 'entry' field in stoke.toml"
+            f"Hot-reload not supported for language '{target.language}'.\n"
+            f"  Supported: {', '.join(sorted(LANGUAGE_EXTENSIONS.keys()))}"
         )
 
     # 감시 루트 결정
@@ -140,12 +139,32 @@ def hot_reload(target: Target, config: Config, project_root: Path):
     # 첫 빌드
     build_ok = _run_build(target, config, project_root)
 
-    # venv 파이썬 경로 (빌드 성공 후에만 정확히 알 수 있음)
-    adapter = PythonAdapter(target, config.project, project_root)
-    venv_python = adapter.venv_python_exe()
+    # 실행 명령어를 얻는 콜러블 (매번 새 어댑터로 최신 상태 반영)
+    def get_run_command() -> list[str]:
+        adapter = make_adapter(target, config.project, project_root)
+        return adapter.get_run_command()
 
     # 프로세스 매니저 초기화
-    manager = ProcessManager(venv_python, entry_path, project_root)
+    manager = ProcessManager(project_root, get_run_command)
+
+    # 감시 루트 결정
+    roots = _watch_roots_from_target(project_root, target)
+    if not roots:
+        raise RuntimeError(
+            f"No watchable directories found for target '{target.name}'. "
+            f"Check the 'sources' patterns in stoke.toml."
+        )
+
+    # 첫 빌드
+    build_ok = _run_build(target, config, project_root)
+
+    # 실행 명령어를 얻는 콜러블 (매번 새 어댑터로 최신 상태 반영)
+    def get_run_command() -> list[str]:
+        adapter = make_adapter(target, config.project, project_root)
+        return adapter.get_run_command()
+
+    # 프로세스 매니저 초기화
+    manager = ProcessManager(project_root, get_run_command)
 
     # 첫 빌드 성공하면 프로세스 시작
     if build_ok:
@@ -175,7 +194,8 @@ def hot_reload(target: Target, config: Config, project_root: Path):
             print("[hot-reload] Waiting for fixes...")
 
     # 옵저버 설정
-    handler = _DebouncedHandler(on_change, {".py"})
+    source_extensions = LANGUAGE_EXTENSIONS[target.language]
+    handler = _DebouncedHandler(on_change, source_extensions)
     observer = Observer()
     for root in roots:
         observer.schedule(handler, str(root), recursive=True)
