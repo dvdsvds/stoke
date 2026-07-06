@@ -34,7 +34,8 @@ class PythonAdapter(BaseAdapter):
         project_root: Path,
     ):
         super().__init__(target, project, project_root)
-        self.venv_dir = project_root / ".stoke" / "venv" / target.name
+        self.lang_dir = project_root / ".stoke" / "python" / target.name
+        self.venv_dir = self.lang_dir / "venv"
 
     def resolve_python(self) -> tuple[PythonInstall, bool]:
         """
@@ -481,7 +482,17 @@ class PythonAdapter(BaseAdapter):
         # .gitignore 관리
         self._ensure_gitignore()
 
-        # 빌드 완료 요약
+        # VSCode 설정 생성
+        from stoke.ide.vscode import write_project_settings, make_python_settings
+
+        if self.venv_exists():
+            python_settings = make_python_settings(
+                self.venv_python_exe(),
+                self.project_root,
+            )
+            write_project_settings(self.project_root, python_settings)
+            print(f"IDE files generated: .vscode/settings.json")
+
         print(f"\nBuild complete: {self.target.name}")
 
     def run(self) -> int:

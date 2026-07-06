@@ -56,6 +56,9 @@ class BaseAdapter(ABC):
         gitignore_path = self.project_root / ".gitignore"
 
         needed_entries = [".stoke/"]
+        # 자바 프로젝트일 경우 IDE 파일도 추가
+        if self.target.language == "java":
+            needed_entries.extend([".classpath", ".project"])
 
         existing = ""
         if gitignore_path.exists():
@@ -71,13 +74,15 @@ class BaseAdapter(ABC):
                 added.append(entry)
 
         if added:
+            has_stoke_header = "# Added by stoke" in existing
             with open(gitignore_path, "a", encoding="utf-8") as f:
                 if existing and not existing.endswith("\n"):
                     f.write("\n")
-                if existing:
-                    f.write("\n# Added by stoke\n")
-                else:
-                    f.write("# Added by stoke\n")
+                if not has_stoke_header:
+                    if existing:
+                        f.write("\n# Added by stoke\n")
+                    else:
+                        f.write("# Added by stoke\n")
                 for entry in added:
                     f.write(f"{entry}\n")
             print(f"Updated .gitignore: added {', '.join(added)}")

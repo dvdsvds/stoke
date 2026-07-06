@@ -1,5 +1,6 @@
 import argparse
 import sys
+from pathlib import Path
 
 from stoke.adapters import make_adapter
 from stoke.config import load_config
@@ -62,6 +63,11 @@ def main():
     )
     run_parser.add_argument("target", nargs="?", help="Target name")
 
+    subparsers.add_parser(
+        "ide-sync",
+        help="Scan for stoke projects and generate workspace .vscode/settings.json",
+    )
+
     # stoke hot-reload [target]
     hotreload_parser = subparsers.add_parser(
         "hot-reload",
@@ -89,6 +95,8 @@ def main():
         cmd_hot_reload(args.target)
     elif args.command == "run":
         cmd_run(args.target)
+    elif args.command == "ide-sync":
+        cmd_ide_sync()
 
 def cmd_build(target_name, force: bool = False):
     try:
@@ -155,18 +163,30 @@ def cmd_clean(target_name: str | None = None, delete_lock: bool = False):
 
     deleted_count = 0
 
-    # 1. venv 삭제 (타겟별)
+    # 1. 언어별 타겟 폴더 삭제
     for name in targets_to_clean:
-        venv_dir = project_root / ".stoke" / "venv" / name
-        if venv_dir.exists():
-            shutil.rmtree(venv_dir)
-            print(f"Deleted venv: {venv_dir}")
-            deleted_count += 1
+        target = config.targets.get(name)
+        if target is None:
+            continue
 
-    # 1.5. .stoke/venv/ 상위 폴더가 비었으면 삭제
-    venv_parent = project_root / ".stoke" / "venv"
-    if venv_parent.exists() and not any(venv_parent.iterdir()):
-        venv_parent.rmdir()
+        if target.language == "python":
+            lang_target_dir = project_root / ".stoke" / "python" / name
+            if lang_target_dir.exists():
+                shutil.rmtree(lang_target_dir)
+                print(f"Deleted Python target dir: {lang_target_dir}")
+                deleted_count += 1
+        elif target.language == "java":
+            lang_target_dir = project_root / ".stoke" / "java" / name
+            if lang_target_dir.exists():
+                shutil.rmtree(lang_target_dir)
+                print(f"Deleted Java target dir: {lang_target_dir}")
+                deleted_count += 1
+
+    # 1.5. .stoke/python, .stoke/java 등 언어 폴더가 비었으면 삭제
+    for lang in ["python", "java", "c", "cpp"]:
+        lang_parent = project_root / ".stoke" / lang
+        if lang_parent.exists() and not any(lang_parent.iterdir()):
+            lang_parent.rmdir()
 
     # 2. __pycache__ 삭제 (프로젝트 루트 하위 전체, .stoke 제외)
     pycache_count = 0
@@ -284,6 +304,77 @@ def cmd_run(target_name):
     except RuntimeError as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
+
+def cmd_ide_sync():
+    from stoke.ide.vscode import (
+        find_stoke_projects,
+        make_workspace_settings,
+        write_project_settings,
+    )
+    import tomllib
+
+    root = Path.cwd()
+    print(f"Scanning for stoke projects under {root}...")
+
+    projects = find_stoke_projects(root)
+    if not projects:
+        print("No stoke projects found.")
+        return
+
+    print(f"Found {len(projects)} project(s):")
+
+    # 언어별로 분류
+    projects_by_language = {}
+    for project_path in projects:
+        stoke_toml = project_path / "stoke.toml"
+        try:
+            with open(stoke_toml, "rb") as f:
+                data = tomllib.load(f)
+        except (OSError, tomllib.TOMLDecodeError) as e:
+            print(f"  Skipping {project_path.name} (invalid stoke.toml): {e}")
+            continue
+
+        targets = data.get("targets", {})
+        if not targets:
+            print(f"  Skipping {project_path.name} (no targets)")
+            continue
+
+        # 첫 번째 타겟의 언어 사용 (여러 타겟 있어도 대표)
+        first_target = next(iter(targets.values()))
+        language = first_target.get("language")
+        if not language:
+            print(f"  Skipping {project_path.name} (no language)")
+            continue
+
+        # 상대 경로 계산
+        try:
+            rel_path = project_path.relative_to(root)
+        except ValueError:
+            rel_path = project_path
+
+        print(f"  [{language}] {rel_path}")
+
+        if language not in projects_by_language:
+            projects_by_language[language] = []
+
+        # 파이썬은 dict로 (경로 정보 여러 개 필요)
+        if language == "python":
+            projects_by_language[language].append({
+                "absolute": project_path,
+                "relative": rel_path,
+            })
+        else:
+            # 자바 등은 상대 경로만
+            projects_by_language[language].append(rel_path)
+
+    # 워크스페이스 설정 생성
+    settings = make_workspace_settings(projects_by_language)
+    if not settings:
+        print("No settings to generate.")
+        return
+
+    settings_path = write_project_settings(root, settings)
+    print(f"\nGenerated: {settings_path}")
 
 def cmd_watch(target_name):
     try:

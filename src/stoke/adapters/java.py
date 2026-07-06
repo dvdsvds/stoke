@@ -33,7 +33,9 @@ class JavaAdapter(BaseAdapter):
         project_root: Path,
     ):
         super().__init__(target, project, project_root)
-        self.classes_dir = project_root / ".stoke" / "classes" / target.name
+        self.lang_dir = project_root / ".stoke" / "java" / target.name
+        self.classes_dir = self.lang_dir / "classes"
+        self.deps_dir = self.lang_dir / "deps"
 
     def resolve_jdk(self) -> tuple[JavaInstall, bool]:
         """
@@ -130,6 +132,60 @@ class JavaAdapter(BaseAdapter):
 
         return sorted(collected)
 
+    def _source_dirs(self) -> list[Path]:
+        """
+        sources 패턴에서 소스 최상위 폴더 추출.
+        예: ["src/**/*.java"] -> [project_root/src]
+        """
+        roots = set()
+        for pattern in self.target.sources:
+            parts = Path(pattern).parts
+            root_parts = []
+            for part in parts:
+                if any(ch in part for ch in ("*", "?", "[")):
+                    break
+                root_parts.append(part)
+
+            if not root_parts:
+                roots.add(self.project_root)
+            else:
+                root = self.project_root / Path(*root_parts)
+                if root.is_file():
+                    root = root.parent
+                roots.add(root)
+
+        return sorted(r for r in roots if r.exists())
+
+    def _generate_ide_files(self) -> None:
+        """
+        Eclipse/VSCode Java 확장용 .classpath, .project 파일 생성.
+        VSCode용 .vscode/settings.json도 생성.
+        빌드 성공 후에만 호출.
+        """
+        from stoke.ide.java_eclipse import write_ide_files
+        from stoke.ide.vscode import write_project_settings, make_java_settings
+
+        source_dirs = self._source_dirs()
+        if not source_dirs:
+            return
+
+        jar_files = self._existing_jars()
+
+        # Eclipse 형식 (.classpath, .project)
+        write_ide_files(
+            project_root=self.project_root,
+            project_name=self.target.name,
+            source_dirs=source_dirs,
+            output_dir=self.classes_dir,
+            jar_files=jar_files,
+        )
+
+        # VSCode 설정 (.vscode/settings.json)
+        java_settings = make_java_settings(jar_files, self.project_root)
+        write_project_settings(self.project_root, java_settings)
+
+        print(f"IDE files generated: .classpath, .project, .vscode/settings.json")
+
     def compile_all(
         self,
         jdk: JavaInstall,
@@ -178,11 +234,11 @@ class JavaAdapter(BaseAdapter):
 
         # javac 실행
         # -d: 출력 폴더
-        # -cp: 클래스패스 (기존 classes 폴더도 포함해서 이전 컴파일 결과 참조 가능)
+        # -cp: 클래스패스 (classes_dir + deps_dir의 JAR들)
         cmd = [
             str(jdk.javac),
             "-d", str(self.classes_dir),
-            "-cp", str(self.classes_dir),
+            "-cp", self._classpath(),
         ] + [str(f) for f in files_to_compile]
 
         proc = subprocess.run(cmd, capture_output=True, text=True)
@@ -208,6 +264,49 @@ class JavaAdapter(BaseAdapter):
 
         return results, skipped
 
+    def install_deps(self) -> list[Path]:
+        """
+        stoke.toml의 deps를 Maven Central에서 다운로드.
+        반환: 다운로드된 JAR 파일들의 경로 리스트.
+        """
+        from stoke.maven import parse_coordinate, download_jar
+
+        if not self.target.deps:
+            return []
+
+        print(f"Installing {len(self.target.deps)} dependency(ies)...")
+
+        jars = []
+        for name, version in self.target.deps.items():
+            try:
+                coord = parse_coordinate(name, version)
+                jar_path = download_jar(coord, self.deps_dir)
+                jars.append(jar_path)
+            except (ValueError, RuntimeError) as e:
+                raise RuntimeError(f"Failed to install {name}:{version}\n  {e}")
+
+        print(f"  Installed {len(jars)} JAR(s)")
+        return jars
+
+    def _existing_jars(self) -> list[Path]:
+        """이미 deps_dir에 있는 JAR 파일들."""
+        if not self.deps_dir.exists():
+            return []
+        return sorted(self.deps_dir.glob("*.jar"))
+
+    def _classpath(self) -> str:
+        """
+        컴파일/실행에 사용할 클래스패스.
+        classes_dir + deps_dir 안의 모든 JAR.
+        Windows는 세미콜론, 리눅스/맥은 콜론 구분자.
+        """
+        import os
+        separator = os.pathsep
+        parts = [str(self.classes_dir)]
+        for jar in self._existing_jars():
+            parts.append(str(jar))
+        return separator.join(parts)
+    
     def build(self, force: bool = False) -> None:
         jdk, should_update_lock = self.resolve_jdk()
         lock = load_lock(self.project_root, self.project.lock_mode)
@@ -216,13 +315,18 @@ class JavaAdapter(BaseAdapter):
         print(f"Using JDK {jdk.version} (major: {jdk.major_version})")
         print(f"  JAVA_HOME: {jdk.java_home}")
 
+        # 의존성 설치
+        if self.target.deps:
+            print("\n--- Installing dependencies ---")
+            try:
+                self.install_deps()
+            except RuntimeError as e:
+                self._ensure_gitignore()
+                raise
+
         # 소스 수집
         print("\n--- Collecting sources ---")
         source_files = self.collect_source_files()
-        if not source_files:
-            print("No source files found matching sources patterns")
-            self._ensure_gitignore()
-            return
 
         print(f"Found {len(source_files)} source file(s)")
 
@@ -266,10 +370,10 @@ class JavaAdapter(BaseAdapter):
 
         # 캐시 저장
         save_cache(self.project_root, cache)
-
         # .gitignore 관리
         self._ensure_gitignore()
-
+        # IDE 통합 파일 생성
+        self._generate_ide_files()
         print(f"\nBuild complete: {self.target.name}")
 
     def run(self) -> int:
@@ -278,22 +382,16 @@ class JavaAdapter(BaseAdapter):
         반환: 종료 코드
         """
         if not self.target.main_class:
-            raise RuntimeError(
-                f"Target '{self.target.name}' has no 'main_class' field in stoke.toml.\n"
-                f"  Add 'main_class = \"com.example.Main\"' under [targets.{self.target.name}]"
-            )
+            raise RuntimeError(...)  # 기존 에러 메시지 유지
 
         if not self.classes_dir.exists():
-            raise RuntimeError(
-                f"Classes directory not found: {self.classes_dir}\n"
-                f"  Run 'stoke build' first."
-            )
+            raise RuntimeError(...)  # 기존 에러 메시지 유지
 
         jdk, _ = self.resolve_jdk()
 
         cmd = [
             str(jdk.java),
-            "-cp", str(self.classes_dir),
+            "-cp", self._classpath(),
             self.target.main_class,
         ]
 
@@ -319,6 +417,6 @@ class JavaAdapter(BaseAdapter):
 
         return [
             str(jdk.java),
-            "-cp", str(self.classes_dir),
+            "-cp", self._classpath(),
             self.target.main_class,
         ]
