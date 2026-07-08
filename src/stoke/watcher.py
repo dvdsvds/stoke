@@ -15,6 +15,8 @@ DEBOUNCE_SECONDS = 0.3
 LANGUAGE_EXTENSIONS = {
     "python": {".py"},
     "java": {".java"},
+    "c": {".c", ".h"},
+    "cpp": {".cpp", ".hpp", ".cc", ".hh"},
 }
 
 

@@ -28,11 +28,9 @@ def _prompt_choice(question: str, choices: list[str], default_index: int = 0) ->
         answer = input(f"Select [1-{len(choices)}, default {default_index + 1}]: ").strip()
         if not answer:
             return default_index
-
         if not answer.isdigit():
             print(f"  Please enter a number between 1 and {len(choices)}")
             continue
-
         num = int(answer)
         if 1 <= num <= len(choices):
             return num - 1
@@ -93,14 +91,75 @@ def _select_lock_mode() -> str:
     )
     return "commit" if selected == 0 else "local"
 
+def _select_language() -> str:
+    """언어 선택. 반환: 'python', 'java', 'c', 'cpp'."""
+    choices = [
+        "Python  (.py)",
+        "Java    (.java)",
+        "C       (.c)",
+        "C++     (.cpp)",
+    ]
+    languages = ["python", "java", "c", "cpp"]
+    selected = _prompt_choice(
+        "Language:",
+        choices,
+        default_index=0,
+    )
+    return languages[selected]
 
-def _write_stoke_toml(
+def _select_java_version() -> str:
+    """자바 JDK 감지 후 버전 선택."""
+    from stoke.java_versions import detect_all as detect_java
+
+    installs = detect_java()
+    if not installs:
+        print("No JDK detected. Please install a JDK first.")
+        version = _prompt("Java version (e.g. 21)", default="21")
+        return version
+
+    print("\nDetected JDKs:")
+    choices = []
+    for install in installs:
+        choices.append(f"Java {install.version} ({install.java_home})")
+
+    selected = _prompt_choice(
+        "JDK:",
+        choices,
+        default_index=0,
+    )
+    return str(installs[selected].major_version)
+
+
+def _select_c_standard() -> str:
+    """C 표준 선택."""
+    choices = ["c17", "c11", "c99", "c89"]
+    standards = ["c17", "c11", "c99", "c89"]
+    selected = _prompt_choice(
+        "C standard:",
+        choices,
+        default_index=0,
+    )
+    return standards[selected]
+
+
+def _select_cpp_standard() -> str:
+    """C++ 표준 선택."""
+    choices = ["c++17", "c++20", "c++23", "c++14", "c++11"]
+    standards = ["c++17", "c++20", "c++23", "c++14", "c++11"]
+    selected = _prompt_choice(
+        "C++ standard:",
+        choices,
+        default_index=0,
+    )
+    return standards[selected]
+
+def _write_stoke_toml_python(
     path: Path,
     project_name: str,
     python_version: str,
     lock_mode: str,
 ) -> None:
-    """stoke.toml 파일 쓰기."""
+    """파이썬 프로젝트용 stoke.toml 쓰기."""
     content = f'''[project]
 name = "{project_name}"
 version = "0.1.0"
@@ -116,7 +175,141 @@ entry = "src/main.py"
 '''
     path.write_text(content, encoding="utf-8")
 
+def _write_stoke_toml_java(
+    path: Path,
+    project_name: str,
+    java_version: str,
+    main_class: str,
+    lock_mode: str,
+) -> None:
+    """자바 프로젝트용 stoke.toml 쓰기."""
+    content = f'''[project]
+name = "{project_name}"
+version = "0.1.0"
+lock_mode = "{lock_mode}"
 
+[targets.{project_name}]
+language = "java"
+java_version = "{java_version}"
+sources = ["src/**/*.java"]
+main_class = "{main_class}"
+
+[targets.{project_name}.deps]
+'''
+    path.write_text(content, encoding="utf-8")
+
+def _write_stoke_toml_c(
+    path: Path,
+    project_name: str,
+    c_standard: str,
+    lock_mode: str,
+) -> None:
+    """C 프로젝트용 stoke.toml 쓰기."""
+    content = f'''[project]
+name = "{project_name}"
+version = "0.1.0"
+lock_mode = "{lock_mode}"
+
+[targets.{project_name}]
+language = "c"
+c_standard = "{c_standard}"
+sources = ["src/**/*.c"]
+'''
+    path.write_text(content, encoding="utf-8")
+
+def _write_stoke_toml_cpp(
+    path: Path,
+    project_name: str,
+    cpp_standard: str,
+    lock_mode: str,
+) -> None:
+    """C++ 프로젝트용 stoke.toml 쓰기."""
+    content = f'''[project]
+name = "{project_name}"
+version = "0.1.0"
+lock_mode = "{lock_mode}"
+
+[targets.{project_name}]
+language = "cpp"
+cpp_standard = "{cpp_standard}"
+sources = ["src/**/*.cpp"]
+'''
+    path.write_text(content, encoding="utf-8")
+
+def _write_example_python(project_root: Path) -> None:
+    """파이썬 예시 파일 생성."""
+    src_dir = project_root / "src"
+    src_dir.mkdir(exist_ok=True)
+    main_path = src_dir / "main.py"
+    if not main_path.exists():
+        main_path.write_text(
+            'def main():\n'
+            '    print("Hello from stoke!")\n'
+            '\n'
+            '\n'
+            'if __name__ == "__main__":\n'
+            '    main()\n',
+            encoding="utf-8",
+        )
+
+
+def _write_example_java(project_root: Path, project_name: str) -> tuple[Path, str]:
+    """
+    자바 예시 파일 생성.
+    반환: (main.java 경로, main_class 문자열)
+    """
+    # 패키지 이름은 프로젝트 이름 소문자로 (자바 관례)
+    package_name = project_name.lower().replace("-", "_")
+    src_dir = project_root / "src" / package_name
+    src_dir.mkdir(parents=True, exist_ok=True)
+
+    main_path = src_dir / "Main.java"
+    if not main_path.exists():
+        main_path.write_text(
+            f'package {package_name};\n'
+            '\n'
+            'public class Main {\n'
+            '    public static void main(String[] args) {\n'
+            '        System.out.println("Hello from stoke!");\n'
+            '    }\n'
+            '}\n',
+            encoding="utf-8",
+        )
+
+    return main_path, f"{package_name}.Main"
+
+
+def _write_example_c(project_root: Path) -> None:
+    """C 예시 파일 생성."""
+    src_dir = project_root / "src"
+    src_dir.mkdir(exist_ok=True)
+    main_path = src_dir / "main.c"
+    if not main_path.exists():
+        main_path.write_text(
+            '#include <stdio.h>\n'
+            '\n'
+            'int main(void) {\n'
+            '    printf("Hello from stoke!\\n");\n'
+            '    return 0;\n'
+            '}\n',
+            encoding="utf-8",
+        )
+
+def _write_example_cpp(project_root: Path) -> None:
+    """C++ 예시 파일 생성."""
+    src_dir = project_root / "src"
+    src_dir.mkdir(exist_ok=True)
+    main_path = src_dir / "main.cpp"
+    if not main_path.exists():
+        main_path.write_text(
+            '#include <iostream>\n'
+            '\n'
+            'int main() {\n'
+            '    std::cout << "Hello from stoke!" << std::endl;\n'
+            '    return 0;\n'
+            '}\n',
+            encoding="utf-8",
+        )
 def cmd_init() -> None:
     """대화형 프로젝트 초기화."""
     cwd = Path.cwd()
@@ -135,7 +328,7 @@ def cmd_init() -> None:
     default_name = cwd.name
     project_name = _prompt("Project name", default=default_name)
 
-    # 프로젝트 이름 검증: 파이썬 식별자 규칙 (간단 버전)
+    # 프로젝트 이름 검증
     if not project_name.replace("_", "").replace("-", "").isalnum():
         print(
             f"Error: project name '{project_name}' contains invalid characters",
@@ -143,25 +336,54 @@ def cmd_init() -> None:
         )
         sys.exit(1)
 
-    # 2. 파이썬 버전 선택
-    installs = detect_all()
-    python_version = _select_python_version(installs)
+    # 2. 언어 선택
+    language = _select_language()
 
-    # 3. lock 모드 선택
+    # 3. 언어별 프롬프트
+    if language == "python":
+        installs = detect_all()
+        python_version = _select_python_version(installs)
+        version_info = f"Python version:  {python_version}"
+    elif language == "java":
+        java_version = _select_java_version()
+        version_info = f"Java version:    {java_version}"
+    elif language == "c":
+        c_standard = _select_c_standard()
+        version_info = f"C standard:      {c_standard}"
+    elif language == "cpp":
+        cpp_standard = _select_cpp_standard()
+        version_info = f"C++ standard:    {cpp_standard}"
+
+    # 4. lock 모드 선택
     lock_mode = _select_lock_mode()
 
-    # 4. 최종 확인
+    # 5. 최종 확인
     print("\n=== Summary ===")
-    print(f"  Project name:   {project_name}")
-    print(f"  Python version: {python_version}")
-    print(f"  Lock mode:      {lock_mode}")
-    print(f"  Config file:    {stoke_toml_path}")
+    print(f"  Project name:    {project_name}")
+    print(f"  Language:        {language}")
+    print(f"  {version_info}")
+    print(f"  Lock mode:       {lock_mode}")
+    print(f"  Config file:     {stoke_toml_path}")
 
     if not _prompt_yes_no("\nCreate stoke.toml?", default=True):
         print("Aborted.")
         return
 
-    # 5. stoke.toml 생성
-    _write_stoke_toml(stoke_toml_path, project_name, python_version, lock_mode)
+    # 6. 언어별 stoke.toml 생성 + 예시 파일 생성
+    if language == "python":
+        _write_stoke_toml_python(stoke_toml_path, project_name, python_version, lock_mode)
+        _write_example_python(cwd)
+    elif language == "java":
+        _, main_class = _write_example_java(cwd, project_name)
+        _write_stoke_toml_java(
+            stoke_toml_path, project_name, java_version, main_class, lock_mode
+        )
+    elif language == "c":
+        _write_stoke_toml_c(stoke_toml_path, project_name, c_standard, lock_mode)
+        _write_example_c(cwd)
+    elif language == "cpp":
+        _write_stoke_toml_cpp(stoke_toml_path, project_name, cpp_standard, lock_mode)
+        _write_example_cpp(cwd)
+
     print(f"\nCreated {stoke_toml_path}")
     print("Next: run 'stoke build' to build your project.")

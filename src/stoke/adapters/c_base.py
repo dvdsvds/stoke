@@ -17,7 +17,7 @@ from stoke.cache import (
 )
 from stoke.c_versions import CompilerInstall, find_compiler
 from stoke.config import Target, ProjectInfo
-
+from stoke.lock import load_lock, save_lock
 
 @dataclass
 class CompileResult:
@@ -255,10 +255,76 @@ class CBaseAdapter(BaseAdapter):
             error_msg = proc.stderr.strip() or proc.stdout.strip()
             raise RuntimeError(f"Link failed:\n{error_msg}")
 
+    def _generate_ide_files(self, compiler: CompilerInstall, source_files: list[Path]) -> None:
+        """
+        C/C++ IDE 통합용 compile_commands.json 생성.
+        """
+        from stoke.ide.c_compile_commands import write_compile_commands
+
+        write_compile_commands(
+            project_root=self.project_root,
+            compiler_path=compiler.executable,
+            source_files=source_files,
+            objects_dir=self.objects_dir,
+            include_dirs=self._include_dirs(),
+            standard=self._get_standard(),
+            standard_flag_prefix=self.standard_flag_prefix,
+        )
+
+        print(f"IDE files generated: compile_commands.json")
+    def _lock_changed(self, lock, compiler: CompilerInstall) -> bool:
+        """
+        lock 파일의 컴파일러 정보가 현재랑 다른지 확인.
+        다르면 True (저장 필요), 같으면 False (skip).
+        """
+        if lock is None:
+            return True
+
+        # 현재 언어에 해당하는 lock 필드 가져오기
+        current_lock = lock.c if self.compiler_kind == "c" else lock.cpp
+
+        if current_lock is None:
+            return True
+
+        standard = self._get_standard() or ""
+        if (current_lock.version != compiler.version
+                or current_lock.executable != str(compiler.executable)
+                or current_lock.standard != standard):
+            return True
+
+        return False
+
+    def _save_lock(self, compiler: CompilerInstall) -> None:
+        """
+        lock 파일에 현재 컴파일러 정보 저장.
+        """
+        standard = self._get_standard() or ""
+
+        if self.compiler_kind == "c":
+            lock_path = save_lock(
+                self.project_root,
+                self.project.lock_mode,
+                c_compiler="gcc",
+                c_version=compiler.version,
+                c_executable=str(compiler.executable),
+                c_standard=standard,
+            )
+        else:  # cpp
+            lock_path = save_lock(
+                self.project_root,
+                self.project.lock_mode,
+                cpp_compiler="g++",
+                cpp_version=compiler.version,
+                cpp_executable=str(compiler.executable),
+                cpp_standard=standard,
+            )
+
+        print(f"\nLock file saved: {lock_path}")
+        
     def build(self, force: bool = False) -> None:
         compiler = self.resolve_compiler()
         cache = load_cache(self.project_root)
-
+        lock = load_lock(self.project_root, self.project.lock_mode)
         print(f"Using {self.compiler_kind} compiler {compiler.version}")
         print(f"  executable: {compiler.executable}")
 
@@ -305,10 +371,13 @@ class CBaseAdapter(BaseAdapter):
 
         # 캐시 저장
         save_cache(self.project_root, cache)
-
+        # lock 파일 저장 (변경 시에만)
+        if self._lock_changed(lock, compiler):
+            self._save_lock(compiler)
         # .gitignore 관리
         self._ensure_gitignore()
-
+        # IDE 통합 파일 생성
+        self._generate_ide_files(compiler, source_files)
         print(f"\nBuild complete: {self.target.name}")
 
     def run(self) -> int:

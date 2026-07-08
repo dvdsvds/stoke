@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
+from stoke import __version__
 
 @dataclass
 class PythonLock:
@@ -16,17 +17,32 @@ class JavaLock:
     major_version: int
     java_home: str
 
-
 @dataclass
 class JavaDep:
     version: str
     sha1: str
 
 @dataclass
+class CLock:
+    compiler: str      # "gcc"
+    version: str       # "15.2.0"
+    executable: str
+    standard: str      # "c17"
+
+@dataclass
+class CppLock:
+    compiler: str      # "g++"
+    version: str       # "15.2.0"
+    executable: str
+    standard: str      # "c++17"
+
+@dataclass
 class LockFile:
     python: PythonLock | None
     java: JavaLock | None
     java_deps: dict[str, JavaDep]
+    c: CLock | None
+    cpp: CppLock | None
     packages: dict[str, str]
     created_at: str
     stoke_version: str
@@ -91,9 +107,35 @@ def load_lock(project_root: Path, lock_mode: str) -> LockFile | None:
                 sha1=dep_data.get("sha1", ""),
             )
 
-    if python_lock is None and java_lock is None:
+    # c 파싱
+    c_lock = None
+    if "c" in data:
+        c_data = data["c"]
+        if "version" not in c_data:
+            raise ValueError(f"Invalid lock file at {path}: missing c.version")
+        c_lock = CLock(
+            compiler=c_data.get("compiler", "gcc"),
+            version=c_data["version"],
+            executable=c_data.get("executable", ""),
+            standard=c_data.get("standard", ""),
+        )
+
+    # cpp 파싱
+    cpp_lock = None
+    if "cpp" in data:
+        cpp_data = data["cpp"]
+        if "version" not in cpp_data:
+            raise ValueError(f"Invalid lock file at {path}: missing cpp.version")
+        cpp_lock = CppLock(
+            compiler=cpp_data.get("compiler", "g++"),
+            version=cpp_data["version"],
+            executable=cpp_data.get("executable", ""),
+            standard=cpp_data.get("standard", ""),
+        )
+
+    if python_lock is None and java_lock is None and c_lock is None and cpp_lock is None:
         raise ValueError(
-            f"Invalid lock file at {path}: missing [python] or [java] section"
+            f"Invalid lock file at {path}: missing [python], [java], [c], or [cpp] section"
         )
 
     meta = data.get("meta", {})
@@ -102,6 +144,8 @@ def load_lock(project_root: Path, lock_mode: str) -> LockFile | None:
         python=python_lock,
         java=java_lock,
         java_deps=java_deps,
+        c=c_lock,
+        cpp=cpp_lock,
         packages=data.get("packages", {}),
         created_at=meta.get("created_at", ""),
         stoke_version=meta.get("stoke_version", ""),
@@ -118,6 +162,14 @@ def save_lock(
     java_home: str | None = None,
     packages: dict[str, str] | None = None,
     java_deps: dict[str, "JavaDep"] | None = None,
+    c_compiler: str | None = None,
+    c_version: str | None = None,
+    c_executable: str | None = None,
+    c_standard: str | None = None,
+    cpp_compiler: str | None = None,
+    cpp_version: str | None = None,
+    cpp_executable: str | None = None,
+    cpp_standard: str | None = None,
 ) -> Path:
     """
     lock 파일 쓰기. 저장된 경로 반환.
@@ -154,6 +206,28 @@ java_home = "{escaped_home}"
             content += f'"{name}" = {{ version = "{dep.version}", sha1 = "{dep.sha1}" }}\n'
         content += "\n"
 
+    # c 섹션
+    if c_version is not None:
+        escaped_exe = (c_executable or "").replace("\\", "\\\\")
+        content += f'''[c]
+compiler = "{c_compiler or 'gcc'}"
+version = "{c_version}"
+executable = "{escaped_exe}"
+standard = "{c_standard or ''}"
+
+'''
+
+    # cpp 섹션
+    if cpp_version is not None:
+        escaped_exe = (cpp_executable or "").replace("\\", "\\\\")
+        content += f'''[cpp]
+compiler = "{cpp_compiler or 'g++'}"
+version = "{cpp_version}"
+executable = "{escaped_exe}"
+standard = "{cpp_standard or ''}"
+
+'''
+
     content += "[packages]\n"
     if packages:
         for name in sorted(packages.keys()):
@@ -162,7 +236,7 @@ java_home = "{escaped_home}"
     content += f'''
 [meta]
 created_at = "{now}"
-stoke_version = "0.3.0"
+stoke_version = "{__version__}"
 '''
     path.write_text(content, encoding="utf-8")
     return path

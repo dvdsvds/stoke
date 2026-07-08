@@ -183,14 +183,24 @@ def hot_reload(target: Target, config: Config, project_root: Path):
                 rel_paths.append(p)
         print(f"\n[hot-reload] Detected changes in: {', '.join(sorted(rel_paths))}")
 
+        # C/C++는 exe 파일이 실행 중이면 링크가 실패하므로
+        # 프로세스 종료를 재빌드 앞에 실행
+        needs_early_stop = target.language in ("c", "cpp")
+        if needs_early_stop:
+            manager.stop()
+
         # 재빌드
         build_ok = _run_build(target, config, project_root)
 
         # 재시작
         if build_ok:
-            manager.restart()
+            if needs_early_stop:
+                manager.start()
+            else:
+                manager.restart()
         else:
-            manager.stop()  # 실패 시 기존 프로세스는 죽여둠
+            if not needs_early_stop:
+                manager.stop()  # 실패 시 기존 프로세스는 죽여둠
             print("[hot-reload] Waiting for fixes...")
 
     # 옵저버 설정

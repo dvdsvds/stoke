@@ -56,9 +56,11 @@ class BaseAdapter(ABC):
         gitignore_path = self.project_root / ".gitignore"
 
         needed_entries = [".stoke/"]
-        # 자바 프로젝트일 경우 IDE 파일도 추가
+        # 언어별 IDE 파일 추가
         if self.target.language == "java":
             needed_entries.extend([".classpath", ".project", "pom.xml"])
+        elif self.target.language in ("c", "cpp"):
+            needed_entries.append("compile_commands.json")
 
         existing = ""
         if gitignore_path.exists():
