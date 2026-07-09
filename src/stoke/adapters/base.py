@@ -60,7 +60,7 @@ class BaseAdapter(ABC):
         if self.target.language == "java":
             needed_entries.extend([".classpath", ".project", "pom.xml"])
         elif self.target.language in ("c", "cpp"):
-            needed_entries.append("compile_commands.json")
+            needed_entries.extend(["compile_commands.json", ".vscode/c_cpp_properties.json"])
 
         existing = ""
         if gitignore_path.exists():

@@ -42,6 +42,36 @@ def main():
     cpp_sub = cpp_parser.add_subparsers(dest="cpp_command", required=True)
     cpp_sub.add_parser("list", help="List installed C++ compilers")
 
+    # stoke install <tool> — 도구 자체 설치
+    install_parser = subparsers.add_parser("install", help="Install a tool (vcpkg, ...)")
+    install_parser.add_argument("tool", choices=["vcpkg"], help="Tool to install")
+
+    # stoke uninstall <tool> — 도구 자체 제거
+    uninstall_parser = subparsers.add_parser("uninstall", help="Uninstall a tool (vcpkg, ...)")
+    uninstall_parser.add_argument("tool", choices=["vcpkg"], help="Tool to uninstall")
+
+    # stoke vcpkg <subcommand> — vcpkg를 사용해서 라이브러리 관리
+    vcpkg_parser = subparsers.add_parser("vcpkg", help="vcpkg library management")
+    vcpkg_sub = vcpkg_parser.add_subparsers(dest="vcpkg_command", required=True)
+
+    # 라이브러리 설치
+    vcpkg_install_parser = vcpkg_sub.add_parser("install", help="Install a library")
+    vcpkg_install_parser.add_argument("library", help="Library name")
+    vcpkg_install_parser.add_argument("--version", help="Specific version (default: latest)")
+    vcpkg_install_parser.add_argument("--target", help="Target name in stoke.toml")
+
+    # 라이브러리 제거
+    vcpkg_remove_parser = vcpkg_sub.add_parser("remove", help="Remove a library")
+    vcpkg_remove_parser.add_argument("library", help="Library name")
+    vcpkg_remove_parser.add_argument("--target", help="Target name in stoke.toml")
+
+    # 라이브러리 목록
+    vcpkg_list_parser = vcpkg_sub.add_parser("list", help="List installed libraries")
+    vcpkg_list_parser.add_argument("--target", help="Target name in stoke.toml")
+
+    # vcpkg 버전
+    vcpkg_sub.add_parser("version", help="Show installed vcpkg version")
+    
     clean_parser = subparsers.add_parser("clean", help="Clean build artifacts")
     clean_parser.add_argument(
         "--all",
@@ -101,6 +131,21 @@ def main():
     elif args.command == "cpp":
         if args.cpp_command == "list":
             cmd_cpp_list()
+    elif args.command == "install":
+        if args.tool == "vcpkg":
+            cmd_install_vcpkg()
+    elif args.command == "uninstall":
+        if args.tool == "vcpkg":
+            cmd_uninstall_vcpkg()
+    elif args.command == "vcpkg":
+        if args.vcpkg_command == "install":
+            cmd_vcpkg_install_library(args.library, args.version, args.target)
+        elif args.vcpkg_command == "remove":
+            cmd_vcpkg_remove_library(args.library, args.target)
+        elif args.vcpkg_command == "list":
+            cmd_vcpkg_list_libraries(args.target)
+        elif args.vcpkg_command == "version":
+            cmd_vcpkg_version()
     elif args.command == "init":
         cmd_init()
     elif args.command == "watch":
@@ -111,6 +156,7 @@ def main():
         cmd_run(args.target)
     elif args.command == "ide-sync":
         cmd_ide_sync()
+
 
 def cmd_build(target_name, force: bool = False):
     try:
@@ -326,6 +372,205 @@ def cmd_cpp_list():
         print(f"    executable: {install.executable}")
         print()
 
+def cmd_install_vcpkg():
+    from stoke.vcpkg import install_vcpkg
+
+    try:
+        install_vcpkg()
+    except RuntimeError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
+
+def cmd_uninstall_vcpkg():
+    from stoke.vcpkg import uninstall_vcpkg
+
+    try:
+        uninstall_vcpkg()
+    except RuntimeError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
+
+def cmd_vcpkg_version():
+    from stoke.vcpkg import is_vcpkg_installed, get_vcpkg_root, get_vcpkg_version
+
+    if not is_vcpkg_installed():
+        print("vcpkg is not installed.")
+        print("Run 'stoke vcpkg install' to install it.")
+        return
+
+    version = get_vcpkg_version()
+    root = get_vcpkg_root()
+
+    if version:
+        print(f"vcpkg version: {version}")
+    else:
+        print(f"vcpkg is installed but version couldn't be determined.")
+    print(f"Location: {root}")
+
+def cmd_vcpkg_install_library(library: str, version: str | None, target: str | None):
+    """
+    stoke vcpkg install <library> [--version=X] [--target=Y]
+    """
+    from stoke.vcpkg import install_library
+    from stoke.c_libraries import can_use_in_c_project
+    from stoke.toml_editor import add_dep
+
+    try:
+        config = load_config()
+    except FileNotFoundError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
+    except ValueError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    # 타겟 결정
+    if target is None:
+        target = next(iter(config.targets))
+        print(f"No target specified, using: {target}")
+
+    if target not in config.targets:
+        print(f"Error: target '{target}' not found in stoke.toml", file=sys.stderr)
+        print(f"Available targets: {', '.join(config.targets.keys())}", file=sys.stderr)
+        sys.exit(1)
+
+    target_config = config.targets[target]
+
+    # C/C++ 프로젝트인지 확인
+    if target_config.language not in ("c", "cpp"):
+        print(
+            f"Error: vcpkg is only for C/C++ projects.\n"
+            f"  Target '{target}' is a {target_config.language} project.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    # 언어 호환성 검증
+    if target_config.language == "c":
+        if not can_use_in_c_project(library):
+            print(
+                f"Error: '{library}' is not a C library.\n"
+                f"  C project '{target}' cannot use it.\n"
+                f"  Consider using a C++ project or a C alternative.",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+
+    # 라이브러리 설치
+    try:
+        install_library(library, version)
+    except RuntimeError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    # stoke.toml 업데이트
+    stoke_toml_path = config.config_path
+    version_str = version if version else "latest"
+
+    try:
+        add_dep(stoke_toml_path, target, library, version_str)
+        print(f"\nAdded to stoke.toml: {library} = \"{version_str}\"")
+    except (OSError, ValueError) as e:
+        print(f"Warning: library installed but failed to update stoke.toml: {e}", file=sys.stderr)
+
+def cmd_vcpkg_remove_library(library: str, target: str | None):
+    """
+    stoke vcpkg remove <library> [--target=Y]
+    """
+    from stoke.vcpkg import remove_library
+    from stoke.toml_editor import remove_dep
+
+    try:
+        config = load_config()
+    except FileNotFoundError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
+    except ValueError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    # 타겟 결정
+    if target is None:
+        target = next(iter(config.targets))
+        print(f"No target specified, using: {target}")
+
+    if target not in config.targets:
+        print(f"Error: target '{target}' not found in stoke.toml", file=sys.stderr)
+        sys.exit(1)
+
+    target_config = config.targets[target]
+
+    if target_config.language not in ("c", "cpp"):
+        print(
+            f"Error: vcpkg is only for C/C++ projects.\n"
+            f"  Target '{target}' is a {target_config.language} project.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    # stoke.toml에서 제거
+    stoke_toml_path = config.config_path
+    try:
+        removed = remove_dep(stoke_toml_path, target, library)
+        if not removed:
+            print(f"Warning: '{library}' not found in stoke.toml deps")
+    except (OSError, ValueError) as e:
+        print(f"Error updating stoke.toml: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    # vcpkg에서 제거
+    try:
+        remove_library(library)
+    except RuntimeError as e:
+        print(f"Warning: vcpkg remove failed: {e}", file=sys.stderr)
+
+    print(f"\nRemoved from stoke.toml: {library}")
+
+
+def cmd_vcpkg_list_libraries(target: str | None):
+    """
+    stoke vcpkg list [--target=Y]
+    """
+    from stoke.toml_editor import list_deps
+
+    try:
+        config = load_config()
+    except FileNotFoundError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
+    except ValueError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    # 타겟 결정
+    if target is None:
+        target = next(iter(config.targets))
+
+    if target not in config.targets:
+        print(f"Error: target '{target}' not found in stoke.toml", file=sys.stderr)
+        sys.exit(1)
+
+    target_config = config.targets[target]
+
+    if target_config.language not in ("c", "cpp"):
+        print(
+            f"Error: vcpkg is only for C/C++ projects.\n"
+            f"  Target '{target}' is a {target_config.language} project.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    stoke_toml_path = config.config_path
+    deps = list_deps(stoke_toml_path, target)
+
+    if not deps:
+        print(f"No libraries in target '{target}'")
+        return
+
+    print(f"Libraries in target '{target}':")
+    for name, version in sorted(deps.items()):
+        print(f"  {name} = \"{version}\"")
+
 def cmd_run(target_name):
     try:
         config = load_config()
@@ -426,14 +671,19 @@ def cmd_ide_sync():
             # 자바 등은 상대 경로만
             projects_by_language[language].append(rel_path)
 
-    # 워크스페이스 설정 생성
+    # 워크스페이스 설정 생성 (자바/파이썬)
     settings = make_workspace_settings(projects_by_language)
-    if not settings:
-        print("No settings to generate.")
-        return
+    if settings:
+        settings_path = write_project_settings(root, settings)
+        print(f"\nGenerated: {settings_path}")
 
-    settings_path = write_project_settings(root, settings)
-    print(f"\nGenerated: {settings_path}")
+    # multi-root workspace 파일 생성 (VSCode가 각 하위 폴더의 .vscode/를 인식하도록)
+    from stoke.ide.vscode import make_workspace_file, write_workspace_file
+
+    workspace_content = make_workspace_file(projects, root)
+    workspace_path = write_workspace_file(root, workspace_content)
+    print(f"Generated: {workspace_path}")
+    print(f"\nOpen in VSCode: {workspace_path}")
 
 def cmd_watch(target_name):
     try:

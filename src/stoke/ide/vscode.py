@@ -113,6 +113,49 @@ EXCLUDED_DIRS = {
     ".vscode",
 }
 
+def make_cpp_settings(language: str, standard: str, compiler_path: str | None = None) -> dict:
+    """
+    VSCode C/C++ 확장용 c_cpp_properties.json 설정.
+
+    language: "c" 또는 "cpp"
+    standard: "c17", "c++17" 같은 표준
+    compiler_path: gcc/g++ 실행 파일 경로 (있으면 명시)
+    """
+    config = {
+        "name": "stoke",
+        "compileCommands": "${workspaceFolder}/compile_commands.json",
+        "intelliSenseMode": "windows-gcc-x64",
+    }
+    if compiler_path:
+        config["compilerPath"] = compiler_path.replace("\\", "/")
+
+    # 표준 매핑 (c17, c++17 형식 → VSCode 형식)
+    if language == "c":
+        config["cStandard"] = standard or "c17"
+        config["cppStandard"] = "c++17"  # 기본값
+    elif language == "cpp":
+        config["cStandard"] = "c17"  # 기본값
+        config["cppStandard"] = standard or "c++17"
+
+    return {
+        "configurations": [config],
+        "version": 4,
+    }
+
+
+def write_cpp_properties(project_root: Path, settings: dict) -> Path:
+    """c_cpp_properties.json 저장. 반환: 저장된 파일 경로."""
+    import json
+
+    vscode_dir = project_root / ".vscode"
+    vscode_dir.mkdir(exist_ok=True)
+    settings_path = vscode_dir / "c_cpp_properties.json"
+
+    settings_path.write_text(
+        json.dumps(settings, indent=4) + "\n",
+        encoding="utf-8",
+    )
+    return settings_path
 
 def find_stoke_projects(root: Path) -> list[Path]:
     """
@@ -170,3 +213,47 @@ def make_workspace_settings(projects_by_language: dict) -> dict:
         settings["python.defaultInterpreterPath"] = f"${{workspaceFolder}}/{venv_python_rel}"
 
     return settings
+
+def make_workspace_file(project_paths: list[Path], workspace_root: Path) -> dict:
+    """
+    VSCode multi-root workspace 파일 (.code-workspace) 내용 생성.
+
+    project_paths: workspace에 포함할 stoke 프로젝트 폴더들
+    workspace_root: workspace 파일이 저장될 폴더 (상대 경로 계산용)
+    """
+    folders = []
+    for project_path in project_paths:
+        try:
+            rel_path = project_path.relative_to(workspace_root)
+            folders.append({
+                "name": project_path.name,
+                "path": str(rel_path).replace("\\", "/"),
+            })
+        except ValueError:
+            # workspace_root의 하위가 아니면 절대 경로
+            folders.append({
+                "name": project_path.name,
+                "path": str(project_path).replace("\\", "/"),
+            })
+
+    return {
+        "folders": folders,
+        "settings": {},
+    }
+
+
+def write_workspace_file(workspace_root: Path, workspace_content: dict) -> Path:
+    """
+    .code-workspace 파일 저장.
+    파일 이름은 workspace_root의 폴더 이름 사용.
+    """
+    import json
+
+    workspace_name = workspace_root.name
+    workspace_path = workspace_root / f"{workspace_name}.code-workspace"
+
+    workspace_path.write_text(
+        json.dumps(workspace_content, indent=4) + "\n",
+        encoding="utf-8",
+    )
+    return workspace_path

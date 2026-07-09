@@ -1,8 +1,8 @@
 # stoke
 
-A multi-language build tool with automatic venv management and reproducible builds.
+A multi-language build tool with automatic dependency management and reproducible builds
 
-> Currently supports Python. Java and C/C++ support is planned.
+Supports Python, Java, C, and C++
 
 ## Installation
 
@@ -10,7 +10,7 @@ A multi-language build tool with automatic venv management and reproducible buil
 pip install stoke-build
 ```
 
-Requires Python 3.11 or higher.
+Requires Python 3.11 or higher
 
 ## Quick Start
 
@@ -19,7 +19,17 @@ mkdir myapp
 cd myapp
 stoke init
 stoke build
+stoke run
 ```
+
+## Features
+
+- **Python** — venv, pip dependencies, syntax check
+- **Java** — JDK detection, Maven Central, IDE integration
+- **C/C++** — gcc/g++, vcpkg integration, incremental builds
+- Watch mode and hot-reload for all languages
+- Reproducible builds via lock files
+- Auto IDE integration (VSCode, IntelliJ, Eclipse)
 
 ## Documentation
 

@@ -1,22 +1,24 @@
 # stoke
 
-A multi-language build tool with automatic venv management and reproducible builds.
+A multi-language build tool with automatic dependency management and reproducible builds
 
-[← Back to main README](../README.md) · [한국어 문서](./README_ko.md)
+[← Back to main README](../README.md) · [한국어](./README_ko.md)
 
 ## Overview
 
-**stoke** manages virtual environments, dependencies, and reproducible builds through a simple `stoke.toml` configuration file.
+`stoke.toml` manages virtual environments, dependencies, IDE integration, and reproducible builds
 
-> Currently supports Python. Java and C/C++ support is planned.
+Build and run Python, Java, C, and C++ projects with the same interface
 
 ## Features
 
-- **Automatic venv management** — Creates and reuses virtual environments per target
-- **Python version selection** — Detects installed Python versions and lets you pin the one you want
-- **Reproducible builds** — Lock file (`stoke.lock`) ensures everyone uses the same Python version and package versions
-- **Incremental builds** — Skips unchanged files and dependencies using mtime-based caching
-- **Interactive setup** — `stoke init` guides you through project setup
+- **Multi-language support** — unified management for Python, Java, C, C++
+- **Automatic dependency management** — pip, Maven Central, vcpkg integration
+- **Automatic IDE integration** — auto-generated config files for VSCode, IntelliJ, Eclipse
+- **Watch mode + Hot-reload** — auto rebuild on file change, restart running process
+- **Reproducible builds** — lock file for team-wide version consistency
+- **Incremental builds** — skip unchanged files via mtime cache
+- **Interactive initialization** — `stoke init` for project setup
 
 ## Installation
 
@@ -24,50 +26,73 @@ A multi-language build tool with automatic venv management and reproducible buil
 pip install stoke-build
 ```
 
-Requires Python 3.11 or higher.
+Requires Python 3.11 or higher
 
 ## Quick Start
 
 ```bash
-# 1. Create a new project directory
 mkdir myapp
 cd myapp
-
-# 2. Initialize with interactive setup
 stoke init
-
-# 3. Add your source files under src/
-
-# 4. Build
 stoke build
+stoke run
 ```
 
 ## Commands
 
+### Project management
+
 | Command | Description |
 | --- | --- |
-| `stoke init` | Interactive project setup, generates `stoke.toml` |
-| `stoke build [target]` | Build a target (or the default target if not specified) |
-| `stoke build --force` | Ignore cache and rebuild everything |
-| `stoke watch [target]` | Watch for file changes and rebuild automatically |
-| `stoke hot-reload [target]` | Watch, rebuild, and restart the running process on changes |
-| `stoke clean [target]` | Delete build artifacts (venv, cache, `__pycache__`) |
-| `stoke clean --all` | Delete everything including the lock file |
-| `stoke python list` | List all Python versions detected on the system |
+| `stoke init` | Interactive project initialization (Python, Java, C, C++) |
+| `stoke build [target]` | Build target |
+| `stoke build --force` | Full rebuild ignoring cache |
+| `stoke run [target]` | Run the built target |
+| `stoke watch [target]` | Auto rebuild on file change |
+| `stoke hot-reload [target]` | Rebuild + restart running process |
+| `stoke clean [target]` | Delete build artifacts |
+| `stoke clean --all` | Full reset including lock file |
+| `stoke ide-sync` | Manage workspace-level IDE files |
 
-## Configuration
+### Language tools
 
-`stoke.toml` example:
+| Command | Description |
+| --- | --- |
+| `stoke python list` | Installed Python interpreters |
+| `stoke java list` | Installed JDKs |
+| `stoke c list` | Installed C compilers (gcc) |
+| `stoke cpp list` | Installed C++ compilers (g++) |
+
+### Tool management
+
+| Command | Description |
+| --- | --- |
+| `stoke install vcpkg` | Install vcpkg to `~/.stoke/tools/vcpkg/` |
+| `stoke uninstall vcpkg` | Remove vcpkg |
+
+### C/C++ library management (vcpkg)
+
+| Command | Description |
+| --- | --- |
+| `stoke vcpkg install <library>` | Install library (latest) |
+| `stoke vcpkg install <library> --version=X` | Install specific version |
+| `stoke vcpkg remove <library>` | Remove library |
+| `stoke vcpkg list` | List installed libraries |
+| `stoke vcpkg version` | Show vcpkg version |
+
+## Configuration examples
+
+### Python
 
 ```toml
 [project]
 name = "myapp"
 version = "0.1.0"
-lock_mode = "commit"  # or "local"
+lock_mode = "commit"
 
 [targets.myapp]
 language = "python"
-python_version = "3.12"       # optional, uses shell default if omitted
+python_version = "3.12"
 sources = ["src/**/*.py"]
 entry = "src/main.py"
 
@@ -76,46 +101,123 @@ requests = "2.31.0"
 fastapi = ">=0.100.0"
 ```
 
-### Lock file modes
+### Java
 
-- **`commit`** — Lock file is `stoke.lock` at the project root, committed to git for team reproducibility
-- **`local`** — Lock file is `.stoke/lock.toml`, gitignored, per-developer
+```toml
+[project]
+name = "myapp"
+version = "0.1.0"
+lock_mode = "commit"
 
-### Dependency version syntax
+[targets.myapp]
+language = "java"
+java_version = "21"
+sources = ["src/**/*.java"]
+main_class = "com.example.Main"
 
-Follows pip specifier syntax:
+[targets.myapp.deps]
+"com.google.code.gson:gson" = "2.10.1"
+```
 
-- `"2.31.0"` — Exact version (equivalent to `==2.31.0`)
-- `">=2.0.0"`, `"<3.0.0"`, `">=2.0,<3.0"` — Version ranges
-- `"*"` or `""` — Any version
+### C
+
+```toml
+[project]
+name = "myapp"
+version = "0.1.0"
+lock_mode = "commit"
+
+[targets.myapp]
+language = "c"
+c_standard = "c17"
+sources = ["src/**/*.c"]
+```
+
+### C++
+
+```toml
+[project]
+name = "myapp"
+version = "0.1.0"
+lock_mode = "commit"
+
+[targets.myapp]
+language = "cpp"
+cpp_standard = "c++17"
+sources = ["src/**/*.cpp"]
+
+[targets.myapp.deps]
+fmt = "latest"
+```
+
+## Lock file modes
+
+- **`commit`** — `stoke.lock` at project root, committed to git (team reproducibility)
+- **`local`** — `.stoke/lock.toml`, gitignored (per-developer)
+
+## Dependency version syntax
+
+### Python (pip specifier)
+
+- `"2.31.0"` — exact version
+- `">=2.0.0"`, `"<3.0.0"` — version range
+- `"*"` or `""` — any version
+
+### Java (Maven coordinates)
+
+- `"groupId:artifactId" = "version"`
+- Example: `"com.google.code.gson:gson" = "2.10.1"`
+
+### C/C++ (vcpkg)
+
+- `"latest"` — latest version (default)
+- `"10.2.1"` — specific version
+
+## IDE integration
+
+### Python
+
+- `.vscode/settings.json` — Python interpreter path
+
+### Java
+
+- `.classpath`, `.project` — Eclipse, VSCode Java extension
+- `pom.xml` — IntelliJ IDEA, Maven-based IDEs
+- `.vscode/settings.json` — referenced libraries
+
+### C / C++
+
+- `compile_commands.json` — clangd, VSCode C/C++ extension, CLion
+- `.vscode/c_cpp_properties.json` — VSCode C/C++ extension
+
+### Workspace (multiple projects)
+
+`stoke ide-sync` generates `<folder>.code-workspace` at the workspace root.
+
+Open via `File > Open Workspace from File` in VSCode. Each project is recognized as an independent root
 
 ## How it works
 
-On `stoke build`, stoke:
+When you run `stoke build`:
 
-1. Reads `stoke.toml` and finds the target
-2. Resolves the Python version:
-   - If `stoke.lock` exists, uses the exact version pinned there
-   - Otherwise, uses `python_version` from `stoke.toml`, or shell default
-3. Creates a virtual environment at `.stoke/venv/[target]/` if needed
-4. Installs dependencies:
-   - From lock file if available (exact versions)
-   - From `stoke.toml` if no lock exists (then writes lock)
-   - Skipped if already up to date
-5. Checks syntax of source files with `py_compile`, skipping unchanged files (mtime cache)
-6. Saves cache to `.stoke/cache.json`
+1. Parse `stoke.toml` and determine target
+2. Language-specific processing:
+   - Python: create venv → install pip dependencies → syntax check
+   - Java: detect JDK → download Maven dependencies → compile with `javac`
+   - C/C++: detect compiler → install vcpkg dependencies → compile and link with `gcc`/`g++`
+3. Generate IDE integration files (`.classpath`, `pom.xml`, `compile_commands.json`, etc.)
+4. Manage `.gitignore` automatically
+5. Save lock file (only on change)
+6. Save cache (`.stoke/cache.json`)
 
 ## Roadmap
 
-- **v0.1** — Python build (venv, deps, syntax check, incremental builds)
-- **v0.2** (current) — Watch mode (`stoke watch`), hot-reload (`stoke hot-reload`)
-- **v0.3** — Java support
-- **v0.4** — C/C++ support with `.so` reload and process restart modes
-- **v0.5** — Package registry and `stoke install`, `stoke publish`
-
-## Contributing
-
-Bug reports and pull requests are welcome. Please open an issue first for major changes.
+- **v0.1** — Python builds (venv, dependencies, syntax check, incremental builds)
+- **v0.2** — Watch mode, hot-reload
+- **v0.3** — Java support (JDK detection, Maven Central, IDE integration)
+- **v0.4** — C/C++ support (gcc/g++, watch, hot-reload, IDE integration)
+- **v0.5** (in progress) — vcpkg integration, tool management, multi-root workspace
+- **v0.6** — TBD
 
 ## License
 

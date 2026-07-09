@@ -143,6 +143,14 @@ class CBaseAdapter(BaseAdapter):
             path = self.project_root / path_str
             if path.is_dir():
                 includes.append(path)
+        
+        # vcpkg include 경로 (deps 있으면)
+        if self.target.deps:
+            from stoke.vcpkg import get_include_dir, is_vcpkg_installed
+            if is_vcpkg_installed():
+                vcpkg_include = get_include_dir()
+                if vcpkg_include.is_dir():
+                    includes.append(vcpkg_include)
 
         # 중복 제거하고 정렬
         seen = set()
@@ -243,24 +251,34 @@ class CBaseAdapter(BaseAdapter):
     def link(self, compiler: CompilerInstall, files: list[Path]) -> None:
         """오브젝트 파일들을 링크해서 실행 파일 생성."""
         object_files = [self._object_path(f) for f in files]
-
         cmd = [str(compiler.executable)]
         cmd.extend([str(o) for o in object_files])
         cmd.extend(["-o", str(self.output_path)])
 
+        # vcpkg 라이브러리 링크 (deps 있으면)
+        if self.target.deps:
+            from stoke.vcpkg import get_lib_dir, is_vcpkg_installed
+            if is_vcpkg_installed():
+                lib_dir = get_lib_dir()
+                if lib_dir.is_dir():
+                    cmd.append(f"-L{lib_dir}")
+                    for lib_name in self.target.deps:
+                        cmd.append(f"-l{lib_name}")
+
         self.output_path.parent.mkdir(parents=True, exist_ok=True)
         proc = subprocess.run(cmd, capture_output=True, text=True)
-
         if proc.returncode != 0:
             error_msg = proc.stderr.strip() or proc.stdout.strip()
             raise RuntimeError(f"Link failed:\n{error_msg}")
 
     def _generate_ide_files(self, compiler: CompilerInstall, source_files: list[Path]) -> None:
         """
-        C/C++ IDE 통합용 compile_commands.json 생성.
+        C/C++ IDE 통합용 compile_commands.json 및 c_cpp_properties.json 생성.
         """
         from stoke.ide.c_compile_commands import write_compile_commands
+        from stoke.ide.vscode import make_cpp_settings, write_cpp_properties
 
+        # compile_commands.json
         write_compile_commands(
             project_root=self.project_root,
             compiler_path=compiler.executable,
@@ -271,7 +289,65 @@ class CBaseAdapter(BaseAdapter):
             standard_flag_prefix=self.standard_flag_prefix,
         )
 
-        print(f"IDE files generated: compile_commands.json")
+        # c_cpp_properties.json (VSCode C/C++ 확장이 compile_commands.json 인식하도록)
+        cpp_settings = make_cpp_settings(
+            language=self.compiler_kind,
+            standard=self._get_standard() or "",
+            compiler_path=str(compiler.executable),
+        )
+        write_cpp_properties(self.project_root, cpp_settings)
+
+        print(f"IDE files generated: compile_commands.json, .vscode/c_cpp_properties.json")
+
+    def _ensure_deps_installed(self) -> None:
+        """
+        stoke.toml의 deps에 있는 라이브러리들이 vcpkg에 설치돼있는지 확인.
+        없으면 자동 설치.
+        """
+        if not self.target.deps:
+            return
+
+        from stoke.vcpkg import (
+            is_vcpkg_installed,
+            is_library_installed,
+            install_library,
+        )
+
+        if not is_vcpkg_installed():
+            raise RuntimeError(
+                "vcpkg is not installed but target has deps.\n"
+                "  Run 'stoke install vcpkg' first"
+            )
+
+        # 언어별 호환성 재검증 (사용자가 stoke.toml 직접 수정한 경우)
+        if self.compiler_kind == "c":
+            from stoke.c_libraries import can_use_in_c_project
+            for lib_name in self.target.deps:
+                if not can_use_in_c_project(lib_name):
+                    raise RuntimeError(
+                        f"'{lib_name}' is not a C library.\n"
+                        f"  Cannot use in C project '{self.target.name}'"
+                    )
+
+        # 설치 여부 확인 + 필요 시 설치
+        needs_install = []
+        for lib_name, version in self.target.deps.items():
+            if not is_library_installed(lib_name):
+                needs_install.append((lib_name, version))
+
+        if not needs_install:
+            return
+
+        print(f"\n--- Installing dependencies ---")
+        for lib_name, version in needs_install:
+            actual_version = None if version == "latest" else version
+            try:
+                install_library(lib_name, actual_version)
+            except RuntimeError as e:
+                raise RuntimeError(
+                    f"Failed to install dependency '{lib_name}':\n  {e}"
+                )
+
     def _lock_changed(self, lock, compiler: CompilerInstall) -> bool:
         """
         lock 파일의 컴파일러 정보가 현재랑 다른지 확인.
@@ -327,6 +403,9 @@ class CBaseAdapter(BaseAdapter):
         lock = load_lock(self.project_root, self.project.lock_mode)
         print(f"Using {self.compiler_kind} compiler {compiler.version}")
         print(f"  executable: {compiler.executable}")
+
+        # 의존성 확인/설치
+        self._ensure_deps_installed()
 
         # 소스 수집
         print("\n--- Collecting sources ---")
