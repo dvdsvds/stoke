@@ -619,12 +619,16 @@ def cmd_ide_sync():
 
     root = Path.cwd()
     print(f"Scanning for stoke projects under {root}...")
-
     projects = find_stoke_projects(root)
     if not projects:
         print("No stoke projects found.")
+        # 기존 workspace 파일이 있으면 삭제
+        workspace_name = root.name
+        workspace_path = root / f"{workspace_name}.code-workspace"
+        if workspace_path.exists():
+            workspace_path.unlink()
+            print(f"Removed: {workspace_path}")
         return
-
     print(f"Found {len(projects)} project(s):")
 
     # 언어별로 분류

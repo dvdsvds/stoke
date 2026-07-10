@@ -36,6 +36,18 @@ class CppLock:
     executable: str
     standard: str      # "c++17"
 
+
+@dataclass
+class CDep:
+    version: str       # "10.2.1#1"
+    triplet: str       # "x64-mingw-static"
+
+
+@dataclass
+class CppDep:
+    version: str
+    triplet: str
+
 @dataclass
 class LockFile:
     python: PythonLock | None
@@ -43,10 +55,11 @@ class LockFile:
     java_deps: dict[str, JavaDep]
     c: CLock | None
     cpp: CppLock | None
+    c_deps: dict[str, CDep]
+    cpp_deps: dict[str, CppDep]
     packages: dict[str, str]
     created_at: str
     stoke_version: str
-
 
 def _lock_path(project_root: Path, lock_mode: str) -> Path:
     """lock_mode에 따라 lock 파일 경로 결정."""
@@ -133,10 +146,39 @@ def load_lock(project_root: Path, lock_mode: str) -> LockFile | None:
             standard=cpp_data.get("standard", ""),
         )
 
-    if python_lock is None and java_lock is None and c_lock is None and cpp_lock is None:
-        raise ValueError(
-            f"Invalid lock file at {path}: missing [python], [java], [c], or [cpp] section"
-        )
+    # c_deps 파싱
+    c_deps = {}
+    if "c_deps" in data:
+        for name, dep_data in data["c_deps"].items():
+            if not isinstance(dep_data, dict):
+                raise ValueError(
+                    f"Invalid lock file at {path}: c_deps.{name} must be a table"
+                )
+            if "version" not in dep_data:
+                raise ValueError(
+                    f"Invalid lock file at {path}: missing c_deps.{name}.version"
+                )
+            c_deps[name] = CDep(
+                version=dep_data["version"],
+                triplet=dep_data.get("triplet", ""),
+            )
+
+    # cpp_deps 파싱
+    cpp_deps = {}
+    if "cpp_deps" in data:
+        for name, dep_data in data["cpp_deps"].items():
+            if not isinstance(dep_data, dict):
+                raise ValueError(
+                    f"Invalid lock file at {path}: cpp_deps.{name} must be a table"
+                )
+            if "version" not in dep_data:
+                raise ValueError(
+                    f"Invalid lock file at {path}: missing cpp_deps.{name}.version"
+                )
+            cpp_deps[name] = CppDep(
+                version=dep_data["version"],
+                triplet=dep_data.get("triplet", ""),
+            )
 
     meta = data.get("meta", {})
 
@@ -146,11 +188,12 @@ def load_lock(project_root: Path, lock_mode: str) -> LockFile | None:
         java_deps=java_deps,
         c=c_lock,
         cpp=cpp_lock,
+        c_deps=c_deps,
+        cpp_deps=cpp_deps,
         packages=data.get("packages", {}),
         created_at=meta.get("created_at", ""),
         stoke_version=meta.get("stoke_version", ""),
     )
-
 
 def save_lock(
     project_root: Path,
@@ -170,6 +213,8 @@ def save_lock(
     cpp_version: str | None = None,
     cpp_executable: str | None = None,
     cpp_standard: str | None = None,
+    c_deps: dict[str, "CDep"] | None = None,
+    cpp_deps: dict[str, "CppDep"] | None = None,
 ) -> Path:
     """
     lock 파일 쓰기. 저장된 경로 반환.
@@ -228,7 +273,24 @@ standard = "{cpp_standard or ''}"
 
 '''
 
+    # c_deps 섹션
+    if c_deps:
+        content += "[c_deps]\n"
+        for name in sorted(c_deps.keys()):
+            dep = c_deps[name]
+            content += f'{name} = {{ version = "{dep.version}", triplet = "{dep.triplet}" }}\n'
+        content += "\n"
+
+    # cpp_deps 섹션
+    if cpp_deps:
+        content += "[cpp_deps]\n"
+        for name in sorted(cpp_deps.keys()):
+            dep = cpp_deps[name]
+            content += f'{name} = {{ version = "{dep.version}", triplet = "{dep.triplet}" }}\n'
+        content += "\n"
+
     content += "[packages]\n"
+
     if packages:
         for name in sorted(packages.keys()):
             content += f'{name} = "{packages[name]}"\n'

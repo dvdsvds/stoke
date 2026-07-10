@@ -153,6 +153,31 @@ def _select_cpp_standard() -> str:
     )
     return standards[selected]
 
+def _prompt_vcpkg_install() -> None:
+    """
+    C/C++ 프로젝트 생성 시 vcpkg 설치 여부 프롬프트.
+    이미 설치돼있으면 스킵.
+    사용자가 거절하면 그냥 진행 (deps 필요할 때 다시 안내).
+    """
+    from stoke.vcpkg import is_vcpkg_installed, install_vcpkg
+
+    # 이미 설치돼있으면 스킵
+    if is_vcpkg_installed():
+        return
+
+    print("\nvcpkg is not installed.")
+    print("vcpkg is required for C/C++ dependency management.")
+
+    if not _prompt_yes_no("Install vcpkg now?", default=True):
+        print("Skipped. You can install later with 'stoke install vcpkg'.")
+        return
+
+    try:
+        install_vcpkg()
+    except RuntimeError as e:
+        print(f"Warning: vcpkg installation failed: {e}")
+        print("You can retry later with 'stoke install vcpkg'.")
+
 def _write_stoke_toml_python(
     path: Path,
     project_name: str,
@@ -350,9 +375,11 @@ def cmd_init() -> None:
     elif language == "c":
         c_standard = _select_c_standard()
         version_info = f"C standard:      {c_standard}"
+        _prompt_vcpkg_install()
     elif language == "cpp":
         cpp_standard = _select_cpp_standard()
         version_info = f"C++ standard:    {cpp_standard}"
+        _prompt_vcpkg_install()
 
     # 4. lock 모드 선택
     lock_mode = _select_lock_mode()

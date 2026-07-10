@@ -350,15 +350,14 @@ class CBaseAdapter(BaseAdapter):
 
     def _lock_changed(self, lock, compiler: CompilerInstall) -> bool:
         """
-        lock 파일의 컴파일러 정보가 현재랑 다른지 확인.
+        lock 파일의 컴파일러 정보 또는 라이브러리 정보가 현재랑 다른지 확인.
         다르면 True (저장 필요), 같으면 False (skip).
         """
         if lock is None:
             return True
 
-        # 현재 언어에 해당하는 lock 필드 가져오기
+        # 컴파일러 정보 비교
         current_lock = lock.c if self.compiler_kind == "c" else lock.cpp
-
         if current_lock is None:
             return True
 
@@ -368,15 +367,36 @@ class CBaseAdapter(BaseAdapter):
                 or current_lock.standard != standard):
             return True
 
+        # 라이브러리 정보 비교
+        current_deps = lock.c_deps if self.compiler_kind == "c" else lock.cpp_deps
+        installed_deps = self._collect_deps_for_lock()
+
+        # 라이브러리 이름 목록 비교
+        if set(current_deps.keys()) != set(installed_deps.keys()):
+            return True
+
+        # 각 라이브러리 버전/트리플렛 비교
+        for name, info in installed_deps.items():
+            lock_dep = current_deps[name]
+            if lock_dep.version != info["version"]:
+                return True
+            if lock_dep.triplet != info["triplet"]:
+                return True
+
         return False
 
     def _save_lock(self, compiler: CompilerInstall) -> None:
         """
-        lock 파일에 현재 컴파일러 정보 저장.
+        lock 파일에 현재 컴파일러 정보와 vcpkg 라이브러리 정보 저장.
         """
         standard = self._get_standard() or ""
 
+        # vcpkg 라이브러리 정보 수집
+        deps_for_lock = self._collect_deps_for_lock()
+
         if self.compiler_kind == "c":
+            from stoke.lock import CDep
+            c_deps_for_lock = {name: CDep(**info) for name, info in deps_for_lock.items()}
             lock_path = save_lock(
                 self.project_root,
                 self.project.lock_mode,
@@ -384,8 +404,11 @@ class CBaseAdapter(BaseAdapter):
                 c_version=compiler.version,
                 c_executable=str(compiler.executable),
                 c_standard=standard,
+                c_deps=c_deps_for_lock if c_deps_for_lock else None,
             )
         else:  # cpp
+            from stoke.lock import CppDep
+            cpp_deps_for_lock = {name: CppDep(**info) for name, info in deps_for_lock.items()}
             lock_path = save_lock(
                 self.project_root,
                 self.project.lock_mode,
@@ -393,9 +416,37 @@ class CBaseAdapter(BaseAdapter):
                 cpp_version=compiler.version,
                 cpp_executable=str(compiler.executable),
                 cpp_standard=standard,
+                cpp_deps=cpp_deps_for_lock if cpp_deps_for_lock else None,
             )
-
         print(f"\nLock file saved: {lock_path}")
+
+    def _collect_deps_for_lock(self) -> dict[str, dict]:
+        """
+        stoke.toml의 deps에 있는 라이브러리들의 실제 vcpkg 정보 수집.
+        반환: {name: {"version": str, "triplet": str}}
+        """
+        if not self.target.deps:
+            return {}
+
+        from stoke.vcpkg import (
+            is_vcpkg_installed,
+            get_triplet,
+            get_installed_library_version,
+        )
+
+        if not is_vcpkg_installed():
+            return {}
+
+        triplet = get_triplet()
+        result = {}
+        for name in self.target.deps:
+            version = get_installed_library_version(name, triplet)
+            if version is not None:
+                result[name] = {
+                    "version": version,
+                    "triplet": triplet,
+                }
+        return result
         
     def build(self, force: bool = False) -> None:
         compiler = self.resolve_compiler()

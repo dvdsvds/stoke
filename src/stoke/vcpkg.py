@@ -332,3 +332,31 @@ def is_library_installed(name: str, triplet: str | None = None) -> bool:
         return True
 
     return False
+
+def get_installed_library_version(name: str, triplet: str | None = None) -> str | None:
+    """
+    vcpkg에 설치된 라이브러리의 실제 버전 반환.
+    installed/vcpkg/info/<name>_<version>_<triplet>.list 파일명에서 추출.
+    미설치 시 None.
+    """
+    if not is_vcpkg_installed():
+        return None
+
+    if triplet is None:
+        triplet = get_triplet()
+
+    info_dir = get_vcpkg_root() / "installed" / "vcpkg" / "info"
+    if not info_dir.is_dir():
+        return None
+
+    # 파일명 형식: name_version_triplet.list
+    # 예: fmt_10.2.1_x64-mingw-static.list
+    for f in info_dir.glob(f"{name}_*_{triplet}.list"):
+        stem = f.stem  # 확장자 제거
+        # name_ 제거
+        rest = stem[len(name) + 1:]
+        # _triplet 제거
+        version = rest[:-(len(triplet) + 1)]
+        return version
+
+    return None
