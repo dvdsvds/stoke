@@ -171,9 +171,53 @@ class CBaseAdapter(BaseAdapter):
             rel = source.relative_to(self.project_root)
         except ValueError:
             rel = Path(source.name)
-
         obj_path = self.objects_dir / rel.with_suffix(".o")
         return obj_path
+
+    def _parse_dep_file(self, dep_path: Path) -> list[Path]:
+        """
+        gcc가 생성한 .d 파일 파싱해서 헤더 파일 목록 반환.
+
+        .d 파일 형식:
+            target.o: source.c \
+             header1.h \
+             header2.h
+
+        소스 파일은 제외하고 헤더만 반환.
+        """
+        if not dep_path.exists():
+            return []
+
+        try:
+            content = dep_path.read_text(encoding="utf-8")
+        except OSError:
+            return []
+
+        # 라인 이어붙이기 (백슬래시 + 개행)
+        content = content.replace("\\\n", " ")
+
+        # 첫 번째 콜론 찾기 (target.o:)
+        colon_idx = content.find(":")
+        if colon_idx == -1:
+            return []
+
+        # 콜론 이후가 의존성 목록
+        deps_str = content[colon_idx + 1:]
+
+        # 공백으로 분리
+        tokens = deps_str.split()
+
+        # 첫 번째는 소스 파일 (skip), 나머지가 헤더
+        if len(tokens) < 2:
+            return []
+
+        headers = []
+        for token in tokens[1:]:
+            token = token.strip()
+            if token:
+                headers.append(Path(token))
+
+        return headers
 
     def compile_all(
         self,
@@ -195,14 +239,26 @@ class CBaseAdapter(BaseAdapter):
             file_key = str(file.relative_to(self.project_root))
             current_stat = get_file_stat(file)
             obj_path = self._object_path(file)
-
             if not force:
                 cached_stat = target_cache.syntax_check.get(file_key)
                 if cached_stat is not None and is_unchanged(current_stat, cached_stat):
                     if obj_path.exists():
-                        skipped.append(file)
-                        continue
+                        # 헤더 파일도 변경 없는지 확인
+                        cached_headers = target_cache.header_deps.get(file_key, {})
+                        headers_unchanged = True
+                        for header_path_str, cached_header_stat in cached_headers.items():
+                            header_path = Path(header_path_str)
+                            if not header_path.exists():
+                                headers_unchanged = False
+                                break
+                            current_header_stat = get_file_stat(header_path)
+                            if not is_unchanged(current_header_stat, cached_header_stat):
+                                headers_unchanged = False
+                                break
 
+                        if headers_unchanged:
+                            skipped.append(file)
+                            continue
             files_to_compile.append(file)
 
         results = []
@@ -227,14 +283,26 @@ class CBaseAdapter(BaseAdapter):
             for include_dir in self._include_dirs():
                 cmd.extend(["-I", str(include_dir)])
 
+            # 헤더 의존성 파일 (.d) 자동 생성
+            dep_path = obj_path.with_suffix(".d")
+            cmd.extend(["-MD", "-MF", str(dep_path)])
+
             # 컴파일만 (링크 X)
             cmd.extend(["-c", str(file), "-o", str(obj_path)])
-
             proc = subprocess.run(cmd, capture_output=True, text=True)
 
             if proc.returncode == 0:
                 file_key = str(file.relative_to(self.project_root))
                 target_cache.syntax_check[file_key] = get_file_stat(file)
+
+                # 헤더 의존성 파싱해서 캐시에 저장
+                headers = self._parse_dep_file(dep_path)
+                header_stats = {}
+                for header in headers:
+                    if header.exists():
+                        header_stats[str(header)] = get_file_stat(header)
+                target_cache.header_deps[file_key] = header_stats
+
                 results.append(CompileResult(ok=True))
             else:
                 error_msg = proc.stderr.strip() or proc.stdout.strip()
