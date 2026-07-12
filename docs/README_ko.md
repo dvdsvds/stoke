@@ -217,7 +217,8 @@ VSCode에서 `File > Open Workspace from File`로 열면 각 프로젝트가 독
 - **v0.4** — C/C++ 지원 (gcc/g++, watch, hot-reload, IDE 통합)
 - **v0.5** — vcpkg 통합, 도구 관리, multi-root workspace
 - **v0.6** — C/C++ 빌드 개선 (헤더 의존성 자동 추적, 병렬 컴파일, IDE 통합 자동화)
-- **v0.7** — 계획 중
+- **v0.7** — 빌드 프로파일 시스템 (debug/release, 커스텀 프로파일, clang 지원)
+- **v0.8** — 계획 중
 
 ## 라이선스
 

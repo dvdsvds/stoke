@@ -21,6 +21,23 @@ def main():
         action="store_true",
         help="Ignore cache and rebuild everything",
     )
+    # Debug: 개발 중 사용, 최적화 없이 디버깅 편함
+    build_parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Debug build (default): -O0 -g, easy to debug",
+    )
+    # Release: 배포용, 최적화 적용
+    build_parser.add_argument(
+        "--release",
+        action="store_true",
+        help="Release build: -O2, optimized for deployment",
+    )
+    build_parser.add_argument(
+        "--profile",
+        default=None,
+        help="Custom build profile name (defined in stoke.toml)",
+    )
 
     # stoke python list
     python_parser = subparsers.add_parser("python", help="Python version tools")
@@ -100,6 +117,21 @@ def main():
         help="Run the built target (Python: entry file, Java: main_class)",
     )
     run_parser.add_argument("target", nargs="?", help="Target name")
+    run_parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Run debug build (default, C/C++ only)",
+    )
+    run_parser.add_argument(
+        "--release",
+        action="store_true",
+        help="Run release build (C/C++ only)",
+    )
+    run_parser.add_argument(
+        "--profile",
+        default=None,
+        help="Run specific custom profile build (C/C++ only)",
+    )
 
     subparsers.add_parser(
         "ide-sync",
@@ -114,9 +146,24 @@ def main():
     hotreload_parser.add_argument("target", nargs="?", help="Target name")
 
     args = parser.parse_args()
-
     if args.command == "build":
-        cmd_build(args.target, force=args.force)
+        # 프로파일 결정
+        if args.debug and args.release:
+            print("Error: cannot use both --debug and --release", file=sys.stderr)
+            sys.exit(1)
+        if(args.debug or args.release) and args.profile:
+            flag_name = "--debug" if args.debug else "--release" 
+            print(f"Error: cannot use {flag_name} with --release", file=sys.stderr)
+            sys.exit(1)
+
+        if args.release:
+            profile_name = "release" 
+        elif args.profile:
+            profile_name = args.profile
+        else:
+            profile_name = "debug"
+        
+        cmd_build(args.target, force=args.force, profile=profile_name)
     elif args.command == "clean":
         cmd_clean(target_name=args.target, delete_lock=args.all)
     elif args.command == "python":
@@ -153,12 +200,27 @@ def main():
     elif args.command == "hot-reload":
         cmd_hot_reload(args.target)
     elif args.command == "run":
-        cmd_run(args.target)
+        # 프로파일 결정
+        if args.debug and args.release:
+            print("Error: cannot use both --debug and --release", file=sys.stderr)
+            sys.exit(1)
+        if (args.debug or args.release) and args.profile:
+            flag_name = "--debug" if args.debug else "--release"
+            print(f"Error: cannot use {flag_name} with --profile", file=sys.stderr)
+            sys.exit(1)
+
+        if args.release:
+            profile_name = "release"
+        elif args.profile:
+            profile_name = args.profile
+        else:
+            profile_name = "debug"
+
+        cmd_run(args.target, profile=profile_name)
     elif args.command == "ide-sync":
         cmd_ide_sync()
 
-
-def cmd_build(target_name, force: bool = False):
+def cmd_build(target_name, force: bool = False, profile: str = "debug"):
     try:
         config = load_config()
     except FileNotFoundError as e:
@@ -166,6 +228,12 @@ def cmd_build(target_name, force: bool = False):
         sys.exit(1)
     except ValueError as e:
         print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    # 프로파일 유효성 확인
+    if profile not in config.profiles:
+        print(f"Error: profile '{profile}' not found", file=sys.stderr)
+        print(f"Available profiles: {', '.join(config.profiles.keys())}", file=sys.stderr)
         sys.exit(1)
 
     if target_name is None:
@@ -183,7 +251,8 @@ def cmd_build(target_name, force: bool = False):
     project_root = config.config_path.parent
 
     try:
-        adapter = make_adapter(target, config.project, project_root)
+        profile_obj = config.profiles[profile]
+        adapter = make_adapter(target, config.project, project_root, profile=profile_obj)
         adapter.build(force=force)
     except RuntimeError as e:
         print(f"Error: {e}", file=sys.stderr)
@@ -571,7 +640,7 @@ def cmd_vcpkg_list_libraries(target: str | None):
     for name, version in sorted(deps.items()):
         print(f"  {name} = \"{version}\"")
 
-def cmd_run(target_name):
+def cmd_run(target_name, profile: str = "debug"):
     try:
         config = load_config()
     except FileNotFoundError as e:
@@ -581,10 +650,15 @@ def cmd_run(target_name):
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
 
+    # 프로파일 유효성 확인
+    if profile not in config.profiles:
+        print(f"Error: profile '{profile}' not found", file=sys.stderr)
+        print(f"Available profiles: {', '.join(config.profiles.keys())}", file=sys.stderr)
+        sys.exit(1)
+
     if target_name is None:
         target_name = next(iter(config.targets))
         print(f"No target specified, running default: {target_name}")
-
     if target_name not in config.targets:
         print(
             f"Error: target '{target_name}' not found in stoke.toml",
@@ -602,7 +676,8 @@ def cmd_run(target_name):
     from stoke.adapters import make_adapter
 
     try:
-        adapter = make_adapter(target, config.project, project_root)
+        profile_obj = config.profiles[profile]
+        adapter = make_adapter(target, config.project, project_root, profile=profile_obj)
         exit_code = adapter.run()
         sys.exit(exit_code)
     except RuntimeError as e:

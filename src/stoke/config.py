@@ -24,11 +24,19 @@ class Target:
     includes: list[str] = field(default_factory=list)
 
 @dataclass
+class Profile:
+    """빌드 프로파일 (Debug, Release 등). C/C++만 사용."""
+    name: str
+    compile_flags: list[str] = field(default_factory=list)
+    defines: list[str] = field(default_factory=list)
+    compiler: str | None = None  # 특정 컴파일러 요구 (예: "clang"). None이면 기본값 사용.
+
+@dataclass
 class Config:
     project: ProjectInfo
     targets: dict[str, Target]
+    profiles: dict[str, Profile]  # 프로파일 이름 -> Profile
     config_path: Path  # stoke.toml 파일 위치 (나중에 상대 경로 처리에 필요)
-
 
 # stoke.toml 파일 찾기: 현재 → 상위 → 상위 → ... 로 올라감
 def find_config_file(start_dir: Path | None = None) -> Path:
@@ -82,32 +90,55 @@ def load_config(config_path: Path | None = None) -> Config:
     # [targets.*] 섹션들 파싱
     targets = {}
     targets_data = data.get("targets", {})
-
     for target_name, target_config in targets_data.items():
         if "language" not in target_config:
             raise ValueError(
                 f"Missing 'language' in [targets.{target_name}]"
             )
-
-    targets[target_name] = Target(
-        name=target_name,
-        language=target_config["language"],
-        sources=target_config.get("sources", []),
-        entry=target_config.get("entry"),
-        deps=target_config.get("deps", {}),
-        python_version=target_config.get("python_version"),
-        java_version=target_config.get("java_version"),
-        main_class=target_config.get("main_class"),
-        c_standard=target_config.get("c_standard"),
-        cpp_standard=target_config.get("cpp_standard"),
-        includes=target_config.get("includes", []),
-    )
-
+        targets[target_name] = Target(
+            name=target_name,
+            language=target_config["language"],
+            sources=target_config.get("sources", []),
+            entry=target_config.get("entry"),
+            deps=target_config.get("deps", {}),
+            python_version=target_config.get("python_version"),
+            java_version=target_config.get("java_version"),
+            main_class=target_config.get("main_class"),
+            c_standard=target_config.get("c_standard"),
+            cpp_standard=target_config.get("cpp_standard"),
+            includes=target_config.get("includes", []),
+        )
     if not targets:
         raise ValueError(f"No targets defined in {config_path}")
+
+    # [profiles.*] 섹션들 파싱 (선택적)
+    profiles = {}
+    profiles_data = data.get("profiles", {})
+    for profile_name, profile_config in profiles_data.items():
+        profiles[profile_name] = Profile(
+            name=profile_name,
+            compile_flags=profile_config.get("compile_flags", []),
+            defines=profile_config.get("defines", []),
+            compiler=profile_config.get("compiler"),
+        )
+
+    # 기본 프로파일 자동 추가 (사용자가 재정의하지 않은 것만)
+    if "debug" not in profiles:
+        profiles["debug"] = Profile(
+            name="debug",
+            compile_flags=["-O0", "-g", "-Wall"],
+            defines=["DEBUG"],
+        )
+    if "release" not in profiles:
+        profiles["release"] = Profile(
+            name="release",
+            compile_flags=["-O2"],
+            defines=["NDEBUG"],
+        )
 
     return Config(
         project=project,
         targets=targets,
+        profiles=profiles,
         config_path=config_path,
     )

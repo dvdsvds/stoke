@@ -4,7 +4,6 @@ import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 
-
 @dataclass
 class CompilerInstall:
     """C/C++ 컴파일러 정보."""
@@ -13,7 +12,6 @@ class CompilerInstall:
     major_version: int # 예: 15
     executable: Path   # gcc 또는 g++ 경로
     is_default: bool = False
-
 
 def _get_compiler_version(executable: str) -> str | None:
     """
@@ -41,7 +39,6 @@ def _get_compiler_version(executable: str) -> str | None:
         pass
     return None
 
-
 def _parse_major_version(version: str) -> int:
     """버전 문자열에서 메이저 버전 추출. '15.2.0' -> 15."""
     parts = version.split(".")
@@ -52,27 +49,35 @@ def _parse_major_version(version: str) -> int:
     except ValueError:
         return 0
 
-
-def _detect_compiler(kind: str) -> CompilerInstall | None:
+def _detect_compiler(kind: str, compiler_family: str = "gcc") -> CompilerInstall | None:
     """
     kind에 맞는 컴파일러 감지.
-    kind: "c" -> gcc, "cpp" -> g++
+    kind: "c" -> gcc/clang, "cpp" -> g++/clang++
+    compiler_family: "gcc" 또는 "clang"
     """
-    if kind == "c":
-        exe_name = "gcc"
-    elif kind == "cpp":
-        exe_name = "g++"
+    if compiler_family == "gcc":
+        if kind == "c":
+            exe_name = "gcc"
+        elif kind == "cpp":
+            exe_name = "g++"
+        else:
+            raise ValueError(f"Unknown compiler kind: {kind}")
+    elif compiler_family == "clang":
+        if kind == "c":
+            exe_name = "clang"
+        elif kind == "cpp":
+            exe_name = "clang++"
+        else:
+            raise ValueError(f"Unknown compiler kind: {kind}")
     else:
-        raise ValueError(f"Unknown compiler kind: {kind}")
+        raise ValueError(f"Unknown compiler family: {compiler_family}")
 
     exe_path = shutil.which(exe_name)
     if exe_path is None:
         return None
-
     version = _get_compiler_version(exe_path)
     if version is None:
         return None
-
     return CompilerInstall(
         kind=kind,
         version=version,
@@ -80,7 +85,6 @@ def _detect_compiler(kind: str) -> CompilerInstall | None:
         executable=Path(exe_path),
         is_default=True,
     )
-
 
 def detect_all() -> list[CompilerInstall]:
     """설치된 C/C++ 컴파일러 감지. C, C++ 각각."""
@@ -91,13 +95,13 @@ def detect_all() -> list[CompilerInstall]:
             installs.append(install)
     return installs
 
-
-def find_compiler(kind: str, requested_version: str | None = None) -> CompilerInstall | None:
+def find_compiler(kind: str, requested_version: str | None = None, compiler_family: str = "gcc") -> CompilerInstall | None:
     """
     kind와 원하는 버전에 맞는 컴파일러 찾기.
     requested_version 없으면 시스템 default.
+    compiler_family: "gcc" 또는 "clang"
     """
-    install = _detect_compiler(kind)
+    install = _detect_compiler(kind, compiler_family=compiler_family)
     if install is None:
         return None
 

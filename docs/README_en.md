@@ -217,7 +217,8 @@ When you run `stoke build`:
 - **v0.4** — C/C++ support (gcc/g++, watch, hot-reload, IDE integration)
 - **v0.5** — vcpkg integration, tool management, multi-root workspace
 - **v0.6** — C/C++ build improvements (header dependency tracking, parallel compilation, automatic IDE integration)
-- **v0.7** — TBD
+- **v0.7** — Build profile system (debug/release, custom profiles, clang support)
+- **v0.8** — TBD
 
 ## License
 

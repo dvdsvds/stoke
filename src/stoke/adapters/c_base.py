@@ -18,7 +18,7 @@ from stoke.cache import (
     is_unchanged,
 )
 from stoke.c_versions import CompilerInstall, find_compiler
-from stoke.config import Target, ProjectInfo
+from stoke.config import Target, ProjectInfo, Profile
 from stoke.lock import load_lock, save_lock
 
 @dataclass
@@ -46,9 +46,13 @@ class CBaseAdapter(BaseAdapter):
         target: Target,
         project: ProjectInfo,
         project_root: Path,
+        profile: Profile | None = None,
     ):
         super().__init__(target, project, project_root)
-        self.lang_dir = project_root / ".stoke" / self.compiler_kind / target.name
+        self.profile = profile
+        # 프로파일별 폴더 분리
+        profile_name = profile.name if profile else "default"
+        self.lang_dir = project_root / ".stoke" / self.compiler_kind / target.name / profile_name
         self.objects_dir = self.lang_dir / "objects"
         self.output_path = self.lang_dir / self._executable_name()
 
@@ -65,12 +69,21 @@ class CBaseAdapter(BaseAdapter):
         return None
 
     def resolve_compiler(self) -> CompilerInstall:
-        """어떤 컴파일러를 쓸지 결정."""
-        install = find_compiler(self.compiler_kind)
+        """
+        어떤 컴파일러를 쓸지 결정.
+        프로파일의 compiler 필드가 있으면 그걸 사용, 없으면 기본값 (gcc).
+        """
+        # 프로파일이 특정 컴파일러 요구하면 그거 사용
+        compiler_family = "gcc"
+        if self.profile and self.profile.compiler:
+            compiler_family = self.profile.compiler
+
+        install = find_compiler(self.compiler_kind, compiler_family=compiler_family)
         if install is None:
+            profile_note = f" (required by profile '{self.profile.name}')" if self.profile and self.profile.compiler else ""
             raise RuntimeError(
-                f"No {self.compiler_kind} compiler detected.\n"
-                f"  Install gcc/g++ or ensure it's in your PATH."
+                f"No {self.compiler_kind} compiler ({compiler_family}) detected{profile_note}.\n"
+                f"  Install {compiler_family} or ensure it's in your PATH."
             )
         return install
 
@@ -236,20 +249,23 @@ class CBaseAdapter(BaseAdapter):
         obj_path.parent.mkdir(parents=True, exist_ok=True)
 
         cmd = [str(compiler.executable)]
-
         # 표준 옵션
         standard = self._get_standard()
         if standard:
             cmd.append(f"{self.standard_flag_prefix}{standard}")
 
+        # 프로파일별 컴파일 옵션
+        if self.profile:
+            cmd.extend(self.profile.compile_flags)
+            for define in self.profile.defines:
+                cmd.append(f"-D{define}")
+
         # Include 경로
         for include_dir in self._include_dirs():
             cmd.extend(["-I", str(include_dir)])
-
         # 헤더 의존성 파일 (.d) 자동 생성
         dep_path = obj_path.with_suffix(".d")
         cmd.extend(["-MD", "-MF", str(dep_path)])
-
         # 컴파일만 (링크 X)
         cmd.extend(["-c", str(file), "-o", str(obj_path)])
 
