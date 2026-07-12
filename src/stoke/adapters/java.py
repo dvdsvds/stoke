@@ -250,11 +250,20 @@ class JavaAdapter(BaseAdapter):
         # -cp: 클래스패스 (classes_dir + deps_dir의 JAR들)
         cmd = [
             str(jdk.javac),
+            "-J-Dfile.encoding=UTF-8",
+            "-J-Dstdout.encoding=UTF-8",
+            "-J-Dstderr.encoding=UTF-8",
+            "-encoding", "UTF-8",
             "-d", str(self.classes_dir),
             "-cp", self._classpath(),
         ] + [str(f) for f in files_to_compile]
-
-        proc = subprocess.run(cmd, capture_output=True, text=True)
+        proc = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+        )
 
         if proc.returncode == 0:
             # 성공: 모든 파일 캐시 갱신
