@@ -2,13 +2,12 @@ import tomllib
 from dataclasses import dataclass, field
 from pathlib import Path
 
-
-# 데이터 클래스: 설정 파일 내용
 @dataclass
 class ProjectInfo:
     name: str
     version: str
     lock_mode: str = "commit"  # "commit" 또는 "local"
+    jobs: int | None = None    # 병렬 컴파일 워커 수 (None이면 자동)
 
 @dataclass
 class Target:
@@ -77,6 +76,7 @@ def load_config(config_path: Path | None = None) -> Config:
         name=project_data["name"],
         version=project_data.get("version", "0.0.0"),
         lock_mode=project_data.get("lock_mode", "commit"),
+        jobs=project_data.get("jobs"),
     )
 
     # [targets.*] 섹션들 파싱

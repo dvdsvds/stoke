@@ -3,7 +3,9 @@ C/C++ 어댑터의 공통 베이스 클래스.
 CAdapter, CppAdapter가 이걸 상속받아 컴파일러 이름, 표준 옵션만 다르게 구현.
 """
 
+import os
 import subprocess
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -219,6 +221,58 @@ class CBaseAdapter(BaseAdapter):
 
         return headers
 
+    def _compile_one(
+        self,
+        compiler: "CompilerInstall",
+        file: Path,
+    ) -> tuple[Path, "CompileResult", dict]:
+        """
+        파일 하나 컴파일. 병렬 실행 대상.
+
+        반환: (파일, 결과, 헤더_stats)
+        헤더_stats: 성공 시 {헤더경로: FileStat} 딕셔너리, 실패 시 빈 dict
+        """
+        obj_path = self._object_path(file)
+        obj_path.parent.mkdir(parents=True, exist_ok=True)
+
+        cmd = [str(compiler.executable)]
+
+        # 표준 옵션
+        standard = self._get_standard()
+        if standard:
+            cmd.append(f"{self.standard_flag_prefix}{standard}")
+
+        # Include 경로
+        for include_dir in self._include_dirs():
+            cmd.extend(["-I", str(include_dir)])
+
+        # 헤더 의존성 파일 (.d) 자동 생성
+        dep_path = obj_path.with_suffix(".d")
+        cmd.extend(["-MD", "-MF", str(dep_path)])
+
+        # 컴파일만 (링크 X)
+        cmd.extend(["-c", str(file), "-o", str(obj_path)])
+
+        proc = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+        )
+
+        if proc.returncode == 0:
+            # 헤더 의존성 파싱
+            headers = self._parse_dep_file(dep_path)
+            header_stats = {}
+            for header in headers:
+                if header.exists():
+                    header_stats[str(header)] = get_file_stat(header)
+            return file, CompileResult(ok=True), header_stats
+        else:
+            error_msg = proc.stderr.strip() or proc.stdout.strip()
+            return file, CompileResult(ok=False, error=error_msg), {}
+
     def compile_all(
         self,
         compiler: CompilerInstall,
@@ -267,48 +321,45 @@ class CBaseAdapter(BaseAdapter):
                 results.append(CompileResult(ok=True))
             return results, skipped
 
-        # 각 파일 개별 컴파일 (병렬화는 나중에)
+        # 워커 수 결정: stoke.toml의 jobs 우선, 없으면 CPU 코어 수
+        max_workers = self.project.jobs or os.cpu_count() or 1
+
+        # 병렬 컴파일
+        total = len(files_to_compile)
+        completed_count = 0
+        compile_results: dict[Path, tuple] = {}  # {파일: (결과, 헤더_stats)}
+
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            future_to_file = {
+                executor.submit(self._compile_one, compiler, file): file
+                for file in files_to_compile
+            }
+
+            for future in as_completed(future_to_file):
+                file, result, header_stats = future.result()
+                completed_count += 1
+
+                # 진행률 표시
+                rel_path = file.relative_to(self.project_root)
+                if result.ok:
+                    print(f"  [{completed_count}/{total}] compiled {rel_path}")
+                else:
+                    print(f"  [{completed_count}/{total}] FAILED  {rel_path}")
+
+                compile_results[file] = (result, header_stats)
+
+        # 결과 처리 (원본 순서 유지)
         for file in files_to_compile:
-            obj_path = self._object_path(file)
-            obj_path.parent.mkdir(parents=True, exist_ok=True)
+            result, header_stats = compile_results[file]
+            file_key = str(file.relative_to(self.project_root))
 
-            cmd = [str(compiler.executable)]
-
-            # 표준 옵션
-            standard = self._get_standard()
-            if standard:
-                cmd.append(f"{self.standard_flag_prefix}{standard}")
-
-            # Include 경로
-            for include_dir in self._include_dirs():
-                cmd.extend(["-I", str(include_dir)])
-
-            # 헤더 의존성 파일 (.d) 자동 생성
-            dep_path = obj_path.with_suffix(".d")
-            cmd.extend(["-MD", "-MF", str(dep_path)])
-
-            # 컴파일만 (링크 X)
-            cmd.extend(["-c", str(file), "-o", str(obj_path)])
-            proc = subprocess.run(cmd, capture_output=True, text=True)
-
-            if proc.returncode == 0:
-                file_key = str(file.relative_to(self.project_root))
+            if result.ok:
                 target_cache.syntax_check[file_key] = get_file_stat(file)
-
-                # 헤더 의존성 파싱해서 캐시에 저장
-                headers = self._parse_dep_file(dep_path)
-                header_stats = {}
-                for header in headers:
-                    if header.exists():
-                        header_stats[str(header)] = get_file_stat(header)
                 target_cache.header_deps[file_key] = header_stats
-
-                results.append(CompileResult(ok=True))
+                results.append(result)
             else:
-                error_msg = proc.stderr.strip() or proc.stdout.strip()
-                file_key = str(file.relative_to(self.project_root))
                 target_cache.syntax_check.pop(file_key, None)
-                results.append(CompileResult(ok=False, error=error_msg))
+                results.append(result)
 
         # skip된 파일들
         for _ in skipped:
@@ -334,7 +385,13 @@ class CBaseAdapter(BaseAdapter):
                         cmd.append(f"-l{lib_name}")
 
         self.output_path.parent.mkdir(parents=True, exist_ok=True)
-        proc = subprocess.run(cmd, capture_output=True, text=True)
+        proc = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+        )
         if proc.returncode != 0:
             error_msg = proc.stderr.strip() or proc.stdout.strip()
             raise RuntimeError(f"Link failed:\n{error_msg}")
@@ -342,10 +399,16 @@ class CBaseAdapter(BaseAdapter):
     def _generate_ide_files(self, compiler: CompilerInstall, source_files: list[Path]) -> None:
         """
         C/C++ IDE 통합용 compile_commands.json 및 c_cpp_properties.json 생성.
+        settings.json에 .stoke/ 감시 제외 설정 추가.
         """
         from stoke.ide.c_compile_commands import write_compile_commands
-        from stoke.ide.vscode import make_cpp_settings, write_cpp_properties
-
+        from stoke.ide.vscode import (
+            make_cpp_settings,
+            write_cpp_properties,
+            make_project_settings,
+            write_project_settings,
+        )
+        
         # compile_commands.json
         write_compile_commands(
             project_root=self.project_root,
@@ -356,7 +419,6 @@ class CBaseAdapter(BaseAdapter):
             standard=self._get_standard(),
             standard_flag_prefix=self.standard_flag_prefix,
         )
-
         # c_cpp_properties.json (VSCode C/C++ 확장이 compile_commands.json 인식하도록)
         cpp_settings = make_cpp_settings(
             language=self.compiler_kind,
@@ -365,7 +427,11 @@ class CBaseAdapter(BaseAdapter):
         )
         write_cpp_properties(self.project_root, cpp_settings)
 
-        print(f"IDE files generated: compile_commands.json, .vscode/c_cpp_properties.json")
+        # settings.json에 .stoke/ 감시 제외 (렉 방지)
+        project_settings = make_project_settings()
+        write_project_settings(self.project_root, project_settings)
+
+        print(f"IDE files generated: compile_commands.json, .vscode/c_cpp_properties.json, .vscode/settings.json")
 
     def _ensure_deps_installed(self) -> None:
         """
@@ -550,7 +616,9 @@ class CBaseAdapter(BaseAdapter):
 
         if failed:
             print("\nCompilation failed:")
-            print(failed[0].error)
+            for result in failed:
+                print(result.error)
+                print()
             save_cache(self.project_root, cache)
             self._ensure_gitignore()
             raise RuntimeError(

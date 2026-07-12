@@ -80,8 +80,16 @@ def make_java_settings(jar_files: list[Path], project_root: Path) -> dict:
 
     return {
         "java.project.referencedLibraries": lib_paths,
+        "files.exclude": {
+            "**/.stoke": True,
+        },
+        "search.exclude": {
+            "**/.stoke": True,
+        },
+        "files.watcherExclude": {
+            "**/.stoke/**": True,
+        },
     }
-
 
 def make_python_settings(venv_python: Path, project_root: Path) -> dict:
     """
@@ -96,6 +104,15 @@ def make_python_settings(venv_python: Path, project_root: Path) -> dict:
 
     return {
         "python.defaultInterpreterPath": interpreter_path,
+        "files.exclude": {
+            "**/.stoke": True,
+        },
+        "search.exclude": {
+            "**/.stoke": True,
+        },
+        "files.watcherExclude": {
+            "**/.stoke/**": True,
+        },
     }
 
 # 재귀 스캔 시 제외할 폴더들
@@ -212,7 +229,35 @@ def make_workspace_settings(projects_by_language: dict) -> dict:
         venv_python_rel = f"{first_project_rel}/.stoke/python/{first_project_rel.name}/venv/bin/python.exe"
         settings["python.defaultInterpreterPath"] = f"${{workspaceFolder}}/{venv_python_rel}"
 
+    # 모든 프로젝트의 .stoke/ 폴더를 감시 제외 (렉 방지)
+    settings["files.exclude"] = {
+        "**/.stoke": True,
+    }
+    settings["search.exclude"] = {
+        "**/.stoke": True,
+    }
+    settings["files.watcherExclude"] = {
+        "**/.stoke/**": True,
+    }
+
     return settings
+
+def make_project_settings() -> dict:
+    """
+    프로젝트 폴더의 .vscode/settings.json 기본 설정.
+    .stoke/ 폴더를 VSCode 감시에서 제외.
+    """
+    return {
+        "files.exclude": {
+            "**/.stoke": True,
+        },
+        "search.exclude": {
+            "**/.stoke": True,
+        },
+        "files.watcherExclude": {
+            "**/.stoke/**": True,
+        },
+    }
 
 def make_workspace_file(project_paths: list[Path], workspace_root: Path) -> dict:
     """

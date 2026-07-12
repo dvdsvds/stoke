@@ -211,13 +211,13 @@ VSCode에서 `File > Open Workspace from File`로 열면 각 프로젝트가 독
 6. 캐시 저장 (`.stoke/cache.json`)
 
 ## 로드맵
-
 - **v0.1** — Python 빌드 (venv, 의존성, 문법 체크, 증분 빌드)
 - **v0.2** — Watch 모드, hot-reload
 - **v0.3** — Java 지원 (JDK 감지, Maven Central, IDE 통합)
 - **v0.4** — C/C++ 지원 (gcc/g++, watch, hot-reload, IDE 통합)
-- **v0.5** (진행 중) — vcpkg 통합, 도구 관리, multi-root workspace
-- **v0.6** — 계획 중
+- **v0.5** — vcpkg 통합, 도구 관리, multi-root workspace
+- **v0.6** — C/C++ 빌드 개선 (헤더 의존성 자동 추적, 병렬 컴파일, IDE 통합 자동화)
+- **v0.7** — 계획 중
 
 ## 라이선스
 
