@@ -82,7 +82,6 @@ C_ONLY_LIBRARIES = {
     "ncurses",
 }
 
-
 def is_c_library(name: str) -> bool:
     """
     라이브러리 이름이 C 전용 라이브러리인지 확인.
@@ -90,14 +89,12 @@ def is_c_library(name: str) -> bool:
     """
     return name.lower() in C_ONLY_LIBRARIES
 
-
 def can_use_in_c_project(name: str) -> bool:
     """
     C 프로젝트에서 이 라이브러리를 사용할 수 있는지.
     C 라이브러리만 가능. 모르는 라이브러리는 C++로 간주해서 불가.
     """
     return is_c_library(name)
-
 
 def can_use_in_cpp_project(name: str) -> bool:
     """
