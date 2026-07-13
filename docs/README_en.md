@@ -210,6 +210,42 @@ When you run `stoke build`:
 5. Save lock file (only on change)
 6. Save cache (`.stoke/cache.json`)
 
+## Python Project Configuration
+
+### Specifying Entry File
+
+The `entry` field in `stoke.toml` specifies the Python file to run. Default is `src/main.py`.
+
+To change the file name or location, edit `stoke.toml` directly:
+
+```toml
+[targets.myapp]
+entry = "src/myapp/main.py"        # Custom location
+# entry = "src/custom_main.py"     # Custom filename
+```
+
+### Project Structure Convention
+
+Python requires explicit paths to import modules from subfolders.
+
+**Folder structure**:
+src/
+├── main.py
+└── computer/
+├── init.py
+└── hardware/
+├── init.py
+└── cpu.py
+
+**Import in main.py**:
+```python
+from computer.hardware.cpu import CPU
+```
+
+**Note**:
+- Each subfolder needs `__init__.py` (empty file works)
+- Short names (`from cpu import CPU`) won't work. Full path is required.
+
 ## Roadmap
 - **v0.1** — Python builds (venv, dependencies, syntax check, incremental builds)
 - **v0.2** — Watch mode, hot-reload

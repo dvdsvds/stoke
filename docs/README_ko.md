@@ -210,6 +210,42 @@ VSCode에서 `File > Open Workspace from File`로 열면 각 프로젝트가 독
 5. lock 파일 저장 (변경 시에만)
 6. 캐시 저장 (`.stoke/cache.json`)
 
+## Python 프로젝트 설정
+
+### Entry 파일 지정
+
+`stoke.toml`의 `entry` 필드는 실행할 파이썬 파일의 경로입니다. 기본값은 `src/main.py`입니다.
+
+파일 이름이나 위치를 바꾸려면 `stoke.toml`을 직접 수정하세요:
+
+```toml
+[targets.myapp]
+entry = "src/myapp/main.py"        # 커스텀 위치
+# entry = "src/computer_main.py"   # 커스텀 이름
+```
+
+### 프로젝트 구조 관행
+
+파이썬은 하위 폴더의 모듈을 사용하려면 명시적인 경로가 필요합니다.
+
+**폴더 구조**:
+src/
+├── main.py
+└── computer/
+├── init.py
+└── hardware/
+├── init.py
+└── cpu.py
+
+**main.py의 import**:
+```python
+from computer.hardware.cpu import CPU
+```
+
+**주의**:
+- 각 하위 폴더에 `__init__.py`가 있어야 함 (빈 파일도 됨)
+- 짧은 이름 (`from cpu import CPU`)은 안 됩니다. 폴더 경로가 필요합니다.
+
 ## 로드맵
 - **v0.1** — Python 빌드 (venv, 의존성, 문법 체크, 증분 빌드)
 - **v0.2** — Watch 모드, hot-reload
