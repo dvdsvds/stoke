@@ -147,25 +147,6 @@ def hot_reload(target: Target, config: Config, project_root: Path):
     # 프로세스 매니저 초기화
     manager = ProcessManager(project_root, get_run_command)
 
-    # 감시 루트 결정
-    roots = _watch_roots_from_target(project_root, target)
-    if not roots:
-        raise RuntimeError(
-            f"No watchable directories found for target '{target.name}'. "
-            f"Check the 'sources' patterns in stoke.toml."
-        )
-
-    # 첫 빌드
-    build_ok = _run_build(target, config, project_root)
-
-    # 실행 명령어를 얻는 콜러블 (매번 새 어댑터로 최신 상태 반영)
-    def get_run_command() -> list[str]:
-        adapter = make_adapter(target, config.project, project_root)
-        return adapter.get_run_command()
-
-    # 프로세스 매니저 초기화
-    manager = ProcessManager(project_root, get_run_command)
-
     # 첫 빌드 성공하면 프로세스 시작
     if build_ok:
         manager.start()
