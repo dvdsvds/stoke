@@ -9,7 +9,6 @@ from watchdog.observers import Observer
 from stoke.adapters import make_adapter
 from stoke.config import Config, Target
 
-
 DEBOUNCE_SECONDS = 0.3
 # 언어별 소스 파일 확장자
 LANGUAGE_EXTENSIONS = {
@@ -18,7 +17,6 @@ LANGUAGE_EXTENSIONS = {
     "c": {".c", ".h"},
     "cpp": {".cpp", ".hpp", ".cc", ".hh"},
 }
-
 
 class _DebouncedHandler(FileSystemEventHandler):
     """
@@ -118,14 +116,13 @@ def _watch_roots_from_target(project_root: Path, target: Target) -> list[Path]:
     # 존재하는 루트만
     return [r for r in roots if r.exists()]
 
-
-def _run_build(target: Target, config: Config, project_root: Path):
+def _run_build(target: Target, config: Config, project_root: Path, profile=None, verbose: bool = False):
     """한 번 빌드. 실패해도 예외를 여기서 삼켜서 watch 루프 유지."""
     print("\n" + "=" * 50)
     print(f"[watch] Rebuilding '{target.name}'...")
     print("=" * 50)
     try:
-        adapter = make_adapter(target, config.project, project_root)
+        adapter = make_adapter(target, config.project, project_root, profile=profile, verbose=verbose)
         adapter.build()
     except RuntimeError as e:
         print(f"\n[watch] Build failed: {e}", file=sys.stderr)
@@ -134,8 +131,7 @@ def _run_build(target: Target, config: Config, project_root: Path):
         print(f"\n[watch] Unexpected error: {e}", file=sys.stderr)
         print("[watch] Continuing to watch for changes...")
 
-
-def watch(target: Target, config: Config, project_root: Path):
+def watch(target: Target, config: Config, project_root: Path, profile=None, verbose: bool = False):
     """watch 모드 진입점."""
     # 감시 루트 결정
     roots = _watch_roots_from_target(project_root, target)
@@ -144,7 +140,6 @@ def watch(target: Target, config: Config, project_root: Path):
             f"No watchable directories found for target '{target.name}'. "
             f"Check the 'sources' patterns in stoke.toml."
         )
-
     # 언어별 소스 확장자 결정
     source_extensions = LANGUAGE_EXTENSIONS.get(target.language)
     if not source_extensions:
@@ -152,10 +147,8 @@ def watch(target: Target, config: Config, project_root: Path):
             f"Watch mode not supported for language '{target.language}'.\n"
             f"  Supported: {', '.join(sorted(LANGUAGE_EXTENSIONS.keys()))}"
         )
-
     # 첫 빌드
-    _run_build(target, config, project_root)
-
+    _run_build(target, config, project_root, profile=profile, verbose=verbose)
     # 파일 변경 콜백
     def on_change(paths: set[str]):
         # 변경된 파일 목록 요약 출력
@@ -167,7 +160,7 @@ def watch(target: Target, config: Config, project_root: Path):
             except ValueError:
                 rel_paths.append(p)
         print(f"\n[watch] Detected changes in: {', '.join(sorted(rel_paths))}")
-        _run_build(target, config, project_root)
+        _run_build(target, config, project_root, profile=profile, verbose=verbose)
 
     # 옵저버 설정
     handler = _DebouncedHandler(on_change, source_extensions)

@@ -101,14 +101,13 @@ class ProcessManager:
         self.stop()
         self.start()
 
-
-def _run_build(target: Target, config: Config, project_root: Path) -> bool:
+def _run_build(target: Target, config: Config, project_root: Path, profile=None, verbose: bool = False) -> bool:
     """빌드 실행. 성공 여부 반환. 예외는 여기서 삼킴."""
     print("\n" + "=" * 50)
     print(f"[hot-reload] Rebuilding '{target.name}'...")
     print("=" * 50)
     try:
-        adapter = make_adapter(target, config.project, project_root)
+        adapter = make_adapter(target, config.project, project_root, profile=profile, verbose=verbose)
         adapter.build()
         return True
     except RuntimeError as e:
@@ -117,9 +116,7 @@ def _run_build(target: Target, config: Config, project_root: Path) -> bool:
     except Exception as e:
         print(f"\n[hot-reload] Unexpected error: {e}", file=sys.stderr)
         return False
-
-
-def hot_reload(target: Target, config: Config, project_root: Path):
+def hot_reload(target: Target, config: Config, project_root: Path, profile=None, verbose: bool = False):
     """hot-reload 진입점."""
     # 언어 지원 여부 확인
     if target.language not in LANGUAGE_EXTENSIONS:
@@ -127,7 +124,6 @@ def hot_reload(target: Target, config: Config, project_root: Path):
             f"Hot-reload not supported for language '{target.language}'.\n"
             f"  Supported: {', '.join(sorted(LANGUAGE_EXTENSIONS.keys()))}"
         )
-
     # 감시 루트 결정
     roots = _watch_roots_from_target(project_root, target)
     if not roots:
@@ -135,13 +131,11 @@ def hot_reload(target: Target, config: Config, project_root: Path):
             f"No watchable directories found for target '{target.name}'. "
             f"Check the 'sources' patterns in stoke.toml."
         )
-
     # 첫 빌드
-    build_ok = _run_build(target, config, project_root)
-
+    build_ok = _run_build(target, config, project_root, profile=profile, verbose=verbose)
     # 실행 명령어를 얻는 콜러블 (매번 새 어댑터로 최신 상태 반영)
     def get_run_command() -> list[str]:
-        adapter = make_adapter(target, config.project, project_root)
+        adapter = make_adapter(target, config.project, project_root, profile=profile, verbose=verbose)
         return adapter.get_run_command()
 
     # 프로세스 매니저 초기화
@@ -171,7 +165,7 @@ def hot_reload(target: Target, config: Config, project_root: Path):
             manager.stop()
 
         # 재빌드
-        build_ok = _run_build(target, config, project_root)
+        build_ok = _run_build(target, config, project_root, profile=profile, verbose=verbose)
 
         # 재시작
         if build_ok:

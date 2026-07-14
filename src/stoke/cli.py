@@ -7,6 +7,26 @@ from stoke.config import load_config
 from stoke.init import cmd_init
 from stoke.python_versions import detect_all
 
+def _resolve_profile_from_args(args) -> str:
+    """
+    --debug / --release / --profile 옵션에서 프로파일 이름 결정.
+    충돌 시 SystemExit.
+    """
+    if args.debug and args.release:
+        print("Error: cannot use both --debug and --release", file=sys.stderr)
+        sys.exit(1)
+    if (args.debug or args.release) and args.profile:
+        flag_name = "--debug" if args.debug else "--release"
+        print(f"Error: cannot use {flag_name} with --profile", file=sys.stderr)
+        sys.exit(1)
+
+    if args.release:
+        return "release"
+    elif args.profile:
+        return args.profile
+    else:
+        return "debug"
+
 def main():
     parser = argparse.ArgumentParser(
         prog="stoke",
@@ -115,6 +135,26 @@ def main():
         help="Watch for file changes and rebuild automatically",
     )
     watch_parser.add_argument("target", nargs="?", help="Target name")
+    watch_parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Debug build (default, C/C++ only)",
+    )
+    watch_parser.add_argument(
+        "--release",
+        action="store_true",
+        help="Release build (C/C++ only)",
+    )
+    watch_parser.add_argument(
+        "--profile",
+        default=None,
+        help="Custom build profile name (C/C++ only)",
+    )
+    watch_parser.add_argument(
+        "-v", "--verbose",
+        action="store_true",
+        help="Show detailed build output",
+    )
 
     # stoke run [target]
     run_parser = subparsers.add_parser(
@@ -149,25 +189,30 @@ def main():
         help="Watch, rebuild, and restart the running process on changes",
     )
     hotreload_parser.add_argument("target", nargs="?", help="Target name")
+    hotreload_parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Debug build (default, C/C++ only)",
+    )
+    hotreload_parser.add_argument(
+        "--release",
+        action="store_true",
+        help="Release build (C/C++ only)",
+    )
+    hotreload_parser.add_argument(
+        "--profile",
+        default=None,
+        help="Custom build profile name (C/C++ only)",
+    )
+    hotreload_parser.add_argument(
+        "-v", "--verbose",
+        action="store_true",
+        help="Show detailed build output",
+    )
 
     args = parser.parse_args()
     if args.command == "build":
-        # 프로파일 결정
-        if args.debug and args.release:
-            print("Error: cannot use both --debug and --release", file=sys.stderr)
-            sys.exit(1)
-        if(args.debug or args.release) and args.profile:
-            flag_name = "--debug" if args.debug else "--release" 
-            print(f"Error: cannot use {flag_name} with --release", file=sys.stderr)
-            sys.exit(1)
-
-        if args.release:
-            profile_name = "release" 
-        elif args.profile:
-            profile_name = args.profile
-        else:
-            profile_name = "debug"
-        
+        profile_name = _resolve_profile_from_args(args)
         cmd_build(args.target, force=args.force, profile=profile_name, verbose=args.verbose)
     elif args.command == "clean":
         cmd_clean(target_name=args.target, delete_lock=args.all)
@@ -201,26 +246,13 @@ def main():
     elif args.command == "init":
         cmd_init()
     elif args.command == "watch":
-        cmd_watch(args.target)
+        profile_name = _resolve_profile_from_args(args)
+        cmd_watch(args.target, profile=profile_name, verbose=args.verbose)
     elif args.command == "hot-reload":
-        cmd_hot_reload(args.target)
+        profile_name = _resolve_profile_from_args(args)
+        cmd_hot_reload(args.target, profile=profile_name, verbose=args.verbose)
     elif args.command == "run":
-        # 프로파일 결정
-        if args.debug and args.release:
-            print("Error: cannot use both --debug and --release", file=sys.stderr)
-            sys.exit(1)
-        if (args.debug or args.release) and args.profile:
-            flag_name = "--debug" if args.debug else "--release"
-            print(f"Error: cannot use {flag_name} with --profile", file=sys.stderr)
-            sys.exit(1)
-
-        if args.release:
-            profile_name = "release"
-        elif args.profile:
-            profile_name = args.profile
-        else:
-            profile_name = "debug"
-
+        profile_name = _resolve_profile_from_args(args)
         cmd_run(args.target, profile=profile_name)
     elif args.command == "ide-sync":
         cmd_ide_sync()
@@ -765,7 +797,7 @@ def cmd_ide_sync():
     print(f"Generated: {workspace_path}")
     print(f"\nOpen in VSCode: {workspace_path}")
 
-def cmd_watch(target_name):
+def cmd_watch(target_name, profile: str = "debug", verbose: bool = False):
     try:
         config = load_config()
     except FileNotFoundError as e:
@@ -774,11 +806,15 @@ def cmd_watch(target_name):
     except ValueError as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
-
+    # 프로파일 유효성 확인
+    if profile not in config.profiles:
+        print(f"Error: profile '{profile}' not found", file=sys.stderr)
+        print(f"Available profiles: {', '.join(config.profiles.keys())}", file=sys.stderr)
+        sys.exit(1)
     if target_name is None:
         target_name = next(iter(config.targets))
-        print(f"No target specified, watching default: {target_name}")
-
+        if verbose:
+            print(f"No target specified, watching default: {target_name}")
     if target_name not in config.targets:
         print(
             f"Error: target '{target_name}' not found in stoke.toml",
@@ -789,19 +825,17 @@ def cmd_watch(target_name):
             file=sys.stderr,
         )
         sys.exit(1)
-
     target = config.targets[target_name]
     project_root = config.config_path.parent
-
+    profile_obj = config.profiles[profile]
     from stoke.watcher import watch
-
     try:
-        watch(target, config, project_root)
+        watch(target, config, project_root, profile=profile_obj, verbose=verbose)
     except RuntimeError as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
 
-def cmd_hot_reload(target_name):
+def cmd_hot_reload(target_name, profile: str = "debug", verbose: bool = False):
     try:
         config = load_config()
     except FileNotFoundError as e:
@@ -810,11 +844,15 @@ def cmd_hot_reload(target_name):
     except ValueError as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
-
+    # 프로파일 유효성 확인
+    if profile not in config.profiles:
+        print(f"Error: profile '{profile}' not found", file=sys.stderr)
+        print(f"Available profiles: {', '.join(config.profiles.keys())}", file=sys.stderr)
+        sys.exit(1)
     if target_name is None:
         target_name = next(iter(config.targets))
-        print(f"No target specified, hot-reloading default: {target_name}")
-
+        if verbose:
+            print(f"No target specified, hot-reloading default: {target_name}")
     if target_name not in config.targets:
         print(
             f"Error: target '{target_name}' not found in stoke.toml",
@@ -825,14 +863,12 @@ def cmd_hot_reload(target_name):
             file=sys.stderr,
         )
         sys.exit(1)
-
     target = config.targets[target_name]
     project_root = config.config_path.parent
-
+    profile_obj = config.profiles[profile]
     from stoke.hot_reload import hot_reload
-
     try:
-        hot_reload(target, config, project_root)
+        hot_reload(target, config, project_root, profile=profile_obj, verbose=verbose)
     except RuntimeError as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
