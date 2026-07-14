@@ -6,14 +6,12 @@ Maven 설치 없이도 IDE가 이 파일을 읽어서 프로젝트 구조를 파
 from pathlib import Path
 from xml.sax.saxutils import escape
 
-
 def _relative_path(path: Path, project_root: Path) -> str:
     """project_root 기준 상대 경로. 실패 시 절대 경로."""
     try:
         return str(path.relative_to(project_root)).replace("\\", "/")
     except ValueError:
         return str(path).replace("\\", "/")
-
 
 def generate_pom(
     project_name: str,
@@ -89,7 +87,6 @@ def generate_pom(
     lines.append('</project>')
     return "\n".join(lines) + "\n"
 
-
 def write_pom(
     project_root: Path,
     project_name: str,
@@ -98,10 +95,10 @@ def write_pom(
     source_dirs: list[Path],
     output_dir: Path,
     deps: dict[str, str],
-) -> Path:
+) -> tuple[Path, bool]:
     """
     pom.xml을 프로젝트 루트에 저장.
-    반환: 저장된 파일 경로.
+    반환: (파일 경로, 실제 변경 여부)
     """
     pom_content = generate_pom(
         project_name=project_name,
@@ -112,7 +109,12 @@ def write_pom(
         deps=deps,
         project_root=project_root,
     )
-
     pom_path = project_root / "pom.xml"
+
+    if pom_path.exists():
+        old_content = pom_path.read_text(encoding="utf-8")
+        if old_content == pom_content:
+            return pom_path, False
+
     pom_path.write_text(pom_content, encoding="utf-8")
-    return pom_path
+    return pom_path, True

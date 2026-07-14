@@ -3,7 +3,6 @@ from pathlib import Path
 
 from stoke.config import ProjectInfo, Target
 
-
 class BaseAdapter(ABC):
     """
     모든 언어 어댑터의 공통 인터페이스.
@@ -15,10 +14,12 @@ class BaseAdapter(ABC):
         target: Target,
         project: ProjectInfo,
         project_root: Path,
+        verbose: bool = False,
     ):
         self.target = target
         self.project = project
         self.project_root = project_root
+        self.verbose = verbose
 
     @abstractmethod
     def build(self, force: bool = False) -> None:

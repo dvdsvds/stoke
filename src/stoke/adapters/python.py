@@ -32,8 +32,9 @@ class PythonAdapter(BaseAdapter):
         target: Target,
         project: ProjectInfo,
         project_root: Path,
+        verbose: bool = False,
     ):
-        super().__init__(target, project, project_root)
+        super().__init__(target, project, project_root, verbose=verbose)
         self.lang_dir = project_root / ".stoke" / "python" / target.name
         self.venv_dir = self.lang_dir / "venv"
 
@@ -140,7 +141,8 @@ class PythonAdapter(BaseAdapter):
         - venv에 이미 설치된 패키지가 lock과 완전히 같으면 skip
         """
         if not self.target.deps:
-            print("No dependencies to install")
+            if self.verbose:
+                print("No dependencies to install")
             return {}, False
 
         pip_exe = self.venv_pip_exe()
@@ -389,7 +391,6 @@ class PythonAdapter(BaseAdapter):
         python, should_update_lock = self.resolve_python()
         lock = load_lock(self.project_root, self.project.lock_mode)
         cache = load_cache(self.project_root)
-
         # venv가 있는데 버전이 안 맞으면 재생성
         if self.venv_exists():
             existing_version = self.get_venv_python_version()
@@ -405,76 +406,72 @@ class PythonAdapter(BaseAdapter):
                 # venv 재생성했으니 패키지도 다시 설치해야 함
                 should_update_lock = True
             else:
-                print(
-                    f"Reusing existing venv at {self.venv_dir} "
-                    f"(Python {existing_version})"
-                )
+                print(f"Using Python {existing_version}")
+                if self.verbose:
+                    print(f"  venv: {self.venv_dir}")
         else:
             self.create_venv(python)
             print("venv created successfully")
-
         # 의존성 설치
-        print("\n--- Installing dependencies ---")
+        if self.verbose:
+            print("\n--- Installing dependencies ---")
         installed_packages, deps_installed = self.install_deps(lock, force=force)
         if deps_installed:
             print(f"Installed {len(installed_packages)} package(s):")
             for name, ver in sorted(installed_packages.items()):
                 print(f"  {name}=={ver}")
-
-        # lock 파일 저장 (파이썬 버전 갱신 필요 or 패키지 lock 없었음 or 실제 설치 발생)
-        need_save_lock = should_update_lock or (lock is None or not lock.packages) or deps_installed
-        if need_save_lock:
-            lock_path = save_lock(
-                self.project_root,
-                self.project.lock_mode,
-                python.version,
-                str(python.executable),
-                packages=installed_packages,
-            )
-            print(f"\nLock file saved: {lock_path}")
-
+        # lock 파일 저장 (실제 변경 있을 때만)
+        lock_path, lock_changed = save_lock(
+            self.project_root,
+            self.project.lock_mode,
+            python.version,
+            str(python.executable),
+            packages=installed_packages,
+        )
+        if lock_changed:
+            print(f"Lock file saved: {lock_path}")
         # 문법 체크
-        print("\n--- Checking syntax ---")
+        if self.verbose:
+            print("\n--- Checking syntax ---")
         source_files = self.collect_source_files()
         if not source_files:
             print("No source files found matching sources patterns")
         else:
-            print(f"Checking {len(source_files)} file(s)...")
+            if self.verbose:
+                print(f"Checking {len(source_files)} file(s)...")
             results, skipped_files = self.check_syntax(source_files, cache, force=force)
             skipped_set = set(skipped_files)
 
             failed = [r for r in results if not r.ok]
             passed = [r for r in results if r.ok]
-
-            if skipped_files:
-                print(f"  Skipped {len(skipped_files)} unchanged file(s)")
-
-            # 새로 체크한 파일만 표시
-            for r in passed:
-                if r.file in skipped_set:
-                    continue
-                rel = r.file.relative_to(self.project_root)
-                print(f"  OK    {rel}")
-
+            # verbose에서만 각 파일 OK 표시
+            if self.verbose:
+                for r in passed:
+                    if r.file in skipped_set:
+                        continue
+                    rel = r.file.relative_to(self.project_root)
+                    print(f"  OK    {rel}")
+            # 실패는 항상 표시
             for r in failed:
                 rel = r.file.relative_to(self.project_root)
                 print(f"  FAIL  {rel}")
                 for line in r.error.splitlines():
                     print(f"        {line}")
-
             if failed:
-                # 실패해도 지금까지 성공한 캐시는 저장
                 save_cache(self.project_root, cache)
                 self._ensure_gitignore()
                 raise RuntimeError(
                     f"Syntax check failed: {len(failed)} of {len(results)} files"
                 )
-
             newly_checked = len(passed) - len(skipped_files)
+            # 요약: "Checked N, Skipped M"
+            parts = []
             if newly_checked > 0:
-                print(f"Checked {newly_checked} new/changed file(s), all passed")
-            else:
-                print("All files up to date")
+                parts.append(f"Checked {newly_checked} file(s)")
+            if skipped_files:
+                parts.append(f"Skipped {len(skipped_files)} unchanged file(s)")
+            if parts:
+                print(", ".join(parts))
 
         # 캐시 저장
         save_cache(self.project_root, cache)
@@ -490,9 +487,9 @@ class PythonAdapter(BaseAdapter):
                 self.venv_python_exe(),
                 self.project_root,
             )
-            write_project_settings(self.project_root, python_settings)
-            print(f"IDE files generated: .vscode/settings.json")
-
+            _, settings_changed = write_project_settings(self.project_root, python_settings)
+            if settings_changed:
+                print(f"IDE files updated: .vscode/settings.json")
         print(f"\nBuild complete: {self.target.name}")
 
     def run(self) -> int:

@@ -26,16 +26,7 @@ class CompileResult:
     ok: bool
     error: str = ""
 
-
 class CBaseAdapter(BaseAdapter):
-    """
-    C/C++ 어댑터의 공통 로직.
-    서브클래스가 다음을 구현해야 함:
-      - compiler_kind: "c" 또는 "cpp"
-      - source_extension: ".c" 또는 ".cpp"
-      - default_standard: 컴파일러 기본 표준 (예: "c17", "c++17")
-    """
-
     compiler_kind: str = ""       # 서브클래스에서 오버라이드
     source_extension: str = ""    # 서브클래스에서 오버라이드
     default_standard: str = ""    # 서브클래스에서 오버라이드
@@ -47,9 +38,11 @@ class CBaseAdapter(BaseAdapter):
         project: ProjectInfo,
         project_root: Path,
         profile: Profile | None = None,
+        verbose: bool = False,
     ):
-        super().__init__(target, project, project_root)
+        super().__init__(target, project, project_root, verbose=verbose)
         self.profile = profile
+
         # 프로파일별 폴더 분리
         profile_name = profile.name if profile else "default"
         self.lang_dir = project_root / ".stoke" / self.compiler_kind / target.name / profile_name
@@ -426,7 +419,7 @@ class CBaseAdapter(BaseAdapter):
         )
         
         # compile_commands.json
-        write_compile_commands(
+        _, cc_changed = write_compile_commands(
             project_root=self.project_root,
             compiler_path=compiler.executable,
             source_files=source_files,
@@ -441,13 +434,21 @@ class CBaseAdapter(BaseAdapter):
             standard=self._get_standard() or "",
             compiler_path=str(compiler.executable),
         )
-        write_cpp_properties(self.project_root, cpp_settings)
-
+        _, cpp_changed = write_cpp_properties(self.project_root, cpp_settings)
         # settings.json에 .stoke/ 감시 제외 (렉 방지)
         project_settings = make_project_settings()
-        write_project_settings(self.project_root, project_settings)
+        _, settings_changed = write_project_settings(self.project_root, project_settings)
 
-        print(f"IDE files generated: compile_commands.json, .vscode/c_cpp_properties.json, .vscode/settings.json")
+        # 변경된 파일만 알림
+        changed_files = []
+        if cc_changed:
+            changed_files.append("compile_commands.json")
+        if cpp_changed:
+            changed_files.append(".vscode/c_cpp_properties.json")
+        if settings_changed:
+            changed_files.append(".vscode/settings.json")
+        if changed_files:
+            print(f"IDE files updated: {', '.join(changed_files)}")
 
     def _ensure_deps_installed(self) -> None:
         """
@@ -547,7 +548,7 @@ class CBaseAdapter(BaseAdapter):
         if self.compiler_kind == "c":
             from stoke.lock import CDep
             c_deps_for_lock = {name: CDep(**info) for name, info in deps_for_lock.items()}
-            lock_path = save_lock(
+            lock_path, lock_changed = save_lock(
                 self.project_root,
                 self.project.lock_mode,
                 c_compiler="gcc",
@@ -559,7 +560,7 @@ class CBaseAdapter(BaseAdapter):
         else:  # cpp
             from stoke.lock import CppDep
             cpp_deps_for_lock = {name: CppDep(**info) for name, info in deps_for_lock.items()}
-            lock_path = save_lock(
+            lock_path, lock_changed = save_lock(
                 self.project_root,
                 self.project.lock_mode,
                 cpp_compiler="g++",
@@ -568,7 +569,8 @@ class CBaseAdapter(BaseAdapter):
                 cpp_standard=standard,
                 cpp_deps=cpp_deps_for_lock if cpp_deps_for_lock else None,
             )
-        print(f"\nLock file saved: {lock_path}")
+        if lock_changed:
+            print(f"Lock file saved: {lock_path}")
 
     def _collect_deps_for_lock(self) -> dict[str, dict]:
         """
@@ -603,33 +605,44 @@ class CBaseAdapter(BaseAdapter):
         cache = load_cache(self.project_root)
         lock = load_lock(self.project_root, self.project.lock_mode)
         print(f"Using {self.compiler_kind} compiler {compiler.version}")
-        print(f"  executable: {compiler.executable}")
+        if self.verbose:
+            print(f"  executable: {compiler.executable}")
 
         # 의존성 확인/설치
         self._ensure_deps_installed()
 
         # 소스 수집
-        print("\n--- Collecting sources ---")
+        if self.verbose:
+            print("\n--- Collecting sources ---")
+
         source_files = self.collect_source_files()
+
         if not source_files:
             print("No source files found matching sources patterns")
             self._ensure_gitignore()
             return
 
-        print(f"Found {len(source_files)} source file(s)")
+        if self.verbose:
+            print(f"Found {len(source_files)} source file(s)")
 
         # 컴파일
-        print("\n--- Compiling ---")
+        if self.verbose:
+            print("\n--- Compiling ---")
+
         results, skipped = self.compile_all(compiler, source_files, cache, force=force)
         failed = [r for r in results if not r.ok]
-
-        if skipped:
-            print(f"  Skipped {len(skipped)} unchanged file(s)")
-
         newly_compiled = len(source_files) - len(skipped)
-        if newly_compiled > 0 and not failed:
-            print(f"  Compiled {newly_compiled} file(s)")
 
+        if not failed:
+
+            # 컴파일 요약: "Compiled N file(s), Skipped M"
+            parts = []
+            if newly_compiled > 0:
+                parts.append(f"Compiled {newly_compiled} file(s)")
+            if skipped:
+                parts.append(f"Skipped {len(skipped)} unchanged file(s)")
+            if parts:
+                print(", ".join(parts))
         if failed:
             print("\nCompilation failed:")
             for result in failed:
@@ -642,10 +655,13 @@ class CBaseAdapter(BaseAdapter):
             )
 
         # 링크
-        print("\n--- Linking ---")
+        if self.verbose:
+            print("\n--- Linking ---")        
+            
         try:
             self.link(compiler, source_files)
-            print(f"  Executable: {self.output_path}")
+            if self.verbose:
+                print(f"Executable: {self.output_path}")
         except RuntimeError as e:
             save_cache(self.project_root, cache)
             self._ensure_gitignore()

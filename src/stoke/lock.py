@@ -297,11 +297,16 @@ standard = "{cpp_standard or ''}"
 
     content += f'''
 [meta]
-created_at = "{now}"
 stoke_version = "{__version__}"
 '''
+    # 기존 내용이랑 같으면 write 스킵
+    if path.exists():
+        old_content = path.read_text(encoding="utf-8")
+        if old_content == content:
+            return path, False
+
     path.write_text(content, encoding="utf-8")
-    return path
+    return path, True
 
 
 def is_compatible(lock_version: str, requested: str) -> bool:

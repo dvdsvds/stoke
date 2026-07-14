@@ -6,7 +6,6 @@ VSCode C/C++ 확장, clangd, CLion 등 대부분 C/C++ IDE가 이 파일을 인�
 import json
 from pathlib import Path
 
-
 def generate_compile_commands(
     compiler_path: Path,
     source_files: list[Path],
@@ -55,7 +54,6 @@ def generate_compile_commands(
 
     return commands
 
-
 def write_compile_commands(
     project_root: Path,
     compiler_path: Path,
@@ -64,10 +62,10 @@ def write_compile_commands(
     include_dirs: list[Path],
     standard: str | None = None,
     standard_flag_prefix: str = "-std=",
-) -> Path:
+) -> tuple[Path, bool]:
     """
     프로젝트 루트에 compile_commands.json 저장.
-    반환: 저장된 파일 경로.
+    반환: (파일 경로, 실제 변경 여부)
     """
     commands = generate_compile_commands(
         compiler_path=compiler_path,
@@ -78,10 +76,13 @@ def write_compile_commands(
         standard=standard,
         standard_flag_prefix=standard_flag_prefix,
     )
-
     output_path = project_root / "compile_commands.json"
-    output_path.write_text(
-        json.dumps(commands, indent=2) + "\n",
-        encoding="utf-8",
-    )
-    return output_path
+    new_content = json.dumps(commands, indent=2) + "\n"
+
+    if output_path.exists():
+        old_content = output_path.read_text(encoding="utf-8")
+        if old_content == new_content:
+            return output_path, False
+
+    output_path.write_text(new_content, encoding="utf-8")
+    return output_path, True

@@ -38,6 +38,11 @@ def main():
         default=None,
         help="Custom build profile name (defined in stoke.toml)",
     )
+    build_parser.add_argument(
+        "-v", "--verbose",
+        action="store_true",
+        help="Show detailed build output",
+    )
 
     # stoke python list
     python_parser = subparsers.add_parser("python", help="Python version tools")
@@ -163,7 +168,7 @@ def main():
         else:
             profile_name = "debug"
         
-        cmd_build(args.target, force=args.force, profile=profile_name)
+        cmd_build(args.target, force=args.force, profile=profile_name, verbose=args.verbose)
     elif args.command == "clean":
         cmd_clean(target_name=args.target, delete_lock=args.all)
     elif args.command == "python":
@@ -220,7 +225,7 @@ def main():
     elif args.command == "ide-sync":
         cmd_ide_sync()
 
-def cmd_build(target_name, force: bool = False, profile: str = "debug"):
+def cmd_build(target_name, force: bool = False, profile: str = "debug", verbose: bool = False):
     try:
         config = load_config()
     except FileNotFoundError as e:
@@ -229,30 +234,26 @@ def cmd_build(target_name, force: bool = False, profile: str = "debug"):
     except ValueError as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
-
     # 프로파일 유효성 확인
     if profile not in config.profiles:
         print(f"Error: profile '{profile}' not found", file=sys.stderr)
         print(f"Available profiles: {', '.join(config.profiles.keys())}", file=sys.stderr)
         sys.exit(1)
-
     if target_name is None:
         target_name = next(iter(config.targets))
-        print(f"No target specified, using default: {target_name}")
-
+        if verbose:
+            print(f"No target specified, using default: {target_name}")
     if target_name not in config.targets:
         print(f"Error: target '{target_name}' not found in stoke.toml", file=sys.stderr)
         print(f"Available targets: {', '.join(config.targets.keys())}", file=sys.stderr)
         sys.exit(1)
-
     target = config.targets[target_name]
-    print(f"Building target '{target.name}' (language: {target.language})...")
-
+    print(f"Building '{target.name}' ({target.language})...")
     project_root = config.config_path.parent
 
     try:
         profile_obj = config.profiles[profile]
-        adapter = make_adapter(target, config.project, project_root, profile=profile_obj)
+        adapter = make_adapter(target, config.project, project_root, profile=profile_obj, verbose=verbose)
         adapter.build(force=force)
     except RuntimeError as e:
         print(f"Error: {e}", file=sys.stderr)

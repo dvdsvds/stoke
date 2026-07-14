@@ -42,28 +42,30 @@ def _merge_stoke_keys(existing: dict, stoke_config: dict) -> dict:
         result[key] = value
     return result
 
-
 def write_project_settings(
     project_root: Path,
     settings: dict,
-) -> Path:
+) -> tuple[Path, bool]:
     """
     프로젝트 폴더의 .vscode/settings.json 생성/병합.
-    반환: 저장된 파일 경로.
+    반환: (저장된 파일 경로, 실제 변경 여부)
     """
     vscode_dir = project_root / ".vscode"
     vscode_dir.mkdir(exist_ok=True)
-
     settings_path = vscode_dir / "settings.json"
     existing = _load_existing(settings_path)
     merged = _merge_stoke_keys(existing, settings)
 
-    settings_path.write_text(
-        json.dumps(merged, indent=2, ensure_ascii=False) + "\n",
-        encoding="utf-8",
-    )
-    return settings_path
+    new_content = json.dumps(merged, indent=2, ensure_ascii=False) + "\n"
 
+    # 기존 파일이랑 같으면 write 스킵
+    if settings_path.exists():
+        old_content = settings_path.read_text(encoding="utf-8")
+        if old_content == new_content:
+            return settings_path, False
+
+    settings_path.write_text(new_content, encoding="utf-8")
+    return settings_path, True
 
 def make_java_settings(jar_files: list[Path], project_root: Path) -> dict:
     """
@@ -159,20 +161,21 @@ def make_cpp_settings(language: str, standard: str, compiler_path: str | None = 
         "version": 4,
     }
 
-
-def write_cpp_properties(project_root: Path, settings: dict) -> Path:
-    """c_cpp_properties.json 저장. 반환: 저장된 파일 경로."""
+def write_cpp_properties(project_root: Path, settings: dict) -> tuple[Path, bool]:
+    """c_cpp_properties.json 저장. 반환: (파일 경로, 실제 변경 여부)"""
     import json
-
     vscode_dir = project_root / ".vscode"
     vscode_dir.mkdir(exist_ok=True)
     settings_path = vscode_dir / "c_cpp_properties.json"
+    new_content = json.dumps(settings, indent=4) + "\n"
 
-    settings_path.write_text(
-        json.dumps(settings, indent=4) + "\n",
-        encoding="utf-8",
-    )
-    return settings_path
+    if settings_path.exists():
+        old_content = settings_path.read_text(encoding="utf-8")
+        if old_content == new_content:
+            return settings_path, False
+
+    settings_path.write_text(new_content, encoding="utf-8")
+    return settings_path, True
 
 def find_stoke_projects(root: Path) -> list[Path]:
     """

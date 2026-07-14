@@ -18,12 +18,10 @@ from stoke.java_versions import (
 )
 from stoke.lock import LockFile, load_lock, save_lock
 
-
 @dataclass
 class CompileResult:
     ok: bool
     error: str = ""
-
 
 class JavaAdapter(BaseAdapter):
     def __init__(
@@ -31,8 +29,9 @@ class JavaAdapter(BaseAdapter):
         target: Target,
         project: ProjectInfo,
         project_root: Path,
+        verbose: bool = False,
     ):
-        super().__init__(target, project, project_root)
+        super().__init__(target, project, project_root, verbose=verbose)
         self.lang_dir = project_root / ".stoke" / "java" / target.name
         self.classes_dir = self.lang_dir / "classes"
         self.deps_dir = self.lang_dir / "deps"
@@ -172,8 +171,8 @@ class JavaAdapter(BaseAdapter):
             return
         jar_files = self._existing_jars()
 
-        # Eclipse 형식 (.classpath, .project)
-        write_ide_files(
+        ## Eclipse 형식 (.classpath, .project)
+        _, _, classpath_changed, project_changed = write_ide_files(
             project_root=self.project_root,
             project_name=self.target.name,
             source_dirs=source_dirs,
@@ -183,11 +182,11 @@ class JavaAdapter(BaseAdapter):
 
         # VSCode 설정 (.vscode/settings.json)
         java_settings = make_java_settings(jar_files, self.project_root)
-        write_project_settings(self.project_root, java_settings)
+        _, settings_changed = write_project_settings(self.project_root, java_settings)
 
         # Maven pom.xml (IntelliJ 등)
         java_version = str(self.target.java_version or "25")
-        write_pom(
+        _, pom_changed = write_pom(
             project_root=self.project_root,
             project_name=self.target.name,
             project_version=self.project.version or "0.1.0",
@@ -197,7 +196,18 @@ class JavaAdapter(BaseAdapter):
             deps=self.target.deps or {},
         )
 
-        print(f"IDE files generated: .classpath, .project, .vscode/settings.json, pom.xml")
+        # 변경된 파일만 알림
+        changed_files = []
+        if classpath_changed:
+            changed_files.append(".classpath")
+        if project_changed:
+            changed_files.append(".project")
+        if settings_changed:
+            changed_files.append(".vscode/settings.json")
+        if pom_changed:
+            changed_files.append("pom.xml")
+        if changed_files:
+            print(f"IDE files updated: {', '.join(changed_files)}")
         
     def compile_all(
         self,
@@ -360,38 +370,40 @@ class JavaAdapter(BaseAdapter):
         jdk, should_update_lock = self.resolve_jdk()
         lock = load_lock(self.project_root, self.project.lock_mode)
         cache = load_cache(self.project_root)
-
         print(f"Using JDK {jdk.version} (major: {jdk.major_version})")
-        print(f"  JAVA_HOME: {jdk.java_home}")
-
+        if self.verbose:
+            print(f"  JAVA_HOME: {jdk.java_home}")
         # 의존성 설치
         installed_deps = {}
         if self.target.deps:
-            print("\n--- Installing dependencies ---")
+            if self.verbose:
+                print("\n--- Installing dependencies ---")
             try:
                 installed_deps = self.install_deps()
             except RuntimeError as e:
                 self._ensure_gitignore()
                 raise
-
         # 소스 수집
-        print("\n--- Collecting sources ---")
+        if self.verbose:
+            print("\n--- Collecting sources ---")
         source_files = self.collect_source_files()
-
-        print(f"Found {len(source_files)} source file(s)")
-
+        if self.verbose:
+            print(f"Found {len(source_files)} source file(s)")
         # 컴파일
-        print("\n--- Compiling ---")
+        if self.verbose:
+            print("\n--- Compiling ---")
         results, skipped = self.compile_all(jdk, source_files, cache, force=force)
-
         failed = [r for r in results if not r.ok]
-
-        if skipped:
-            print(f"  Skipped {len(skipped)} unchanged file(s)")
-
         newly_compiled = len(source_files) - len(skipped)
-        if newly_compiled > 0 and not failed:
-            print(f"  Compiled {newly_compiled} file(s)")
+        # 요약: 통합 표시
+        if not failed:
+            parts = []
+            if newly_compiled > 0:
+                parts.append(f"Compiled {newly_compiled} file(s)")
+            if skipped:
+                parts.append(f"Skipped {len(skipped)} unchanged file(s)")
+            if parts:
+                print(", ".join(parts))
 
         if failed:
             # 컴파일 에러는 하나만 나오면 그거 그대로 출력 (javac 출력이 이미 다 담고 있음)
@@ -404,33 +416,24 @@ class JavaAdapter(BaseAdapter):
                 f"Compilation failed: {len(failed)} of {len(results)} files"
             )
 
-        # lock 파일 저장
-        # deps가 있거나 JDK 정보가 바뀌었으면 lock 갱신
-        need_save_lock = (
-            should_update_lock
-            or lock is None
-            or lock.java is None
-            or self._deps_changed(lock, installed_deps)
-        )
-        if need_save_lock:
-            # installed_deps를 JavaDep 형식으로 변환
-            from stoke.lock import JavaDep
-            java_deps_for_lock = {}
-            for name, info in installed_deps.items():
-                java_deps_for_lock[name] = JavaDep(
-                    version=info["version"],
-                    sha1=info["sha1"],
-                )
-
-            lock_path = save_lock(
-                self.project_root,
-                self.project.lock_mode,
-                java_version=jdk.version,
-                java_major_version=jdk.major_version,
-                java_home=str(jdk.java_home),
-                java_deps=java_deps_for_lock,
+        # lock 파일 저장 (실제 변경 있을 때만)
+        from stoke.lock import JavaDep
+        java_deps_for_lock = {}
+        for name, info in installed_deps.items():
+            java_deps_for_lock[name] = JavaDep(
+                version=info["version"],
+                sha1=info["sha1"],
             )
-            print(f"\nLock file saved: {lock_path}")
+        lock_path, lock_changed = save_lock(
+            self.project_root,
+            self.project.lock_mode,
+            java_version=jdk.version,
+            java_major_version=jdk.major_version,
+            java_home=str(jdk.java_home),
+            java_deps=java_deps_for_lock,
+        )
+        if lock_changed:
+            print(f"Lock file saved: {lock_path}")
 
         # 캐시 저장
         save_cache(self.project_root, cache)

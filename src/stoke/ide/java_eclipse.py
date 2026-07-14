@@ -5,7 +5,6 @@ Eclipse/VSCode Java 확장용 .classpath, .project 파일 생성.
 from pathlib import Path
 from xml.sax.saxutils import escape
 
-
 def _relative_or_abs(path: Path, project_root: Path) -> str:
     """
     project_root 기준 상대 경로로 표현 시도. 실패하면 절대 경로.
@@ -15,7 +14,6 @@ def _relative_or_abs(path: Path, project_root: Path) -> str:
         return str(path.relative_to(project_root)).replace("\\", "/")
     except ValueError:
         return str(path).replace("\\", "/")
-
 
 def generate_classpath(
     project_root: Path,
@@ -79,27 +77,38 @@ def generate_project(project_name: str) -> str:
 </projectDescription>
 """
 
-
 def write_ide_files(
     project_root: Path,
     project_name: str,
     source_dirs: list[Path],
     output_dir: Path,
     jar_files: list[Path],
-) -> tuple[Path, Path]:
+) -> tuple[Path, Path, bool, bool]:
     """
     .classpath와 .project를 프로젝트 루트에 저장.
-    반환: (classpath_path, project_path)
+    반환: (classpath_path, project_path, classpath_changed, project_changed)
     """
     classpath_content = generate_classpath(
         project_root, source_dirs, output_dir, jar_files
     )
     project_content = generate_project(project_name)
-
     classpath_path = project_root / ".classpath"
     project_path = project_root / ".project"
 
-    classpath_path.write_text(classpath_content, encoding="utf-8")
-    project_path.write_text(project_content, encoding="utf-8")
+    classpath_changed = True
+    if classpath_path.exists():
+        old = classpath_path.read_text(encoding="utf-8")
+        if old == classpath_content:
+            classpath_changed = False
+    if classpath_changed:
+        classpath_path.write_text(classpath_content, encoding="utf-8")
 
-    return classpath_path, project_path
+    project_changed = True
+    if project_path.exists():
+        old = project_path.read_text(encoding="utf-8")
+        if old == project_content:
+            project_changed = False
+    if project_changed:
+        project_path.write_text(project_content, encoding="utf-8")
+
+    return classpath_path, project_path, classpath_changed, project_changed
