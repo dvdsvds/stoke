@@ -1,7 +1,6 @@
 """vcpkg 관련 명령어."""
 import sys
-from stoke.config import load_config
-
+from stoke.cli.utils import load_config_or_exit
 
 def cmd_install_vcpkg():
     from stoke.vcpkg import install_vcpkg
@@ -11,7 +10,6 @@ def cmd_install_vcpkg():
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
 
-
 def cmd_uninstall_vcpkg():
     from stoke.vcpkg import uninstall_vcpkg
     try:
@@ -19,7 +17,6 @@ def cmd_uninstall_vcpkg():
     except RuntimeError as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
-
 
 def cmd_vcpkg_version():
     from stoke.vcpkg import is_vcpkg_installed, get_vcpkg_root, get_vcpkg_version
@@ -35,21 +32,13 @@ def cmd_vcpkg_version():
         print(f"vcpkg is installed but version couldn't be determined.")
     print(f"Location: {root}")
 
-
 def cmd_vcpkg_install_library(library: str, version: str | None, target: str | None):
     """stoke vcpkg install <library> [--version=X] [--target=Y]"""
     from stoke.vcpkg import install_library
     from stoke.c_libraries import can_use_in_c_project
     from stoke.toml_editor import add_dep
 
-    try:
-        config = load_config()
-    except FileNotFoundError as e:
-        print(f"Error: {e}", file=sys.stderr)
-        sys.exit(1)
-    except ValueError as e:
-        print(f"Error: {e}", file=sys.stderr)
-        sys.exit(1)
+    config = load_config_or_exit()
 
     if target is None:
         target = next(iter(config.targets))
@@ -100,14 +89,7 @@ def cmd_vcpkg_remove_library(library: str, target: str | None):
     from stoke.vcpkg import remove_library
     from stoke.toml_editor import remove_dep
 
-    try:
-        config = load_config()
-    except FileNotFoundError as e:
-        print(f"Error: {e}", file=sys.stderr)
-        sys.exit(1)
-    except ValueError as e:
-        print(f"Error: {e}", file=sys.stderr)
-        sys.exit(1)
+    config = load_config_or_exit()
 
     if target is None:
         target = next(iter(config.targets))
@@ -148,14 +130,7 @@ def cmd_vcpkg_list_libraries(target: str | None):
     """stoke vcpkg list [--target=Y]"""
     from stoke.toml_editor import list_deps
 
-    try:
-        config = load_config()
-    except FileNotFoundError as e:
-        print(f"Error: {e}", file=sys.stderr)
-        sys.exit(1)
-    except ValueError as e:
-        print(f"Error: {e}", file=sys.stderr)
-        sys.exit(1)
+    config = load_config_or_exit()
 
     if target is None:
         target = next(iter(config.targets))

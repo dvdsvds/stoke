@@ -2,7 +2,6 @@
 from pathlib import Path
 import tomllib
 
-
 def cmd_ide_sync():
     from stoke.ide.vscode import (
         find_stoke_projects,

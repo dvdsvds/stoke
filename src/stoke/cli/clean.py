@@ -1,20 +1,12 @@
 """clean 명령어."""
 import sys
 import shutil
-from stoke.config import load_config
 from stoke.lock import _lock_path
+from stoke.cli.utils import load_config_or_exit
 
 
 def cmd_clean(target_name: str | None = None, delete_lock: bool = False):
-    try:
-        config = load_config()
-    except FileNotFoundError as e:
-        print(f"Error: {e}", file=sys.stderr)
-        sys.exit(1)
-    except ValueError as e:
-        print(f"Error: {e}", file=sys.stderr)
-        sys.exit(1)
-
+    config = load_config_or_exit()
     project_root = config.config_path.parent
 
     # 타겟 지정됐으면 그것만, 아니면 전체
