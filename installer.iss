@@ -1,6 +1,6 @@
 [Setup]
 AppName=stoke
-AppVersion=0.8.0
+AppVersion=0.8.1
 AppPublisher=dvdsvds
 AppPublisherURL=https://github.com/dvdsvds/stoke
 DefaultDirName={localappdata}\Programs\stoke
@@ -8,7 +8,7 @@ DefaultGroupName=stoke
 DisableProgramGroupPage=yes
 PrivilegesRequired=lowest
 OutputDir=installer_output
-OutputBaseFilename=stoke-setup-0.8.0
+OutputBaseFilename=stoke-setup-0.8.1
 Compression=lzma2
 SolidCompression=yes
 ArchitecturesInstallIn64BitMode=x64compatible
