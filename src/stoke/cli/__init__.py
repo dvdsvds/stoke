@@ -3,6 +3,9 @@ import argparse
 import sys
 
 from stoke.cli.utils import resolve_profile_from_args
+from stoke.cli.messages import get_message as _
+
+from stoke.cli.utils import resolve_profile_from_args
 from stoke.cli.build import cmd_build, cmd_run, cmd_watch, cmd_hot_reload
 from stoke.cli.clean import cmd_clean
 from stoke.cli.tools import cmd_python_list, cmd_java_list, cmd_c_list, cmd_cpp_list
@@ -17,106 +20,104 @@ from stoke.cli.vcpkg import (
 from stoke.cli.ide import cmd_ide_sync
 from stoke.init import cmd_init
 
-
 def _build_parser():
     """argparse 파서 구성."""
     parser = argparse.ArgumentParser(
         prog="stoke",
-        description="A build tool for multiple languages"
+        description=_("prog.description")
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     # stoke build
-    build_parser = subparsers.add_parser("build", help="Build a target")
-    build_parser.add_argument("target", nargs="?", help="Target name")
-    build_parser.add_argument("--force", action="store_true", help="Ignore cache and rebuild everything")
-    build_parser.add_argument("--debug", action="store_true", help="Debug build (default): -O0 -g, easy to debug")
-    build_parser.add_argument("--release", action="store_true", help="Release build: -O2, optimized for deployment")
-    build_parser.add_argument("--profile", default=None, help="Custom build profile name (defined in stoke.toml)")
-    build_parser.add_argument("-v", "--verbose", action="store_true", help="Show detailed build output")
+    build_parser = subparsers.add_parser("build", help=_("build.help"))
+    build_parser.add_argument("target", nargs="?", help=_("build.target"))
+    build_parser.add_argument("--force", action="store_true", help=_("build.force"))
+    build_parser.add_argument("--debug", action="store_true", help=_("build.debug"))
+    build_parser.add_argument("--release", action="store_true", help=_("build.release"))
+    build_parser.add_argument("--profile", default=None, help=_("build.profile"))
+    build_parser.add_argument("-v", "--verbose", action="store_true", help=_("build.verbose"))
 
     # stoke python list
-    python_parser = subparsers.add_parser("python", help="Python version tools")
+    python_parser = subparsers.add_parser("python", help=_("python.help"))
     python_sub = python_parser.add_subparsers(dest="python_command", required=True)
-    python_sub.add_parser("list", help="List installed Python versions")
+    python_sub.add_parser("list", help=_("python.list.help"))
 
     # stoke java list
-    java_parser = subparsers.add_parser("java", help="Java (JDK) version tools")
+    java_parser = subparsers.add_parser("java", help=_("java.help"))
     java_sub = java_parser.add_subparsers(dest="java_command", required=True)
-    java_sub.add_parser("list", help="List installed JDKs")
+    java_sub.add_parser("list", help=_("java.list.help"))
 
     # stoke c list
-    c_parser = subparsers.add_parser("c", help="C compiler tools")
+    c_parser = subparsers.add_parser("c", help=_("c.help"))
     c_sub = c_parser.add_subparsers(dest="c_command", required=True)
-    c_sub.add_parser("list", help="List installed C compilers")
+    c_sub.add_parser("list", help=_("c.list.help"))
 
     # stoke cpp list
-    cpp_parser = subparsers.add_parser("cpp", help="C++ compiler tools")
+    cpp_parser = subparsers.add_parser("cpp", help=_("cpp.help"))
     cpp_sub = cpp_parser.add_subparsers(dest="cpp_command", required=True)
-    cpp_sub.add_parser("list", help="List installed C++ compilers")
+    cpp_sub.add_parser("list", help=_("cpp.list.help"))
 
     # stoke install <tool>
-    install_parser = subparsers.add_parser("install", help="Install a tool (vcpkg, ...)")
-    install_parser.add_argument("tool", choices=["vcpkg"], help="Tool to install")
+    install_parser = subparsers.add_parser("install", help=_("install.help"))
+    install_parser.add_argument("tool", choices=["vcpkg"], help=_("install.tool"))
 
     # stoke uninstall <tool>
-    uninstall_parser = subparsers.add_parser("uninstall", help="Uninstall a tool (vcpkg, ...)")
-    uninstall_parser.add_argument("tool", choices=["vcpkg"], help="Tool to uninstall")
+    uninstall_parser = subparsers.add_parser("uninstall", help=_("uninstall.help"))
+    uninstall_parser.add_argument("tool", choices=["vcpkg"], help=_("uninstall.tool"))
 
     # stoke vcpkg <subcommand>
-    vcpkg_parser = subparsers.add_parser("vcpkg", help="vcpkg library management")
+    vcpkg_parser = subparsers.add_parser("vcpkg", help=_("vcpkg.help"))
     vcpkg_sub = vcpkg_parser.add_subparsers(dest="vcpkg_command", required=True)
 
-    vcpkg_install_parser = vcpkg_sub.add_parser("install", help="Install a library")
-    vcpkg_install_parser.add_argument("library", help="Library name")
-    vcpkg_install_parser.add_argument("--version", help="Specific version (default: latest)")
-    vcpkg_install_parser.add_argument("--target", help="Target name in stoke.toml")
+    vcpkg_install_parser = vcpkg_sub.add_parser("install", help=_("vcpkg.install.help"))
+    vcpkg_install_parser.add_argument("library", help=_("vcpkg.install.library"))
+    vcpkg_install_parser.add_argument("--version", help=_("vcpkg.install.version"))
+    vcpkg_install_parser.add_argument("--target", help=_("vcpkg.install.target"))
 
-    vcpkg_remove_parser = vcpkg_sub.add_parser("remove", help="Remove a library")
-    vcpkg_remove_parser.add_argument("library", help="Library name")
-    vcpkg_remove_parser.add_argument("--target", help="Target name in stoke.toml")
+    vcpkg_remove_parser = vcpkg_sub.add_parser("remove", help=_("vcpkg.remove.help"))
+    vcpkg_remove_parser.add_argument("library", help=_("vcpkg.remove.library"))
+    vcpkg_remove_parser.add_argument("--target", help=_("vcpkg.remove.target"))
 
-    vcpkg_list_parser = vcpkg_sub.add_parser("list", help="List installed libraries")
-    vcpkg_list_parser.add_argument("--target", help="Target name in stoke.toml")
+    vcpkg_list_parser = vcpkg_sub.add_parser("list", help=_("vcpkg.list.help"))
+    vcpkg_list_parser.add_argument("--target", help=_("vcpkg.list.target"))
 
-    vcpkg_sub.add_parser("version", help="Show installed vcpkg version")
+    vcpkg_sub.add_parser("version", help=_("vcpkg.version.help"))
 
     # stoke clean
-    clean_parser = subparsers.add_parser("clean", help="Clean build artifacts")
-    clean_parser.add_argument("--all", action="store_true", help="Also delete lock file (full reset)")
-    clean_parser.add_argument("target", nargs="?", help="Target name (default: all targets)")
+    clean_parser = subparsers.add_parser("clean", help=_("clean.help"))
+    clean_parser.add_argument("--all", action="store_true", help=_("clean.all"))
+    clean_parser.add_argument("target", nargs="?", help=_("clean.target"))
 
     # stoke init
-    subparsers.add_parser("init", help="Initialize a new stoke project")
+    subparsers.add_parser("init", help=_("init.help"))
 
     # stoke watch
-    watch_parser = subparsers.add_parser("watch", help="Watch for file changes and rebuild automatically")
-    watch_parser.add_argument("target", nargs="?", help="Target name")
-    watch_parser.add_argument("--debug", action="store_true", help="Debug build (default, C/C++ only)")
-    watch_parser.add_argument("--release", action="store_true", help="Release build (C/C++ only)")
-    watch_parser.add_argument("--profile", default=None, help="Custom build profile name (C/C++ only)")
-    watch_parser.add_argument("-v", "--verbose", action="store_true", help="Show detailed build output")
+    watch_parser = subparsers.add_parser("watch", help=_("watch.help"))
+    watch_parser.add_argument("target", nargs="?", help=_("watch.target"))
+    watch_parser.add_argument("--debug", action="store_true", help=_("watch.debug"))
+    watch_parser.add_argument("--release", action="store_true", help=_("watch.release"))
+    watch_parser.add_argument("--profile", default=None, help=_("watch.profile"))
+    watch_parser.add_argument("-v", "--verbose", action="store_true", help=_("watch.verbose"))
 
     # stoke run
-    run_parser = subparsers.add_parser("run", help="Run the built target (Python: entry file, Java: main_class)")
-    run_parser.add_argument("target", nargs="?", help="Target name")
-    run_parser.add_argument("--debug", action="store_true", help="Run debug build (default, C/C++ only)")
-    run_parser.add_argument("--release", action="store_true", help="Run release build (C/C++ only)")
-    run_parser.add_argument("--profile", default=None, help="Run specific custom profile build (C/C++ only)")
+    run_parser = subparsers.add_parser("run", help=_("run.help"))
+    run_parser.add_argument("target", nargs="?", help=_("run.target"))
+    run_parser.add_argument("--debug", action="store_true", help=_("run.debug"))
+    run_parser.add_argument("--release", action="store_true", help=_("run.release"))
+    run_parser.add_argument("--profile", default=None, help=_("run.profile"))
 
     # stoke ide-sync
-    subparsers.add_parser("ide-sync", help="Scan for stoke projects and generate workspace .vscode/settings.json")
+    subparsers.add_parser("ide-sync", help=_("ide-sync.help"))
 
     # stoke hot-reload
-    hotreload_parser = subparsers.add_parser("hot-reload", help="Watch, rebuild, and restart the running process on changes")
-    hotreload_parser.add_argument("target", nargs="?", help="Target name")
-    hotreload_parser.add_argument("--debug", action="store_true", help="Debug build (default, C/C++ only)")
-    hotreload_parser.add_argument("--release", action="store_true", help="Release build (C/C++ only)")
-    hotreload_parser.add_argument("--profile", default=None, help="Custom build profile name (C/C++ only)")
-    hotreload_parser.add_argument("-v", "--verbose", action="store_true", help="Show detailed build output")
+    hotreload_parser = subparsers.add_parser("hot-reload", help=_("hot-reload.help"))
+    hotreload_parser.add_argument("target", nargs="?", help=_("hot-reload.target"))
+    hotreload_parser.add_argument("--debug", action="store_true", help=_("hot-reload.debug"))
+    hotreload_parser.add_argument("--release", action="store_true", help=_("hot-reload.release"))
+    hotreload_parser.add_argument("--profile", default=None, help=_("hot-reload.profile"))
+    hotreload_parser.add_argument("-v", "--verbose", action="store_true", help=_("hot-reload.verbose"))
 
     return parser
-
 
 def main():
     parser = _build_parser()
