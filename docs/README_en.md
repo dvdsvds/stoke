@@ -254,7 +254,8 @@ from computer.hardware.cpu import CPU
 - **v0.5** — vcpkg integration, tool management, multi-root workspace
 - **v0.6** — C/C++ build improvements (header dependency tracking, parallel compilation, automatic IDE integration)
 - **v0.7** — Build profile system (debug/release, custom profiles, clang support)
-- **v0.8** — TBD
+- **v0.8** — Korean CLI help messages (STOKE_LANG env var), internal refactoring
+- **v0.9** — TBD
 
 ## License
 
