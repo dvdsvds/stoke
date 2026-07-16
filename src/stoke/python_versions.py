@@ -11,7 +11,6 @@ class PythonInstall:
     executable: Path      # 실행파일 절대 경로
     is_default: bool = False
 
-
 def _get_version(exe: str) -> str | None:
     """실행파일에 --version 물어봐서 버전 문자열 얻기"""
     try:
@@ -28,7 +27,6 @@ def _get_version(exe: str) -> str | None:
     except (subprocess.SubprocessError, FileNotFoundError, OSError):
         pass
     return None
-
 
 def _detect_via_py_launcher() -> list[PythonInstall]:
     """윈도우 py launcher(`py -0p`)로 감지"""
@@ -115,6 +113,82 @@ def _detect_via_path_scan() -> list[PythonInstall]:
 
     return installs
 
+def _detect_via_common_paths() -> list[PythonInstall]:
+    """
+    표준 파이썬 설치 경로들을 스캔해서 발견된 파이썬 목록 반환.
+    Windows: %LOCALAPPDATA%\\Programs\\Python\\PythonXY\\python.exe 등
+    Linux: /usr/bin/python3.X 등
+    macOS: /Library/Frameworks/Python.framework/Versions/X.Y/bin/python3
+    """
+    import os
+    candidate_paths = []
+
+    if sys.platform == "win32":
+        # Windows: 사용자별 표준 위치
+        local_appdata = os.environ.get("LOCALAPPDATA")
+        if local_appdata:
+            py_root = Path(local_appdata) / "Programs" / "Python"
+            if py_root.exists():
+                try:
+                    for entry in py_root.iterdir():
+                        if entry.is_dir():
+                            exe = entry / "python.exe"
+                            if exe.exists():
+                                candidate_paths.append(exe)
+                except (OSError, PermissionError):
+                    pass
+
+        # Windows: 시스템 위치
+        for base in [Path("C:/Python313"), Path("C:/Python312"), Path("C:/Python311"),
+                     Path("C:/Python310"), Path("C:/Python39")]:
+            exe = base / "python.exe"
+            if exe.exists():
+                candidate_paths.append(exe)
+
+        # C:\Program Files\Python*
+        for base in [Path("C:/Program Files")]:
+            if base.exists():
+                try:
+                    for entry in base.iterdir():
+                        if entry.is_dir() and entry.name.startswith("Python"):
+                            exe = entry / "python.exe"
+                            if exe.exists():
+                                candidate_paths.append(exe)
+                except (OSError, PermissionError):
+                    pass
+
+    elif sys.platform == "darwin":
+        # macOS: Framework 위치
+        py_root = Path("/Library/Frameworks/Python.framework/Versions")
+        if py_root.exists():
+            try:
+                for entry in py_root.iterdir():
+                    if entry.is_dir():
+                        exe = entry / "bin" / "python3"
+                        if exe.exists():
+                            candidate_paths.append(exe)
+            except (OSError, PermissionError):
+                pass
+
+    else:
+        # Linux: /usr/bin/python3.X
+        for version_suffix in ["3.13", "3.12", "3.11", "3.10", "3.9", "3.8"]:
+            exe = Path(f"/usr/bin/python{version_suffix}")
+            if exe.exists():
+                candidate_paths.append(exe)
+
+    installs = []
+    for exe in candidate_paths:
+        version = _get_version(str(exe))
+        if version is None:
+            continue
+        installs.append(PythonInstall(
+            version=version,
+            executable=exe,
+            is_default=False,
+        ))
+
+    return installs
 
 def detect_all() -> list[PythonInstall]:
     """설치된 모든 파이썬 감지 (윈도우면 py launcher 우선)"""
