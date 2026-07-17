@@ -1,0 +1,70 @@
+site_name: stoke
+site_description: A build tool for multiple languages
+site_url: https://dvdsvds.github.io/stoke/
+repo_url: https://github.com/dvdsvds/stoke
+repo_name: dvdsvds/stoke
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - content.code.copy
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation: getting-started/installation.md
+    - Quick Start: getting-started/quick-start.md
+  - Commands:
+    - Overview: commands/overview.md
+    - build: commands/build.md
+    - run: commands/run.md
+    - watch: commands/watch.md
+    - hot-reload: commands/hot-reload.md
+    - clean: commands/clean.md
+    - init: commands/init.md
+    - ide-sync: commands/ide-sync.md
+  - Languages:
+    - Python: languages/python.md
+    - Java: languages/java.md
+    - C/C++: languages/cpp.md
+  - Configuration:
+    - stoke.toml: configuration/stoke-toml.md
+    - Profiles: configuration/profiles.md
+    - Lock file: configuration/lock-file.md
+  - Advanced:
+    - vcpkg: advanced/vcpkg.md
+    - IDE Integration: advanced/ide-integration.md
+  - Troubleshooting: troubleshooting.md
+  - FAQ: faq.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
