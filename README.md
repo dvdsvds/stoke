@@ -33,8 +33,11 @@ stoke run
 
 ## Documentation
 
-- [English](./docs/README_en.md)
-- [한국어](./docs/README_ko.md)
+Full documentation: [https://dvdsvds.github.io/stoke/](https://dvdsvds.github.io/stoke/)
+
+Also available in the repo:
+- [English README](./docs/README_en.md)
+- [한국어 README](./docs/README_ko.md)
 
 ## License
 
