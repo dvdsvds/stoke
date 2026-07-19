@@ -255,9 +255,10 @@ from computer.hardware.cpu import CPU
 - **v0.6** — C/C++ 빌드 개선 (헤더 의존성 자동 추적, 병렬 컴파일, IDE 통합 자동화)
 - **v0.7** — 빌드 프로파일 시스템 (debug/release, 커스텀 프로파일, clang 지원)
 - **v0.8** — CLI help 한국어 지원 (STOKE_LANG 환경변수), 내부 리팩토링
-- **v0.9** — 언어 설치 기능 (파이썬, JDK, gcc)
-  - CLI 명령어: `stoke install --language=X --version=Y`
-  - Windows 인스톨러 GUI 옵션: 언어별 체크박스
+- **v1.0** — 언어 설치 기능
+  - CLI: `stoke install --language=X --version=Y`
+  - 자체 버전 API (GitHub Pages)
+  - Python, Java, C/C++ 지원
 
 ## 라이선스
 
