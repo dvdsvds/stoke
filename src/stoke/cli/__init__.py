@@ -61,8 +61,9 @@ def _build_parser():
     # stoke install <tool> | --language=X --version=Y
     install_parser = subparsers.add_parser("install", help=_("install.help"))
     install_parser.add_argument("tool", nargs="?", choices=["vcpkg"], help=_("install.tool"))
-    install_parser.add_argument("--language", help="Language to install (python)")
+    install_parser.add_argument("--language", help="Language to install (python, java, c, cpp)")
     install_parser.add_argument("--version", default="latest", help="Version (default: latest)")
+    install_parser.add_argument("--list", action="store_true", help="List available versions")
 
     # stoke uninstall <tool>
     uninstall_parser = subparsers.add_parser("uninstall", help=_("uninstall.help"))
@@ -145,7 +146,11 @@ def main():
             cmd_cpp_list()
     elif args.command == "install":
         if args.language:
-            cmd_install_language(args.language, args.version)
+            if args.list:
+                from stoke.cli.install_lang import cmd_list_language_versions
+                cmd_list_language_versions(args.language)
+            else:
+                cmd_install_language(args.language, args.version)
         elif args.tool == "vcpkg":
             cmd_install_vcpkg()
         else:

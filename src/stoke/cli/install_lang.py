@@ -10,10 +10,10 @@ from stoke.install_versions import fetch_versions, find_version, get_platform_ke
 
 def cmd_install_language(language: str, version: str):
     """
-    stoke install --language=python --version=3.12
+    stoke install --language=[language] --version=[version]
     """
     # 지원 언어 확인
-    if language not in ("python",):
+    if language not in ("python", "java"):
         print(f"Error: unsupported language '{language}'", file=sys.stderr)
         print(f"Supported: python", file=sys.stderr)
         sys.exit(1)
@@ -90,22 +90,23 @@ def _download(url: str) -> Path:
 
 
 def _install_windows(installer_path: Path):
-    """Windows 파이썬 installer 실행."""
+    """Windows installer 실행. .exe / .msi 지원."""
     print(f"Running installer: {installer_path}")
     print("Installer will open. Follow the wizard.")
 
     try:
-        # /passive: 최소 UI, /norestart: 재시작 안 함
-        result = subprocess.run(
-            [str(installer_path), "/passive", "PrependPath=1"],
-            check=False,
-        )
-        if result.returncode == 0:
-            print("Installation complete.")
-            print("Run 'stoke python list' to verify.")
+        if installer_path.suffix.lower() == ".msi":
+            # MSI: msiexec 사용
+            result = subprocess.run(
+                ["msiexec", "/i", str(installer_path), "/passive"],
+                check=False,
+            )
         else:
-            print(f"Installer exited with code {result.returncode}", file=sys.stderr)
-            sys.exit(1)
+            # EXE: 그대로 실행
+            result = subprocess.run(
+                [str(installer_path), "/passive", "PrependPath=1"],
+                check=False,
+            )
     except FileNotFoundError:
         print(f"Error: installer not found: {installer_path}", file=sys.stderr)
         sys.exit(1)
@@ -117,3 +118,23 @@ def _install_macos(installer_path: Path):
     print("Please follow the installer wizard.")
     subprocess.run(["open", str(installer_path)], check=False)
     print("After installation, run 'stoke python list' to verify.")
+
+def cmd_list_language_versions(language: str):
+    """stoke install --language=X --list"""
+    if language not in ("python", "java"):
+        print(f"Error: unsupported language '{language}'", file=sys.stderr)
+        sys.exit(1)
+
+    print(f"Fetching {language} versions...")
+    try:
+        versions_data = fetch_versions(language)
+    except RuntimeError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    print(f"\nAvailable {language} versions:")
+    for v in versions_data.get("versions", []):
+        released = v.get("released", "unknown")
+        print(f"  {v['version']}  (released {released})")
+    print()
+    print(f"Install: stoke install --language={language} --version=<version>")
