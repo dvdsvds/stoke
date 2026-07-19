@@ -10,18 +10,21 @@ from stoke.install_versions import fetch_versions, find_version, get_platform_ke
 
 def cmd_install_language(language: str, version: str):
     """
-    stoke install --language=[language] --version=[version]
+    stoke install --language=python --version=3.12
     """
     # 지원 언어 확인
-    if language not in ("python", "java"):
+    if language not in ("python", "java", "c", "cpp"):
         print(f"Error: unsupported language '{language}'", file=sys.stderr)
-        print(f"Supported: python", file=sys.stderr)
+        print(f"Supported: python, java, c, cpp", file=sys.stderr)
         sys.exit(1)
 
+    # c/cpp는 gcc 툴체인 사용
+    api_language = "gcc" if language in ("c", "cpp") else language
+
     # 버전 목록 조회
-    print(f"Fetching {language} versions...")
+    print(f"Fetching {api_language} versions...")
     try:
-        versions_data = fetch_versions(language)
+        versions_data = fetch_versions(api_language)
     except RuntimeError as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
@@ -121,17 +124,19 @@ def _install_macos(installer_path: Path):
 
 def cmd_list_language_versions(language: str):
     """stoke install --language=X --list"""
-    if language not in ("python", "java"):
+    if language not in ("python", "java", "c", "cpp"):
         print(f"Error: unsupported language '{language}'", file=sys.stderr)
         sys.exit(1)
 
-    print(f"Fetching {language} versions...")
+    # c/cpp는 gcc 툴체인 사용
+    api_language = "gcc" if language in ("c", "cpp") else language
+
+    print(f"Fetching {api_language} versions...")
     try:
-        versions_data = fetch_versions(language)
+        versions_data = fetch_versions(api_language)
     except RuntimeError as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
-
     print(f"\nAvailable {language} versions:")
     for v in versions_data.get("versions", []):
         released = v.get("released", "unknown")

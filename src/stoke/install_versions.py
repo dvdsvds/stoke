@@ -23,7 +23,6 @@ def fetch_versions(language: str) -> dict:
     except json.JSONDecodeError as e:
         raise RuntimeError(f"Invalid JSON from {url}: {e}")
 
-
 def get_platform_key() -> str:
     """현재 플랫폼의 다운로드 키 반환."""
     if sys.platform == "win32":
