@@ -18,6 +18,7 @@ from stoke.cli.vcpkg import (
     cmd_vcpkg_list_libraries,
 )
 from stoke.cli.ide import cmd_ide_sync
+from stoke.cli.install_lang import cmd_install_language
 from stoke.init import cmd_init
 
 def _build_parser():
@@ -57,9 +58,11 @@ def _build_parser():
     cpp_sub = cpp_parser.add_subparsers(dest="cpp_command", required=True)
     cpp_sub.add_parser("list", help=_("cpp.list.help"))
 
-    # stoke install <tool>
+    # stoke install <tool> | --language=X --version=Y
     install_parser = subparsers.add_parser("install", help=_("install.help"))
-    install_parser.add_argument("tool", choices=["vcpkg"], help=_("install.tool"))
+    install_parser.add_argument("tool", nargs="?", choices=["vcpkg"], help=_("install.tool"))
+    install_parser.add_argument("--language", help="Language to install (python)")
+    install_parser.add_argument("--version", default="latest", help="Version (default: latest)")
 
     # stoke uninstall <tool>
     uninstall_parser = subparsers.add_parser("uninstall", help=_("uninstall.help"))
@@ -141,8 +144,13 @@ def main():
         if args.cpp_command == "list":
             cmd_cpp_list()
     elif args.command == "install":
-        if args.tool == "vcpkg":
+        if args.language:
+            cmd_install_language(args.language, args.version)
+        elif args.tool == "vcpkg":
             cmd_install_vcpkg()
+        else:
+            print("Error: specify a tool or --language", file=sys.stderr)
+            sys.exit(1)
     elif args.command == "uninstall":
         if args.tool == "vcpkg":
             cmd_uninstall_vcpkg()

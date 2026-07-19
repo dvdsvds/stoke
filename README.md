@@ -39,6 +39,6 @@ Also available in the repo:
 - [English README](./docs/README_en.md)
 - [한국어 README](./docs/README_ko.md)
 
-## License
+## Licenas
 
 MIT

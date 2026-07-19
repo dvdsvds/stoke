@@ -255,7 +255,9 @@ from computer.hardware.cpu import CPU
 - **v0.6** — C/C++ build improvements (header dependency tracking, parallel compilation, automatic IDE integration)
 - **v0.7** — Build profile system (debug/release, custom profiles, clang support)
 - **v0.8** — Korean CLI help messages (STOKE_LANG env var), internal refactoring
-- **v0.9** — TBD
+- **v0.9** — Language installation (Python, JDK, gcc)
+  - CLI: `stoke install --language=X --version=Y`
+  - Windows installer GUI: language checkboxes
 
 ## License
 
