@@ -22,6 +22,7 @@ class Target:
     c_standard: str | None = None
     cpp_standard: str | None = None
     includes: list[str] = field(default_factory=list)
+    env_type: str = "venv" # "venv" (default) or "conda"
 
 @dataclass
 class Profile:
@@ -95,6 +96,13 @@ def load_config(config_path: Path | None = None) -> Config:
             raise ValueError(
                 f"Missing 'language' in [targets.{target_name}]"
             )
+        env_type = target_config.get("env_type", "venv")
+        if env_type not in ("venv", "conda"):
+            raise ValueError(
+                f"Invalid env_type '{env_type}' for target '{target_name}'. "
+                f"Must be 'venv' or 'conda'."
+            )
+
         targets[target_name] = Target(
             name=target_name,
             language=target_config["language"],
@@ -107,6 +115,7 @@ def load_config(config_path: Path | None = None) -> Config:
             c_standard=target_config.get("c_standard"),
             cpp_standard=target_config.get("cpp_standard"),
             includes=target_config.get("includes", []),
+            env_type=env_type,
         )
     if not targets:
         raise ValueError(f"No targets defined in {config_path}")

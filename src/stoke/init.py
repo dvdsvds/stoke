@@ -3,7 +3,6 @@ from pathlib import Path
 
 from stoke.python_versions import detect_all, PythonInstall
 
-
 def _prompt(question: str, default: str | None = None) -> str:
     """텍스트 입력 받기. 빈 입력이면 default 반환."""
     if default:
@@ -15,7 +14,6 @@ def _prompt(question: str, default: str | None = None) -> str:
     if not answer and default is not None:
         return default
     return answer
-
 
 def _prompt_choice(question: str, choices: list[str], default_index: int = 0) -> int:
     """번호로 선택 받기. 1-indexed로 보여주고 0-indexed로 반환."""
@@ -36,7 +34,6 @@ def _prompt_choice(question: str, choices: list[str], default_index: int = 0) ->
             return num - 1
         print(f"  Please enter a number between 1 and {len(choices)}")
 
-
 def _prompt_yes_no(question: str, default: bool = True) -> bool:
     """예/아니오 입력."""
     default_str = "Y/n" if default else "y/N"
@@ -49,7 +46,6 @@ def _prompt_yes_no(question: str, default: bool = True) -> bool:
         if answer in ("n", "no"):
             return False
         print("  Please answer 'y' or 'n'")
-
 
 def _select_python_version(installs: list[PythonInstall]) -> str:
     """감지된 파이썬 중 하나 선택. 선택된 버전의 'major.minor' 문자열 반환."""
@@ -77,6 +73,17 @@ def _select_python_version(installs: list[PythonInstall]) -> str:
     parts = full_version.split(".")
     return ".".join(parts[:2])
 
+def _select_env_type() -> str:
+    """venv 또는 conda 선택."""
+    print()
+    print("Python environment type:")
+    print("  1. venv (default) - standard Python virtual environment")
+    print("  2. conda - use conda environments (requires conda installed)")
+
+    choice = _prompt("Select (1-2)", "1")
+    if choice.strip() == "2":
+        return "conda"
+    return "venv"
 
 def _select_lock_mode() -> str:
     """lock 파일 위치 선택."""
@@ -183,19 +190,20 @@ def _write_stoke_toml_python(
     project_name: str,
     python_version: str,
     lock_mode: str,
+    env_type: str = "venv",
 ) -> None:
     """파이썬 프로젝트용 stoke.toml 쓰기."""
+    # env_type이 venv면 생략 (기본값이라)
+    env_type_line = f'env_type = "{env_type}"\n' if env_type != "venv" else ""
     content = f'''[project]
 name = "{project_name}"
 version = "0.1.0"
 lock_mode = "{lock_mode}"
-
 [targets.{project_name}]
 language = "python"
 python_version = "{python_version}"
-sources = ["src/**/*.py"]
+{env_type_line}sources = ["src/**/*.py"]
 entry = "src/main.py"
-
 [targets.{project_name}.deps]
 '''
     path.write_text(content, encoding="utf-8")
@@ -368,6 +376,7 @@ def cmd_init() -> None:
     if language == "python":
         installs = detect_all()
         python_version = _select_python_version(installs)
+        env_type = _select_env_type()
         version_info = f"Python version:  {python_version}"
     elif language == "java":
         java_version = _select_java_version()
@@ -389,6 +398,8 @@ def cmd_init() -> None:
     print(f"  Project name:    {project_name}")
     print(f"  Language:        {language}")
     print(f"  {version_info}")
+    if language == "python":
+        print(f"  Environment:     {env_type}")
     print(f"  Lock mode:       {lock_mode}")
     print(f"  Config file:     {stoke_toml_path}")
 
@@ -398,7 +409,7 @@ def cmd_init() -> None:
 
     # 6. 언어별 stoke.toml 생성 + 예시 파일 생성
     if language == "python":
-        _write_stoke_toml_python(stoke_toml_path, project_name, python_version, lock_mode)
+        _write_stoke_toml_python(stoke_toml_path, project_name, python_version, lock_mode, env_type)
         _write_example_python(cwd)
     elif language == "java":
         _, main_class = _write_example_java(cwd, project_name)

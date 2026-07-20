@@ -36,7 +36,12 @@ class PythonAdapter(BaseAdapter):
     ):
         super().__init__(target, project, project_root, verbose=verbose)
         self.lang_dir = project_root / ".stoke" / "python" / target.name
-        self.venv_dir = self.lang_dir / "venv"
+        # env_type에 따라 폴더 이름 다름
+        self.env_type = target.env_type
+        if self.env_type == "conda":
+            self.venv_dir = self.lang_dir / "conda_env"
+        else:
+            self.venv_dir = self.lang_dir / "venv"
 
     def resolve_python(self) -> tuple[PythonInstall, bool]:
         """
@@ -98,32 +103,41 @@ class PythonAdapter(BaseAdapter):
         return installs[0]
 
     def venv_python_exe(self) -> Path:
-        # 윈도우는 Scripts/ 우선, 없으면 bin/ (MSYS2/MinGW venv 대응)
-        # 리눅스/맥은 bin/만
+        # conda: 환경 루트에 python.exe (Windows) 또는 bin/python (Unix)
+        # venv: Scripts/python.exe (Windows) 또는 bin/python (Unix)
         if sys.platform == "win32":
             exe_name = "python.exe"
-            scripts_path = self.venv_dir / "Scripts" / exe_name
-            bin_path = self.venv_dir / "bin" / exe_name
-            # 존재하는 것 우선, 둘 다 없으면 Scripts/ 반환 (생성 전 예상 경로)
-            if scripts_path.exists():
+            if self.env_type == "conda":
+                # Conda: 환경 루트에 python.exe
+                return self.venv_dir / exe_name
+            else:
+                # venv: Scripts/ 우선, 없으면 bin/
+                scripts_path = self.venv_dir / "Scripts" / exe_name
+                bin_path = self.venv_dir / "bin" / exe_name
+                if scripts_path.exists():
+                    return scripts_path
+                if bin_path.exists():
+                    return bin_path
                 return scripts_path
-            if bin_path.exists():
-                return bin_path
-            return scripts_path
         else:
             return self.venv_dir / "bin" / "python"
 
     def venv_pip_exe(self) -> Path:
-        """venv 안의 pip 실행파일 경로."""
+        """venv/conda env 안의 pip 실행파일 경로."""
         if sys.platform == "win32":
             exe_name = "pip.exe"
-            scripts_path = self.venv_dir / "Scripts" / exe_name
-            bin_path = self.venv_dir / "bin" / exe_name
-            if scripts_path.exists():
+            if self.env_type == "conda":
+                # Conda: Scripts/pip.exe
+                return self.venv_dir / "Scripts" / exe_name
+            else:
+                # venv: Scripts/ 우선, 없으면 bin/
+                scripts_path = self.venv_dir / "Scripts" / exe_name
+                bin_path = self.venv_dir / "bin" / exe_name
+                if scripts_path.exists():
+                    return scripts_path
+                if bin_path.exists():
+                    return bin_path
                 return scripts_path
-            if bin_path.exists():
-                return bin_path
-            return scripts_path
         else:
             return self.venv_dir / "bin" / "pip"
 
@@ -316,16 +330,18 @@ class PythonAdapter(BaseAdapter):
     def create_venv(self, python: PythonInstall) -> None:
         self.venv_dir.parent.mkdir(parents=True, exist_ok=True)
 
+        if self.env_type == "conda":
+            self._create_conda_env(python)
+            return
+
         print(f"Creating venv at {self.venv_dir}")
         print(f"  Using Python {python.version} ({python.executable})")
-
         # 1. venv 생성
         result = subprocess.run(
             [str(python.executable), "-m", "venv", str(self.venv_dir)],
             capture_output=True,
             text=True,
         )
-
         if result.returncode != 0:
             raise RuntimeError(
                 f"venv creation failed:\n"
@@ -351,6 +367,42 @@ class PythonAdapter(BaseAdapter):
                     f"The Python distribution at {python.executable} may not support venv properly.\n"
                     f"Try specifying a different python_version in stoke.toml."
                 )
+
+    def _create_conda_env(self, python: PythonInstall) -> None:
+        """conda 환경 생성."""
+        import shutil
+
+        # conda 명령어 찾기
+        conda_exe = shutil.which("conda")
+        if conda_exe is None:
+            raise RuntimeError(
+                "conda not found in PATH.\n"
+                "Install conda with: stoke install --language=conda --version=miniconda"
+            )
+
+        # 파이썬 버전 결정 (예: 3.12)
+        py_ver = self.target.python_version or "3.12"
+        # major.minor만 (conda가 patch까지는 필요 없음)
+        py_ver_parts = py_ver.split(".")
+        if len(py_ver_parts) >= 2:
+            py_ver = f"{py_ver_parts[0]}.{py_ver_parts[1]}"
+
+        print(f"Creating conda env at {self.venv_dir}")
+        print(f"  Using Python {py_ver}")
+
+        # conda create --prefix (경로 지정) --yes python=3.12
+        result = subprocess.run(
+            [conda_exe, "create", "--prefix", str(self.venv_dir),
+             "--yes", f"python={py_ver}"],
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode != 0:
+            raise RuntimeError(
+                f"conda env creation failed:\n"
+                f"stdout: {result.stdout}\n"
+                f"stderr: {result.stderr}"
+            )
 
     def _ensure_gitignore(self) -> None:
         """
@@ -399,10 +451,24 @@ class PythonAdapter(BaseAdapter):
                     f"Existing venv has Python {existing_version}, "
                     f"but {python.version} is required. Recreating venv."
                 )
-                import shutil
-                shutil.rmtree(self.venv_dir)
+                if self.env_type == "conda":
+                    # conda env 제거
+                    import shutil as _shutil2
+                    conda_exe = _shutil2.which("conda")
+                    if conda_exe:
+                        subprocess.run(
+                            [conda_exe, "env", "remove", "--prefix", str(self.venv_dir), "--yes"],
+                            capture_output=True, text=True,
+                        )
+                    # 폴더도 삭제 (혹시 남아있으면)
+                    if self.venv_dir.exists():
+                        _shutil2.rmtree(self.venv_dir)
+                else:
+                    import shutil
+                    shutil.rmtree(self.venv_dir)
                 self.create_venv(python)
-                print("venv recreated successfully")
+                env_label = "conda env" if self.env_type == "conda" else "venv"
+                print(f"{env_label} recreated successfully")
                 # venv 재생성했으니 패키지도 다시 설치해야 함
                 should_update_lock = True
             else:
@@ -411,7 +477,8 @@ class PythonAdapter(BaseAdapter):
                     print(f"  venv: {self.venv_dir}")
         else:
             self.create_venv(python)
-            print("venv created successfully")
+            env_label = "conda env" if self.env_type == "conda" else "venv"
+            print(f"{env_label} created successfully")
         # 의존성 설치
         if self.verbose:
             print("\n--- Installing dependencies ---")
