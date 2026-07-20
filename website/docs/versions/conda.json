@@ -1,0 +1,29 @@
+{
+  "language": "conda",
+  "updated": "2026-01-15",
+  "note": "Miniconda (minimal) or Anaconda (full)",
+  "versions": [
+    {
+      "version": "miniconda",
+      "released": "2024-12-01",
+      "description": "Minimal conda distribution (~50MB)",
+      "downloads": {
+        "windows-amd64": "https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe",
+        "macos-amd64": "https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.pkg",
+        "macos-arm64": "https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.pkg",
+        "linux-amd64": "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"
+      }
+    },
+    {
+      "version": "anaconda",
+      "released": "2024-08-01",
+      "description": "Full Anaconda distribution (~500MB, includes 250+ packages)",
+      "downloads": {
+        "windows-amd64": "https://repo.anaconda.com/archive/Anaconda3-2024.10-1-Windows-x86_64.exe",
+        "macos-amd64": "https://repo.anaconda.com/archive/Anaconda3-2024.10-1-MacOSX-x86_64.pkg",
+        "macos-arm64": "https://repo.anaconda.com/archive/Anaconda3-2024.10-1-MacOSX-arm64.pkg",
+        "linux-amd64": "https://repo.anaconda.com/archive/Anaconda3-2024.10-1-Linux-x86_64.sh"
+      }
+    }
+  ]
+}

@@ -13,9 +13,9 @@ def cmd_install_language(language: str, version: str):
     stoke install --language=python --version=3.12
     """
     # 지원 언어 확인
-    if language not in ("python", "java", "c", "cpp"):
+    if language not in ("python", "java", "c", "cpp", "conda"):
         print(f"Error: unsupported language '{language}'", file=sys.stderr)
-        print(f"Supported: python, java, c, cpp", file=sys.stderr)
+        print(f"Supported: python, java, c, cpp, conda", file=sys.stderr)
         sys.exit(1)
 
     # c/cpp는 gcc 툴체인 사용
@@ -124,7 +124,7 @@ def _install_macos(installer_path: Path):
 
 def cmd_list_language_versions(language: str):
     """stoke install --language=X --list"""
-    if language not in ("python", "java", "c", "cpp"):
+    if language not in ("python", "java", "c", "cpp", "conda"):
         print(f"Error: unsupported language '{language}'", file=sys.stderr)
         sys.exit(1)
 

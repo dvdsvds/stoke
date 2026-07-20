@@ -20,6 +20,7 @@ from stoke.cli.vcpkg import (
 from stoke.cli.ide import cmd_ide_sync
 from stoke.cli.install_lang import cmd_install_language
 from stoke.init import cmd_init
+from stoke.spring_init import cmd_init_spring_boot
 
 def _build_parser():
     """argparse 파서 구성."""
@@ -92,8 +93,9 @@ def _build_parser():
     clean_parser.add_argument("--all", action="store_true", help=_("clean.all"))
     clean_parser.add_argument("target", nargs="?", help=_("clean.target"))
 
-    # stoke init
-    subparsers.add_parser("init", help=_("init.help"))
+    # stoke init [type]
+    init_parser = subparsers.add_parser("init", help=_("init.help"))
+    init_parser.add_argument("type", nargs="?", choices=["spring-boot"], help="Project type (optional)")
 
     # stoke watch
     watch_parser = subparsers.add_parser("watch", help=_("watch.help"))
@@ -169,7 +171,10 @@ def main():
         elif args.vcpkg_command == "version":
             cmd_vcpkg_version()
     elif args.command == "init":
-        cmd_init()
+        if args.type == "spring-boot":
+            cmd_init_spring_boot()
+        else:
+            cmd_init()
     elif args.command == "watch":
         profile_name = resolve_profile_from_args(args)
         cmd_watch(args.target, profile=profile_name, verbose=args.verbose)
