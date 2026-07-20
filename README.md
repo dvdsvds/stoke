@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/images/logo1.png" alt="stoke" width="400">
+  <img src="docs/images/logo.png" alt="stoke" width="400">
 </p>
 
 <p align="center">
@@ -7,9 +7,6 @@
 </p>
 
 ---
-
-Supports Python, Java, C, and C++. Includes project scaffolding for Spring Boot, FastAPI, Flask, and Django.
-
 Supports Python, Java, C, and C++. Includes project scaffolding for Spring Boot, FastAPI, Flask, and Django.
 
 ## Installation
