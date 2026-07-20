@@ -2,15 +2,19 @@
 import sys
 from pathlib import Path
 
+from stoke.python_versions import detect_all
+from stoke.init import _prompt, _select_python_version, _select_env_type
+
 
 def cmd_init_flask():
     """stoke init flask 명령어."""
     print("Creating Flask project\n")
 
     project_name = _prompt("Project name", "myapp")
-    python_version = _prompt("Python version", "3.12")
-    env_type_choice = _prompt("Environment type [venv/conda]", "venv")
-    env_type = "conda" if env_type_choice.strip().lower() == "conda" else "venv"
+
+    installs = detect_all()
+    python_version = _select_python_version(installs)
+    env_type = _select_env_type()
 
     project_path = Path.cwd() / project_name
     if project_path.exists():
@@ -20,11 +24,15 @@ def cmd_init_flask():
     project_path.mkdir()
     (project_path / "src").mkdir()
     (project_path / "src" / "app").mkdir()
+    (project_path / "src" / "app" / "templates").mkdir()
+    (project_path / "src" / "app" / "static").mkdir()
 
     _write_stoke_toml(project_path, project_name, python_version, env_type)
     _write_main(project_path / "src" / "main.py")
     _write_app_init(project_path / "src" / "app" / "__init__.py")
     _write_routes(project_path / "src" / "app" / "routes.py")
+    _write_index_html(project_path / "src" / "app" / "templates" / "index.html")
+    _write_style_css(project_path / "src" / "app" / "static" / "style.css")
 
     print(f"\nFlask project created at: {project_path}")
     print()
@@ -82,36 +90,50 @@ def create_app() -> Flask:
 '''
     path.write_text(content, encoding="utf-8")
 
-
 def _write_routes(path: Path) -> None:
-    content = '''from flask import Flask, jsonify
+    content = '''from flask import Flask, jsonify, render_template
 
 
 def register_routes(app: Flask) -> None:
     @app.route("/")
     def home():
-        return jsonify({"message": "Hello from Flask + stoke!"})
+        return render_template("index.html", title="Flask + stoke")
 
-    @app.route("/hello/<name>")
-    def hello(name: str):
+    @app.route("/api/hello/<name>")
+    def api_hello(name: str):
         return jsonify({"message": f"Hello, {name}!"})
 '''
     path.write_text(content, encoding="utf-8")
 
+def _write_index_html(path: Path) -> None:
+    content = '''<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>{{ title }}</h1>
+    <p>Hello from Flask + stoke!</p>
+    <p>Try: <a href="/api/hello/world">/api/hello/world</a></p>
+</body>
+</html>
+'''
+    path.write_text(content, encoding="utf-8")
 
-def _prompt(question: str, default: str | None = None) -> str:
-    if default:
-        prompt = f"{question} [{default}]: "
-    else:
-        prompt = f"{question}: "
-    while True:
-        try:
-            value = input(prompt).strip()
-        except (EOFError, KeyboardInterrupt):
-            print()
-            sys.exit(1)
-        if value:
-            return value
-        if default is not None:
-            return default
-        print("Value required.")
+
+def _write_style_css(path: Path) -> None:
+    content = '''body {
+    font-family: sans-serif;
+    max-width: 720px;
+    margin: 4rem auto;
+    padding: 0 1rem;
+    color: #333;
+}
+
+h1 {
+    color: #0284c7;
+}
+'''
+    path.write_text(content, encoding="utf-8")

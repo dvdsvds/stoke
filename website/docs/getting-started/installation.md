@@ -10,6 +10,7 @@ Download the latest installer from [GitHub Releases](https://github.com/dvdsvds/
 
 - File: `stoke-setup-X.Y.Z.exe`
 - Install location: `%LOCALAPPDATA%\Programs\stoke`
+- **No prerequisites** — Python is bundled with the installer
 - No admin privileges required
 - Option to add to PATH during installation
 
@@ -47,8 +48,11 @@ Should output the installed version.
 
 ## Requirements
 
-stoke itself needs Python 3.10+, but it also uses language-specific tools depending on your project:
+**stoke itself**:
+- **Windows installer**: no prerequisites (Python is bundled)
+- **pip install**: Python 3.10 or higher required
 
+**Language toolchains** (auto-installable via `stoke install --language=X`):
 - **Python projects**: Python 3.8+ (any version stoke can detect)
 - **Java projects**: JDK 17 or higher (Adoptium/OpenJDK/Zulu recommended)
 - **C/C++ projects**: gcc, g++, or clang

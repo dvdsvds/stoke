@@ -638,8 +638,11 @@ class CBaseAdapter(BaseAdapter):
             )
 
         print(f"Running: {self.output_path}\n")
-        result = subprocess.run([str(self.output_path)])
-        return result.returncode
+        try:
+            result = subprocess.run([str(self.output_path)])
+            return result.returncode
+        except KeyboardInterrupt:
+            return 130
 
     def get_run_command(self) -> list[str]:
         """hot-reload용 실행 명령어."""

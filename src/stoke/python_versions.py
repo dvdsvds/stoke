@@ -218,22 +218,55 @@ def detect_all() -> list[PythonInstall]:
         seen.add(key)
         installs.append(install)
 
-    # 4. 진짜 default 결정: 터미널에서 'python' 쳤을 때 실행되는 것
-    default_exe = shutil.which("python")
-    if default_exe:
+    # 4. 진짜 default 결정
+    # Windows: py launcher의 default 우선
+    # 그 외: 'python' 명령어 우선
+    default_marked = False
+
+    if sys.platform == "win32":
+        # py launcher 시도
         try:
-            default_size = Path(default_exe).stat().st_size
-            default_ver = _get_version(default_exe)
-            for install in installs:
-                try:
-                    ins_size = install.executable.stat().st_size
-                except OSError:
-                    continue
-                if ins_size == default_size and install.version == default_ver:
-                    install.is_default = True
-                    break
-        except OSError:
+            result = subprocess.run(
+                ["py", "-0"],
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
+            if result.returncode == 0:
+                # "-V:3.14 *        Python 3.14 (64-bit)" 파싱
+                for line in result.stdout.splitlines():
+                    if "*" in line:
+                        # 별표 붙은 게 default
+                        import re
+                        m = re.search(r"-V:(\d+\.\d+)", line)
+                        if m:
+                            default_ver_short = m.group(1)  # "3.14"
+                            for install in installs:
+                                if install.version.startswith(default_ver_short + "."):
+                                    install.is_default = True
+                                    default_marked = True
+                                    break
+                        break
+        except (FileNotFoundError, subprocess.TimeoutExpired):
             pass
+
+    if not default_marked:
+        # 폴백: 'python' 명령어 우선
+        default_exe = shutil.which("python")
+        if default_exe:
+            try:
+                default_size = Path(default_exe).stat().st_size
+                default_ver = _get_version(default_exe)
+                for install in installs:
+                    try:
+                        ins_size = install.executable.stat().st_size
+                    except OSError:
+                        continue
+                    if ins_size == default_size and install.version == default_ver:
+                        install.is_default = True
+                        break
+            except OSError:
+                pass
 
     # 5. 버전 내림차순 정렬
     installs.sort(key=lambda x: _version_tuple(x.version), reverse=True)

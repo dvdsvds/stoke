@@ -584,13 +584,15 @@ class PythonAdapter(BaseAdapter):
             )
 
         venv_python = self.venv_python_exe()
-
         print(f"Running: {entry_path}\n")
-        result = subprocess.run(
-            [str(venv_python), str(entry_path)],
-            cwd=str(self.project_root),
-        )
-        return result.returncode
+        try:
+            result = subprocess.run(
+                [str(venv_python), str(entry_path)],
+                cwd=str(self.project_root),
+            )
+            return result.returncode
+        except KeyboardInterrupt:
+            return 130  # 130 = SIGINT (Ctrl+C 관행)
 
     def get_run_command(self) -> list[str]:
         """hot-reload용 실행 명령어."""

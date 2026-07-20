@@ -5,11 +5,14 @@ Supports Python, Java, C, and C++. Includes project scaffolding for Spring Boot,
 
 ## Installation
 
+### Windows (recommended for beginners)
+Download the installer from [Releases](https://github.com/dvdsvds/stoke/releases/latest). Python is bundled — no prerequisites.
+
+### pip (for developers)
 ```bash
 pip install stoke-build
 ```
-
-Requires Python 3.11 or higher
+Requires Python 3.11 or higher.
 
 ## Quick Start
 

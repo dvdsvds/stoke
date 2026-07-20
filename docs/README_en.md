@@ -24,11 +24,14 @@ Supports project scaffolding for Spring Boot, FastAPI, Flask, and Django
 
 ## Installation
 
+### Windows (recommended for beginners)
+Download the installer from [Releases](https://github.com/dvdsvds/stoke/releases/latest). Python is bundled — no prerequisites.
+
+### pip (for developers)
 ```bash
 pip install stoke-build
 ```
-
-Requires Python 3.11 or higher
+Requires Python 3.11 or higher for the pip method.
 
 ## Quick Start
 

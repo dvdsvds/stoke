@@ -24,11 +24,14 @@ Spring Boot, FastAPI, Flask, Django 프로젝트 스캐폴딩 지원
 
 ## 설치
 
+### Windows (초심자 추천)
+[Releases](https://github.com/dvdsvds/stoke/releases/latest)에서 인스톨러 다운로드. Python 포함되어 있어 별도 설치 필요 없음.
+
+### pip (개발자용)
 ```bash
 pip install stoke-build
 ```
-
-Python 3.11 이상 필요
+pip 방식은 Python 3.11 이상 필요.
 
 ## 빠른 시작
 

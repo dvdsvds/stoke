@@ -2,16 +2,21 @@
 import sys
 from pathlib import Path
 
+from stoke.python_versions import detect_all
+from stoke.init import _prompt, _select_python_version, _select_env_type
+
 
 def cmd_init_fastapi():
     """stoke init fastapi 명령어."""
     print("Creating FastAPI project\n")
 
-    # 사용자 입력
     project_name = _prompt("Project name", "myapp")
-    python_version = _prompt("Python version", "3.12")
-    env_type_choice = _prompt("Environment type [venv/conda]", "venv")
-    env_type = "conda" if env_type_choice.strip().lower() == "conda" else "venv"
+
+    installs = detect_all()
+    python_version = _select_python_version(installs)
+    env_type = _select_env_type()
+
+    port = _prompt("Port", "8000")
 
     project_path = Path.cwd() / project_name
     if project_path.exists():
@@ -112,21 +117,3 @@ def hello_name(name: str):
     return {"message": f"Hello, {name}!"}
 '''
     path.write_text(content, encoding="utf-8")
-
-
-def _prompt(question: str, default: str | None = None) -> str:
-    if default:
-        prompt = f"{question} [{default}]: "
-    else:
-        prompt = f"{question}: "
-    while True:
-        try:
-            value = input(prompt).strip()
-        except (EOFError, KeyboardInterrupt):
-            print()
-            sys.exit(1)
-        if value:
-            return value
-        if default is not None:
-            return default
-        print("Value required.")

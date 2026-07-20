@@ -2,15 +2,18 @@
 import sys
 from pathlib import Path
 
+from stoke.python_versions import detect_all
+from stoke.init import _prompt, _select_python_version, _select_env_type
 
 def cmd_init_django():
     """stoke init django 명령어."""
     print("Creating Django project\n")
 
     project_name = _prompt("Project name", "myapp")
-    python_version = _prompt("Python version", "3.12")
-    env_type_choice = _prompt("Environment type [venv/conda]", "venv")
-    env_type = "conda" if env_type_choice.strip().lower() == "conda" else "venv"
+
+    installs = detect_all()
+    python_version = _select_python_version(installs)
+    env_type = _select_env_type()
 
     project_path = Path.cwd() / project_name
     if project_path.exists():
@@ -22,6 +25,9 @@ def cmd_init_django():
     src.mkdir()
     (src / project_name).mkdir()
     (src / "hello").mkdir()
+    (src / "hello" / "templates").mkdir()
+    (src / "hello" / "templates" / "hello").mkdir()
+    (src / "static").mkdir()
 
     _write_stoke_toml(project_path, project_name, python_version, env_type)
     _write_main(src / "main.py", project_name)
@@ -37,6 +43,8 @@ def cmd_init_django():
     _write_app_apps(src / "hello" / "apps.py")
     _write_app_views(src / "hello" / "views.py")
     _write_app_urls(src / "hello" / "urls.py")
+    _write_app_template(src / "hello" / "templates" / "hello" / "index.html")
+    _write_static_css(src / "static" / "style.css")
 
     print(f"\nDjango project created at: {project_path}")
     print()
@@ -46,7 +54,6 @@ def cmd_init_django():
     print(f"  stoke run")
     print()
     print(f"After running, open: http://localhost:8000/")
-
 
 def _write_stoke_toml(project_path: Path, project_name: str, python_version: str, env_type: str) -> None:
     env_line = f'env_type = "{env_type}"\n' if env_type != "venv" else ""
@@ -66,32 +73,30 @@ django = "*"
 '''
     (project_path / "stoke.toml").write_text(content, encoding="utf-8")
 
-
 def _write_main(path: Path, project_name: str) -> None:
     content = '''"""stoke run으로 실행 시 manage.py runserver 호출."""
 import os
 import sys
 import subprocess
 
-
 def main():
     script_dir = os.path.dirname(os.path.abspath(__file__))
     manage_py = os.path.join(script_dir, "manage.py")
-    subprocess.run([sys.executable, manage_py, "runserver"])
-
+    try:
+        subprocess.run([sys.executable, manage_py, "runserver"])
+    except KeyboardInterrupt:
+        pass
 
 if __name__ == "__main__":
     main()
 '''
     path.write_text(content, encoding="utf-8")
 
-
 def _write_manage_py(path: Path, project_name: str) -> None:
     content = f'''#!/usr/bin/env python
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
-
 
 def main():
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "{project_name}.settings")
@@ -103,16 +108,13 @@ def main():
         ) from exc
     execute_from_command_line(sys.argv)
 
-
 if __name__ == "__main__":
     main()
 '''
     path.write_text(content, encoding="utf-8")
 
-
 def _write_project_init(path: Path) -> None:
     path.write_text("", encoding="utf-8")
-
 
 def _write_settings(path: Path, project_name: str) -> None:
     content = f'''"""Django settings for {project_name} project."""
@@ -176,16 +178,15 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = "static/"
+STATICFILES_DIRS = [BASE_DIR / "static"]
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 '''
     path.write_text(content, encoding="utf-8")
-
 
 def _write_urls(path: Path) -> None:
     content = '''"""Project URL Configuration."""
 from django.contrib import admin
 from django.urls import path, include
-
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -193,7 +194,6 @@ urlpatterns = [
 ]
 '''
     path.write_text(content, encoding="utf-8")
-
 
 def _write_wsgi(path: Path, project_name: str) -> None:
     content = f'''"""WSGI config."""
@@ -205,7 +205,6 @@ application = get_wsgi_application()
 '''
     path.write_text(content, encoding="utf-8")
 
-
 def _write_asgi(path: Path, project_name: str) -> None:
     content = f'''"""ASGI config."""
 import os
@@ -216,14 +215,11 @@ application = get_asgi_application()
 '''
     path.write_text(content, encoding="utf-8")
 
-
 def _write_app_init(path: Path) -> None:
     path.write_text("", encoding="utf-8")
 
-
 def _write_app_apps(path: Path) -> None:
     content = '''from django.apps import AppConfig
-
 
 class HelloConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
@@ -231,47 +227,58 @@ class HelloConfig(AppConfig):
 '''
     path.write_text(content, encoding="utf-8")
 
-
 def _write_app_views(path: Path) -> None:
     content = '''from django.http import JsonResponse
-
+from django.shortcuts import render
 
 def home(request):
-    return JsonResponse({"message": "Hello from Django + stoke!"})
+    return render(request, "hello/index.html", {"title": "Django + stoke"})
 
-
-def hello_name(request, name):
+def api_hello(request, name):
     return JsonResponse({"message": f"Hello, {name}!"})
 '''
     path.write_text(content, encoding="utf-8")
-
 
 def _write_app_urls(path: Path) -> None:
     content = '''from django.urls import path
 from . import views
 
-
 urlpatterns = [
     path("", views.home),
-    path("hello/<str:name>/", views.hello_name),
+    path("api/hello/<str:name>/", views.api_hello),
 ]
 '''
     path.write_text(content, encoding="utf-8")
 
+def _write_app_template(path: Path) -> None:
+    content = '''{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+    <h1>{{ title }}</h1>
+    <p>Hello from Django + stoke!</p>
+    <p>Try: <a href="/api/hello/world/">/api/hello/world/</a></p>
+</body>
+</html>
+'''
+    path.write_text(content, encoding="utf-8")
 
-def _prompt(question: str, default: str | None = None) -> str:
-    if default:
-        prompt = f"{question} [{default}]: "
-    else:
-        prompt = f"{question}: "
-    while True:
-        try:
-            value = input(prompt).strip()
-        except (EOFError, KeyboardInterrupt):
-            print()
-            sys.exit(1)
-        if value:
-            return value
-        if default is not None:
-            return default
-        print("Value required.")
+def _write_static_css(path: Path) -> None:
+    content = '''body {
+    font-family: sans-serif;
+    max-width: 720px;
+    margin: 4rem auto;
+    padding: 0 1rem;
+    color: #333;
+}
+
+h1 {
+    color: #0284c7;
+}
+'''
+    path.write_text(content, encoding="utf-8")

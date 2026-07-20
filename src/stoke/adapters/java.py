@@ -463,8 +463,11 @@ class JavaAdapter(BaseAdapter):
         ]
 
         print(f"Running: {self.target.main_class}\n")
-        result = subprocess.run(cmd)
-        return result.returncode
+        try:
+            result = subprocess.run(cmd)
+            return result.returncode
+        except KeyboardInterrupt:
+            return 130
 
     def get_run_command(self) -> list[str]:
         """hot-reload용 실행 명령어."""

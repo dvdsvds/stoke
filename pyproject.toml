@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "stoke-build"
-version = "1.0.0"
+version = "1.1.0"
 description = "Build, run, and scaffold projects in multiple languages (Python, Java, C, C++)"
 readme = "README.md"
 requires-python = ">=3.11"
