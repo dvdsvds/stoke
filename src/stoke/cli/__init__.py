@@ -20,7 +20,10 @@ from stoke.cli.vcpkg import (
 from stoke.cli.ide import cmd_ide_sync
 from stoke.cli.install_lang import cmd_install_language
 from stoke.init import cmd_init
-from stoke.spring_init import cmd_init_spring_boot
+from stoke.frameworks.spring_boot import cmd_init_spring_boot
+from stoke.frameworks.fastapi import cmd_init_fastapi
+from stoke.frameworks.flask import cmd_init_flask
+from stoke.frameworks.django import cmd_init_django
 
 def _build_parser():
     """argparse 파서 구성."""
@@ -95,7 +98,7 @@ def _build_parser():
 
     # stoke init [type]
     init_parser = subparsers.add_parser("init", help=_("init.help"))
-    init_parser.add_argument("type", nargs="?", choices=["spring-boot"], help="Project type (optional)")
+    init_parser.add_argument("type", nargs="?", choices=["spring-boot", "fastapi", "flask", "django"], help="Project type (optional)")
 
     # stoke watch
     watch_parser = subparsers.add_parser("watch", help=_("watch.help"))
@@ -173,6 +176,12 @@ def main():
     elif args.command == "init":
         if args.type == "spring-boot":
             cmd_init_spring_boot()
+        elif args.type == "fastapi":
+            cmd_init_fastapi()
+        elif args.type == "flask":
+            cmd_init_flask()
+        elif args.type == "django":
+            cmd_init_django()
         else:
             cmd_init()
     elif args.command == "watch":
