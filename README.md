@@ -2,11 +2,8 @@
   <img src="docs/images/logo.png" alt="stoke" width="400">
 </p>
 
-<p align="center">
-  <b>Build, run, and scaffold projects in multiple languages.</b>
-</p>
+<h2 align="center">Build, run, and scaffold projects in multiple languages.</h2>
 
----
 Supports Python, Java, C, and C++. Includes project scaffolding for Spring Boot, FastAPI, Flask, and Django.
 
 ## Installation
