@@ -1,18 +1,20 @@
 # stoke
 
-자동 의존성 관리와 재현 가능한 빌드를 제공하는 다국어 빌드 툴
-
+여러 언어로 프로젝트를 만들고, 빌드하고, 실행하는 도구
 [← 메인 README로 돌아가기](../README.md) · [English](./README_en.md)
 
 ## 소개
 
 `stoke.toml` 하나로 가상환경, 의존성, IDE 통합, 재현 가능한 빌드를 관리
-
-Python, Java, C, C++ 프로젝트를 같은 인터페이스로 빌드하고 실행
+Python, Java, C, C++ 프로젝트를 같은 인터페이스로 만들고, 빌드하고, 실행
+Spring Boot, FastAPI, Flask, Django 프로젝트 스캐폴딩 지원
 
 ## 주요 기능
 
 - **다국어 지원** — Python, Java, C, C++ 통합 관리
+- **언어 설치** — `stoke install`로 Python/JDK/gcc 자동 설치
+- **프레임워크 스캐폴딩** — Spring Boot, FastAPI, Flask, Django
+- **Python 환경** — venv 또는 conda 선택 가능
 - **자동 의존성 관리** — pip, Maven Central, vcpkg 통합
 - **자동 IDE 통합** — VSCode, IntelliJ, Eclipse 설정 파일 자동 생성
 - **Watch 모드 + Hot-reload** — 파일 변경 감지 후 자동 재빌드, 프로세스 재시작

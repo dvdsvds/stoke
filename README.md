@@ -1,8 +1,7 @@
 # stoke
+Build, run, and scaffold projects in multiple languages.
 
-A multi-language build tool with automatic dependency management and reproducible builds
-
-Supports Python, Java, C, and C++
+Supports Python, Java, C, and C++. Includes project scaffolding for Spring Boot, FastAPI, Flask, and Django.
 
 ## Installation
 
@@ -23,13 +22,13 @@ stoke run
 ```
 
 ## Features
-
-- **Python** — venv, pip dependencies, syntax check
-- **Java** — JDK detection, Maven Central, IDE integration
-- **C/C++** — gcc/g++, vcpkg integration, incremental builds
-- Watch mode and hot-reload for all languages
-- Reproducible builds via lock files
-- Auto IDE integration (VSCode, IntelliJ, Eclipse)
+- **Multi-language** — Python, Java, C, C++ with a single stoke.toml
+- **Language installation** — install Python/JDK/gcc via `stoke install`
+- **Project scaffolding** — `stoke init spring-boot`, `stoke init fastapi`, `stoke init flask`, `stoke init django`
+- **Python environments** — venv or conda
+- **Watch mode and hot-reload** for all languages
+- **Reproducible builds** via lock files
+- **Auto IDE integration** (VSCode, IntelliJ, Eclipse)
 
 ## Documentation
 

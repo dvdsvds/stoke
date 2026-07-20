@@ -1,12 +1,15 @@
 # stoke
 
-**A build tool for multiple languages.**
+**Build, run, and scaffold projects in multiple languages.**
 
-stoke unifies build workflows for Python, Java, C, and C++ projects with a single command-line interface. Configure your project once in `stoke.toml`, and stoke handles compilation, dependency management, IDE integration, and more.
+stoke unifies development workflows for Python, Java, C, and C++ projects. One command-line interface for building, running, watching, and scaffolding — including popular frameworks like Spring Boot, FastAPI, Flask, and Django. Configure your project once in `stoke.toml`, and stoke handles compilation, dependency management, IDE integration, and more.
 
 ## Features
 
 - **Multi-language**: Build Python, Java, C, and C++ projects with the same commands
+- **Language installation**: Install Python/JDK/gcc via `stoke install`
+- **Framework scaffolding**: Spring Boot, FastAPI, Flask, Django
+- **Python environments**: venv or conda
 - **Fast**: Incremental compilation with header dependency tracking
 - **Simple**: One `stoke.toml` for the whole project
 - **Watch mode**: Auto-rebuild on file changes

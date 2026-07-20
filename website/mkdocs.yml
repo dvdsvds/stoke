@@ -1,5 +1,5 @@
 site_name: stoke
-site_description: A build tool for multiple languages
+site_description: Build, run, and scaffold projects in multiple languages
 site_url: https://dvdsvds.github.io/stoke/
 repo_url: https://github.com/dvdsvds/stoke
 repo_name: dvdsvds/stoke
