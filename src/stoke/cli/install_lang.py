@@ -3,9 +3,19 @@ import sys
 import subprocess
 import urllib.request
 import tempfile
+import zipfile
+import shutil
+import os
 from pathlib import Path
-
 from stoke.install_versions import fetch_versions, find_version, get_platform_key
+
+def _toolchains_dir() -> Path:
+    """언어 툴체인 설치 폴더 반환."""
+    if sys.platform == "win32":
+        base = Path(os.environ.get("LOCALAPPDATA", str(Path.home() / "AppData" / "Local")))
+        return base / "Programs" / "stoke" / "toolchains"
+    else:
+        return Path.home() / ".stoke" / "toolchains"
 
 def cmd_install_language(language: str, version: str):
     """
@@ -59,7 +69,7 @@ def cmd_install_language(language: str, version: str):
 
     # 설치 실행
     if sys.platform == "win32":
-        _install_windows(installer_path)
+        _install_windows(installer_path, api_language, version_info["version"])
     elif sys.platform == "darwin":
         _install_macos(installer_path)
     else:
@@ -90,28 +100,102 @@ def _download(url: str) -> Path:
 
     return dest
 
+def _install_windows(installer_path: Path, language: str = None, version: str = None):
+    """Windows installer 실행. .exe / .msi / .zip / .7z 지원."""
+    suffix = installer_path.suffix.lower()
 
-def _install_windows(installer_path: Path):
-    """Windows installer 실행. .exe / .msi 지원."""
-    print(f"Running installer: {installer_path}")
-    print("Installer will open. Follow the wizard.")
-
-    try:
-        if installer_path.suffix.lower() == ".msi":
-            # MSI: msiexec 사용
-            result = subprocess.run(
+    if suffix == ".msi":
+        # MSI: msiexec 사용
+        print(f"Running installer: {installer_path}")
+        print("Installer will open. Follow the wizard.")
+        try:
+            subprocess.run(
                 ["msiexec", "/i", str(installer_path), "/passive"],
                 check=False,
             )
-        else:
-            # EXE: 그대로 실행
-            result = subprocess.run(
+        except FileNotFoundError:
+            print(f"Error: installer not found: {installer_path}", file=sys.stderr)
+            sys.exit(1)
+
+    elif suffix == ".exe":
+        # EXE: 그대로 실행
+        print(f"Running installer: {installer_path}")
+        print("Installer will open. Follow the wizard.")
+        try:
+            subprocess.run(
                 [str(installer_path), "/passive", "PrependPath=1"],
                 check=False,
             )
-    except FileNotFoundError:
-        print(f"Error: installer not found: {installer_path}", file=sys.stderr)
+        except FileNotFoundError:
+            print(f"Error: installer not found: {installer_path}", file=sys.stderr)
+            sys.exit(1)
+
+    elif suffix == ".zip":
+        # Zip: 파이썬 zipfile로 압축 해제
+        _extract_zip(installer_path, language, version)
+
+    elif suffix == ".7z":
+        # 7z: 7-Zip 사용
+        _extract_7z(installer_path, language, version)
+
+    else:
+        print(f"Error: unsupported installer format: {suffix}", file=sys.stderr)
         sys.exit(1)
+
+def _extract_zip(zip_path: Path, language: str, version: str) -> None:
+    """.zip 파일 압축 해제."""
+    dest = _toolchains_dir() / f"{language}-{version}"
+    print(f"Extracting to {dest}...")
+    dest.mkdir(parents=True, exist_ok=True)
+
+    try:
+        with zipfile.ZipFile(zip_path) as zf:
+            zf.extractall(dest)
+    except zipfile.BadZipFile as e:
+        print(f"Error: invalid zip file: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    print(f"\n{language} {version} installed to: {dest}")
+    _print_path_hint(dest, language)
+
+def _extract_7z(archive_path: Path, language: str, version: str) -> None:
+    """.7z 파일 압축 해제. 7-Zip 필요."""
+    seven_zip = shutil.which("7z")
+    if seven_zip is None:
+        print("Error: 7-Zip is required to extract .7z archives.", file=sys.stderr)
+        print("Install from: https://www.7-zip.org/", file=sys.stderr)
+        print(f"Downloaded archive: {archive_path}", file=sys.stderr)
+        sys.exit(1)
+
+    dest = _toolchains_dir() / f"{language}-{version}"
+    print(f"Extracting to {dest}...")
+    dest.mkdir(parents=True, exist_ok=True)
+
+    result = subprocess.run(
+        [seven_zip, "x", str(archive_path), f"-o{dest}", "-y"],
+        capture_output=True, text=True,
+    )
+    if result.returncode != 0:
+        print(f"Error: 7-Zip extraction failed:\n{result.stderr}", file=sys.stderr)
+        sys.exit(1)
+
+    print(f"\n{language} {version} installed to: {dest}")
+    _print_path_hint(dest, language)
+
+def _print_path_hint(dest: Path, language: str) -> None:
+    """PATH 안내 출력."""
+    # 언어별 bin 경로
+    if language == "go":
+        bin_path = dest / "go" / "bin"
+    elif language in ("c", "cpp", "gcc"):
+        # MinGW-w64는 mingw64/bin 구조
+        candidates = list(dest.glob("*/bin"))
+        bin_path = candidates[0] if candidates else dest / "bin"
+    else:
+        bin_path = dest / "bin"
+
+    print(f"\nTo use, add this to PATH:")
+    print(f"  {bin_path}")
 
 def _install_macos(installer_path: Path):
     """macOS 파이썬 installer 실행."""
