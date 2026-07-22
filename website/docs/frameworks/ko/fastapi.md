@@ -27,9 +27,9 @@ stoke init fastapi
 ## 의존성
 
 - `fastapi` (최신)
-- `uvicorn[standard]` (최신)
+- `uvicorn` (최신)
 
-> **참고**: Python 3.13 이상에서 venv 사용 시 `uvicorn[standard]`가 `watchfiles` 빌드 실패로 설치 안 될 수 있음 (Rust 필요). conda 환경 사용을 권장.
+> **참고**: Python 3.13+ 에서 `watchfiles` Rust 빌드 문제를 피하려고 기본 `uvicorn` 사용 (`[standard]` 아님). 자동 재시작이나 성능 확장이 필요하면 `stoke.toml`에 `uvicorn[standard]` 수동 추가 (그 경우 conda 환경 권장).
 
 ## 기본 설정
 

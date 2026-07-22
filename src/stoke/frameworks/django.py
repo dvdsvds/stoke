@@ -6,21 +6,27 @@ from stoke.python_versions import detect_all
 from stoke.init import _prompt, _select_python_version, _select_env_type
 
 def cmd_init_django():
-    """stoke init django 명령어."""
     print("Creating Django project\n")
 
-    project_name = _prompt("Project name", "myapp")
+    cwd = Path.cwd()
+    is_empty = not any(cwd.iterdir())
+
+    if is_empty:
+        default_name = cwd.name
+        project_name = _prompt("Project name", default_name)
+        project_path = cwd
+    else:
+        project_name = _prompt("Project name", "myapp")
+        project_path = cwd / project_name
+        if project_path.exists():
+            print(f"Error: directory '{project_name}' already exists", file=sys.stderr)
+            sys.exit(1)
+        project_path.mkdir()
 
     installs = detect_all()
     python_version = _select_python_version(installs)
     env_type = _select_env_type()
 
-    project_path = Path.cwd() / project_name
-    if project_path.exists():
-        print(f"Error: directory '{project_name}' already exists", file=sys.stderr)
-        sys.exit(1)
-
-    project_path.mkdir()
     src = project_path / "src"
     src.mkdir()
     (src / project_name).mkdir()

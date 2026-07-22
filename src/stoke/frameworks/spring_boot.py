@@ -40,8 +40,15 @@ def cmd_init_spring_boot():
     """stoke init spring-boot 명령어."""
     print("Creating Spring Boot project via start.spring.io\n")
 
-    # 사용자 입력
-    project_name = _prompt("Project name", "myapp")
+    cwd = Path.cwd()
+    is_empty = not any(cwd.iterdir())
+
+    if is_empty:
+        default_name = cwd.name
+        project_name = _prompt("Project name", default_name)
+    else:
+        project_name = _prompt("Project name", "myapp")
+
     group_id = _prompt("Group ID (e.g. com.example)", "com.example")
 
     # Spring Boot 버전 조회
@@ -97,7 +104,7 @@ def cmd_init_spring_boot():
         "type": build_tool,
         "language": "java",
         "bootVersion": boot_version,
-        "baseDir": project_name,
+        "baseDir": "." if is_empty else project_name,
         "groupId": group_id,
         "artifactId": project_name,
         "name": project_name,
@@ -127,7 +134,12 @@ def cmd_init_spring_boot():
 
     # 압축 해제
     dest_dir = Path.cwd()
-    print(f"Extracting to {dest_dir / project_name}...")
+    if is_empty:
+        project_path = dest_dir
+    else:
+        project_path = dest_dir / project_name
+
+    print(f"Extracting to {project_path}...")
 
     try:
         with zipfile.ZipFile(io.BytesIO(zip_data)) as zf:
@@ -136,7 +148,6 @@ def cmd_init_spring_boot():
         print("Error: invalid zip file received", file=sys.stderr)
         sys.exit(1)
 
-    project_path = dest_dir / project_name
     print(f"\nSpring Boot project created at: {project_path}")
     print()
     print("Next steps:")
@@ -153,7 +164,6 @@ def cmd_init_spring_boot():
     print("Open in IDE:")
     print(f"  IntelliJ: File -> Open -> {project_name}/")
     print(f"  VSCode:   code {project_name}/")
-
 
 def _prompt(question: str, default: str | None = None) -> str:
     """간단한 입력 프롬프트."""
@@ -174,7 +184,6 @@ def _prompt(question: str, default: str | None = None) -> str:
         if default is not None:
             return default
         print("Value required.")
-
 
 def _prompt_choice(question: str, choices: list[str], default_index: int = 0) -> int:
     """선택지 프롬프트. 인덱스 반환."""

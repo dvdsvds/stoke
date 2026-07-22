@@ -27,9 +27,9 @@ stoke init fastapi
 ## Dependencies
 
 - `fastapi` (latest)
-- `uvicorn[standard]` (latest)
+- `uvicorn` (latest)
 
-> **Note**: On Python 3.13+ with venv, `uvicorn[standard]` may fail to install due to `watchfiles` requiring Rust. Use conda environment as a workaround.
+> **Note**: The template uses plain `uvicorn` (not `uvicorn[standard]`) to avoid the Rust-based `watchfiles` build on Python 3.13+. If you need auto-reload or performance extras, add `uvicorn[standard]` to `stoke.toml` manually (conda environment recommended for that case).
 
 ## Default settings
 

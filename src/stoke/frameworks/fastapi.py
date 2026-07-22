@@ -10,20 +10,24 @@ def cmd_init_fastapi():
     """stoke init fastapi 명령어."""
     print("Creating FastAPI project\n")
 
-    project_name = _prompt("Project name", "myapp")
+    cwd = Path.cwd()
+    is_empty = not any(cwd.iterdir())
+
+    if is_empty:
+        default_name = cwd.name
+        project_name = _prompt("Project name", default_name)
+        project_path = cwd
+    else:
+        project_name = _prompt("Project name", "myapp")
+        project_path = cwd / project_name
+        if project_path.exists():
+            print(f"Error: directory '{project_name}' already exists", file=sys.stderr)
+            sys.exit(1)
+        project_path.mkdir()
 
     installs = detect_all()
     python_version = _select_python_version(installs)
     env_type = _select_env_type()
-
-    port = _prompt("Port", "8000")
-
-    project_path = Path.cwd() / project_name
-    if project_path.exists():
-        print(f"Error: directory '{project_name}' already exists", file=sys.stderr)
-        sys.exit(1)
-
-    project_path.mkdir()
 
     # 폴더 구조 만들기
     (project_path / "src").mkdir()
@@ -62,7 +66,7 @@ entry = "src/main.py"
 
 [targets.{project_name}.deps]
 fastapi = "*"
-"uvicorn[standard]" = "*"
+"uvicorn" = "*"
 '''
     (project_path / "stoke.toml").write_text(content, encoding="utf-8")
 
