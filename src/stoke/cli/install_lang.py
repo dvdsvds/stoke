@@ -225,3 +225,68 @@ def cmd_list_language_versions(language: str):
         print(f"  {v['version']}  (released {released})")
     print()
     print(f"Install: stoke install --language={language} --version=<version>")
+
+def cmd_uninstall_language(language: str, version: str = None):
+    """stoke uninstall --language=X --version=Y"""
+    if language not in ("python", "java", "c", "cpp", "conda", "go"):
+        print(f"Error: unsupported language '{language}'", file=sys.stderr)
+        sys.exit(1)
+
+    api_language = "gcc" if language in ("c", "cpp") else language
+
+    toolchains = _toolchains_dir()
+    if not toolchains.exists():
+        print(f"No stoke-installed toolchains found at: {toolchains}", file=sys.stderr)
+        sys.exit(1)
+
+    # 설치된 버전 찾기
+    prefix = f"{api_language}-"
+    installed = [d for d in toolchains.iterdir() if d.is_dir() and d.name.startswith(prefix)]
+
+    if not installed:
+        print(f"No stoke-installed {language} found.", file=sys.stderr)
+        sys.exit(1)
+
+    # 버전 지정 안 하면 목록 표시
+    if version is None:
+        print(f"Installed {language} versions:")
+        for d in installed:
+            v = d.name[len(prefix):]
+            print(f"  {v}")
+        print()
+        print(f"Usage: stoke uninstall --language={language} --version=<version>")
+        return
+
+    # 특정 버전 삭제
+    target_dir = toolchains / f"{api_language}-{version}"
+    if not target_dir.exists():
+        print(f"Error: {language} {version} not found in {toolchains}", file=sys.stderr)
+        print(f"Installed versions:", file=sys.stderr)
+        for d in installed:
+            v = d.name[len(prefix):]
+            print(f"  {v}", file=sys.stderr)
+        sys.exit(1)
+
+    # 확인 프롬프트
+    print(f"Delete {language} {version}?")
+    print(f"  Path: {target_dir}")
+    print(f"Confirm? [y/N]: ", end="")
+    try:
+        answer = input().strip().lower()
+    except (EOFError, KeyboardInterrupt):
+        print()
+        return
+
+    if answer != "y":
+        print("Cancelled.")
+        return
+
+    # 삭제
+    try:
+        shutil.rmtree(target_dir)
+    except OSError as e:
+        print(f"Error: cannot delete: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    print(f"Uninstalled {language} {version}.")
+    print(f"Note: You may need to remove the path from PATH manually.")
