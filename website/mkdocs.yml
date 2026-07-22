@@ -51,6 +51,18 @@ nav:
   - Advanced:
     - vcpkg: advanced/vcpkg.md
     - IDE Integration: advanced/ide-integration.md
+  - Frameworks (EN):
+    - Overview: frameworks/en/overview.md
+    - Spring Boot: frameworks/en/spring-boot.md
+    - FastAPI: frameworks/en/fastapi.md
+    - Flask: frameworks/en/flask.md
+    - Django: frameworks/en/django.md
+  - 프레임워크 (한국어):
+    - 개요: frameworks/ko/overview.md
+    - Spring Boot: frameworks/ko/spring-boot.md
+    - FastAPI: frameworks/ko/fastapi.md
+    - Flask: frameworks/ko/flask.md
+    - Django: frameworks/ko/django.md
   - Troubleshooting: troubleshooting.md
   - FAQ: faq.md
 
