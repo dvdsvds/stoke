@@ -44,6 +44,7 @@ nav:
     - Python: languages/python.md
     - Java: languages/java.md
     - C/C++: languages/cpp.md
+    - Go: languages/go.md
   - Configuration:
     - stoke.toml: configuration/stoke-toml.md
     - Profiles: configuration/profiles.md
@@ -53,16 +54,30 @@ nav:
     - IDE Integration: advanced/ide-integration.md
   - Frameworks (EN):
     - Overview: frameworks/en/overview.md
-    - Spring Boot: frameworks/en/spring-boot.md
-    - FastAPI: frameworks/en/fastapi.md
-    - Flask: frameworks/en/flask.md
-    - Django: frameworks/en/django.md
+    - Java:
+      - Spring Boot: frameworks/en/spring-boot.md
+    - Python:
+      - FastAPI: frameworks/en/fastapi.md
+      - Flask: frameworks/en/flask.md
+      - Django: frameworks/en/django.md
+    - Go:
+      - Gin: frameworks/en/gin.md
+      - Echo: frameworks/en/echo.md
+      - Fiber: frameworks/en/fiber.md
+      - Chi: frameworks/en/chi.md
   - 프레임워크 (한국어):
     - 개요: frameworks/ko/overview.md
-    - Spring Boot: frameworks/ko/spring-boot.md
-    - FastAPI: frameworks/ko/fastapi.md
-    - Flask: frameworks/ko/flask.md
-    - Django: frameworks/ko/django.md
+    - Java:
+      - Spring Boot: frameworks/ko/spring-boot.md
+    - Python:
+      - FastAPI: frameworks/ko/fastapi.md
+      - Flask: frameworks/ko/flask.md
+      - Django: frameworks/ko/django.md
+    - Go:
+      - Gin: frameworks/ko/gin.md
+      - Echo: frameworks/ko/echo.md
+      - Fiber: frameworks/ko/fiber.md
+      - Chi: frameworks/ko/chi.md
   - Troubleshooting: troubleshooting.md
   - FAQ: faq.md
 
