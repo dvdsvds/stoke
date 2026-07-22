@@ -7,15 +7,14 @@ from pathlib import Path
 
 from stoke.install_versions import fetch_versions, find_version, get_platform_key
 
-
 def cmd_install_language(language: str, version: str):
     """
-    stoke install --language=python --version=3.12
+    stoke install --language=[language name] --version=[version]
     """
-    # 지원 언어 확인
-    if language not in ("python", "java", "c", "cpp", "conda"):
+    # 지원 언어 및 환경 확인
+    if language not in ("python", "java", "c", "cpp", "conda", "go"):
         print(f"Error: unsupported language '{language}'", file=sys.stderr)
-        print(f"Supported: python, java, c, cpp, conda", file=sys.stderr)
+        print(f"Supported: python, java, c, cpp, conda, go", file=sys.stderr)
         sys.exit(1)
 
     # c/cpp는 gcc 툴체인 사용
@@ -114,7 +113,6 @@ def _install_windows(installer_path: Path):
         print(f"Error: installer not found: {installer_path}", file=sys.stderr)
         sys.exit(1)
 
-
 def _install_macos(installer_path: Path):
     """macOS 파이썬 installer 실행."""
     print(f"Opening installer: {installer_path}")
@@ -124,7 +122,7 @@ def _install_macos(installer_path: Path):
 
 def cmd_list_language_versions(language: str):
     """stoke install --language=X --list"""
-    if language not in ("python", "java", "c", "cpp", "conda"):
+    if language not in ("python", "java", "c", "cpp", "conda", "go"):
         print(f"Error: unsupported language '{language}'", file=sys.stderr)
         sys.exit(1)
 
