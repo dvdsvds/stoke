@@ -6,7 +6,6 @@ from pathlib import Path
 from stoke.adapters.base import BaseAdapter
 from stoke.config import Target, ProjectInfo
 
-
 class GoAdapter(BaseAdapter):
     def __init__(
         self,
@@ -55,7 +54,7 @@ class GoAdapter(BaseAdapter):
         cmd = [
             go_exe, "build",
             "-o", str(self.output_path),
-            "./...",
+            ".",
         ]
         result = subprocess.run(
             cmd,

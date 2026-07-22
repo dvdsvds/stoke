@@ -32,6 +32,11 @@ from stoke.languages.python.frameworks.django import cmd_init_django
 
 from stoke.languages.java.frameworks.spring_boot import cmd_init_spring_boot
 
+from stoke.languages.go.frameworks.gin import cmd_init_gin
+from stoke.languages.go.frameworks.echo import cmd_init_echo
+from stoke.languages.go.frameworks.fiber import cmd_init_fiber
+from stoke.languages.go.frameworks.chi import cmd_init_chi
+
 def _build_parser():
     """argparse 파서 구성."""
     parser = argparse.ArgumentParser(
@@ -107,7 +112,7 @@ def _build_parser():
 
     # stoke init [type]
     init_parser = subparsers.add_parser("init", help=_("init.help"))
-    init_parser.add_argument("type", nargs="?", choices=["spring-boot", "fastapi", "flask", "django"], help="Project type (optional)")
+    init_parser.add_argument("type", nargs="?", choices=["spring-boot", "fastapi", "flask", "django", "gin", "echo", "fiber", "chi"], help="Project type (optional)")
 
     # stoke watch
     watch_parser = subparsers.add_parser("watch", help=_("watch.help"))
@@ -196,6 +201,14 @@ def main():
             cmd_init_flask()
         elif args.type == "django":
             cmd_init_django()
+        elif args.type == "gin":
+            cmd_init_gin()
+        elif args.type == "echo":
+            cmd_init_echo()
+        elif args.type == "fiber":
+            cmd_init_fiber()
+        elif args.type == "chi":
+            cmd_init_chi()
         else:
             cmd_init()
     elif args.command == "watch":
