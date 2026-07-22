@@ -22,7 +22,7 @@ def cmd_install_language(language: str, version: str):
     stoke install --language=[language name] --version=[version]
     """
     # 지원 언어 및 환경 확인
-    if language not in ("python", "java", "c", "cpp", "conda", "go"):
+    if language not in ("python", "java", "c", "cpp", "conda", "go", "nodejs"):
         print(f"Error: unsupported language '{language}'", file=sys.stderr)
         print(f"Supported: python, java, c, cpp, conda, go", file=sys.stderr)
         sys.exit(1)
@@ -184,13 +184,15 @@ def _extract_7z(archive_path: Path, language: str, version: str) -> None:
 
 def _print_path_hint(dest: Path, language: str) -> None:
     """PATH 안내 출력."""
-    # 언어별 bin 경로
     if language == "go":
         bin_path = dest / "go" / "bin"
     elif language in ("c", "cpp", "gcc"):
-        # MinGW-w64는 mingw64/bin 구조
         candidates = list(dest.glob("*/bin"))
         bin_path = candidates[0] if candidates else dest / "bin"
+    elif language == "nodejs":
+        # Node.js는 압축 풀면 node-vXX-win-x64/ 폴더 안에 node.exe 있음
+        candidates = [d for d in dest.iterdir() if d.is_dir() and d.name.startswith("node-")]
+        bin_path = candidates[0] if candidates else dest
     else:
         bin_path = dest / "bin"
 
@@ -206,7 +208,7 @@ def _install_macos(installer_path: Path):
 
 def cmd_list_language_versions(language: str):
     """stoke install --language=X --list"""
-    if language not in ("python", "java", "c", "cpp", "conda", "go"):
+    if language not in ("python", "java", "c", "cpp", "conda", "go", "nodejs"):
         print(f"Error: unsupported language '{language}'", file=sys.stderr)
         sys.exit(1)
 
