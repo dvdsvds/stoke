@@ -29,6 +29,14 @@ from stoke.languages.go.init import (
     _write_stoke_toml_go,
     _write_example_go,
 )
+from stoke.languages.javascript.init import (
+    _write_stoke_toml_javascript,
+    _write_example_javascript,
+)
+from stoke.languages.typescript.init import (
+    _write_stoke_toml_typescript,
+    _write_example_typescript,
+)
 
 def _select_lock_mode() -> str:
     """lock 파일 위치 선택."""
@@ -44,15 +52,16 @@ def _select_lock_mode() -> str:
     return "commit" if selected == 0 else "local"
 
 def _select_language() -> str:
-    """언어 선택. 반환: 'python', 'java', 'c', 'cpp', 'go'."""
     choices = [
-        "Python  (.py)",
-        "Java    (.java)",
-        "C       (.c)",
-        "C++     (.cpp)",
-        "Go      (.go)",
+        "Python      (.py)",
+        "Java        (.java)",
+        "C           (.c)",
+        "C++         (.cpp)",
+        "Go          (.go)",
+        "JavaScript  (.js)",
+        "TypeScript  (.ts)",
     ]
-    languages = ["python", "java", "c", "cpp", "go"]
+    languages = ["python", "java", "c", "cpp", "go", "javascript", "typescript"]
     selected = _prompt_choice(
         "Language:",
         choices,
@@ -108,6 +117,10 @@ def cmd_init() -> None:
         _prompt_vcpkg_install()
     elif language == "go":
         version_info = "Language:        Go"
+    elif language == "javascript":
+        version_info = "Language:        JavaScript"
+    elif language == "typescript":
+        version_info = "Language:        TypeScript"
 
     # 4. lock 모드 선택
     lock_mode = _select_lock_mode()
@@ -144,5 +157,11 @@ def cmd_init() -> None:
     elif language == "go":
         _write_stoke_toml_go(stoke_toml_path, project_name, lock_mode)
         _write_example_go(cwd, project_name)
+    elif language == "javascript":
+        _write_stoke_toml_javascript(stoke_toml_path, project_name, lock_mode)
+        _write_example_javascript(cwd)
+    elif language == "typescript":
+        _write_stoke_toml_typescript(stoke_toml_path, project_name, lock_mode)
+        _write_example_typescript(cwd)
     print(f"\nCreated {stoke_toml_path}")
     print("Next: run 'stoke build' to build your project.")

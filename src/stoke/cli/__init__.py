@@ -37,6 +37,16 @@ from stoke.languages.go.frameworks.echo import cmd_init_echo
 from stoke.languages.go.frameworks.fiber import cmd_init_fiber
 from stoke.languages.go.frameworks.chi import cmd_init_chi
 
+from stoke.languages.javascript.frameworks.express import cmd_init_express
+from stoke.languages.javascript.frameworks.fastify import cmd_init_fastify
+
+from stoke.languages.typescript.frameworks.nextjs import cmd_init_nextjs
+from stoke.languages.typescript.frameworks.nestjs import cmd_init_nestjs
+from stoke.languages.typescript.frameworks.vite import cmd_init_vite
+from stoke.languages.typescript.frameworks.nuxt import cmd_init_nuxt
+from stoke.languages.typescript.frameworks.sveltekit import cmd_init_sveltekit
+from stoke.languages.typescript.frameworks.hono import cmd_init_hono
+
 def _build_parser():
     """argparse 파서 구성."""
     parser = argparse.ArgumentParser(
@@ -112,7 +122,24 @@ def _build_parser():
 
     # stoke init [type]
     init_parser = subparsers.add_parser("init", help=_("init.help"))
-    init_parser.add_argument("type", nargs="?", choices=["spring-boot", "fastapi", "flask", "django", "gin", "echo", "fiber", "chi"], help="Project type (optional)")
+    init_parser.add_argument("type", nargs="?", choices=[
+        "spring-boot", 
+        "fastapi", 
+        "flask", 
+        "django", 
+        "gin", 
+        "echo", 
+        "fiber", 
+        "chi", 
+        "nextjs", 
+        "express",
+        "nestjs",
+        "fastify",
+        "vite",
+        "nuxt",
+        "sveltekit",
+        "hono"
+        ], help="Project type (optional)")
 
     # stoke watch
     watch_parser = subparsers.add_parser("watch", help=_("watch.help"))
@@ -209,6 +236,22 @@ def main():
             cmd_init_fiber()
         elif args.type == "chi":
             cmd_init_chi()
+        elif args.type == "nextjs":
+            cmd_init_nextjs()
+        elif args.type == "nestjs":
+            cmd_init_nestjs()
+        elif args.type == "vite":
+            cmd_init_vite()
+        elif args.type == "nuxt":
+            cmd_init_nuxt()
+        elif args.type == "sveltekit":
+            cmd_init_sveltekit()
+        elif args.type == "hono":
+            cmd_init_hono()
+        elif args.type == "express":
+            cmd_init_express()
+        elif args.type == "fastify":
+            cmd_init_fastify()
         else:
             cmd_init()
     elif args.command == "watch":
