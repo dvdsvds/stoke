@@ -13,7 +13,7 @@ from stoke.cache import (
 )
 from stoke.config import Target, ProjectInfo
 from stoke.lock import LockFile, load_lock, save_lock, is_compatible
-from stoke.python_versions import (
+from stoke.languages.python.versions import (
     PythonInstall,
     detect_all,
     find_matching,

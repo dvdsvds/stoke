@@ -1,7 +1,6 @@
 """C++ 어댑터. g++ 사용."""
 
-from stoke.adapters.c_base import CBaseAdapter
-
+from stoke.languages.c.base import CBaseAdapter
 
 class CppAdapter(CBaseAdapter):
     compiler_kind = "cpp"

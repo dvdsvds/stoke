@@ -2,8 +2,9 @@
 import sys
 from pathlib import Path
 
-from stoke.python_versions import detect_all
-from stoke.init import _prompt, _select_python_version, _select_env_type
+from stoke.languages.python.versions import detect_all
+from stoke.prompts import _prompt
+from stoke.languages.python.init import _select_python_version, _select_env_type
 
 def cmd_init_flask():
     """stoke init flask 명령어."""

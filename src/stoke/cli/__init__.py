@@ -25,10 +25,12 @@ from stoke.cli.install_lang import (
 from stoke.cli.ide import cmd_ide_sync
 from stoke.cli.install_lang import cmd_install_language
 from stoke.init import cmd_init
-from stoke.frameworks.spring_boot import cmd_init_spring_boot
-from stoke.frameworks.fastapi import cmd_init_fastapi
-from stoke.frameworks.flask import cmd_init_flask
-from stoke.frameworks.django import cmd_init_django
+
+from stoke.languages.python.frameworks.fastapi import cmd_init_fastapi
+from stoke.languages.python.frameworks.flask import cmd_init_flask
+from stoke.languages.python.frameworks.django import cmd_init_django
+
+from stoke.languages.java.frameworks.spring_boot import cmd_init_spring_boot
 
 def _build_parser():
     """argparse 파서 구성."""

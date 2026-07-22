@@ -35,7 +35,7 @@ def cmd_vcpkg_version():
 def cmd_vcpkg_install_library(library: str, version: str | None, target: str | None):
     """stoke vcpkg install <library> [--version=X] [--target=Y]"""
     from stoke.vcpkg import install_library
-    from stoke.c_libraries import can_use_in_c_project
+    from stoke.languages.c.libraries import can_use_in_c_project
     from stoke.toml_editor import add_dep
 
     config = load_config_or_exit()

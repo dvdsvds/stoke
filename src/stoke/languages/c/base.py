@@ -12,10 +12,10 @@ from stoke.cache import (
     get_file_stat,
     is_unchanged,
 )
-from stoke.c_versions import CompilerInstall, find_compiler
+from stoke.languages.c.versions import CompilerInstall, find_compiler
 from stoke.config import Target, ProjectInfo, Profile
 from stoke.lock import load_lock, save_lock
-from stoke.adapters.c_dep_parser import parse_dep_file
+from stoke.languages.c.dep_parser import parse_dep_file
 
 @dataclass
 class CompileResult:
@@ -423,7 +423,7 @@ class CBaseAdapter(BaseAdapter):
 
         # 언어별 호환성 재검증 (사용자가 stoke.toml 직접 수정한 경우)
         if self.compiler_kind == "c":
-            from stoke.c_libraries import can_use_in_c_project
+            from stoke.languages.c.libraries import can_use_in_c_project
             for lib_name in self.target.deps:
                 if not can_use_in_c_project(lib_name):
                     raise RuntimeError(

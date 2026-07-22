@@ -1,6 +1,5 @@
 """python/java/c/cpp list 명령어."""
-from stoke.python_versions import detect_all
-
+from stoke.languages.python.versions import detect_all
 
 def cmd_python_list():
     installs = detect_all()
@@ -13,9 +12,8 @@ def cmd_python_list():
         print(f"  Python {install.version}{default_mark}")
         print(f"    -> {install.executable}")
 
-
 def cmd_java_list():
-    from stoke.java_versions import detect_all as detect_java
+    from stoke.languages.java.versions import detect_all as detect_java
     installs = detect_java()
     if not installs:
         print("No JDK detected.")
@@ -30,9 +28,8 @@ def cmd_java_list():
         print(f"    java:      {install.java}")
         print()
 
-
 def cmd_c_list():
-    from stoke.c_versions import detect_all as detect_c
+    from stoke.languages.c.versions import detect_all as detect_c
     installs = [i for i in detect_c() if i.kind == "c"]
     if not installs:
         print("No C compiler detected.")
@@ -45,9 +42,8 @@ def cmd_c_list():
         print(f"    executable: {install.executable}")
         print()
 
-
 def cmd_cpp_list():
-    from stoke.c_versions import detect_all as detect_c
+    from stoke.languages.c.versions import detect_all as detect_c
     installs = [i for i in detect_c() if i.kind == "cpp"]
     if not installs:
         print("No C++ compiler detected.")

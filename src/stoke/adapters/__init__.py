@@ -21,14 +21,17 @@ def make_adapter(
     verbose: 상세 로그 출력 여부.
     """
     if target.language == "python":
-        from stoke.adapters.python import PythonAdapter
+        from stoke.languages.python.adapter import PythonAdapter
         return PythonAdapter(target, project, project_root, verbose=verbose)
     if target.language == "java":
-        from stoke.adapters.java import JavaAdapter
+        from stoke.languages.java.adapter import JavaAdapter
         return JavaAdapter(target, project, project_root, verbose=verbose)
     if target.language == "c":
-        from stoke.adapters.c import CAdapter
+        from stoke.languages.c.adapter import CAdapter
         return CAdapter(target, project, project_root, profile=profile, verbose=verbose)
     if target.language == "cpp":
-        from stoke.adapters.cpp import CppAdapter
+        from stoke.languages.cpp.adapter import CppAdapter
         return CppAdapter(target, project, project_root, profile=profile, verbose=verbose)
+    if target.language == "go":
+        from stoke.languages.go.adapter import GoAdapter
+        return GoAdapter(target, project, project_root, verbose=verbose)

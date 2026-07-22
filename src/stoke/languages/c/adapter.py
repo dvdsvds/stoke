@@ -1,7 +1,6 @@
 """C 언어 어댑터. gcc 사용."""
 
-from stoke.adapters.c_base import CBaseAdapter
-
+from stoke.languages.c.base import CBaseAdapter
 
 class CAdapter(CBaseAdapter):
     compiler_kind = "c"

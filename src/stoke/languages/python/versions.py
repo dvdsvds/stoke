@@ -4,7 +4,6 @@ import shutil
 from dataclasses import dataclass
 from pathlib import Path
 
-
 @dataclass
 class PythonInstall:
     version: str          # 예: "3.12.12"

@@ -11,7 +11,7 @@ from stoke.cache import (
     is_unchanged,
 )
 from stoke.config import Target, ProjectInfo
-from stoke.java_versions import (
+from stoke.languages.java.versions import (
     JavaInstall,
     detect_all,
     find_matching,
@@ -302,7 +302,7 @@ class JavaAdapter(BaseAdapter):
         반환: {name: {"version": str, "sha1": str, "path": Path}}
         """
         import hashlib
-        from stoke.maven import parse_coordinate, download_jar
+        from stoke.languages.java.maven import parse_coordinate, download_jar
 
         if not self.target.deps:
             return {}

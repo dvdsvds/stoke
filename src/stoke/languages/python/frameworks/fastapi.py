@@ -2,9 +2,9 @@
 import sys
 from pathlib import Path
 
-from stoke.python_versions import detect_all
-from stoke.init import _prompt, _select_python_version, _select_env_type
-
+from stoke.languages.python.versions import detect_all
+from stoke.prompts import _prompt
+from stoke.languages.python.init import _select_python_version, _select_env_type
 
 def cmd_init_fastapi():
     """stoke init fastapi 명령어."""
@@ -50,7 +50,6 @@ def cmd_init_fastapi():
     print()
     print(f"After running, open: http://localhost:8000/")
 
-
 def _write_stoke_toml(project_path: Path, project_name: str, python_version: str, env_type: str) -> None:
     env_line = f'env_type = "{env_type}"\n' if env_type != "venv" else ""
     content = f'''[project]
@@ -70,28 +69,23 @@ fastapi = "*"
 '''
     (project_path / "stoke.toml").write_text(content, encoding="utf-8")
 
-
 def _write_main(path: Path, project_name: str) -> None:
     content = '''import uvicorn
 from app import create_app
 
 app = create_app()
 
-
 def main():
     uvicorn.run(app, host="0.0.0.0", port=8000)
-
 
 if __name__ == "__main__":
     main()
 '''
     path.write_text(content, encoding="utf-8")
 
-
 def _write_app_init(path: Path) -> None:
     content = '''from fastapi import FastAPI
 from app.routers import hello
-
 
 def create_app() -> FastAPI:
     app = FastAPI(title="FastAPI + stoke")
@@ -100,21 +94,17 @@ def create_app() -> FastAPI:
 '''
     path.write_text(content, encoding="utf-8")
 
-
 def _write_routers_init(path: Path) -> None:
     path.write_text("", encoding="utf-8")
-
 
 def _write_hello_router(path: Path) -> None:
     content = '''from fastapi import APIRouter
 
 router = APIRouter()
 
-
 @router.get("/")
 def read_root():
     return {"message": "Hello from FastAPI + stoke!"}
-
 
 @router.get("/hello/{name}")
 def hello_name(name: str):
