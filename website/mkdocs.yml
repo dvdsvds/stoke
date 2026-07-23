@@ -40,11 +40,20 @@ nav:
     - clean: commands/clean.md
     - init: commands/init.md
     - ide-sync: commands/ide-sync.md
-  - Languages:
-    - Python: languages/python.md
-    - Java: languages/java.md
-    - C/C++: languages/cpp.md
-    - Go: languages/go.md
+  - Languages (EN):
+    - Python: languages/en/python.md
+    - Java: languages/en/java.md
+    - C/C++: languages/en/cpp.md
+    - Go: languages/en/go.md
+    - JavaScript: languages/en/javascript.md
+    - TypeScript: languages/en/typescript.md
+  - 언어 (한국어):
+    - Python: languages/ko/python.md
+    - Java: languages/ko/java.md
+    - C/C++: languages/ko/cpp.md
+    - Go: languages/ko/go.md
+    - JavaScript: languages/ko/javascript.md
+    - TypeScript: languages/ko/typescript.md
   - Configuration:
     - stoke.toml: configuration/stoke-toml.md
     - Profiles: configuration/profiles.md
@@ -65,6 +74,16 @@ nav:
       - Echo: frameworks/en/echo.md
       - Fiber: frameworks/en/fiber.md
       - Chi: frameworks/en/chi.md
+    - JavaScript:
+      - Express: frameworks/en/express.md
+      - Fastify: frameworks/en/fastify.md
+    - TypeScript:
+      - Next.js: frameworks/en/nextjs.md
+      - NestJS: frameworks/en/nestjs.md
+      - Vite: frameworks/en/vite.md
+      - Nuxt: frameworks/en/nuxt.md
+      - SvelteKit: frameworks/en/sveltekit.md
+      - Hono: frameworks/en/hono.md
   - 프레임워크 (한국어):
     - 개요: frameworks/ko/overview.md
     - Java:
@@ -78,6 +97,16 @@ nav:
       - Echo: frameworks/ko/echo.md
       - Fiber: frameworks/ko/fiber.md
       - Chi: frameworks/ko/chi.md
+    - JavaScript:
+      - Express: frameworks/ko/express.md
+      - Fastify: frameworks/ko/fastify.md
+    - TypeScript:
+      - Next.js: frameworks/ko/nextjs.md
+      - NestJS: frameworks/ko/nestjs.md
+      - Vite: frameworks/ko/vite.md
+      - Nuxt: frameworks/ko/nuxt.md
+      - SvelteKit: frameworks/ko/sveltekit.md
+      - Hono: frameworks/ko/hono.md
   - Troubleshooting: troubleshooting.md
   - FAQ: faq.md
 
