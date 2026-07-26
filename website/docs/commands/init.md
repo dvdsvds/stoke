@@ -10,13 +10,19 @@ stoke init
 
 Runs an interactive wizard in the current directory.
 
+```bash
+stoke init <framework>
+```
+
+Skips the wizard and scaffolds a specific framework directly (e.g. `stoke init fastapi`, `stoke init gin`). See [Framework scaffolding](../frameworks/en/overview.md) for the full list.
+
 ## What it does
 
 The wizard asks:
 
 1. **Project name** — defaults to the current folder name
-2. **Language** — Python, Java, C, or C++
-3. **Language version** — Python 3.12, Java 25, C11, C++20, etc.
+2. **Language** — Python, Java, C, C++, Go, JavaScript, or TypeScript
+3. **Language version** — Python 3.12, Java 25, C11, C++20, etc. (Go/JavaScript/TypeScript have no version prompt — they use whatever toolchain is on PATH)
 4. **Entry point / main class** — depending on the language
 5. **Dependencies** — optional
 

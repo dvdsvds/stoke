@@ -15,7 +15,7 @@ stoke init
 The wizard will ask:
 
 - Project name
-- Language (Python, Java, C, C++)
+- Language (Python, Java, C, C++, Go, JavaScript, TypeScript)
 - Version requirements
 - Dependencies
 
@@ -144,8 +144,58 @@ stoke build
 stoke run
 ```
 
+### Go
+
+```toml
+[project]
+name = "myapp"
+version = "0.1.0"
+
+[targets.myapp]
+language = "go"
+```
+
+```bash
+stoke build     # go build
+stoke run       # runs the compiled binary
+```
+
+### JavaScript
+
+```toml
+[project]
+name = "myapp"
+version = "0.1.0"
+
+[targets.myapp]
+language = "javascript"
+entry = "src/main.js"
+```
+
+```bash
+stoke build     # npm install (if package.json exists)
+stoke run       # node src/main.js
+```
+
+### TypeScript
+
+```toml
+[project]
+name = "myapp"
+version = "0.1.0"
+
+[targets.myapp]
+language = "typescript"
+entry = "src/main.ts"
+```
+
+```bash
+stoke build     # npm install
+stoke run       # runs src/main.ts via tsx
+```
+
 ## Next steps
 
 - [Commands reference](../commands/overview.md)
 - [`stoke.toml` reference](../configuration/stoke-toml.md)
-- Language guides: [Python](../languages/python.md), [Java](../languages/java.md), [C/C++](../languages/cpp.md)
+- Language guides: [Python](../languages/en/python.md), [Java](../languages/en/java.md), [C/C++](../languages/en/cpp.md), [Go](../languages/en/go.md), [JavaScript](../languages/en/javascript.md), [TypeScript](../languages/en/typescript.md)

@@ -2,13 +2,13 @@
 
 **Build, run, and scaffold projects in multiple languages.**
 
-stoke unifies development workflows for Python, Java, C, and C++ projects. One command-line interface for building, running, watching, and scaffolding — including popular frameworks like Spring Boot, FastAPI, Flask, and Django. Configure your project once in `stoke.toml`, and stoke handles compilation, dependency management, IDE integration, and more.
+stoke unifies development workflows for Python, Java, C, C++, Go, JavaScript, and TypeScript projects. One command-line interface for building, running, watching, and scaffolding — including popular frameworks like Spring Boot, FastAPI, Flask, Django, Gin, Express, Next.js, and more. Configure your project once in `stoke.toml`, and stoke handles compilation, dependency management, IDE integration, and more.
 
 ## Features
 
-- **Multi-language**: Build Python, Java, C, and C++ projects with the same commands
-- **Language installation**: Install Python/JDK/gcc via `stoke install`
-- **Framework scaffolding**: Spring Boot, FastAPI, Flask, Django
+- **Multi-language**: Build Python, Java, C, C++, Go, JavaScript, and TypeScript projects with the same commands
+- **Language installation**: Install Python/JDK/gcc/Go/Node.js via `stoke install`
+- **Framework scaffolding**: Spring Boot, FastAPI, Flask, Django, plus 12 Go/JavaScript/TypeScript web frameworks
 - **Python environments**: venv or conda
 - **Fast**: Incremental compilation with header dependency tracking
 - **Simple**: One `stoke.toml` for the whole project
@@ -16,7 +16,7 @@ stoke unifies development workflows for Python, Java, C, and C++ projects. One c
 - **Hot-reload**: Restart processes on rebuild
 - **IDE integration**: Auto-generates VSCode/Eclipse/IntelliJ configs
 - **Build profiles**: Debug/Release/custom profiles
-- **Dependency management**: pip for Python, Maven for Java, vcpkg for C/C++
+- **Dependency management**: pip for Python, Maven for Java, vcpkg for C/C++, go.mod for Go, npm for JavaScript/TypeScript
 
 ## Quick example
 
@@ -49,7 +49,7 @@ That's it.
 ## Documentation Sections
 
 - [Commands](commands/overview.md) — build, run, watch, and more
-- [Languages](languages/python.md) — language-specific guides
+- [Languages](languages/en/python.md) — language-specific guides
 - [Configuration](configuration/stoke-toml.md) — `stoke.toml` reference
 - [Advanced](advanced/vcpkg.md) — vcpkg, IDE integration
 

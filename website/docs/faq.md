@@ -4,13 +4,13 @@
 
 ### What is stoke?
 
-A build tool that unifies workflows for Python, Java, C, and C++. One `stoke.toml` per project, one set of commands for all languages.
+A build tool that unifies workflows for Python, Java, C, C++, Go, JavaScript, and TypeScript. One `stoke.toml` per project, one set of commands for all languages.
 
 ### Why not use language-specific tools?
 
 Language-specific tools (pip, Maven, Make, Cargo) are excellent. But when you work across multiple languages, remembering which command builds what, configuring each ecosystem separately, and coordinating IDE setups becomes friction.
 
-stoke provides a consistent interface without replacing the underlying tools. Under the hood, stoke uses pip, javac, Maven, gcc/clang, and vcpkg — it just wraps them consistently.
+stoke provides a consistent interface without replacing the underlying tools. Under the hood, stoke uses pip, javac, Maven, gcc/clang, vcpkg, `go build`, and npm — it just wraps them consistently.
 
 ### Is stoke a replacement for CMake / Meson / Make?
 
@@ -24,6 +24,9 @@ Currently:
 - Java (JDK 17+)
 - C
 - C++
+- Go
+- JavaScript
+- TypeScript
 
 More languages may come in the future.
 
