@@ -6,18 +6,19 @@
 ## 소개
 
 `stoke.toml` 하나로 가상환경, 의존성, IDE 통합, 재현 가능한 빌드를 관리
-Python, Java, C, C++ 프로젝트를 같은 인터페이스로 만들고, 빌드하고, 실행
-Spring Boot, FastAPI, Flask, Django 프로젝트 스캐폴딩 지원
+Python, Java, C, C++, Go, JavaScript, TypeScript 프로젝트를 같은 인터페이스로 만들고, 빌드하고, 실행
+Spring Boot, FastAPI, Flask, Django, 그리고 Go/JavaScript/TypeScript용 웹 프레임워크 12종 스캐폴딩 지원
 
 ## 주요 기능
 
-- **다국어 지원** — Python, Java, C, C++ 통합 관리
-- **언어 설치** — `stoke install`로 Python/JDK/gcc 자동 설치
-- **프레임워크 스캐폴딩** — Spring Boot, FastAPI, Flask, Django
+- **다국어 지원** — Python, Java, C, C++, Go, JavaScript, TypeScript 통합 관리
+- **언어 설치** — `stoke install --language=X`로 Python/JDK/gcc/Go/Node.js 자동 설치
+- **프레임워크 스캐폴딩** — Spring Boot, FastAPI, Flask, Django, Gin, Echo, Fiber, Chi, Express, Fastify, Next.js, NestJS, Vite, Nuxt, SvelteKit, Hono
 - **Python 환경** — venv 또는 conda 선택 가능
 - **자동 의존성 관리** — pip, Maven Central, vcpkg 통합
 - **자동 IDE 통합** — VSCode, IntelliJ, Eclipse 설정 파일 자동 생성
 - **Watch 모드 + Hot-reload** — 파일 변경 감지 후 자동 재빌드, 프로세스 재시작
+- **빌드 프로파일** — C/C++용 debug/release 및 커스텀 프로파일 (컴파일 플래그, defines, 컴파일러 지정)
 - **재현 가능한 빌드** — lock 파일 기반 팀 재현성
 - **증분 빌드** — mtime 캐시로 안 바뀐 파일 skip
 - **대화형 초기화** — `stoke init`으로 프로젝트 설정 생성
@@ -49,9 +50,11 @@ stoke run
 
 | 명령어 | 설명 |
 | --- | --- |
-| `stoke init` | 대화형 프로젝트 초기화 (Python, Java, C, C++) |
+| `stoke init` | 대화형 프로젝트 초기화 (Python, Java, C, C++, Go, JavaScript, TypeScript) |
+| `stoke init <framework>` | 프레임워크 프로젝트 바로 생성 ([프레임워크 스캐폴딩](#프레임워크-스캐폴딩) 참고) |
 | `stoke build [target]` | 타겟 빌드 |
 | `stoke build --force` | 캐시 무시하고 전체 재빌드 |
+| `stoke build --debug` / `--release` / `--profile=<name>` | 특정 프로파일로 빌드 (C/C++) |
 | `stoke run [target]` | 빌드된 타겟 실행 |
 | `stoke watch [target]` | 파일 변경 감지 후 자동 재빌드 |
 | `stoke hot-reload [target]` | 재빌드 + 실행 중인 프로세스 재시작 |
@@ -74,6 +77,21 @@ stoke run
 | --- | --- |
 | `stoke install vcpkg` | vcpkg 설치 (`~/.stoke/tools/vcpkg/`) |
 | `stoke uninstall vcpkg` | vcpkg 제거 |
+| `stoke install --language=<lang> --version=<ver>` | 언어 툴체인 설치 (`python`, `java`, `c`, `cpp`, `go`, `nodejs`, `conda`; 기본 버전: `latest`) |
+| `stoke install --language=<lang> --list` | 해당 언어의 설치 가능한 버전 목록 조회 |
+| `stoke uninstall --language=<lang> --version=<ver>` | 설치된 툴체인 제거 (`python`, `java`, `c`, `cpp`, `go`, `conda`) |
+
+### 프레임워크 스캐폴딩
+
+`stoke init <framework>`로 즉시 실행 가능한 프레임워크 프로젝트를 생성합니다:
+
+| 언어 | 프레임워크 |
+| --- | --- |
+| Java | `spring-boot` |
+| Python | `fastapi`, `flask`, `django` |
+| Go | `gin`, `echo`, `fiber`, `chi` |
+| JavaScript | `express`, `fastify` |
+| TypeScript | `nextjs`, `nestjs`, `vite`, `nuxt`, `sveltekit`, `hono` |
 
 ### C/C++ 라이브러리 관리 (vcpkg)
 
@@ -155,6 +173,50 @@ sources = ["src/**/*.cpp"]
 fmt = "latest"
 ```
 
+### Go
+
+```toml
+[project]
+name = "myapp"
+version = "0.1.0"
+lock_mode = "commit"
+
+[targets.myapp]
+language = "go"
+```
+
+의존성은 `stoke.toml`이 아니라 `go.mod`로 관리합니다.
+
+### JavaScript
+
+```toml
+[project]
+name = "myapp"
+version = "0.1.0"
+lock_mode = "commit"
+
+[targets.myapp]
+language = "javascript"
+entry = "src/main.js"
+```
+
+의존성은 `package.json`으로 관리합니다 (`stoke build` 실행 시 `npm install` 수행).
+
+### TypeScript
+
+```toml
+[project]
+name = "myapp"
+version = "0.1.0"
+lock_mode = "commit"
+
+[targets.myapp]
+language = "typescript"
+entry = "src/main.ts"
+```
+
+`tsx`로 실행됩니다. 의존성은 `package.json`으로 관리합니다.
+
 ## Lock 파일 모드
 
 - **`commit`** — 프로젝트 루트에 `stoke.lock`, git 커밋 대상 (팀 재현성)
@@ -195,6 +257,10 @@ fmt = "latest"
 - `compile_commands.json` — clangd, VSCode C/C++ 확장, CLion
 - `.vscode/c_cpp_properties.json` — VSCode C/C++ 확장
 
+### Go / JavaScript / TypeScript
+
+stoke가 관리하는 IDE 파일은 아직 없습니다 — 각 언어의 에디터 툴링(`gopls`, 내장 TS/JS 언어 서비스)을 그대로 사용합니다.
+
 ### 워크스페이스 (여러 프로젝트)
 
 `stoke ide-sync` 실행 시 워크스페이스 루트에 `<폴더이름>.code-workspace` 생성
@@ -210,7 +276,9 @@ VSCode에서 `File > Open Workspace from File`로 열면 각 프로젝트가 독
    - Python: venv 생성 → pip 의존성 설치 → 문법 체크
    - Java: JDK 감지 → Maven 의존성 다운로드 → `javac` 컴파일
    - C/C++: 컴파일러 감지 → vcpkg 의존성 설치 → `gcc`/`g++` 컴파일 + 링크
-3. IDE 통합 파일 생성 (`.classpath`, `pom.xml`, `compile_commands.json` 등)
+   - Go: `go` 툴체인 감지 → `go build`
+   - JavaScript/TypeScript: Node.js 감지 → `npm install` (`package.json`이 있을 때)
+3. IDE 통합 파일 생성 (`.classpath`, `pom.xml`, `compile_commands.json` 등, Python/Java/C/C++ 대상)
 4. `.gitignore` 자동 관리
 5. lock 파일 저장 (변경 시에만)
 6. 캐시 저장 (`.stoke/cache.json`)
@@ -264,6 +332,9 @@ from computer.hardware.cpu import CPU
   - CLI: `stoke install --language=X --version=Y`
   - 자체 버전 API (GitHub Pages)
   - Python, Java, C/C++ 지원
+- **v1.1** — Go 언어 지원 (설치, 빌드, 실행, 제거), Go 프레임워크 스캐폴딩 (Gin, Echo, Fiber, Chi)
+- **v1.2** — Node.js 설치 지원
+- **v1.3** — JavaScript, TypeScript 지원, 웹 프레임워크 8종 추가 (Express, Fastify, Next.js, NestJS, Vite, Nuxt, SvelteKit, Hono)
 
 ## 라이선스
 

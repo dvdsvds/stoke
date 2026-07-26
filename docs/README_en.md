@@ -6,18 +6,19 @@ Build, run, and scaffold projects in multiple languages
 ## Overview
 
 `stoke.toml` manages virtual environments, dependencies, IDE integration, and reproducible builds
-Build, run, and scaffold Python, Java, C, and C++ projects with the same interface
-Supports project scaffolding for Spring Boot, FastAPI, Flask, and Django
+Build, run, and scaffold Python, Java, C, C++, Go, JavaScript, and TypeScript projects with the same interface
+Supports project scaffolding for Spring Boot, FastAPI, Flask, Django, and 12 Go/JavaScript/TypeScript web frameworks
 
 ## Features
 
-- **Multi-language support** — unified management for Python, Java, C, C++
-- **Language installation** — install Python/JDK/gcc via `stoke install`
-- **Framework scaffolding** — Spring Boot, FastAPI, Flask, Django
+- **Multi-language support** — unified management for Python, Java, C, C++, Go, JavaScript, TypeScript
+- **Language installation** — install Python/JDK/gcc/Go/Node.js via `stoke install --language=X`
+- **Framework scaffolding** — Spring Boot, FastAPI, Flask, Django, Gin, Echo, Fiber, Chi, Express, Fastify, Next.js, NestJS, Vite, Nuxt, SvelteKit, Hono
 - **Python environments** — choose between venv or conda
 - **Automatic dependency management** — pip, Maven Central, vcpkg integration
 - **Automatic IDE integration** — auto-generated config files for VSCode, IntelliJ, Eclipse
 - **Watch mode + Hot-reload** — auto rebuild on file change, restart running process
+- **Build profiles** — debug/release and custom profiles (compile flags, defines, compiler) for C/C++
 - **Reproducible builds** — lock file for team-wide version consistency
 - **Incremental builds** — skip unchanged files via mtime cache
 - **Interactive initialization** — `stoke init` for project setup
@@ -49,9 +50,11 @@ stoke run
 
 | Command | Description |
 | --- | --- |
-| `stoke init` | Interactive project initialization (Python, Java, C, C++) |
+| `stoke init` | Interactive project initialization (Python, Java, C, C++, Go, JavaScript, TypeScript) |
+| `stoke init <framework>` | Scaffold a framework project directly (see [Framework scaffolding](#framework-scaffolding)) |
 | `stoke build [target]` | Build target |
 | `stoke build --force` | Full rebuild ignoring cache |
+| `stoke build --debug` / `--release` / `--profile=<name>` | Build with a specific profile (C/C++) |
 | `stoke run [target]` | Run the built target |
 | `stoke watch [target]` | Auto rebuild on file change |
 | `stoke hot-reload [target]` | Rebuild + restart running process |
@@ -74,6 +77,21 @@ stoke run
 | --- | --- |
 | `stoke install vcpkg` | Install vcpkg to `~/.stoke/tools/vcpkg/` |
 | `stoke uninstall vcpkg` | Remove vcpkg |
+| `stoke install --language=<lang> --version=<ver>` | Install a language toolchain (`python`, `java`, `c`, `cpp`, `go`, `nodejs`, `conda`; default version: `latest`) |
+| `stoke install --language=<lang> --list` | List available versions for a language |
+| `stoke uninstall --language=<lang> --version=<ver>` | Remove an installed toolchain (`python`, `java`, `c`, `cpp`, `go`, `conda`) |
+
+### Framework scaffolding
+
+`stoke init <framework>` creates a ready-to-run project for the given framework:
+
+| Language | Frameworks |
+| --- | --- |
+| Java | `spring-boot` |
+| Python | `fastapi`, `flask`, `django` |
+| Go | `gin`, `echo`, `fiber`, `chi` |
+| JavaScript | `express`, `fastify` |
+| TypeScript | `nextjs`, `nestjs`, `vite`, `nuxt`, `sveltekit`, `hono` |
 
 ### C/C++ library management (vcpkg)
 
@@ -155,6 +173,50 @@ sources = ["src/**/*.cpp"]
 fmt = "latest"
 ```
 
+### Go
+
+```toml
+[project]
+name = "myapp"
+version = "0.1.0"
+lock_mode = "commit"
+
+[targets.myapp]
+language = "go"
+```
+
+Dependencies are managed via `go.mod`, not `stoke.toml`.
+
+### JavaScript
+
+```toml
+[project]
+name = "myapp"
+version = "0.1.0"
+lock_mode = "commit"
+
+[targets.myapp]
+language = "javascript"
+entry = "src/main.js"
+```
+
+Dependencies are managed via `package.json` (installed with `npm install` on `stoke build`).
+
+### TypeScript
+
+```toml
+[project]
+name = "myapp"
+version = "0.1.0"
+lock_mode = "commit"
+
+[targets.myapp]
+language = "typescript"
+entry = "src/main.ts"
+```
+
+Runs via `tsx`. Dependencies are managed via `package.json`.
+
 ## Lock file modes
 
 - **`commit`** — `stoke.lock` at project root, committed to git (team reproducibility)
@@ -195,6 +257,10 @@ fmt = "latest"
 - `compile_commands.json` — clangd, VSCode C/C++ extension, CLion
 - `.vscode/c_cpp_properties.json` — VSCode C/C++ extension
 
+### Go / JavaScript / TypeScript
+
+No stoke-managed IDE files yet — these rely on their own editor tooling (`gopls`, built-in TS/JS language services) out of the box.
+
 ### Workspace (multiple projects)
 
 `stoke ide-sync` generates `<folder>.code-workspace` at the workspace root.
@@ -210,7 +276,9 @@ When you run `stoke build`:
    - Python: create venv → install pip dependencies → syntax check
    - Java: detect JDK → download Maven dependencies → compile with `javac`
    - C/C++: detect compiler → install vcpkg dependencies → compile and link with `gcc`/`g++`
-3. Generate IDE integration files (`.classpath`, `pom.xml`, `compile_commands.json`, etc.)
+   - Go: detect `go` toolchain → `go build`
+   - JavaScript/TypeScript: detect Node.js → `npm install` (if `package.json` exists)
+3. Generate IDE integration files (`.classpath`, `pom.xml`, `compile_commands.json`, etc.) for Python/Java/C/C++
 4. Manage `.gitignore` automatically
 5. Save lock file (only on change)
 6. Save cache (`.stoke/cache.json`)
@@ -264,6 +332,9 @@ from computer.hardware.cpu import CPU
   - CLI: `stoke install --language=X --version=Y`
   - Custom version API (GitHub Pages)
   - Python, Java, C/C++ support
+- **v1.1** — Go language support (install, build, run, uninstall), Go framework scaffolding (Gin, Echo, Fiber, Chi)
+- **v1.2** — Node.js installation support
+- **v1.3** — JavaScript and TypeScript support, 8 web frameworks (Express, Fastify, Next.js, NestJS, Vite, Nuxt, SvelteKit, Hono)
 
 ## License
 

@@ -4,7 +4,7 @@
 
 <h2 align="center">Build, run, and scaffold projects in multiple languages.</h2>
 
-Supports Python, Java, C, and C++. Includes project scaffolding for Spring Boot, FastAPI, Flask, and Django.
+Supports Python, Java, C, C++, Go, JavaScript, and TypeScript. Includes project scaffolding for Spring Boot, FastAPI, Flask, Django, and 12 Go/JavaScript/TypeScript web framework templates (Gin, Echo, Fiber, Chi, Express, Fastify, Next.js, NestJS, Vite, Nuxt, SvelteKit, Hono).
 
 ## Installation
 
@@ -28,11 +28,12 @@ stoke run
 ```
 
 ## Features
-- **Multi-language** — Python, Java, C, C++ with a single stoke.toml
-- **Language installation** — install Python/JDK/gcc via `stoke install`
-- **Project scaffolding** — `stoke init spring-boot`, `stoke init fastapi`, `stoke init flask`, `stoke init django`
+- **Multi-language** — Python, Java, C, C++, Go, JavaScript, TypeScript with a single stoke.toml
+- **Language installation** — install Python/JDK/gcc/Go/Node.js via `stoke install`
+- **Project scaffolding** — `stoke init <type>` for Spring Boot, FastAPI, Flask, Django, Gin, Echo, Fiber, Chi, Express, Fastify, Next.js, NestJS, Vite, Nuxt, SvelteKit, Hono
 - **Python environments** — venv or conda
 - **Watch mode and hot-reload** for all languages
+- **Build profiles** — debug/release and custom compile profiles for C/C++
 - **Reproducible builds** via lock files
 - **Auto IDE integration** (VSCode, IntelliJ, Eclipse)
 
@@ -44,6 +45,6 @@ Also available in the repo:
 - [English README](./docs/README_en.md)
 - [한국어 README](./docs/README_ko.md)
 
-## Licenas
+## License
 
 MIT
