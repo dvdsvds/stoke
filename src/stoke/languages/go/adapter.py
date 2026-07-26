@@ -94,21 +94,5 @@ class GoAdapter(BaseAdapter):
             )
         return [str(self.output_path)]
 
-    def _ensure_gitignore(self) -> None:
-        """.gitignore 관리."""
-        gitignore_path = self.project_root / ".gitignore"
-        needed = [".stoke/"]
-
-        existing = ""
-        if gitignore_path.exists():
-            existing = gitignore_path.read_text(encoding="utf-8")
-
-        lines = existing.splitlines()
-        to_add = [e for e in needed if e not in lines]
-
-        if to_add:
-            if existing and not existing.endswith("\n"):
-                existing += "\n"
-            existing += "\n".join(to_add) + "\n"
-            gitignore_path.write_text(existing, encoding="utf-8")
-            print(f"Updated .gitignore: added {', '.join(to_add)}")
+    def _gitignore_entries(self) -> list[str]:
+        return [".stoke/"]

@@ -1,13 +1,13 @@
 """JavaScript 어댑터: Node.js 사용."""
+import sys
 import subprocess
-import shutil
 from pathlib import Path
 
 from stoke.adapters.base import BaseAdapter
 from stoke.config import Target, ProjectInfo
+from stoke.languages._node_tools import NodeToolsMixin
 
-
-class JavaScriptAdapter(BaseAdapter):
+class JavaScriptAdapter(BaseAdapter, NodeToolsMixin):
     def __init__(
         self,
         target: Target,
@@ -17,24 +17,6 @@ class JavaScriptAdapter(BaseAdapter):
     ):
         super().__init__(target, project, project_root, verbose=verbose)
         self.node_modules = project_root / "node_modules"
-
-    def _find_node(self) -> str:
-        node = shutil.which("node")
-        if node is None:
-            raise RuntimeError(
-                "node not found in PATH.\n"
-                "  Install with: stoke install --language=nodejs --version=latest"
-            )
-        return node
-
-    def _find_npm(self) -> str:
-        npm = shutil.which("npm")
-        if npm is None:
-            raise RuntimeError(
-                "npm not found in PATH.\n"
-                "  Install Node.js first."
-            )
-        return npm
 
     def build(self, force: bool = False) -> None:
         """npm install."""
@@ -61,7 +43,7 @@ class JavaScriptAdapter(BaseAdapter):
                 cwd=str(self.project_root),
                 capture_output=True,
                 text=True,
-                shell=True,  # Windows에서 npm은 .cmd 파일이라 shell 필요
+                shell=(sys.platform == "win32")
             )
             if result.returncode != 0:
                 raise RuntimeError(
@@ -98,20 +80,5 @@ class JavaScriptAdapter(BaseAdapter):
         entry_path = self.project_root / self.target.entry
         return [node_exe, str(entry_path)]
 
-    def _ensure_gitignore(self) -> None:
-        gitignore_path = self.project_root / ".gitignore"
-        needed = ["node_modules/", ".stoke/"]
-
-        existing = ""
-        if gitignore_path.exists():
-            existing = gitignore_path.read_text(encoding="utf-8")
-
-        lines = existing.splitlines()
-        to_add = [e for e in needed if e not in lines]
-
-        if to_add:
-            if existing and not existing.endswith("\n"):
-                existing += "\n"
-            existing += "\n".join(to_add) + "\n"
-            gitignore_path.write_text(existing, encoding="utf-8")
-            print(f"Updated .gitignore: added {', '.join(to_add)}")
+    def _gitignore_entries(self) -> list[str]:
+        return ["node_modules/", ".stoke/"]

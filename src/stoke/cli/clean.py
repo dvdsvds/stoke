@@ -57,9 +57,15 @@ def cmd_clean(target_name: str | None = None, delete_lock: bool = False):
                 shutil.rmtree(lang_target_dir)
                 print(f"Deleted C++ target dir: {lang_target_dir}")
                 deleted_count += 1
+        elif target.language == "go":
+            lang_target_dir = project_root / ".stoke" / "go" / name
+            if lang_target_dir.exists():
+                shutil.rmtree(lang_target_dir)
+                print(f"Deleted Go target dir: {lang_target_dir}")
+                deleted_count += 1
 
     # 1.5. .stoke/python, .stoke/java 등 언어 폴더가 비었으면 삭제
-    for lang in ["python", "java", "c", "cpp"]:
+    for lang in ["python", "java", "c", "cpp", "go"]:
         lang_parent = project_root / ".stoke" / lang
         if lang_parent.exists() and not any(lang_parent.iterdir()):
             lang_parent.rmdir()

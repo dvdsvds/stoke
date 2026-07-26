@@ -14,7 +14,7 @@ from stoke.cache import (
 )
 from stoke.languages.c.versions import CompilerInstall, find_compiler
 from stoke.config import Target, ProjectInfo, Profile
-from stoke.lock import load_lock, save_lock
+from stoke.lock import load_lock, save_lock, CDep, CLock, CppDep, CppLock
 from stoke.languages.c.dep_parser import parse_dep_file
 
 @dataclass
@@ -67,7 +67,13 @@ class CBaseAdapter(BaseAdapter):
         if self.profile and self.profile.compiler:
             compiler_family = self.profile.compiler
 
-        install = find_compiler(self.compiler_kind, compiler_family=compiler_family)
+        try:
+            install = find_compiler(self.compiler_kind, compiler_family=compiler_family)
+        except ValueError:
+           raise RuntimeError(
+               f"Unknown compiler '{compiler_family}' in profile '{self.profile.name}'.\n"
+               f"  Supported: gcc, clang"
+           )
         if install is None:
             profile_note = f" (required by profile '{self.profile.name}')" if self.profile and self.profile.compiler else ""
             raise RuntimeError(
@@ -502,10 +508,7 @@ class CBaseAdapter(BaseAdapter):
             lock_path, lock_changed = save_lock(
                 self.project_root,
                 self.project.lock_mode,
-                c_compiler="gcc",
-                c_version=compiler.version,
-                c_executable=str(compiler.executable),
-                c_standard=standard,
+                c=CLock(compiler="gcc", version=compiler.version, executable=str(compiler.executable), standard=standard),
                 c_deps=c_deps_for_lock if c_deps_for_lock else None,
             )
         else:  # cpp
@@ -514,10 +517,7 @@ class CBaseAdapter(BaseAdapter):
             lock_path, lock_changed = save_lock(
                 self.project_root,
                 self.project.lock_mode,
-                cpp_compiler="g++",
-                cpp_version=compiler.version,
-                cpp_executable=str(compiler.executable),
-                cpp_standard=standard,
+                cpp=CppLock(compiler="g++", version=compiler.version, executable=str(compiler.executable), standard=standard),
                 cpp_deps=cpp_deps_for_lock if cpp_deps_for_lock else None,
             )
         if lock_changed:

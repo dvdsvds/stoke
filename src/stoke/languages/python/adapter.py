@@ -12,7 +12,7 @@ from stoke.cache import (
     is_unchanged,
 )
 from stoke.config import Target, ProjectInfo
-from stoke.lock import LockFile, load_lock, save_lock, is_compatible
+from stoke.lock import LockFile, load_lock, save_lock, is_compatible, PythonLock
 from stoke.languages.python.versions import (
     PythonInstall,
     detect_all,
@@ -51,7 +51,7 @@ class PythonAdapter(BaseAdapter):
         lock = load_lock(self.project_root, self.project.lock_mode)
 
         # 1. lock 파일 있으면 우선 사용
-        if lock is not None:
+        if lock is not None and lock.python is not None:
             # stoke.toml에서 요청한 버전이랑 호환되는지 확인
             if self.target.python_version:
                 if not is_compatible(lock.python.version, self.target.python_version):
@@ -404,41 +404,6 @@ class PythonAdapter(BaseAdapter):
                 f"stderr: {result.stderr}"
             )
 
-    def _ensure_gitignore(self) -> None:
-        """
-        lock_mode에 따라 .gitignore를 자동 관리.
-        - commit: .stoke/만 무시
-        - local: .stoke/ 무시 (lock 파일도 여기 있으니 자동 처리)
-        """
-        gitignore_path = self.project_root / ".gitignore"
-
-        needed_entries = [".stoke/"]
-
-        existing = ""
-        if gitignore_path.exists():
-            existing = gitignore_path.read_text(encoding="utf-8")
-
-        existing_lines = set(
-            line.strip() for line in existing.splitlines() if line.strip()
-        )
-
-        added = []
-        for entry in needed_entries:
-            if entry not in existing_lines:
-                added.append(entry)
-
-        if added:
-            with open(gitignore_path, "a", encoding="utf-8") as f:
-                if existing and not existing.endswith("\n"):
-                    f.write("\n")
-                if existing:
-                    f.write("\n# Added by stoke\n")
-                else:
-                    f.write("# Added by stoke\n")
-                for entry in added:
-                    f.write(f"{entry}\n")
-            print(f"Updated .gitignore: added {', '.join(added)}")
-
     def build(self, force: bool = False) -> None:
         python, should_update_lock = self.resolve_python()
         lock = load_lock(self.project_root, self.project.lock_mode)
@@ -491,8 +456,7 @@ class PythonAdapter(BaseAdapter):
         lock_path, lock_changed = save_lock(
             self.project_root,
             self.project.lock_mode,
-            python.version,
-            str(python.executable),
+            python=PythonLock(version=python.version, executable=str(python.executable)),
             packages=installed_packages,
         )
         if lock_changed:

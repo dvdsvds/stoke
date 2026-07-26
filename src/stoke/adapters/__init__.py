@@ -41,3 +41,4 @@ def make_adapter(
     if target.language == "typescript":
         from stoke.languages.typescript.adapter import TypeScriptAdapter
         return TypeScriptAdapter(target, project, project_root, verbose=verbose)
+    raise RuntimeError(f"Unsupported language: '{target.language}'")

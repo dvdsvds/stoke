@@ -3,10 +3,8 @@ stoke.toml 파일을 수정하기 위한 유틸리티.
 tomllib은 읽기 전용이라 정규식으로 섹션을 찾아서 수정.
 주석이랑 원본 순서 유지 목표.
 """
-
 import re
 from pathlib import Path
-
 
 def add_dep(toml_path: Path, target_name: str, lib_name: str, version: str) -> None:
     """
@@ -75,7 +73,6 @@ def add_dep(toml_path: Path, target_name: str, lib_name: str, version: str) -> N
     content = content[:section_start] + new_section_body + content[section_end:]
     toml_path.write_text(content, encoding="utf-8")
 
-
 def remove_dep(toml_path: Path, target_name: str, lib_name: str) -> bool:
     """
     stoke.toml의 [targets.<target_name>.deps] 섹션에서 라이브러리 제거.
@@ -108,7 +105,7 @@ def remove_dep(toml_path: Path, target_name: str, lib_name: str) -> bool:
 
     # 라이브러리 라인 찾아서 제거
     lib_pattern = re.compile(
-        r"^" + re.escape(lib_name) + r"\s*=\s*\".*?\"\s*\n",
+        r"^" + re.escape(lib_name) + r"\s*=\s*\".*?\"\s*(?:\n|$)",
         re.MULTILINE,
     )
 

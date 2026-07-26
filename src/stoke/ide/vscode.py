@@ -5,7 +5,7 @@ VSCode .vscode/settings.json 관리.
 
 import json
 from pathlib import Path
-
+from stoke.ide import write_if_changed
 
 # stoke가 관리하는 키 목록 (프로젝트 폴더 settings.json)
 STOKE_MANAGED_KEYS_PROJECT = {
@@ -17,7 +17,6 @@ STOKE_MANAGED_KEYS_PROJECT = {
     # 공통
     "files.exclude",
 }
-
 
 def _load_existing(path: Path) -> dict:
     """기존 settings.json 로드. 없거나 파싱 실패 시 빈 dict."""
@@ -58,14 +57,15 @@ def write_project_settings(
 
     new_content = json.dumps(merged, indent=2, ensure_ascii=False) + "\n"
 
-    # 기존 파일이랑 같으면 write 스킵
-    if settings_path.exists():
-        old_content = settings_path.read_text(encoding="utf-8")
-        if old_content == new_content:
-            return settings_path, False
+    changed = write_if_changed(settings_path, new_content)
+    return settings_path, changed
 
-    settings_path.write_text(new_content, encoding="utf-8")
-    return settings_path, True
+def _stoke_vscode_excludes() -> dict:
+    return {
+        "files.exclude": {"**/.stoke": True},
+        "search.exclude": {"**/.stoke": True},
+        "files.watcherExclude": {"**/.stoke/**": True},
+    }
 
 def make_java_settings(jar_files: list[Path], project_root: Path) -> dict:
     """
@@ -82,15 +82,7 @@ def make_java_settings(jar_files: list[Path], project_root: Path) -> dict:
 
     return {
         "java.project.referencedLibraries": lib_paths,
-        "files.exclude": {
-            "**/.stoke": True,
-        },
-        "search.exclude": {
-            "**/.stoke": True,
-        },
-        "files.watcherExclude": {
-            "**/.stoke/**": True,
-        },
+        **_stoke_vscode_excludes(),
     }
 
 def make_python_settings(venv_python: Path, project_root: Path) -> dict:
@@ -106,15 +98,7 @@ def make_python_settings(venv_python: Path, project_root: Path) -> dict:
 
     return {
         "python.defaultInterpreterPath": interpreter_path,
-        "files.exclude": {
-            "**/.stoke": True,
-        },
-        "search.exclude": {
-            "**/.stoke": True,
-        },
-        "files.watcherExclude": {
-            "**/.stoke/**": True,
-        },
+        **_stoke_vscode_excludes(),
     }
 
 # 재귀 스캔 시 제외할 폴더들
@@ -169,13 +153,8 @@ def write_cpp_properties(project_root: Path, settings: dict) -> tuple[Path, bool
     settings_path = vscode_dir / "c_cpp_properties.json"
     new_content = json.dumps(settings, indent=4) + "\n"
 
-    if settings_path.exists():
-        old_content = settings_path.read_text(encoding="utf-8")
-        if old_content == new_content:
-            return settings_path, False
-
-    settings_path.write_text(new_content, encoding="utf-8")
-    return settings_path, True
+    changed = write_if_changed(settings_path, new_content)
+    return settings_path, changed
 
 def find_stoke_projects(root: Path) -> list[Path]:
     """
@@ -226,22 +205,15 @@ def make_workspace_settings(projects_by_language: dict) -> dict:
     # 파이썬은 워크스페이스 레벨에서 단일 인터프리터만 지원
     # 여러 개면 첫 번째만 기본으로 설정
     if "python" in projects_by_language and projects_by_language["python"]:
-        first_project_abs = projects_by_language["python"][0]["absolute"]
         # 상대 경로로
         first_project_rel = projects_by_language["python"][0]["relative"]
-        venv_python_rel = f"{first_project_rel}/.stoke/python/{first_project_rel.name}/venv/bin/python.exe"
+        import sys
+        exe_name = "Scripts/python.exe" if sys.platform == "win32" else "bin/python"
+        venv_python_rel = f"{first_project_rel}/.stoke/python/{first_project_rel.name}/venv/{exe_name}"
         settings["python.defaultInterpreterPath"] = f"${{workspaceFolder}}/{venv_python_rel}"
 
     # 모든 프로젝트의 .stoke/ 폴더를 감시 제외 (렉 방지)
-    settings["files.exclude"] = {
-        "**/.stoke": True,
-    }
-    settings["search.exclude"] = {
-        "**/.stoke": True,
-    }
-    settings["files.watcherExclude"] = {
-        "**/.stoke/**": True,
-    }
+    settings.update(_stoke_vscode_excludes())
 
     return settings
 
@@ -250,17 +222,7 @@ def make_project_settings() -> dict:
     프로젝트 폴더의 .vscode/settings.json 기본 설정.
     .stoke/ 폴더를 VSCode 감시에서 제외.
     """
-    return {
-        "files.exclude": {
-            "**/.stoke": True,
-        },
-        "search.exclude": {
-            "**/.stoke": True,
-        },
-        "files.watcherExclude": {
-            "**/.stoke/**": True,
-        },
-    }
+    return _stoke_vscode_excludes()
 
 def make_workspace_file(project_paths: list[Path], workspace_root: Path) -> dict:
     """

@@ -1,5 +1,6 @@
 """대화형 입력 프롬프트 공통 헬퍼."""
 import sys
+from pathlib import Path
 
 def _prompt(question: str, default: str | None = None) -> str:
     """텍스트 입력 받기. 빈 입력이면 default 반환."""
@@ -11,6 +12,26 @@ def _prompt(question: str, default: str | None = None) -> str:
     if not answer and default is not None:
         return default
     return answer
+
+def resolve_project_name(default_name: str = "myapp") -> tuple[str, bool]:
+    """프로젝트 이름 프롬프트. 반환: (project_name, cwd가 비어있었는지)"""
+    cwd = Path.cwd()
+    is_empty = not any(cwd.iterdir())
+    project_name = _prompt("Project name", cwd.name if is_empty else default_name)
+    return project_name, is_empty
+
+def resolve_project_dir(default_name: str = "myapp") -> tuple[str, Path]:
+    """이름 프롬프트 + 디렉토리 생성. 반환: (proejct_name, project_path)"""
+    project_name, is_empty = resolve_project_name(default_name)
+    cwd = Path.cwd()
+    if is_empty:
+        return project_name, cwd
+    project_path = cwd / project_name
+    if project_path.exists():
+        print(f"Error: directory '{project_name}' already exists", file=sys.stderr)
+        sys.exit(1)
+    project_path.mkdir()
+    return project_name, project_path
 
 def _prompt_choice(question: str, choices: list[str], default_index: int = 0) -> int:
     """번호로 선택 받기. 1-indexed로 보여주고 0-indexed로 반환."""

@@ -16,6 +16,9 @@ LANGUAGE_EXTENSIONS = {
     "java": {".java"},
     "c": {".c", ".h"},
     "cpp": {".cpp", ".hpp", ".cc", ".hh"},
+    "go": {".go"},
+    "javascript": {".js"},
+    "typescript": {".ts"},
 }
 
 class _DebouncedHandler(FileSystemEventHandler):

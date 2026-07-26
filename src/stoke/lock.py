@@ -9,18 +9,40 @@ from stoke import __version__
 class PythonLock:
     version: str
     executable: str
-
+    def to_toml_section(self) -> str:
+        escaped = self.executable.replace("\\", "\\\\")
+        return f'[python]\nversion = "{self.version}"\nexecutable = "{escaped}"\n\n'
+    @classmethod
+    def from_dict(cls, d: dict) -> "PythonLock":
+        if "version" not in d:
+            raise KeyError("version")
+        return cls(version=d["version"], executable=d.get("executable", ""))
 
 @dataclass
 class JavaLock:
     version: str
     major_version: int
     java_home: str
+    def to_toml_section(self) -> str:
+        escaped = self.java_home.replace("\\", "\\\\")
+        return f'[java]\nversion = "{self.version}"\nmajor_version = {self.major_version}\njava_home = "{escaped}"\n\n'
+    @classmethod
+    def from_dict(cls, d: dict) -> "JavaLock":
+        if "version" not in d:
+            raise KeyError("version")
+        return cls(version=d["version"], major_version=d.get("major_version", 0), java_home=d.get("java_home", ""))
 
 @dataclass
 class JavaDep:
     version: str
     sha1: str
+    def to_toml_line(self, name: str) -> str:
+        return f'"{name}" = {{ version = "{self.version}", sha1 = "{self.sha1}" }}\n'
+    @classmethod
+    def from_dict(cls, d: dict) -> "JavaDep":
+        if "version" not in d:
+            raise KeyError("version")
+        return cls(version=d["version"], sha1=d.get("sha1", ""))
 
 @dataclass
 class CLock:
@@ -28,6 +50,14 @@ class CLock:
     version: str       # "15.2.0"
     executable: str
     standard: str      # "c17"
+    def to_toml_section(self) -> str:
+        escaped = self.executable.replace("\\", "\\\\")
+        return f'[c]\ncompiler = "{self.compiler}"\nversion = "{self.version}"\nexecutable = "{escaped}"\nstandard = "{self.standard}"\n\n'
+    @classmethod
+    def from_dict(cls, d: dict) -> "CLock":
+        if "version" not in d:
+            raise KeyError("version")
+        return cls(compiler=d.get("compiler", "gcc"), version=d["version"], executable=d.get("executable", ""), standard=d.get("standard", ""))
 
 @dataclass
 class CppLock:
@@ -35,18 +65,38 @@ class CppLock:
     version: str       # "15.2.0"
     executable: str
     standard: str      # "c++17"
-
+    def to_toml_section(self) -> str:
+        escaped = self.executable.replace("\\", "\\\\")
+        return f'[cpp]\ncompiler = "{self.compiler}"\nversion = "{self.version}"\nexecutable = "{escaped}"\nstandard = "{self.standard}"\n\n'
+    @classmethod
+    def from_dict(cls, d: dict) -> "CppLock":
+        if "version" not in d:
+            raise KeyError("version")
+        return cls(compiler=d.get("compiler", "g++"), version=d["version"], executable=d.get("executable", ""), standard=d.get("standard", ""))
 
 @dataclass
 class CDep:
     version: str       # "10.2.1#1"
     triplet: str       # "x64-mingw-static"
-
+    def to_toml_line(self, name: str) -> str:
+        return f'{name} = {{ version = "{self.version}", triplet = "{self.triplet}" }}\n'
+    @classmethod
+    def from_dict(cls, d: dict) -> "CDep":
+        if "version" not in d:
+            raise KeyError("version")
+        return cls(version=d["version"], triplet=d.get("triplet", ""))
 
 @dataclass
 class CppDep:
     version: str
     triplet: str
+    def to_toml_line(self, name: str) -> str:
+        return f'{name} = {{ version = "{self.version}", triplet = "{self.triplet}" }}\n'
+    @classmethod
+    def from_dict(cls, d: dict) -> "CppDep":
+        if "version" not in d:
+            raise KeyError("version")
+        return cls(version=d["version"], triplet=d.get("triplet", ""))
 
 @dataclass
 class LockFile:
@@ -70,6 +120,25 @@ def _lock_path(project_root: Path, lock_mode: str) -> Path:
     else:
         raise ValueError(f"Unknown lock_mode: {lock_mode}")
 
+def _parse_section(data: dict, key: str, cls, path: Path):
+    if key not in data:
+        return None
+    try:
+        return cls.from_dict(data[key])
+    except KeyError as e:
+        raise ValueError(f"Invalid lock file at {path}: missing {key}.{e.args[0]}")
+
+def _parse_deps_section(data: dict, key: str, cls, path: Path) -> dict:
+    result = {}
+    if key in data:
+        for name, dep_data in data[key].items():
+            if not isinstance(dep_data, dict):
+                raise ValueError(f"Invalid lock file at {path}: {key}.{name} must be a table")
+            try:
+                result[name] = cls.from_dict(dep_data)
+            except KeyError as e:
+                raise ValueError(f"Invalid lock file at {path}: missing {key}.{name}.{e.args[0]}")
+    return result
 
 def load_lock(project_root: Path, lock_mode: str) -> LockFile | None:
     """lock 파일 읽기. 없으면 None."""
@@ -80,105 +149,13 @@ def load_lock(project_root: Path, lock_mode: str) -> LockFile | None:
     with open(path, "rb") as f:
         data = tomllib.load(f)
 
-    # python 또는 java 중 하나는 있어야 함
-    python_lock = None
-    java_lock = None
-
-    if "python" in data:
-        python_data = data["python"]
-        if "version" not in python_data:
-            raise ValueError(f"Invalid lock file at {path}: missing python.version")
-        python_lock = PythonLock(
-            version=python_data["version"],
-            executable=python_data.get("executable", ""),
-        )
-
-    if "java" in data:
-        java_data = data["java"]
-        if "version" not in java_data:
-            raise ValueError(f"Invalid lock file at {path}: missing java.version")
-        java_lock = JavaLock(
-            version=java_data["version"],
-            major_version=java_data.get("major_version", 0),
-            java_home=java_data.get("java_home", ""),
-        )
-
-    # java_deps 파싱
-    java_deps = {}
-    if "java_deps" in data:
-        for name, dep_data in data["java_deps"].items():
-            if not isinstance(dep_data, dict):
-                raise ValueError(
-                    f"Invalid lock file at {path}: java_deps.{name} must be a table"
-                )
-            if "version" not in dep_data:
-                raise ValueError(
-                    f"Invalid lock file at {path}: missing java_deps.{name}.version"
-                )
-            java_deps[name] = JavaDep(
-                version=dep_data["version"],
-                sha1=dep_data.get("sha1", ""),
-            )
-
-    # c 파싱
-    c_lock = None
-    if "c" in data:
-        c_data = data["c"]
-        if "version" not in c_data:
-            raise ValueError(f"Invalid lock file at {path}: missing c.version")
-        c_lock = CLock(
-            compiler=c_data.get("compiler", "gcc"),
-            version=c_data["version"],
-            executable=c_data.get("executable", ""),
-            standard=c_data.get("standard", ""),
-        )
-
-    # cpp 파싱
-    cpp_lock = None
-    if "cpp" in data:
-        cpp_data = data["cpp"]
-        if "version" not in cpp_data:
-            raise ValueError(f"Invalid lock file at {path}: missing cpp.version")
-        cpp_lock = CppLock(
-            compiler=cpp_data.get("compiler", "g++"),
-            version=cpp_data["version"],
-            executable=cpp_data.get("executable", ""),
-            standard=cpp_data.get("standard", ""),
-        )
-
-    # c_deps 파싱
-    c_deps = {}
-    if "c_deps" in data:
-        for name, dep_data in data["c_deps"].items():
-            if not isinstance(dep_data, dict):
-                raise ValueError(
-                    f"Invalid lock file at {path}: c_deps.{name} must be a table"
-                )
-            if "version" not in dep_data:
-                raise ValueError(
-                    f"Invalid lock file at {path}: missing c_deps.{name}.version"
-                )
-            c_deps[name] = CDep(
-                version=dep_data["version"],
-                triplet=dep_data.get("triplet", ""),
-            )
-
-    # cpp_deps 파싱
-    cpp_deps = {}
-    if "cpp_deps" in data:
-        for name, dep_data in data["cpp_deps"].items():
-            if not isinstance(dep_data, dict):
-                raise ValueError(
-                    f"Invalid lock file at {path}: cpp_deps.{name} must be a table"
-                )
-            if "version" not in dep_data:
-                raise ValueError(
-                    f"Invalid lock file at {path}: missing cpp_deps.{name}.version"
-                )
-            cpp_deps[name] = CppDep(
-                version=dep_data["version"],
-                triplet=dep_data.get("triplet", ""),
-            )
+    python_lock = _parse_section(data, "python", PythonLock, path)
+    java_lock = _parse_section(data, "java", JavaLock, path)
+    java_deps = _parse_deps_section(data, "java_deps", JavaDep, path)
+    c_lock = _parse_section(data, "c", CLock, path)
+    cpp_lock = _parse_section(data, "cpp", CppLock, path)
+    c_deps = _parse_deps_section(data, "c_deps", CDep, path)
+    cpp_deps = _parse_deps_section(data, "cpp_deps", CppDep, path)
 
     meta = data.get("meta", {})
 
@@ -195,26 +172,23 @@ def load_lock(project_root: Path, lock_mode: str) -> LockFile | None:
         stoke_version=meta.get("stoke_version", ""),
     )
 
+def _render_deps_section(header: str, deps: dict) -> str:
+    if not deps:
+        return ""
+    lines = [f"[{header}]"] + [deps[name].to_toml_line(name).rstrip("\n") for name in sorted(deps)]
+    return "\n".join(lines) + "\n\n"
+
 def save_lock(
     project_root: Path,
     lock_mode: str,
-    python_version: str | None = None,
-    python_executable: str | None = None,
-    java_version: str | None = None,
-    java_major_version: int | None = None,
-    java_home: str | None = None,
+    python: PythonLock | None = None,
+    java: JavaLock | None = None,
+    c: CLock | None = None,
+    cpp: CppLock | None = None,
+    java_deps: dict[str, JavaDep] | None = None,
+    c_deps: dict[str, CDep] | None = None,
+    cpp_deps: dict[str, CppDep] | None = None,
     packages: dict[str, str] | None = None,
-    java_deps: dict[str, "JavaDep"] | None = None,
-    c_compiler: str | None = None,
-    c_version: str | None = None,
-    c_executable: str | None = None,
-    c_standard: str | None = None,
-    cpp_compiler: str | None = None,
-    cpp_version: str | None = None,
-    cpp_executable: str | None = None,
-    cpp_standard: str | None = None,
-    c_deps: dict[str, "CDep"] | None = None,
-    cpp_deps: dict[str, "CppDep"] | None = None,
 ) -> Path:
     """
     lock 파일 쓰기. 저장된 경로 반환.
@@ -223,82 +197,45 @@ def save_lock(
     path = _lock_path(project_root, lock_mode)
     path.parent.mkdir(parents=True, exist_ok=True)
 
-    now = datetime.now().isoformat(timespec="seconds")
+    # 다중 언어 타켓이 lock 파일 하나를 공유하므로, 호출자가 안 준 섹션은
+    # 기존 lock 파일 값으로 채워서 다른 언어/타겟 정보를 덮어쓰지 않게 함
+    existing = load_lock(project_root, lock_mode)
+    if existing is not None:
+        if python is None:
+            python = existing.python
+        if java is None:
+            java = existing.java
+        if c is None:
+            c = existing.c
+        if cpp is None:
+            cpp = existing.cpp
+        if java_deps is None:
+            java_deps = existing.java_deps
+        if c_deps is None:
+            c_deps = existing.c_deps
+        if cpp_deps is None:
+            cpp_deps = existing.cpp_deps
+        if packages is None:
+            packages = existing.packages
 
     content = ""
 
-    if python_version is not None:
-        escaped_exe = (python_executable or "").replace("\\", "\\\\")
-        content += f'''[python]
-version = "{python_version}"
-executable = "{escaped_exe}"
-
-'''
-
-    if java_version is not None:
-        escaped_home = (java_home or "").replace("\\", "\\\\")
-        content += f'''[java]
-version = "{java_version}"
-major_version = {java_major_version or 0}
-java_home = "{escaped_home}"
-
-'''
-    # java_deps 섹션
-    if java_deps:
-        content += "[java_deps]\n"
-        for name in sorted(java_deps.keys()):
-            dep = java_deps[name]
-            content += f'"{name}" = {{ version = "{dep.version}", sha1 = "{dep.sha1}" }}\n'
-        content += "\n"
-
-    # c 섹션
-    if c_version is not None:
-        escaped_exe = (c_executable or "").replace("\\", "\\\\")
-        content += f'''[c]
-compiler = "{c_compiler or 'gcc'}"
-version = "{c_version}"
-executable = "{escaped_exe}"
-standard = "{c_standard or ''}"
-
-'''
-
-    # cpp 섹션
-    if cpp_version is not None:
-        escaped_exe = (cpp_executable or "").replace("\\", "\\\\")
-        content += f'''[cpp]
-compiler = "{cpp_compiler or 'g++'}"
-version = "{cpp_version}"
-executable = "{escaped_exe}"
-standard = "{cpp_standard or ''}"
-
-'''
-
-    # c_deps 섹션
-    if c_deps:
-        content += "[c_deps]\n"
-        for name in sorted(c_deps.keys()):
-            dep = c_deps[name]
-            content += f'{name} = {{ version = "{dep.version}", triplet = "{dep.triplet}" }}\n'
-        content += "\n"
-
-    # cpp_deps 섹션
-    if cpp_deps:
-        content += "[cpp_deps]\n"
-        for name in sorted(cpp_deps.keys()):
-            dep = cpp_deps[name]
-            content += f'{name} = {{ version = "{dep.version}", triplet = "{dep.triplet}" }}\n'
-        content += "\n"
-
+    if python is not None:
+        content += python.to_toml_section()
+    if java is not None:
+        content += java.to_toml_section()
+    content += _render_deps_section("java_deps", java_deps or {})
+    if c is not None:
+        content += c.to_toml_section()
+    if cpp is not None:
+        content += cpp.to_toml_section()
+    content += _render_deps_section("c_deps", c_deps or {})
+    content += _render_deps_section("cpp_deps", cpp_deps or {})
     content += "[packages]\n"
+    for name in sorted((packages or {}).keys()):
+        content += f'{name} = "{packages[name]}"\n'
+    content += f'\n[meta]\nstoke_version = "{__version__}"\n'
 
-    if packages:
-        for name in sorted(packages.keys()):
-            content += f'{name} = "{packages[name]}"\n'
-
-    content += f'''
-[meta]
-stoke_version = "{__version__}"
-'''
     # 기존 내용이랑 같으면 write 스킵
     if path.exists():
         old_content = path.read_text(encoding="utf-8")
@@ -307,7 +244,6 @@ stoke_version = "{__version__}"
 
     path.write_text(content, encoding="utf-8")
     return path, True
-
 
 def is_compatible(lock_version: str, requested: str) -> bool:
     """

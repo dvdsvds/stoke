@@ -6,6 +6,7 @@ import urllib.request
 import urllib.parse
 import urllib.error
 from pathlib import Path
+from stoke.prompts import resolve_project_name
 
 SPRING_INITIALIZR_URL = "https://start.spring.io/starter.zip"
 SPRING_METADATA_URL = "https://start.spring.io/metadata/client"
@@ -40,14 +41,7 @@ def cmd_init_spring_boot():
     """stoke init spring-boot 명령어."""
     print("Creating Spring Boot project via start.spring.io\n")
 
-    cwd = Path.cwd()
-    is_empty = not any(cwd.iterdir())
-
-    if is_empty:
-        default_name = cwd.name
-        project_name = _prompt("Project name", default_name)
-    else:
-        project_name = _prompt("Project name", "myapp")
+    project_name, is_empty = resolve_project_name("myapp")
 
     group_id = _prompt("Group ID (e.g. com.example)", "com.example")
 

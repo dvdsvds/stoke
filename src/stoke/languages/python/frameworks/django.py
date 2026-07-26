@@ -3,26 +3,13 @@ import sys
 from pathlib import Path
 
 from stoke.languages.python.versions import detect_all
-from stoke.prompts import _prompt
+from stoke.prompts import _prompt, resolve_project_dir
 from stoke.languages.python.init import _select_python_version, _select_env_type
 
 def cmd_init_django():
     print("Creating Django project\n")
 
-    cwd = Path.cwd()
-    is_empty = not any(cwd.iterdir())
-
-    if is_empty:
-        default_name = cwd.name
-        project_name = _prompt("Project name", default_name)
-        project_path = cwd
-    else:
-        project_name = _prompt("Project name", "myapp")
-        project_path = cwd / project_name
-        if project_path.exists():
-            print(f"Error: directory '{project_name}' already exists", file=sys.stderr)
-            sys.exit(1)
-        project_path.mkdir()
+    project_name, project_path = resolve_project_dir("myapp")
 
     installs = detect_all()
     python_version = _select_python_version(installs)

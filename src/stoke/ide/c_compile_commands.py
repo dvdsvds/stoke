@@ -5,6 +5,7 @@ VSCode C/C++ 확장, clangd, CLion 등 대부분 C/C++ IDE가 이 파일을 인�
 
 import json
 from pathlib import Path
+from stoke.ide import write_if_changed
 
 def generate_compile_commands(
     compiler_path: Path,
@@ -79,10 +80,5 @@ def write_compile_commands(
     output_path = project_root / "compile_commands.json"
     new_content = json.dumps(commands, indent=2) + "\n"
 
-    if output_path.exists():
-        old_content = output_path.read_text(encoding="utf-8")
-        if old_content == new_content:
-            return output_path, False
-
-    output_path.write_text(new_content, encoding="utf-8")
-    return output_path, True
+    changed = write_if_changed(output_path, new_content)
+    return output_path, changed

@@ -2,10 +2,9 @@
 import argparse
 import sys
 
-from stoke.cli.utils import resolve_profile_from_args
 from stoke.cli.messages import get_message as _
 
-from stoke.cli.utils import resolve_profile_from_args
+from stoke.cli.utils import resolve_profile_from_args, add_debug_release_profile_args
 from stoke.cli.build import cmd_build, cmd_run, cmd_watch, cmd_hot_reload
 from stoke.cli.clean import cmd_clean
 from stoke.cli.tools import cmd_python_list, cmd_java_list, cmd_c_list, cmd_cpp_list
@@ -23,7 +22,6 @@ from stoke.cli.install_lang import (
     cmd_uninstall_language,
 )
 from stoke.cli.ide import cmd_ide_sync
-from stoke.cli.install_lang import cmd_install_language
 from stoke.init import cmd_init
 
 from stoke.languages.python.frameworks.fastapi import cmd_init_fastapi
@@ -47,6 +45,25 @@ from stoke.languages.typescript.frameworks.nuxt import cmd_init_nuxt
 from stoke.languages.typescript.frameworks.sveltekit import cmd_init_sveltekit
 from stoke.languages.typescript.frameworks.hono import cmd_init_hono
 
+_INIT_FRAMEWORK_HANDLERS = {
+    "spring-boot": cmd_init_spring_boot,
+    "fastapi": cmd_init_fastapi,
+    "flask": cmd_init_flask,
+    "django": cmd_init_django,
+    "gin": cmd_init_gin,
+    "echo": cmd_init_echo,
+    "fiber": cmd_init_fiber,
+    "chi": cmd_init_chi,
+    "nextjs": cmd_init_nextjs,
+    "express": cmd_init_express,
+    "nestjs": cmd_init_nestjs,
+    "fastify": cmd_init_fastify,
+    "vite": cmd_init_vite,
+    "nuxt": cmd_init_nuxt,
+    "sveltekit": cmd_init_sveltekit,
+    "hono": cmd_init_hono,
+}
+
 def _build_parser():
     """argparse 파서 구성."""
     parser = argparse.ArgumentParser(
@@ -59,10 +76,7 @@ def _build_parser():
     build_parser = subparsers.add_parser("build", help=_("build.help"))
     build_parser.add_argument("target", nargs="?", help=_("build.target"))
     build_parser.add_argument("--force", action="store_true", help=_("build.force"))
-    build_parser.add_argument("--debug", action="store_true", help=_("build.debug"))
-    build_parser.add_argument("--release", action="store_true", help=_("build.release"))
-    build_parser.add_argument("--profile", default=None, help=_("build.profile"))
-    build_parser.add_argument("-v", "--verbose", action="store_true", help=_("build.verbose"))
+    add_debug_release_profile_args(build_parser, "build")
 
     # stoke python list
     python_parser = subparsers.add_parser("python", help=_("python.help"))
@@ -122,39 +136,17 @@ def _build_parser():
 
     # stoke init [type]
     init_parser = subparsers.add_parser("init", help=_("init.help"))
-    init_parser.add_argument("type", nargs="?", choices=[
-        "spring-boot", 
-        "fastapi", 
-        "flask", 
-        "django", 
-        "gin", 
-        "echo", 
-        "fiber", 
-        "chi", 
-        "nextjs", 
-        "express",
-        "nestjs",
-        "fastify",
-        "vite",
-        "nuxt",
-        "sveltekit",
-        "hono"
-        ], help="Project type (optional)")
+    init_parser.add_argument("type", nargs="?", choices=list(_INIT_FRAMEWORK_HANDLERS), help="Project type (optional)")
 
     # stoke watch
     watch_parser = subparsers.add_parser("watch", help=_("watch.help"))
     watch_parser.add_argument("target", nargs="?", help=_("watch.target"))
-    watch_parser.add_argument("--debug", action="store_true", help=_("watch.debug"))
-    watch_parser.add_argument("--release", action="store_true", help=_("watch.release"))
-    watch_parser.add_argument("--profile", default=None, help=_("watch.profile"))
-    watch_parser.add_argument("-v", "--verbose", action="store_true", help=_("watch.verbose"))
+    add_debug_release_profile_args(watch_parser, "watch")
 
     # stoke run
     run_parser = subparsers.add_parser("run", help=_("run.help"))
     run_parser.add_argument("target", nargs="?", help=_("run.target"))
-    run_parser.add_argument("--debug", action="store_true", help=_("run.debug"))
-    run_parser.add_argument("--release", action="store_true", help=_("run.release"))
-    run_parser.add_argument("--profile", default=None, help=_("run.profile"))
+    add_debug_release_profile_args(run_parser, "run", include_verbose=False)
 
     # stoke ide-sync
     subparsers.add_parser("ide-sync", help=_("ide-sync.help"))
@@ -162,10 +154,7 @@ def _build_parser():
     # stoke hot-reload
     hotreload_parser = subparsers.add_parser("hot-reload", help=_("hot-reload.help"))
     hotreload_parser.add_argument("target", nargs="?", help=_("hot-reload.target"))
-    hotreload_parser.add_argument("--debug", action="store_true", help=_("hot-reload.debug"))
-    hotreload_parser.add_argument("--release", action="store_true", help=_("hot-reload.release"))
-    hotreload_parser.add_argument("--profile", default=None, help=_("hot-reload.profile"))
-    hotreload_parser.add_argument("-v", "--verbose", action="store_true", help=_("hot-reload.verbose"))
+    add_debug_release_profile_args(hotreload_parser, "hot-reload")
 
     return parser
 
@@ -220,38 +209,9 @@ def main():
         elif args.vcpkg_command == "version":
             cmd_vcpkg_version()
     elif args.command == "init":
-        if args.type == "spring-boot":
-            cmd_init_spring_boot()
-        elif args.type == "fastapi":
-            cmd_init_fastapi()
-        elif args.type == "flask":
-            cmd_init_flask()
-        elif args.type == "django":
-            cmd_init_django()
-        elif args.type == "gin":
-            cmd_init_gin()
-        elif args.type == "echo":
-            cmd_init_echo()
-        elif args.type == "fiber":
-            cmd_init_fiber()
-        elif args.type == "chi":
-            cmd_init_chi()
-        elif args.type == "nextjs":
-            cmd_init_nextjs()
-        elif args.type == "nestjs":
-            cmd_init_nestjs()
-        elif args.type == "vite":
-            cmd_init_vite()
-        elif args.type == "nuxt":
-            cmd_init_nuxt()
-        elif args.type == "sveltekit":
-            cmd_init_sveltekit()
-        elif args.type == "hono":
-            cmd_init_hono()
-        elif args.type == "express":
-            cmd_init_express()
-        elif args.type == "fastify":
-            cmd_init_fastify()
+        handler = _INIT_FRAMEWORK_HANDLERS.get(args.type)
+        if handler:
+            handler()
         else:
             cmd_init()
     elif args.command == "watch":

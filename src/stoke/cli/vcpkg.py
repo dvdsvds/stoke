@@ -37,27 +37,12 @@ def cmd_vcpkg_install_library(library: str, version: str | None, target: str | N
     from stoke.vcpkg import install_library
     from stoke.languages.c.libraries import can_use_in_c_project
     from stoke.toml_editor import add_dep
+    from stoke.cli.utils import resolve_cpp_target
 
     config = load_config_or_exit()
 
-    if target is None:
-        target = next(iter(config.targets))
-        print(f"No target specified, using: {target}")
-
-    if target not in config.targets:
-        print(f"Error: target '{target}' not found in stoke.toml", file=sys.stderr)
-        print(f"Available targets: {', '.join(config.targets.keys())}", file=sys.stderr)
-        sys.exit(1)
-
-    target_config = config.targets[target]
-
-    if target_config.language not in ("c", "cpp"):
-        print(
-            f"Error: vcpkg is only for C/C++ projects.\n"
-            f"  Target '{target}' is a {target_config.language} project.",
-            file=sys.stderr,
-        )
-        sys.exit(1)
+    target_config = resolve_cpp_target(config, target)
+    target = target_config.name
 
     if target_config.language == "c":
         if not can_use_in_c_project(library):
@@ -88,26 +73,12 @@ def cmd_vcpkg_remove_library(library: str, target: str | None):
     """stoke vcpkg remove <library> [--target=Y]"""
     from stoke.vcpkg import remove_library
     from stoke.toml_editor import remove_dep
+    from stoke.cli.utils import resolve_cpp_target
 
     config = load_config_or_exit()
 
-    if target is None:
-        target = next(iter(config.targets))
-        print(f"No target specified, using: {target}")
-
-    if target not in config.targets:
-        print(f"Error: target '{target}' not found in stoke.toml", file=sys.stderr)
-        sys.exit(1)
-
-    target_config = config.targets[target]
-
-    if target_config.language not in ("c", "cpp"):
-        print(
-            f"Error: vcpkg is only for C/C++ projects.\n"
-            f"  Target '{target}' is a {target_config.language} project.",
-            file=sys.stderr,
-        )
-        sys.exit(1)
+    target_config = resolve_cpp_target(config, target, show_available=False)
+    target = target_config.name
 
     stoke_toml_path = config.config_path
     try:
@@ -129,25 +100,12 @@ def cmd_vcpkg_remove_library(library: str, target: str | None):
 def cmd_vcpkg_list_libraries(target: str | None):
     """stoke vcpkg list [--target=Y]"""
     from stoke.toml_editor import list_deps
+    from stoke.cli.utils import resolve_cpp_target
 
     config = load_config_or_exit()
 
-    if target is None:
-        target = next(iter(config.targets))
-
-    if target not in config.targets:
-        print(f"Error: target '{target}' not found in stoke.toml", file=sys.stderr)
-        sys.exit(1)
-
-    target_config = config.targets[target]
-
-    if target_config.language not in ("c", "cpp"):
-        print(
-            f"Error: vcpkg is only for C/C++ projects.\n"
-            f"  Target '{target}' is a {target_config.language} project.",
-            file=sys.stderr,
-        )
-        sys.exit(1)
+    target_config = resolve_cpp_target(config, target, announce=False, show_available=False)
+    target = target_config.name
 
     stoke_toml_path = config.config_path
     deps = list_deps(stoke_toml_path, target)

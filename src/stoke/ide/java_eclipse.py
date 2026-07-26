@@ -4,6 +4,7 @@ Eclipse/VSCode Java 확장용 .classpath, .project 파일 생성.
 
 from pathlib import Path
 from xml.sax.saxutils import escape
+from stoke.ide import write_if_changed
 
 def _relative_or_abs(path: Path, project_root: Path) -> str:
     """
@@ -95,20 +96,7 @@ def write_ide_files(
     classpath_path = project_root / ".classpath"
     project_path = project_root / ".project"
 
-    classpath_changed = True
-    if classpath_path.exists():
-        old = classpath_path.read_text(encoding="utf-8")
-        if old == classpath_content:
-            classpath_changed = False
-    if classpath_changed:
-        classpath_path.write_text(classpath_content, encoding="utf-8")
-
-    project_changed = True
-    if project_path.exists():
-        old = project_path.read_text(encoding="utf-8")
-        if old == project_content:
-            project_changed = False
-    if project_changed:
-        project_path.write_text(project_content, encoding="utf-8")
+    classpath_changed = write_if_changed(classpath_path, classpath_content)
+    project_changed = write_if_changed(project_path, project_content)
 
     return classpath_path, project_path, classpath_changed, project_changed

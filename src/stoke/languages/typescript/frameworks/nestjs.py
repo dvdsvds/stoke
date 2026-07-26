@@ -4,20 +4,14 @@ import subprocess
 import shutil
 from pathlib import Path
 
-from stoke.prompts import _prompt
+from stoke.prompts import resolve_project_name
 
 def cmd_init_nestjs():
     """stoke init nestjs 명령어."""
     print("Creating NestJS project via @nestjs/cli\n")
 
+    project_name, is_empty = resolve_project_name("myapp")
     cwd = Path.cwd()
-    is_empty = not any(cwd.iterdir())
-
-    if is_empty:
-        default_name = cwd.name
-        project_name = _prompt("Project name", default_name)
-    else:
-        project_name = _prompt("Project name", "myapp")
 
     npx_exe = shutil.which("npx")
     if npx_exe is None:

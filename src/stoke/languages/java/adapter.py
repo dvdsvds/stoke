@@ -16,7 +16,7 @@ from stoke.languages.java.versions import (
     detect_all,
     find_matching,
 )
-from stoke.lock import LockFile, load_lock, save_lock
+from stoke.lock import load_lock, save_lock, JavaDep, JavaLock
 
 @dataclass
 class CompileResult:
@@ -427,9 +427,7 @@ class JavaAdapter(BaseAdapter):
         lock_path, lock_changed = save_lock(
             self.project_root,
             self.project.lock_mode,
-            java_version=jdk.version,
-            java_major_version=jdk.major_version,
-            java_home=str(jdk.java_home),
+            java=JavaLock(version=jdk.version, major_version=jdk.major_version, java_home=str(jdk.java_home)),
             java_deps=java_deps_for_lock,
         )
         if lock_changed:
@@ -449,10 +447,16 @@ class JavaAdapter(BaseAdapter):
         반환: 종료 코드
         """
         if not self.target.main_class:
-            raise RuntimeError(...)  # 기존 에러 메시지 유지
+            raise RuntimeError(
+                f"Target '{self.target.name}' has no 'main_class' field in stoke.toml.\n"
+                f"  Add 'main_class = \"com.example.Main\"' under [targets.{self.target.name}]"
+            )
 
         if not self.classes_dir.exists():
-            raise RuntimeError(...)  # 기존 에러 메시지 유지
+            raise RuntimeError(
+                f"Classes directory not found: {self.classes_dir}\n"
+                f"  Run 'stoke build' first." 
+            )
 
         jdk, _ = self.resolve_jdk()
 

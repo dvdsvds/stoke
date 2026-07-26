@@ -5,6 +5,7 @@ Maven 설치 없이도 IDE가 이 파일을 읽어서 프로젝트 구조를 파
 
 from pathlib import Path
 from xml.sax.saxutils import escape
+from stoke.ide import write_if_changed
 
 def _relative_path(path: Path, project_root: Path) -> str:
     """project_root 기준 상대 경로. 실패 시 절대 경로."""
@@ -111,10 +112,5 @@ def write_pom(
     )
     pom_path = project_root / "pom.xml"
 
-    if pom_path.exists():
-        old_content = pom_path.read_text(encoding="utf-8")
-        if old_content == pom_content:
-            return pom_path, False
-
-    pom_path.write_text(pom_content, encoding="utf-8")
-    return pom_path, True
+    changed = write_if_changed(pom_path, pom_content)
+    return pom_path, changed

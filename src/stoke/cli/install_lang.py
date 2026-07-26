@@ -230,7 +230,7 @@ def cmd_list_language_versions(language: str):
 
 def cmd_uninstall_language(language: str, version: str = None):
     """stoke uninstall --language=X --version=Y"""
-    if language not in ("python", "java", "c", "cpp", "conda", "go"):
+    if language not in ("python", "java", "c", "cpp", "conda", "go", "nodejs"):
         print(f"Error: unsupported language '{language}'", file=sys.stderr)
         sys.exit(1)
 

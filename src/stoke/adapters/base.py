@@ -56,12 +56,7 @@ class BaseAdapter(ABC):
         """
         gitignore_path = self.project_root / ".gitignore"
 
-        needed_entries = [".stoke/"]
-        # 언어별 IDE 파일 추가
-        if self.target.language == "java":
-            needed_entries.extend([".classpath", ".project", "pom.xml"])
-        elif self.target.language in ("c", "cpp"):
-            needed_entries.extend(["compile_commands.json", ".vscode/c_cpp_properties.json"])
+        needed_entries = self._gitignore_entries()
 
         existing = ""
         if gitignore_path.exists():
@@ -89,3 +84,12 @@ class BaseAdapter(ABC):
                 for entry in added:
                     f.write(f"{entry}\n")
             print(f"Updated .gitignore: added {', '.join(added)}")
+
+    def _gitignore_entries(self) -> list[str]:
+        """이 어댑터가 .gitignore에 넣고 싶은 항목들. 서브클래스가 오버라이드해서 커스터마이즈"""
+        entries = [".stoke/"]
+        if self.target.language == "java":
+            entries.extend([".classpath", ".project", "pom.xml"])
+        elif self.target.language in ("c", "cpp"):
+            entries.extend(["compile_commands.json", ".vscode/c_cpp_properties.json"])
+        return entries
