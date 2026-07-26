@@ -40,6 +40,10 @@ nav:
     - clean: commands/clean.md
     - init: commands/init.md
     - ide-sync: commands/ide-sync.md
+  # NOTE: this nav duplicates the language/framework tree once per locale (EN/KO)
+  # because mkdocs.yml has no templating. Adding/removing a language or framework
+  # means updating BOTH the "(EN)" and the "(한국어)" block below, or the two
+  # locales drift out of sync (see the Go/JS/TS gap this fixed).
   - Languages (EN):
     - Python: languages/en/python.md
     - Java: languages/en/java.md
@@ -61,6 +65,9 @@ nav:
   - Advanced:
     - vcpkg: advanced/vcpkg.md
     - IDE Integration: advanced/ide-integration.md
+  # NOTE: same EN/KO duplication issue as the Languages nav above — keep both
+  # "Frameworks (EN)" and "프레임워크 (한국어)" blocks in sync when a framework
+  # is added/removed.
   - Frameworks (EN):
     - Overview: frameworks/en/overview.md
     - Java:
