@@ -35,6 +35,9 @@ def make_adapter(
     if target.language == "go":
         from stoke.languages.go.adapter import GoAdapter
         return GoAdapter(target, project, project_root, verbose=verbose)
+    if target.language == "rust":
+        from stoke.languages.rust.adapter import RustAdapter
+        return RustAdapter(target, project, project_root, verbose=verbose)
     if target.language == "javascript":
         from stoke.languages.javascript.adapter import JavaScriptAdapter
         return JavaScriptAdapter(target, project, project_root, verbose=verbose)

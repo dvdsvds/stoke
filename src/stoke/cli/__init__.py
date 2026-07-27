@@ -35,6 +35,10 @@ from stoke.languages.go.frameworks.echo import cmd_init_echo
 from stoke.languages.go.frameworks.fiber import cmd_init_fiber
 from stoke.languages.go.frameworks.chi import cmd_init_chi
 
+from stoke.languages.rust.frameworks.actix_web import cmd_init_actix_web
+from stoke.languages.rust.frameworks.axum import cmd_init_axum
+from stoke.languages.rust.frameworks.rocket import cmd_init_rocket
+
 from stoke.languages.javascript.frameworks.express import cmd_init_express
 from stoke.languages.javascript.frameworks.fastify import cmd_init_fastify
 
@@ -54,6 +58,9 @@ _INIT_FRAMEWORK_HANDLERS = {
     "echo": cmd_init_echo,
     "fiber": cmd_init_fiber,
     "chi": cmd_init_chi,
+    "actix-web": cmd_init_actix_web,
+    "axum": cmd_init_axum,
+    "rocket": cmd_init_rocket,
     "nextjs": cmd_init_nextjs,
     "express": cmd_init_express,
     "nestjs": cmd_init_nestjs,
@@ -162,6 +169,13 @@ def main():
     parser = _build_parser()
     args = parser.parse_args()
 
+    try:
+        _dispatch(args)
+    except KeyboardInterrupt:
+        print("\nAborted.", file=sys.stderr)
+        sys.exit(130)
+
+def _dispatch(args):
     if args.command == "build":
         profile_name = resolve_profile_from_args(args)
         cmd_build(args.target, force=args.force, profile=profile_name, verbose=args.verbose)

@@ -17,6 +17,7 @@ LANGUAGE_EXTENSIONS = {
     "c": {".c", ".h"},
     "cpp": {".cpp", ".hpp", ".cc", ".hh"},
     "go": {".go"},
+    "rust": {".rs"},
     "javascript": {".js"},
     "typescript": {".ts"},
 }

@@ -29,6 +29,10 @@ from stoke.languages.go.init import (
     _write_stoke_toml_go,
     _write_example_go,
 )
+from stoke.languages.rust.init import (
+    _write_stoke_toml_rust,
+    _write_example_rust,
+)
 from stoke.languages.javascript.init import (
     _write_stoke_toml_javascript,
     _write_example_javascript,
@@ -58,10 +62,11 @@ def _select_language() -> str:
         "C           (.c)",
         "C++         (.cpp)",
         "Go          (.go)",
+        "Rust        (.rs)",
         "JavaScript  (.js)",
         "TypeScript  (.ts)",
     ]
-    languages = ["python", "java", "c", "cpp", "go", "javascript", "typescript"]
+    languages = ["python", "java", "c", "cpp", "go", "rust", "javascript", "typescript"]
     selected = _prompt_choice(
         "Language:",
         choices,
@@ -117,6 +122,8 @@ def cmd_init() -> None:
         _prompt_vcpkg_install()
     elif language == "go":
         version_info = "Language:        Go"
+    elif language == "rust":
+        version_info = "Language:        Rust"
     elif language == "javascript":
         version_info = "Language:        JavaScript"
     elif language == "typescript":
@@ -157,6 +164,9 @@ def cmd_init() -> None:
     elif language == "go":
         _write_stoke_toml_go(stoke_toml_path, project_name, lock_mode)
         _write_example_go(cwd, project_name)
+    elif language == "rust":
+        _write_stoke_toml_rust(stoke_toml_path, project_name, lock_mode)
+        _write_example_rust(cwd, project_name)
     elif language == "javascript":
         _write_stoke_toml_javascript(stoke_toml_path, project_name, lock_mode)
         _write_example_javascript(cwd)
