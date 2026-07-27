@@ -139,4 +139,4 @@ Profile fields:
 ## Related
 
 - [`stoke build`](../commands/build.md)
-- [Languages / C/C++](../languages/cpp.md)
+- [Languages / C/C++](../languages/en/cpp.md)

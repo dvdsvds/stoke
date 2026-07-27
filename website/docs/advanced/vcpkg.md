@@ -186,4 +186,4 @@ stoke build --force
 ## Related
 
 - [`stoke.toml` reference](../configuration/stoke-toml.md)
-- [Languages / C/C++](../languages/cpp.md)
+- [Languages / C/C++](../languages/en/cpp.md)

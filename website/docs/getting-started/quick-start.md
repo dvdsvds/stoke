@@ -15,7 +15,7 @@ stoke init
 The wizard will ask:
 
 - Project name
-- Language (Python, Java, C, C++, Go, JavaScript, TypeScript)
+- Language (Python, Java, C, C++, Go, Rust, Kotlin, C#, Ruby, PHP, JavaScript, TypeScript)
 - Version requirements
 - Dependencies
 
@@ -160,6 +160,89 @@ stoke build     # go build
 stoke run       # runs the compiled binary
 ```
 
+### Rust
+
+```toml
+[project]
+name = "myapp"
+version = "0.1.0"
+
+[targets.myapp]
+language = "rust"
+```
+
+```bash
+stoke build     # cargo build --release
+stoke run       # runs the compiled binary
+```
+
+### Kotlin
+
+```toml
+[project]
+name = "myapp"
+version = "0.1.0"
+
+[targets.myapp]
+language = "kotlin"
+java_version = "21"
+```
+
+```bash
+stoke build     # gradlew build -x test
+stoke run       # gradlew run (needs the application plugin)
+```
+
+### C#
+
+```toml
+[project]
+name = "myapp"
+version = "0.1.0"
+
+[targets.myapp]
+language = "csharp"
+```
+
+```bash
+stoke build     # dotnet build
+stoke run       # runs the built binary
+```
+
+### Ruby
+
+```toml
+[project]
+name = "myapp"
+version = "0.1.0"
+
+[targets.myapp]
+language = "ruby"
+entry = "src/main.rb"
+```
+
+```bash
+stoke build     # bundle install (if Gemfile exists)
+stoke run       # ruby src/main.rb (or bundle exec ruby)
+```
+
+### PHP
+
+```toml
+[project]
+name = "myapp"
+version = "0.1.0"
+
+[targets.myapp]
+language = "php"
+entry = "src/main.php"
+```
+
+```bash
+stoke build     # composer install (if composer.json exists)
+stoke run       # php src/main.php
+```
+
 ### JavaScript
 
 ```toml
@@ -198,4 +281,4 @@ stoke run       # runs src/main.ts via tsx
 
 - [Commands reference](../commands/overview.md)
 - [`stoke.toml` reference](../configuration/stoke-toml.md)
-- Language guides: [Python](../languages/en/python.md), [Java](../languages/en/java.md), [C/C++](../languages/en/cpp.md), [Go](../languages/en/go.md), [JavaScript](../languages/en/javascript.md), [TypeScript](../languages/en/typescript.md)
+- Language guides: [Python](../languages/en/python.md), [Java](../languages/en/java.md), [C/C++](../languages/en/cpp.md), [Go](../languages/en/go.md), [Rust](../languages/en/rust.md), [Kotlin](../languages/en/kotlin.md), [C#](../languages/en/csharp.md), [Ruby](../languages/en/ruby.md), [PHP](../languages/en/php.md), [JavaScript](../languages/en/javascript.md), [TypeScript](../languages/en/typescript.md)

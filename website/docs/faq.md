@@ -4,7 +4,7 @@
 
 ### What is stoke?
 
-A build tool that unifies workflows for Python, Java, C, C++, Go, JavaScript, and TypeScript. One `stoke.toml` per project, one set of commands for all languages.
+A build tool that unifies workflows for Python, Java, C, C++, Go, Rust, Kotlin, C#, Ruby, PHP, JavaScript, and TypeScript. One `stoke.toml` per project, one set of commands for all languages.
 
 ### Why not use language-specific tools?
 
@@ -25,6 +25,11 @@ Currently:
 - C
 - C++
 - Go
+- Rust
+- Kotlin (via Gradle)
+- C# (via the .NET SDK)
+- Ruby
+- PHP
 - JavaScript
 - TypeScript
 
@@ -120,6 +125,14 @@ Override with build profiles. MSVC (`cl.exe`) is not currently supported.
 ### C/C++: can I use CMake?
 
 Not through stoke. stoke has its own simple build model. If you need CMake, use CMake directly.
+
+### Rust, Kotlin, C#, Ruby, PHP: does stoke replace Cargo / Gradle / dotnet / Bundler / Composer?
+
+No. stoke delegates directly to each ecosystem's own tool — `cargo build`/`cargo run` for Rust, `gradlew build`/`gradlew run` for Kotlin, `dotnet build`/`dotnet run` for C#, `bundle install` + `ruby`/`bundle exec ruby` for Ruby, `composer install` + `php` for PHP. stoke just gives them a consistent `stoke build`/`stoke run` interface alongside the other languages.
+
+### Why don't Rails and Laravel have `stoke init` scaffolds?
+
+Both start via a CLI subcommand (`bin/rails server`, `php artisan serve`) rather than by directly executing an entry script, which doesn't fit stoke's current run model (`stoke run` executes one script/binary). Sinatra (Ruby) and Slim (PHP) were added instead since they fit that model — see the [Ruby](languages/en/ruby.md) and [PHP](languages/en/php.md) language pages for details.
 
 ## Behavior
 

@@ -55,7 +55,7 @@ stoke init express      # Express — classic Node.js web framework
 stoke init fastify      # Fastify — fast, low-overhead framework
 ```
 
-See [Frameworks](../frameworks/en/overview.md) for details.
+See [Frameworks](../../frameworks/en/overview.md) for details.
 
 ## Notes
 

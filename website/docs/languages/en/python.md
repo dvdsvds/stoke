@@ -136,6 +136,6 @@ stoke generates `.vscode/settings.json` with:
 
 ## Related
 
-- [`stoke build`](../commands/build.md)
-- [`stoke run`](../commands/run.md)
-- [Lock file](../configuration/lock-file.md)
+- [`stoke build`](../../commands/build.md)
+- [`stoke run`](../../commands/run.md)
+- [Lock file](../../configuration/lock-file.md)

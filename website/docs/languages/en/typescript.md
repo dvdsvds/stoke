@@ -59,7 +59,7 @@ stoke init sveltekit    # SvelteKit — Svelte full-stack
 stoke init hono         # Hono — edge computing framework
 ```
 
-See [Frameworks](../frameworks/en/overview.md) for details.
+See [Frameworks](../../frameworks/en/overview.md) for details.
 
 ## Notes
 

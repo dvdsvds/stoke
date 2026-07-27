@@ -33,6 +33,23 @@ from stoke.languages.rust.init import (
     _write_stoke_toml_rust,
     _write_example_rust,
 )
+from stoke.languages.kotlin.init import (
+    _select_kotlin_jdk,
+    _write_stoke_toml_kotlin,
+    _write_example_kotlin,
+)
+from stoke.languages.csharp.init import (
+    _write_stoke_toml_csharp,
+    _write_example_csharp,
+)
+from stoke.languages.ruby.init import (
+    _write_stoke_toml_ruby,
+    _write_example_ruby,
+)
+from stoke.languages.php.init import (
+    _write_stoke_toml_php,
+    _write_example_php,
+)
 from stoke.languages.javascript.init import (
     _write_stoke_toml_javascript,
     _write_example_javascript,
@@ -63,10 +80,14 @@ def _select_language() -> str:
         "C++         (.cpp)",
         "Go          (.go)",
         "Rust        (.rs)",
+        "Kotlin      (.kt)",
+        "C#          (.cs)",
+        "Ruby        (.rb)",
+        "PHP         (.php)",
         "JavaScript  (.js)",
         "TypeScript  (.ts)",
     ]
-    languages = ["python", "java", "c", "cpp", "go", "rust", "javascript", "typescript"]
+    languages = ["python", "java", "c", "cpp", "go", "rust", "kotlin", "csharp", "ruby", "php", "javascript", "typescript"]
     selected = _prompt_choice(
         "Language:",
         choices,
@@ -124,6 +145,15 @@ def cmd_init() -> None:
         version_info = "Language:        Go"
     elif language == "rust":
         version_info = "Language:        Rust"
+    elif language == "kotlin":
+        kotlin_jdk_version = _select_kotlin_jdk()
+        version_info = f"JDK version:     {kotlin_jdk_version}"
+    elif language == "csharp":
+        version_info = "Language:        C#"
+    elif language == "ruby":
+        version_info = "Language:        Ruby"
+    elif language == "php":
+        version_info = "Language:        PHP"
     elif language == "javascript":
         version_info = "Language:        JavaScript"
     elif language == "typescript":
@@ -167,6 +197,18 @@ def cmd_init() -> None:
     elif language == "rust":
         _write_stoke_toml_rust(stoke_toml_path, project_name, lock_mode)
         _write_example_rust(cwd, project_name)
+    elif language == "kotlin":
+        _write_stoke_toml_kotlin(stoke_toml_path, project_name, kotlin_jdk_version, lock_mode)
+        _write_example_kotlin(cwd, project_name)
+    elif language == "csharp":
+        _write_stoke_toml_csharp(stoke_toml_path, project_name, lock_mode)
+        _write_example_csharp(cwd, project_name)
+    elif language == "ruby":
+        _write_stoke_toml_ruby(stoke_toml_path, project_name, lock_mode)
+        _write_example_ruby(cwd)
+    elif language == "php":
+        _write_stoke_toml_php(stoke_toml_path, project_name, lock_mode)
+        _write_example_php(cwd)
     elif language == "javascript":
         _write_stoke_toml_javascript(stoke_toml_path, project_name, lock_mode)
         _write_example_javascript(cwd)

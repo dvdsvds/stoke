@@ -18,6 +18,10 @@ LANGUAGE_EXTENSIONS = {
     "cpp": {".cpp", ".hpp", ".cc", ".hh"},
     "go": {".go"},
     "rust": {".rs"},
+    "kotlin": {".kt"},
+    "csharp": {".cs"},
+    "ruby": {".rb"},
+    "php": {".php"},
     "javascript": {".js"},
     "typescript": {".ts"},
 }

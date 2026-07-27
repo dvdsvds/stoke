@@ -60,7 +60,7 @@ stoke init fiber    # Fiber — Express-style API
 stoke init chi      # Chi — lightweight router using stdlib
 ```
 
-See [Frameworks](../frameworks/en/overview.md) for details.
+See [Frameworks](../../frameworks/en/overview.md) for details.
 
 ## Notes
 

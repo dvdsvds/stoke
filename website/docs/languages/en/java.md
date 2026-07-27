@@ -124,5 +124,5 @@ stoke sets `javac -encoding UTF-8` automatically. Source files with non-ASCII ch
 
 ## Related
 
-- [`stoke build`](../commands/build.md)
-- [`stoke run`](../commands/run.md)
+- [`stoke build`](../../commands/build.md)
+- [`stoke run`](../../commands/run.md)

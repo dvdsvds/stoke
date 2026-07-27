@@ -26,7 +26,7 @@ stoke clean
 
 Removes:
 
-- `.stoke/{language}/{target}/` for each target
+- `.stoke/{language}/{target}/` for each target (Kotlin is the exception — it uses Gradle's own `build/` directory at the project root instead, which `stoke clean` also removes)
 - `.stoke/cache.json`
 - All `__pycache__` folders in the project
 

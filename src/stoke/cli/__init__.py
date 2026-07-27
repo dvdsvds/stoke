@@ -39,6 +39,15 @@ from stoke.languages.rust.frameworks.actix_web import cmd_init_actix_web
 from stoke.languages.rust.frameworks.axum import cmd_init_axum
 from stoke.languages.rust.frameworks.rocket import cmd_init_rocket
 
+from stoke.languages.kotlin.frameworks.ktor import cmd_init_ktor
+from stoke.languages.kotlin.frameworks.spring_boot import cmd_init_spring_boot_kotlin
+
+from stoke.languages.csharp.frameworks.aspnet_core import cmd_init_aspnet_core
+
+from stoke.languages.ruby.frameworks.sinatra import cmd_init_sinatra
+
+from stoke.languages.php.frameworks.slim import cmd_init_slim
+
 from stoke.languages.javascript.frameworks.express import cmd_init_express
 from stoke.languages.javascript.frameworks.fastify import cmd_init_fastify
 
@@ -61,6 +70,11 @@ _INIT_FRAMEWORK_HANDLERS = {
     "actix-web": cmd_init_actix_web,
     "axum": cmd_init_axum,
     "rocket": cmd_init_rocket,
+    "ktor": cmd_init_ktor,
+    "spring-boot-kotlin": cmd_init_spring_boot_kotlin,
+    "aspnet-core": cmd_init_aspnet_core,
+    "sinatra": cmd_init_sinatra,
+    "slim": cmd_init_slim,
     "nextjs": cmd_init_nextjs,
     "express": cmd_init_express,
     "nestjs": cmd_init_nestjs,

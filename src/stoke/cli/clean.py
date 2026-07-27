@@ -69,9 +69,22 @@ def cmd_clean(target_name: str | None = None, delete_lock: bool = False):
                 shutil.rmtree(lang_target_dir)
                 print(f"Deleted Rust target dir: {lang_target_dir}")
                 deleted_count += 1
+        elif target.language == "kotlin":
+            # Kotlin은 Gradle 기본 빌드 폴더(build/)를 씀 (.stoke/kotlin/<target> 아님)
+            gradle_build_dir = project_root / "build"
+            if gradle_build_dir.exists():
+                shutil.rmtree(gradle_build_dir)
+                print(f"Deleted Gradle build dir: {gradle_build_dir}")
+                deleted_count += 1
+        elif target.language == "csharp":
+            lang_target_dir = project_root / ".stoke" / "csharp" / name
+            if lang_target_dir.exists():
+                shutil.rmtree(lang_target_dir)
+                print(f"Deleted C# target dir: {lang_target_dir}")
+                deleted_count += 1
 
     # 1.5. .stoke/python, .stoke/java 등 언어 폴더가 비었으면 삭제
-    for lang in ["python", "java", "c", "cpp", "go", "rust"]:
+    for lang in ["python", "java", "c", "cpp", "go", "rust", "csharp"]:
         lang_parent = project_root / ".stoke" / lang
         if lang_parent.exists() and not any(lang_parent.iterdir()):
             lang_parent.rmdir()

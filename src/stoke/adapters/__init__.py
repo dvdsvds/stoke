@@ -38,6 +38,18 @@ def make_adapter(
     if target.language == "rust":
         from stoke.languages.rust.adapter import RustAdapter
         return RustAdapter(target, project, project_root, verbose=verbose)
+    if target.language == "kotlin":
+        from stoke.languages.kotlin.adapter import KotlinAdapter
+        return KotlinAdapter(target, project, project_root, verbose=verbose)
+    if target.language == "csharp":
+        from stoke.languages.csharp.adapter import CSharpAdapter
+        return CSharpAdapter(target, project, project_root, verbose=verbose)
+    if target.language == "ruby":
+        from stoke.languages.ruby.adapter import RubyAdapter
+        return RubyAdapter(target, project, project_root, verbose=verbose)
+    if target.language == "php":
+        from stoke.languages.php.adapter import PHPAdapter
+        return PHPAdapter(target, project, project_root, verbose=verbose)
     if target.language == "javascript":
         from stoke.languages.javascript.adapter import JavaScriptAdapter
         return JavaScriptAdapter(target, project, project_root, verbose=verbose)

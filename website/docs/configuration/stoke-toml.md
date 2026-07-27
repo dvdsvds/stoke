@@ -204,4 +204,4 @@ stoke build engine --profile=native
 
 - [Profiles](profiles.md)
 - [Lock file](lock-file.md)
-- Language guides: [Python](../languages/python.md), [Java](../languages/java.md), [C/C++](../languages/cpp.md)
+- Language guides: [Python](../languages/en/python.md), [Java](../languages/en/java.md), [C/C++](../languages/en/cpp.md), [Go](../languages/en/go.md), [Rust](../languages/en/rust.md), [Kotlin](../languages/en/kotlin.md), [C#](../languages/en/csharp.md), [Ruby](../languages/en/ruby.md), [PHP](../languages/en/php.md), [JavaScript](../languages/en/javascript.md), [TypeScript](../languages/en/typescript.md)

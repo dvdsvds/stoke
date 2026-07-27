@@ -49,6 +49,11 @@ nav:
     - Java: languages/en/java.md
     - C/C++: languages/en/cpp.md
     - Go: languages/en/go.md
+    - Rust: languages/en/rust.md
+    - Kotlin: languages/en/kotlin.md
+    - C#: languages/en/csharp.md
+    - Ruby: languages/en/ruby.md
+    - PHP: languages/en/php.md
     - JavaScript: languages/en/javascript.md
     - TypeScript: languages/en/typescript.md
   - 언어 (한국어):
@@ -56,6 +61,11 @@ nav:
     - Java: languages/ko/java.md
     - C/C++: languages/ko/cpp.md
     - Go: languages/ko/go.md
+    - Rust: languages/ko/rust.md
+    - Kotlin: languages/ko/kotlin.md
+    - C#: languages/ko/csharp.md
+    - Ruby: languages/ko/ruby.md
+    - PHP: languages/ko/php.md
     - JavaScript: languages/ko/javascript.md
     - TypeScript: languages/ko/typescript.md
   - Configuration:
@@ -91,6 +101,19 @@ nav:
       - Nuxt: frameworks/en/nuxt.md
       - SvelteKit: frameworks/en/sveltekit.md
       - Hono: frameworks/en/hono.md
+    - Rust:
+      - Actix-web: frameworks/en/actix-web.md
+      - Axum: frameworks/en/axum.md
+      - Rocket: frameworks/en/rocket.md
+    - Kotlin:
+      - Ktor: frameworks/en/ktor.md
+      - Spring Boot (Kotlin): frameworks/en/spring-boot-kotlin.md
+    - C#:
+      - ASP.NET Core: frameworks/en/aspnet-core.md
+    - Ruby:
+      - Sinatra: frameworks/en/sinatra.md
+    - PHP:
+      - Slim: frameworks/en/slim.md
   - 프레임워크 (한국어):
     - 개요: frameworks/ko/overview.md
     - Java:
@@ -114,6 +137,19 @@ nav:
       - Nuxt: frameworks/ko/nuxt.md
       - SvelteKit: frameworks/ko/sveltekit.md
       - Hono: frameworks/ko/hono.md
+    - Rust:
+      - Actix-web: frameworks/ko/actix-web.md
+      - Axum: frameworks/ko/axum.md
+      - Rocket: frameworks/ko/rocket.md
+    - Kotlin:
+      - Ktor: frameworks/ko/ktor.md
+      - Spring Boot (Kotlin): frameworks/ko/spring-boot-kotlin.md
+    - C#:
+      - ASP.NET Core: frameworks/ko/aspnet-core.md
+    - Ruby:
+      - Sinatra: frameworks/ko/sinatra.md
+    - PHP:
+      - Slim: frameworks/ko/slim.md
   - Troubleshooting: troubleshooting.md
   - FAQ: faq.md
 

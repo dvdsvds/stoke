@@ -146,7 +146,7 @@ Build with:
 stoke build --profile=small
 ```
 
-See [Profiles](../configuration/profiles.md) for details.
+See [Profiles](../../configuration/profiles.md) for details.
 
 ## Dependencies (vcpkg)
 
@@ -173,7 +173,7 @@ stoke vcpkg install fmt
 
 Or add them manually to `stoke.toml` and run `stoke build` — stoke will install them.
 
-See [vcpkg guide](../advanced/vcpkg.md).
+See [vcpkg guide](../../advanced/vcpkg.md).
 
 ## IDE integration
 
@@ -199,6 +199,6 @@ Open the project in VSCode with the C/C++ extension — IntelliSense works immed
 
 ## Related
 
-- [`stoke build`](../commands/build.md)
-- [Profiles](../configuration/profiles.md)
-- [vcpkg](../advanced/vcpkg.md)
+- [`stoke build`](../../commands/build.md)
+- [Profiles](../../configuration/profiles.md)
+- [vcpkg](../../advanced/vcpkg.md)

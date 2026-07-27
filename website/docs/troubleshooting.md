@@ -69,7 +69,7 @@ Common issues and solutions.
 
 - Ensure each folder has an `__init__.py`
 - Use full paths from `src/`: `from utils.helpers import ...`
-- Check [Python source layout](languages/python.md#source-layout)
+- Check [Python source layout](languages/en/python.md#source-layout)
 
 ### Java: `Could not find or load main class`
 
