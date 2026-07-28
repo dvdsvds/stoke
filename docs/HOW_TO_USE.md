@@ -1,4 +1,4 @@
-# stoke — How To Use (v1.4.1)
+# stoke — How To Use (v1.5.0)
 
 A practical guide: how to actually use stoke day to day, what setups it's good for, and concrete commands for each scenario.
 
