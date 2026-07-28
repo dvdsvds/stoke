@@ -125,6 +125,7 @@ def _build_parser():
     install_parser.add_argument("--language", help="Language to install (python, java, c, cpp)")
     install_parser.add_argument("--version", default="latest", help="Version (default: latest)")
     install_parser.add_argument("--list", action="store_true", help="List available versions")
+    install_parser.add_argument("--base-url", help="Override the version metadata base URL (default: STOKE_VERSION_API_BASE env var, or stoke's own endpoint). For mirroring on a locked-down network.")
 
     # stoke uninstall <tool> | --language=X --version=Y
     uninstall_parser = subparsers.add_parser("uninstall", help=_("uninstall.help"))
@@ -218,9 +219,9 @@ def _dispatch(args):
         if args.language:
             if args.list:
                 from stoke.cli.install_lang import cmd_list_language_versions
-                cmd_list_language_versions(args.language)
+                cmd_list_language_versions(args.language, base_url=args.base_url)
             else:
-                cmd_install_language(args.language, args.version)
+                cmd_install_language(args.language, args.version, base_url=args.base_url)
         elif args.tool == "vcpkg":
             cmd_install_vcpkg()
         else:

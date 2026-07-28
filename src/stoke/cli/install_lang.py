@@ -17,9 +17,14 @@ def _toolchains_dir() -> Path:
     else:
         return Path.home() / ".stoke" / "toolchains"
 
-def cmd_install_language(language: str, version: str):
+def cmd_install_language(language: str, version: str, base_url: str | None = None):
     """
-    stoke install --language=[language name] --version=[version]
+    stoke install --language=[language name] --version=[version] [--base-url=<url>]
+
+    base_url: 버전 메타데이터를 가져올 base URL 오버라이드.
+    안 주면 STOKE_VERSION_API_BASE 환경변수 또는 stoke 기본 엔드포인트 사용.
+    사내망에서 dvdsvds.github.io에 못 닿을 때, 같은 JSON 스키마로 미러링한
+    사내 서버를 가리키기 위함.
     """
     # 지원 언어 및 환경 확인
     if language not in ("python", "java", "c", "cpp", "conda", "go", "nodejs", "rust", "kotlin", "csharp", "ruby", "php"):
@@ -33,7 +38,7 @@ def cmd_install_language(language: str, version: str):
     # 버전 목록 조회
     print(f"Fetching {api_language} versions...")
     try:
-        versions_data = fetch_versions(api_language)
+        versions_data = fetch_versions(api_language, base_url=base_url)
     except RuntimeError as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
@@ -206,8 +211,8 @@ def _install_macos(installer_path: Path):
     subprocess.run(["open", str(installer_path)], check=False)
     print("After installation, run 'stoke python list' to verify.")
 
-def cmd_list_language_versions(language: str):
-    """stoke install --language=X --list"""
+def cmd_list_language_versions(language: str, base_url: str | None = None):
+    """stoke install --language=X --list [--base-url=<url>]"""
     if language not in ("python", "java", "c", "cpp", "conda", "go", "nodejs", "rust", "kotlin", "csharp", "ruby", "php"):
         print(f"Error: unsupported language '{language}'", file=sys.stderr)
         sys.exit(1)
@@ -217,7 +222,7 @@ def cmd_list_language_versions(language: str):
 
     print(f"Fetching {api_language} versions...")
     try:
-        versions_data = fetch_versions(api_language)
+        versions_data = fetch_versions(api_language, base_url=base_url)
     except RuntimeError as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
