@@ -59,4 +59,5 @@ See [Frameworks](../../frameworks/en/overview.md) for details.
 
 - stoke reads the `entry` field from `stoke.toml` and runs it with `php`
 - `vendor/` is added to `.gitignore` alongside `.stoke/`
+- `stoke init` optionally prompts for a PHP version to pin (`--version` in [non-interactive mode](../../commands/init.md#non-interactive-mode-ci-team-onboarding)). If given, it writes a `composer.json` with a `require.php` constraint — `composer install` (which then runs automatically as part of `stoke build`, since `composer.json` now exists) fails if the local PHP version doesn't satisfy it. Leave it blank to skip pinning; note this means a `composer.json`-less project stays composer-free until you add one yourself.
 - Laravel isn't offered as a framework scaffold — it's served via `php artisan serve` rather than by executing an entry file directly, which doesn't fit stoke's current run model. Slim's `public/index.php` still needs PHP's built-in dev server (`php -S`) to actually serve requests; see the [Slim framework page](../../frameworks/en/slim.md) for the manual step.

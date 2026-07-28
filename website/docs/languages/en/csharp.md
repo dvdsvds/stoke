@@ -62,3 +62,4 @@ See [Frameworks](../../frameworks/en/overview.md) for details.
 
 - `bin/` and `obj/` (MSBuild's own output/intermediate folders) are added to `.gitignore` alongside `.stoke/`
 - Only one `.csproj` per project is currently supported for assembly-name detection
+- `stoke init` optionally prompts for an SDK version to pin (`--version` in [non-interactive mode](../../commands/init.md#non-interactive-mode-ci-team-onboarding)). If given, it writes `global.json`, which the `dotnet` CLI reads automatically — `dotnet build`/`stoke build` then fail if that exact SDK version isn't installed, instead of silently using whatever's on PATH. Leave it blank to skip pinning.

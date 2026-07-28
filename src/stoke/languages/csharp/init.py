@@ -1,7 +1,32 @@
 """C# 프로젝트 초기화 로직."""
+import json
 import subprocess
 import shutil
 from pathlib import Path
+
+from stoke.prompts import _prompt
+
+def _select_csharp_version() -> str:
+    """
+    선택적 .NET SDK 버전 pin.
+    빈 입력이면 pin 안 함 (팀원마다 로컬 SDK 버전이 달라도 됨).
+    """
+    return _prompt(
+        "Pin .NET SDK version? (e.g. 8.0.100, blank to skip)", default=""
+    ).strip()
+
+def _write_global_json(project_root: Path, version: str) -> None:
+    """
+    global.json 생성. dotnet CLI가 이 파일을 자동으로 읽어서
+    지정된 SDK 버전이 없으면 빌드를 실패시킴.
+    version이 빈 문자열이면 아무것도 안 함.
+    """
+    if not version:
+        return
+    data = {"sdk": {"version": version}}
+    (project_root / "global.json").write_text(
+        json.dumps(data, indent=2), encoding="utf-8"
+    )
 
 def _write_stoke_toml_csharp(
     path: Path,

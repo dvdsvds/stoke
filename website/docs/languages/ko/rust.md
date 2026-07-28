@@ -65,3 +65,4 @@ stoke init rocket       # Rocket — 사용 편의성 중심 프레임워크
 - 빌드는 항상 `--release` 사용 (별도 debug 프로파일 없음)
 - 재빌드 스킵 판단은 Cargo 자체 증분 캐시가 처리; `--force`는 현재 아무 동작 안 함
 - `target/`(Cargo 기본 빌드 폴더, stoke는 안 씀)와 `.stoke/`가 `.gitignore`에 자동 추가됨
+- `stoke init`은 선택적으로 pin할 툴체인 버전을 물어봄 ([비대화형 모드](../../commands/init.md#non-interactive-mode-ci-team-onboarding)에서는 `--version`). 입력하면 `rust-toolchain.toml`이 생성되고, `rustup`이 이 파일을 자동으로 읽어서 이 디렉토리 안에서는 팀원 전원의 `cargo`/`rustc`가 정확히 같은 버전을 쓰게 됨. 비워두면 pin 안 함.

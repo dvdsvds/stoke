@@ -65,3 +65,4 @@ See [Frameworks](../../frameworks/en/overview.md) for details.
 - Builds always use `--release` (no separate debug profile)
 - Cargo's own incremental cache handles rebuild skipping; `--force` is currently a no-op
 - `target/` (Cargo's default build dir, unused by stoke) and `.stoke/` are added to `.gitignore`
+- `stoke init` optionally prompts for a toolchain version to pin (`--version` in [non-interactive mode](../../commands/init.md#non-interactive-mode-ci-team-onboarding)). If given, it writes `rust-toolchain.toml`, which `rustup` reads automatically — every teammate's `cargo`/`rustc` in this directory then uses that exact version. Leave it blank to skip pinning.

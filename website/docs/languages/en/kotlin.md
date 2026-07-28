@@ -62,4 +62,5 @@ See [Frameworks](../../frameworks/en/overview.md) for details.
 
 - Build output uses Gradle's own default `build/` directory at the project root (not `.stoke/kotlin/<target>` like other languages) — `stoke clean` knows to remove `build/` instead
 - `build/` and `.gradle/` are added to `.gitignore` alongside `.stoke/`
-- `java_version` in `stoke.toml` is informational only; the actual JDK used is whatever Gradle picks up (its own toolchain resolution, or `JAVA_HOME`)
+- `java_version` in `stoke.toml` is enforced, not just informational: stoke looks up a matching installed JDK and passes it to Gradle via `-Dorg.gradle.java.home`, so every teammate builds with the same JDK major version — if no matching JDK is installed, `stoke build`/`stoke run` fail with a clear error instead of silently using whatever Gradle would have picked
+- The Gradle Wrapper (`gradlew`, `gradle/wrapper/gradle-wrapper.properties`) that `stoke init` generates already pins the Gradle version itself — commit it to git so teammates don't need Gradle installed at all (the wrapper downloads the pinned version on first run)

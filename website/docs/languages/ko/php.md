@@ -59,4 +59,5 @@ stoke init slim      # Slim Framework — 경량 PSR-7 마이크로 프레임워
 
 - stoke는 `stoke.toml`의 `entry` 필드를 읽어서 `php`로 실행
 - `.stoke/`와 함께 `vendor/`도 `.gitignore`에 자동 추가됨
+- `stoke init`은 선택적으로 pin할 PHP 버전을 물어봄 ([비대화형 모드](../../commands/init.md#non-interactive-mode-ci-team-onboarding)에서는 `--version`). 입력하면 `require.php` 제약이 있는 `composer.json`이 생성되고, 이제 `composer.json`이 존재하니 `stoke build`의 일부로 자동 실행되는 `composer install`이 로컬 PHP 버전이 제약을 만족 안 하면 실패함. 비워두면 pin 안 함 — 이 경우 직접 만들기 전까지는 `composer.json` 없는 프로젝트 그대로 유지됨
 - Laravel은 프레임워크 스캐폴딩으로 제공 안 함 — entry 파일을 직접 실행하는 게 아니라 `php artisan serve`로 띄우는 구조라 지금 stoke의 실행 모델에 안 맞음. Slim의 `public/index.php`도 실제로 요청을 처리하려면 PHP 내장 개발 서버(`php -S`)가 필요함 — 수동 실행 단계는 [Slim 프레임워크 페이지](../../frameworks/ko/slim.md) 참조.

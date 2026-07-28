@@ -22,9 +22,9 @@ def cmd_install_language(language: str, version: str):
     stoke install --language=[language name] --version=[version]
     """
     # 지원 언어 및 환경 확인
-    if language not in ("python", "java", "c", "cpp", "conda", "go", "nodejs"):
+    if language not in ("python", "java", "c", "cpp", "conda", "go", "nodejs", "rust", "kotlin", "csharp", "ruby", "php"):
         print(f"Error: unsupported language '{language}'", file=sys.stderr)
-        print(f"Supported: python, java, c, cpp, conda, go", file=sys.stderr)
+        print(f"Supported: python, java, c, cpp, conda, go, nodejs, rust, kotlin, csharp, ruby, php", file=sys.stderr)
         sys.exit(1)
 
     # c/cpp는 gcc 툴체인 사용
@@ -208,7 +208,7 @@ def _install_macos(installer_path: Path):
 
 def cmd_list_language_versions(language: str):
     """stoke install --language=X --list"""
-    if language not in ("python", "java", "c", "cpp", "conda", "go", "nodejs"):
+    if language not in ("python", "java", "c", "cpp", "conda", "go", "nodejs", "rust", "kotlin", "csharp", "ruby", "php"):
         print(f"Error: unsupported language '{language}'", file=sys.stderr)
         sys.exit(1)
 
@@ -230,7 +230,7 @@ def cmd_list_language_versions(language: str):
 
 def cmd_uninstall_language(language: str, version: str = None):
     """stoke uninstall --language=X --version=Y"""
-    if language not in ("python", "java", "c", "cpp", "conda", "go", "nodejs"):
+    if language not in ("python", "java", "c", "cpp", "conda", "go", "nodejs", "rust", "kotlin", "csharp", "ruby", "php"):
         print(f"Error: unsupported language '{language}'", file=sys.stderr)
         sys.exit(1)
 

@@ -22,7 +22,7 @@ from stoke.cli.install_lang import (
     cmd_uninstall_language,
 )
 from stoke.cli.ide import cmd_ide_sync
-from stoke.init import cmd_init
+from stoke.init import cmd_init, cmd_init_noninteractive
 
 from stoke.languages.python.frameworks.fastapi import cmd_init_fastapi
 from stoke.languages.python.frameworks.flask import cmd_init_flask
@@ -158,6 +158,13 @@ def _build_parser():
     # stoke init [type]
     init_parser = subparsers.add_parser("init", help=_("init.help"))
     init_parser.add_argument("type", nargs="?", choices=list(_INIT_FRAMEWORK_HANDLERS), help="Project type (optional)")
+    init_parser.add_argument("--language", help="Language (non-interactive mode, e.g. --language=python)")
+    init_parser.add_argument("--name", help="Project name (non-interactive mode; defaults to current folder name)")
+    init_parser.add_argument("--version", help="Language version/standard/toolchain pin (non-interactive mode; meaning depends on language)")
+    init_parser.add_argument("--env-type", choices=["venv", "conda"], help="Python environment type (non-interactive mode; default venv)")
+    init_parser.add_argument("--lock-mode", choices=["commit", "local"], default="commit", help="Lock file mode (non-interactive mode; default commit)")
+    init_parser.add_argument("--vcpkg", action="store_true", help="Install vcpkg for C/C++ if not already installed (non-interactive mode)")
+    init_parser.add_argument("--yes", action="store_true", help="Overwrite an existing stoke.toml without prompting (non-interactive mode)")
 
     # stoke watch
     watch_parser = subparsers.add_parser("watch", help=_("watch.help"))
@@ -240,6 +247,16 @@ def _dispatch(args):
         handler = _INIT_FRAMEWORK_HANDLERS.get(args.type)
         if handler:
             handler()
+        elif args.language:
+            cmd_init_noninteractive(
+                language=args.language,
+                project_name=args.name,
+                version=args.version,
+                env_type=args.env_type,
+                lock_mode=args.lock_mode,
+                vcpkg=args.vcpkg,
+                yes=args.yes,
+            )
         else:
             cmd_init()
     elif args.command == "watch":

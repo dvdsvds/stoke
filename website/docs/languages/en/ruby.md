@@ -59,4 +59,5 @@ See [Frameworks](../../frameworks/en/overview.md) for details.
 
 - stoke reads the `entry` field from `stoke.toml` and runs it with Ruby (or `bundle exec ruby`)
 - `.bundle/` and `vendor/bundle/` are added to `.gitignore` alongside `.stoke/`
+- `stoke init` optionally prompts for a Ruby version to pin (`--version` in [non-interactive mode](../../commands/init.md#non-interactive-mode-ci-team-onboarding)). If given, it writes `.ruby-version`, which rbenv/rvm/asdf/chruby read automatically to select that version. Leave it blank to skip pinning — note this only takes effect if the team actually uses one of those version managers.
 - Rails isn't offered as a framework scaffold — it starts via `bin/rails server` rather than running a single entry script directly, which doesn't fit stoke's current run model. Sinatra was chosen because a Sinatra app starts its own server when the entry file itself is executed.
