@@ -8,6 +8,7 @@ import shutil
 import os
 from pathlib import Path
 from stoke.install_versions import fetch_versions, find_version, get_platform_key
+from stoke.http_utils import basic_auth_headers
 
 def _toolchains_dir() -> Path:
     """언어 툴체인 설치 폴더 반환."""
@@ -83,12 +84,17 @@ def cmd_install_language(language: str, version: str, base_url: str | None = Non
 
 
 def _download(url: str) -> Path:
-    """URL에서 파일 다운로드. 임시 파일 경로 반환."""
+    """URL에서 파일 다운로드. 임시 파일 경로 반환. (사설 미러가 인증을 요구하면
+    STOKE_VERSION_API_USER/PASSWORD로 Basic Auth 헤더를 붙임.)"""
     filename = url.split("/")[-1]
     tmp_dir = Path(tempfile.gettempdir())
     dest = tmp_dir / filename
 
-    with urllib.request.urlopen(url, timeout=30) as response:
+    from stoke.install_versions import get_version_api_credentials
+    user, password = get_version_api_credentials()
+    req = urllib.request.Request(url, headers=basic_auth_headers(user, password))
+
+    with urllib.request.urlopen(req, timeout=30) as response:
         total = int(response.headers.get("Content-Length", 0))
         downloaded = 0
         with open(dest, "wb") as f:

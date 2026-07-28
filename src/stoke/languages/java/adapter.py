@@ -1,3 +1,4 @@
+import json
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
@@ -10,6 +11,7 @@ from stoke.cache import (
     get_file_stat,
     is_unchanged,
 )
+from stoke import remote_cache
 from stoke.config import Target, ProjectInfo
 from stoke.languages.java.versions import (
     JavaInstall,
@@ -22,6 +24,7 @@ from stoke.lock import load_lock, save_lock, JavaDep, JavaLock
 class CompileResult:
     ok: bool
     error: str = ""
+    from_remote_cache: bool = False
 
 class JavaAdapter(BaseAdapter):
     def __init__(
@@ -209,6 +212,22 @@ class JavaAdapter(BaseAdapter):
         if changed_files:
             print(f"IDE files updated: {', '.join(changed_files)}")
         
+    def _target_fingerprint(self, jdk: JavaInstall, files: list[Path]) -> str:
+        """
+        타겟 전체 소스 세트 기준 원격 캐시 fingerprint.
+        C/C++처럼 파일 하나당 하나가 아니라, javac가 변경분을 한 번에 몰아서
+        컴파일하는 구조에 맞춰 "이 타겟을 이루는 소스 파일 전체의 내용"을
+        통째로 반영함 — 파일 하나라도 내용이 바뀌면 값이 통째로 바뀜.
+        """
+        parts = []
+        for file in sorted(files, key=lambda f: str(f)):
+            file_key = str(file.relative_to(self.project_root))
+            parts.append(f"{file_key}:{get_file_stat(file).content_hash}")
+        compiler_id = f"java-{jdk.version}"
+        # 의존성(클래스패스) 구성이 다르면 다른 캐시로 취급
+        deps_id = json.dumps(dict(sorted((self.target.deps or {}).items())))
+        return remote_cache.compute_fingerprint("|".join(parts), compiler_id, [deps_id])
+
     def compile_all(
         self,
         jdk: JavaInstall,
@@ -224,6 +243,21 @@ class JavaAdapter(BaseAdapter):
         target_cache = cache.get_target(self.target.name)
         # syntax_check 캐시를 재사용 (자바에선 컴파일 완료 표시 용도)
         # 파이썬이랑 필드 이름 공유해서 구조 유지
+
+        # 원격 캐시 확인: 소스 전체 세트가 이전에 컴파일된 적 있으면
+        # javac 호출 자체를 생략하고 classes_dir을 통째로 받아옴
+        # (새 체크아웃/CI처럼 로컬 캐시가 비어있어 모든 파일이 대상일 때 특히 유효)
+        remote_dir = remote_cache.get_remote_cache_dir()
+        fingerprint = None
+        if remote_dir is not None:
+            fingerprint = self._target_fingerprint(jdk, files)
+            if not force and remote_cache.try_fetch_dir(remote_dir, fingerprint, self.classes_dir):
+                results = []
+                for file in files:
+                    file_key = str(file.relative_to(self.project_root))
+                    target_cache.syntax_check[file_key] = get_file_stat(file)
+                    results.append(CompileResult(ok=True, from_remote_cache=True))
+                return results, []
 
         # skip 판단
         files_to_compile = []
@@ -283,6 +317,9 @@ class JavaAdapter(BaseAdapter):
                 results.append(CompileResult(ok=True))
             for _ in skipped:
                 results.append(CompileResult(ok=True))
+
+            if remote_dir is not None:
+                remote_cache.store_dir(remote_dir, fingerprint, self.classes_dir)
         else:
             # 실패: 에러 메시지는 stderr에
             error_msg = proc.stderr.strip() or proc.stdout.strip()
@@ -394,12 +431,15 @@ class JavaAdapter(BaseAdapter):
             print("\n--- Compiling ---")
         results, skipped = self.compile_all(jdk, source_files, cache, force=force)
         failed = [r for r in results if not r.ok]
-        newly_compiled = len(source_files) - len(skipped)
+        remote_cache_hits = sum(1 for r in results if r.ok and r.from_remote_cache)
+        newly_compiled = len(source_files) - len(skipped) - remote_cache_hits
         # 요약: 통합 표시
         if not failed:
             parts = []
             if newly_compiled > 0:
                 parts.append(f"Compiled {newly_compiled} file(s)")
+            if remote_cache_hits > 0:
+                parts.append(f"Remote cache hit for {remote_cache_hits} file(s)")
             if skipped:
                 parts.append(f"Skipped {len(skipped)} unchanged file(s)")
             if parts:

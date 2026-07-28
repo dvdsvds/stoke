@@ -1,3 +1,4 @@
+import hashlib
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -7,6 +8,7 @@ from pathlib import Path
 class FileStat:
     mtime: float
     size: int
+    content_hash: str = ""
 
 @dataclass
 class TargetCache:
@@ -50,6 +52,9 @@ def load_cache(project_root: Path) -> BuildCache:
             target_cache.syntax_check[file_path] = FileStat(
                 mtime=stat_data["mtime"],
                 size=stat_data["size"],
+                # content_hash 없는 예전 캐시 파일과의 하위 호환: 빈 문자열이면
+                # 실제 파일 해시와 절대 안 맞아서 자연히 1회 재빌드로 캐시가 채워짐.
+                content_hash=stat_data.get("content_hash", ""),
             )
         # 헤더 의존성 캐시 파싱
         header_data = target_data.get("header_deps", {})
@@ -59,6 +64,7 @@ def load_cache(project_root: Path) -> BuildCache:
                 headers[header_path] = FileStat(
                     mtime=stat_data["mtime"],
                     size=stat_data["size"],
+                    content_hash=stat_data.get("content_hash", ""),
                 )
             target_cache.header_deps[src_path] = headers
         cache.targets[target_name] = target_cache
@@ -76,6 +82,7 @@ def save_cache(project_root: Path, cache: BuildCache) -> None:
             syntax_data[file_path] = {
                 "mtime": stat.mtime,
                 "size": stat.size,
+                "content_hash": stat.content_hash,
             }
         # 헤더 의존성 저장
         header_data = {}
@@ -85,6 +92,7 @@ def save_cache(project_root: Path, cache: BuildCache) -> None:
                 headers_data[header_path] = {
                     "mtime": stat.mtime,
                     "size": stat.size,
+                    "content_hash": stat.content_hash,
                 }
             header_data[src_path] = headers_data
         data["targets"][target_name] = {
@@ -94,11 +102,29 @@ def save_cache(project_root: Path, cache: BuildCache) -> None:
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2)
 
+def _hash_bytes(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
 def get_file_stat(path: Path) -> FileStat:
-    """파일의 현재 mtime, size 반환."""
+    """
+    파일의 현재 mtime, size, 콘텐츠 해시(SHA-256) 반환.
+
+    mtime/size는 참고용으로만 저장함 — 실제 캐시 무효화 판단(is_unchanged)은
+    content_hash로 함. 다른 머신에서 같은 git 커밋을 체크아웃하면 파일 내용은
+    같아도 mtime은 거의 항상 달라지기 때문에, 캐시를 로컬 밖(다른 개발자 PC,
+    CI 러너, 나중에 공유 캐시)과 공유하려면 mtime 기반 비교로는 의미가 없음.
+    """
     st = path.stat()
-    return FileStat(mtime=st.st_mtime, size=st.st_size)
+    return FileStat(
+        mtime=st.st_mtime,
+        size=st.st_size,
+        content_hash=_hash_bytes(path.read_bytes()),
+    )
 
 def is_unchanged(current: FileStat, cached: FileStat) -> bool:
-    """캐시된 상태와 현재 상태가 같은지."""
-    return current.mtime == cached.mtime and current.size == cached.size
+    """
+    캐시된 상태와 현재 상태가 같은지. content_hash로만 판단.
+    (mtime/size는 다른 머신에서 체크아웃했을 때 내용이 같아도 달라질 수 있어서
+    신뢰할 수 없음 — 무효화 판단에는 안 씀.)
+    """
+    return current.content_hash == cached.content_hash

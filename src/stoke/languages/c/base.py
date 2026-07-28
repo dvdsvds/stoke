@@ -12,6 +12,7 @@ from stoke.cache import (
     get_file_stat,
     is_unchanged,
 )
+from stoke import remote_cache
 from stoke.languages.c.versions import CompilerInstall, find_compiler
 from stoke.config import Target, ProjectInfo, Profile
 from stoke.lock import load_lock, save_lock, CDep, CLock, CppDep, CppLock
@@ -21,6 +22,7 @@ from stoke.languages.c.dep_parser import parse_dep_file
 class CompileResult:
     ok: bool
     error: str = ""
+    from_remote_cache: bool = False
 
 class CBaseAdapter(BaseAdapter):
     compiler_kind: str = ""       # 서브클래스에서 오버라이드
@@ -198,17 +200,32 @@ class CBaseAdapter(BaseAdapter):
         obj_path = self._object_path(file)
         obj_path.parent.mkdir(parents=True, exist_ok=True)
 
-        cmd = [str(compiler.executable)]
         # 표준 옵션
         standard = self._get_standard()
-        if standard:
-            cmd.append(f"{self.standard_flag_prefix}{standard}")
+        standard_flags = [f"{self.standard_flag_prefix}{standard}"] if standard else []
 
-        # 프로파일별 컴파일 옵션
+        # 프로파일별 컴파일 옵션 (오브젝트 결과물에 영향을 주는 플래그만 —
+        # -I 인클루드 경로는 절대경로라 머신마다 달라서 fingerprint에서 제외;
+        # 대신 실제 include된 헤더 내용을 아래에서 직접 검증함)
+        profile_flags = []
         if self.profile:
-            cmd.extend(self.profile.compile_flags)
-            for define in self.profile.defines:
-                cmd.append(f"-D{define}")
+            profile_flags.extend(self.profile.compile_flags)
+            profile_flags.extend(f"-D{define}" for define in self.profile.defines)
+
+        remote_dir = remote_cache.get_remote_cache_dir()
+        if remote_dir is not None:
+            source_hash = get_file_stat(file).content_hash
+            compiler_id = f"{compiler.kind}-{compiler.version}"
+            fingerprint = remote_cache.compute_fingerprint(
+                source_hash, compiler_id, standard_flags + profile_flags
+            )
+            header_stats = remote_cache.try_fetch(remote_dir, fingerprint, obj_path, self.project_root)
+            if header_stats is not None:
+                return file, CompileResult(ok=True, from_remote_cache=True), header_stats
+
+        cmd = [str(compiler.executable)]
+        cmd.extend(standard_flags)
+        cmd.extend(profile_flags)
 
         # Include 경로
         for include_dir in self._include_dirs():
@@ -234,6 +251,10 @@ class CBaseAdapter(BaseAdapter):
             for header in headers:
                 if header.exists():
                     header_stats[str(header)] = get_file_stat(header)
+
+            if remote_dir is not None:
+                remote_cache.store(remote_dir, fingerprint, obj_path, header_stats, self.project_root)
+
             return file, CompileResult(ok=True), header_stats
         else:
             error_msg = proc.stderr.strip() or proc.stdout.strip()
@@ -307,7 +328,9 @@ class CBaseAdapter(BaseAdapter):
 
                 # 진행률 표시
                 rel_path = file.relative_to(self.project_root)
-                if result.ok:
+                if result.ok and result.from_remote_cache:
+                    print(f"  [{completed_count}/{total}] remote cache hit {rel_path}")
+                elif result.ok:
                     print(f"  [{completed_count}/{total}] compiled {rel_path}")
                 else:
                     print(f"  [{completed_count}/{total}] FAILED  {rel_path}")
