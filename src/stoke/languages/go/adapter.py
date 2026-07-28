@@ -33,6 +33,20 @@ class GoAdapter(BaseAdapter):
             )
         return go_exe
 
+    def _package_path(self) -> str:
+        """
+        빌드할 Go 패키지 경로.
+
+        <target.name>/ 서브디렉토리에 .go 파일이 있으면 그걸 빌드 (멀티 타겟
+        구조 — go.mod 하나 밑에 cmd/api, cmd/worker처럼 여러 main 패키지를
+        두는 Go의 표준 관례를 그대로 씀). 없으면 프로젝트 루트(.)를 빌드
+        (기존 단일 타겟 프로젝트, 하위 호환).
+        """
+        target_subdir = self.project_root / self.target.name
+        if target_subdir.is_dir() and list(target_subdir.glob("*.go")):
+            return f"./{self.target.name}"
+        return "."
+
     def build(self, force: bool = False) -> None:
         """go build로 빌드."""
         go_exe = self._find_go()
@@ -49,12 +63,13 @@ class GoAdapter(BaseAdapter):
 
         # go build
         self.build_dir.mkdir(parents=True, exist_ok=True)
-        print(f"Building 'go build' -> {self.output_path}")
+        package_path = self._package_path()
+        print(f"Building 'go build {package_path}' -> {self.output_path}")
 
         cmd = [
             go_exe, "build",
             "-o", str(self.output_path),
-            ".",
+            package_path,
         ]
         result = subprocess.run(
             cmd,

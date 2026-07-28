@@ -17,7 +17,8 @@ class CSharpAdapter(BaseAdapter):
     ):
         super().__init__(target, project, project_root, verbose=verbose)
         self.build_dir = project_root / ".stoke" / "csharp" / target.name
-        self.assembly_name = self._find_assembly_name()
+        self.csproj_path = self._find_csproj_path()
+        self.assembly_name = self.csproj_path.stem if self.csproj_path else target.name
         bin_name = self.assembly_name + (".exe" if self._is_windows() else "")
         self.output_path = self.build_dir / bin_name
 
@@ -25,12 +26,23 @@ class CSharpAdapter(BaseAdapter):
     def _is_windows() -> bool:
         return sys.platform == "win32"
 
-    def _find_assembly_name(self) -> str:
-        """프로젝트 루트의 .csproj 파일 이름으로 어셈블리 이름 추정."""
-        csproj_files = list(self.project_root.glob("*.csproj"))
-        if csproj_files:
-            return csproj_files[0].stem
-        return self.target.name
+    def _find_csproj_path(self) -> Path | None:
+        """
+        사용할 .csproj 경로.
+
+        <target.name>/ 서브디렉토리에 .csproj가 있으면 그걸 씀 (멀티 타겟
+        프로젝트 구조 -- 각 타겟이 자기만의 .csproj를 가진 독립된 폴더).
+        없으면 프로젝트 루트에서 찾음 (기존 단일 타겟 프로젝트, 하위 호환).
+        .NET은 .csproj 경로만 명시하면 솔루션(.sln) 없이도 그 프로젝트만
+        정확히 빌드하므로, Go/Rust처럼 별도 등록 파일을 patch할 필요가 없음.
+        """
+        subdir_csproj = list((self.project_root / self.target.name).glob("*.csproj"))
+        if subdir_csproj:
+            return subdir_csproj[0]
+        root_csproj = list(self.project_root.glob("*.csproj"))
+        if root_csproj:
+            return root_csproj[0]
+        return None
 
     def _find_dotnet(self) -> str:
         """dotnet 실행파일 경로 찾기."""
@@ -44,6 +56,12 @@ class CSharpAdapter(BaseAdapter):
 
     def build(self, force: bool = False) -> None:
         """dotnet build로 빌드."""
+        if self.csproj_path is None:
+            raise RuntimeError(
+                f"No .csproj file found for target '{self.target.name}' "
+                f"(looked in {self.project_root / self.target.name} and {self.project_root})."
+            )
+
         dotnet_exe = self._find_dotnet()
 
         result = subprocess.run(
@@ -59,6 +77,7 @@ class CSharpAdapter(BaseAdapter):
 
         cmd = [
             dotnet_exe, "build",
+            str(self.csproj_path),
             "--output", str(self.build_dir),
         ]
         if force:

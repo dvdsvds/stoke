@@ -1,4 +1,6 @@
 import sys
+import tempfile
+import tomllib
 from pathlib import Path
 
 from stoke.languages.python.versions import detect_all, PythonInstall
@@ -28,23 +30,30 @@ from stoke.languages.cpp.init import (
 from stoke.languages.go.init import (
     _write_stoke_toml_go,
     _write_example_go,
+    _write_example_go_subdir,
 )
 from stoke.languages.rust.init import (
     _select_rust_version,
     _write_rust_toolchain,
     _write_stoke_toml_rust,
     _write_example_rust,
+    _write_example_rust_subdir,
+    _add_rust_workspace_member,
 )
 from stoke.languages.kotlin.init import (
     _select_kotlin_jdk,
     _write_stoke_toml_kotlin,
     _write_example_kotlin,
+    _write_example_kotlin_subdir,
+    _add_gradle_module,
 )
 from stoke.languages.csharp.init import (
     _select_csharp_version,
     _write_global_json,
     _write_stoke_toml_csharp,
     _write_example_csharp,
+    _write_example_csharp_subdir,
+    _exclude_subdir_from_root_csproj,
 )
 from stoke.languages.ruby.init import (
     _select_ruby_version,
@@ -103,17 +112,243 @@ def _select_language() -> str:
     )
     return languages[selected]
 
+# 타겟별로 sources/entry를 좁혀서 진짜 독립적으로 빌드되는 언어들.
+# (target.sources/target.entry로 "이 타겟은 이 파일들"이라고 범위를 좁힘)
+_SCOPED_LANGUAGES = ["python", "java", "c", "cpp", "ruby", "php", "javascript", "typescript"]
+
+# Go/Rust/Kotlin은 sources/entry 필드를 안 쓰지만(어댑터가 항상 알아서 판단),
+# <target_name>/ 서브디렉토리 구조로 독립적으로 빌드 가능하도록 어댑터를 고쳐둠:
+#   - Go: <target_name>/에 .go 파일이 있으면 그걸 빌드 (go.mod 하나 밑에 여러
+#     main 패키지를 두는 Go 표준 관례)
+#   - Rust: <target_name>/에 자체 Cargo.toml이 있으면 그걸 씀 (Cargo 워크스페이스
+#     멤버 -- 루트 Cargo.toml에 [workspace] members로 등록)
+#   - Kotlin: <target_name>/에 자체 build.gradle.kts가 있으면 ":<target_name>:<task>"로
+#     범위를 좁혀서 실행 (Gradle 멀티 프로젝트 빌드 -- 루트 settings.gradle.kts에
+#     include("<target_name>")로 등록)
+#   - C#: <target_name>/에 자체 .csproj가 있으면 그걸 dotnet build에 명시적으로
+#     넘겨서 그 프로젝트만 빌드 (.sln 없이도 동작). 다만 루트 .csproj(첫 타겟)는
+#     SDK 기본 아이템 glob이 재귀적이라 새 서브디렉토리를 자기 컴파일 대상으로
+#     끌어들이므로, 루트 .csproj에 <Compile Remove="<target_name>/**" /> 제외
+#     규칙을 추가해야 함 (Rust workspace members/Gradle include()에 준하는 patch)
+# 그래서 _SCOPED_LANGUAGES에는 안 넣지만(경로 접두어 로직이 안 맞아서)
+# _WHOLE_PROJECT_LANGUAGES에도 안 넣음(경고 대상 아님) — 각각 별도로 처리.
+
+# 타겟이 뭐든 상관없이 항상 프로젝트 루트 전체를 그 언어 빌드 도구로 통째로 빌드하는 언어들.
+# 두 번째 타겟을 추가해도 독립적으로 빌드되지 않고 같은 루트 프로젝트를
+# 다시 빌드할 뿐이라 별도 경고가 필요함.
+# (Go, Rust, Kotlin, C#은 전부 여기 있었는데 어댑터를 고쳐서 뺌 -- 위 주석 참조.
+# 이제 비어있음 -- whole-project 문제로 남아있는 언어 없음.)
+_WHOLE_PROJECT_LANGUAGES = []
+_WHOLE_PROJECT_BUILD_TOOL = {}
+
+def _read_existing_target_names(stoke_toml_path: Path) -> set[str]:
+    with open(stoke_toml_path, "rb") as f:
+        data = tomllib.load(f)
+    return set(data.get("targets", {}).keys())
+
+def _serialize_toml_value(value) -> str:
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, str):
+        return f'"{value}"'
+    if isinstance(value, list):
+        return "[" + ", ".join(_serialize_toml_value(v) for v in value) + "]"
+    return str(value)
+
+def _serialize_target_table(target_name: str, table: dict) -> str:
+    """tomllib로 파싱한 타겟 딕셔너리를 [targets.<name>] TOML 텍스트로 직렬화."""
+    lines = [f"[targets.{target_name}]"]
+    sub_tables = {}
+    for key, value in table.items():
+        if isinstance(value, dict):
+            sub_tables[key] = value
+        else:
+            lines.append(f"{key} = {_serialize_toml_value(value)}")
+    text = "\n".join(lines) + "\n"
+    for sub_name, sub_table in sub_tables.items():
+        text += f"\n[targets.{target_name}.{sub_name}]\n"
+        for k, v in sub_table.items():
+            text += f"{k} = {_serialize_toml_value(v)}\n"
+    return text
+
+def _prefix_target_paths(table: dict, prefix: str) -> dict:
+    """sources/entry 같은 경로 필드 앞에 '<prefix>/'를 붙임 (타겟별 하위 디렉토리 구조용)."""
+    result = dict(table)
+    for field in ("sources", "entry"):
+        if field in result:
+            value = result[field]
+            if isinstance(value, list):
+                result[field] = [f"{prefix}/{v}" for v in value]
+            elif isinstance(value, str):
+                result[field] = f"{prefix}/{value}"
+    return result
+
+def _add_target_flow(cwd: Path, stoke_toml_path: Path) -> None:
+    """
+    기존 stoke.toml에 새 타겟을 추가.
+    Python/Java/C/C++/Ruby/PHP/JS/TS는 <타겟이름>/src/ 밑에 독립된 소스를 생성.
+    Go/Rust/Kotlin/C#은 각자의 멀티 프로젝트 관례(Go 멀티 패키지, Cargo workspace,
+    Gradle 멀티 프로젝트, 개별 .csproj)를 이용해 <타겟이름>/ 밑에 독립된 프로젝트를 생성.
+    """
+    existing_names = _read_existing_target_names(stoke_toml_path)
+
+    while True:
+        target_name = _prompt("Target name")
+        if not target_name or not target_name.replace("_", "").replace("-", "").isalnum():
+            print("Error: target name must be alphanumeric (- or _ allowed)", file=sys.stderr)
+            continue
+        if target_name in existing_names:
+            print(f"Error: target '{target_name}' already exists in stoke.toml", file=sys.stderr)
+            continue
+        break
+
+    language = _select_language()
+
+    if language in _WHOLE_PROJECT_LANGUAGES:
+        tool = _WHOLE_PROJECT_BUILD_TOOL[language]
+        print(
+            f"\nWarning: {language} always builds the entire project root regardless of "
+            f"target, since its build tool ({tool}) has no concept of a per-target source "
+            f"subset. A second {language} target will share the same root-level project as "
+            f"any other {language} target -- it won't be independently buildable. stoke will "
+            f"add the stoke.toml entry but won't generate new source files, to avoid "
+            f"overwriting whatever's already at the project root."
+        )
+        if not _prompt_yes_no("Continue anyway?", default=False):
+            print("Aborted.")
+            return
+
+    # 언어별 프롬프트 + 임시 stoke.toml에 [targets.<name>] 조각 생성
+    # (기존 언어별 _write_stoke_toml_X()를 그대로 재사용 -- project_name 자리에
+    # target_name을 넣어서 부르고, [project] 부분은 버리고 [targets.*]만 씀)
+    tmp_dir = tempfile.mkdtemp()
+    try:
+        tmp_toml = Path(tmp_dir) / "stoke.toml"
+
+        if language == "python":
+            installs = detect_all()
+            python_version = _select_python_version(installs)
+            env_type = _select_env_type()
+            _write_stoke_toml_python(tmp_toml, target_name, python_version, "commit", env_type)
+        elif language == "java":
+            java_version = _select_java_version()
+            _write_stoke_toml_java(tmp_toml, target_name, java_version, "Main", "commit")
+        elif language == "c":
+            c_standard = _select_c_standard()
+            _write_stoke_toml_c(tmp_toml, target_name, c_standard, "commit")
+            _prompt_vcpkg_install()
+        elif language == "cpp":
+            cpp_standard = _select_cpp_standard()
+            _write_stoke_toml_cpp(tmp_toml, target_name, cpp_standard, "commit")
+            _prompt_vcpkg_install()
+        elif language == "go":
+            _write_stoke_toml_go(tmp_toml, target_name, "commit")
+        elif language == "rust":
+            _write_stoke_toml_rust(tmp_toml, target_name, "commit")
+        elif language == "kotlin":
+            kotlin_jdk_version = _select_kotlin_jdk()
+            _write_stoke_toml_kotlin(tmp_toml, target_name, kotlin_jdk_version, "commit")
+        elif language == "csharp":
+            _write_stoke_toml_csharp(tmp_toml, target_name, "commit")
+        elif language == "ruby":
+            _write_stoke_toml_ruby(tmp_toml, target_name, "commit")
+        elif language == "php":
+            _write_stoke_toml_php(tmp_toml, target_name, "commit")
+        elif language == "javascript":
+            _write_stoke_toml_javascript(tmp_toml, target_name, "commit")
+        elif language == "typescript":
+            _write_stoke_toml_typescript(tmp_toml, target_name, "commit")
+
+        with open(tmp_toml, "rb") as f:
+            target_table = tomllib.load(f)["targets"][target_name]
+    finally:
+        import shutil
+        shutil.rmtree(tmp_dir, ignore_errors=True)
+
+    target_root = cwd / target_name
+
+    if language in _SCOPED_LANGUAGES:
+        target_table = _prefix_target_paths(target_table, target_name)
+
+        if language == "python":
+            _write_example_python(target_root)
+        elif language == "java":
+            _, main_class = _write_example_java(target_root, target_name)
+            target_table["main_class"] = main_class
+        elif language == "c":
+            _write_example_c(target_root)
+        elif language == "cpp":
+            _write_example_cpp(target_root)
+        elif language == "ruby":
+            _write_example_ruby(target_root)
+        elif language == "php":
+            _write_example_php(target_root)
+        elif language == "javascript":
+            _write_example_javascript(target_root)
+        elif language == "typescript":
+            _write_example_typescript(target_root)
+    elif language == "go":
+        # sources/entry 필드가 없어서 경로 접두어는 필요 없음 -- GoAdapter가
+        # <target_name>/ 서브디렉토리를 알아서 찾아 빌드함 (go.mod는 프로젝트
+        # 루트에 이미 있다고 가정, 첫 Go 타겟에서 생성됐을 것).
+        _write_example_go_subdir(target_root, target_name)
+    elif language == "rust":
+        # sources/entry 필드가 없어서 경로 접두어는 필요 없음 -- RustAdapter가
+        # <target_name>/Cargo.toml이 있으면 그걸 씀 (Cargo 워크스페이스 멤버).
+        # 루트 Cargo.toml에 [workspace] members로 이 타겟을 등록해야
+        # cargo가 워크스페이스 멤버로 인식함.
+        _write_example_rust_subdir(target_root, target_name)
+        _add_rust_workspace_member(cwd / "Cargo.toml", target_name)
+    elif language == "kotlin":
+        # sources/entry 필드가 없어서 경로 접두어는 필요 없음 -- KotlinAdapter가
+        # <target_name>/build.gradle.kts가 있으면 그걸 ":<target_name>:<task>"로
+        # 범위를 좁혀서 실행함 (Gradle 멀티 프로젝트). 루트 settings.gradle.kts에
+        # include("<target_name>")로 이 타겟을 등록해야 Gradle이 서브프로젝트로 인식함.
+        _write_example_kotlin_subdir(target_root, target_name)
+        _add_gradle_module(cwd / "settings.gradle.kts", target_name)
+    elif language == "csharp":
+        # sources/entry 필드가 없어서 경로 접두어는 필요 없음 -- CSharpAdapter가
+        # <target_name>/*.csproj가 있으면 그걸 dotnet build에 명시적으로 넘겨서
+        # 그 프로젝트만 빌드함. 다만 루트 .csproj(첫 타겟)는 SDK 기본 glob 때문에
+        # 새 서브디렉토리를 자기 프로젝트에 끌어들이므로 exclude 규칙을 추가해야 함.
+        _write_example_csharp_subdir(target_root, target_name)
+        _exclude_subdir_from_root_csproj(cwd, target_name)
+
+    target_block = _serialize_target_table(target_name, target_table)
+
+    existing_content = stoke_toml_path.read_text(encoding="utf-8")
+    with open(stoke_toml_path, "a", encoding="utf-8") as f:
+        if existing_content and not existing_content.endswith("\n"):
+            f.write("\n")
+        f.write("\n" + target_block)
+
+    print(f"\nAdded target '{target_name}' ({language}) to {stoke_toml_path}")
+    if language in _SCOPED_LANGUAGES or language in ("go", "rust", "kotlin", "csharp"):
+        print(f"Source files created under: {target_root}")
+    else:
+        print(f"No source files generated (see warning above) -- set up {language}'s project files at the root yourself.")
+    print(f"Try: stoke build {target_name}")
+
 def cmd_init() -> None:
     """대화형 프로젝트 초기화."""
     cwd = Path.cwd()
     stoke_toml_path = cwd / "stoke.toml"
 
-    # 이미 있으면 덮어쓸지 확인
+    # 이미 있으면 타겟 추가할지 덮어쓸지 확인
     if stoke_toml_path.exists():
         print(f"stoke.toml already exists at {stoke_toml_path}")
-        if not _prompt_yes_no("Overwrite?", default=False):
-            print("Aborted.")
+        choice = _prompt_choice(
+            "What would you like to do?",
+            [
+                "Add a new target to this project",
+                "Overwrite (start over with a new stoke.toml)",
+            ],
+            default_index=0,
+        )
+        if choice == 0:
+            _add_target_flow(cwd, stoke_toml_path)
             return
+        # choice == 1: 덮어쓰기 -> 아래 기존 흐름 그대로 진행
 
     print("\n=== stoke project setup ===\n")
 

@@ -5,7 +5,7 @@ import sys
 from stoke.cli.messages import get_message as _
 
 from stoke.cli.utils import resolve_profile_from_args, add_debug_release_profile_args
-from stoke.cli.build import cmd_build, cmd_run, cmd_watch, cmd_hot_reload
+from stoke.cli.build import cmd_build, cmd_build_all, cmd_run, cmd_watch, cmd_hot_reload
 from stoke.cli.clean import cmd_clean
 from stoke.cli.tools import cmd_python_list, cmd_java_list, cmd_c_list, cmd_cpp_list
 from stoke.cli.vcpkg import (
@@ -97,6 +97,7 @@ def _build_parser():
     build_parser = subparsers.add_parser("build", help=_("build.help"))
     build_parser.add_argument("target", nargs="?", help=_("build.target"))
     build_parser.add_argument("--force", action="store_true", help=_("build.force"))
+    build_parser.add_argument("--all", action="store_true", help="Build every target in stoke.toml in parallel")
     add_debug_release_profile_args(build_parser, "build")
 
     # stoke python list
@@ -200,7 +201,13 @@ def main():
 def _dispatch(args):
     if args.command == "build":
         profile_name = resolve_profile_from_args(args)
-        cmd_build(args.target, force=args.force, profile=profile_name, verbose=args.verbose)
+        if args.all and args.target:
+            print("Error: cannot specify a target together with --all", file=sys.stderr)
+            sys.exit(1)
+        elif args.all:
+            cmd_build_all(force=args.force, profile=profile_name, verbose=args.verbose)
+        else:
+            cmd_build(args.target, force=args.force, profile=profile_name, verbose=args.verbose)
     elif args.command == "clean":
         cmd_clean(target_name=args.target, delete_lock=args.all)
     elif args.command == "python":

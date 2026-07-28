@@ -65,3 +65,42 @@ application {
 }
 '''
     path.write_text(content, encoding="utf-8")
+
+def _write_example_kotlin_subdir(target_root: Path, target_name: str) -> None:
+    """
+    멀티 타겟 프로젝트에 두 번째 이후 Kotlin 타겟 추가할 때 사용.
+    target_root 안에 자체 build.gradle.kts + src/main/kotlin/Main.kt를 갖춘
+    완전한 Gradle 서브프로젝트를 생성함. 루트 settings.gradle.kts에 이
+    서브프로젝트를 등록하는 건 _add_gradle_module()이 별도로 처리.
+    """
+    target_root.mkdir(parents=True, exist_ok=True)
+    _write_build_gradle(target_root / "build.gradle.kts")
+
+    src_dir = target_root / "src" / "main" / "kotlin"
+    src_dir.mkdir(parents=True, exist_ok=True)
+    main_kt = src_dir / "Main.kt"
+    main_kt.write_text(
+        'fun main() {\n'
+        f'    println("Hello from stoke! ({target_name})")\n'
+        '}\n',
+        encoding="utf-8",
+    )
+
+def _add_gradle_module(settings_gradle_path: Path, module_name: str) -> None:
+    """
+    루트 settings.gradle.kts에 Gradle 서브프로젝트 등록.
+    이미 include("<module_name>")가 있으면 아무 것도 안 함.
+    """
+    if not settings_gradle_path.is_file():
+        raise RuntimeError(
+            f"{settings_gradle_path} not found -- expected an existing Kotlin project"
+        )
+
+    include_line = f'include("{module_name}")'
+    text = settings_gradle_path.read_text(encoding="utf-8")
+    if include_line in text:
+        return
+    if not text.endswith("\n"):
+        text += "\n"
+    text += f"{include_line}\n"
+    settings_gradle_path.write_text(text, encoding="utf-8")

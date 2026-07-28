@@ -41,6 +41,23 @@ class KotlinAdapter(BaseAdapter):
             "  Run 'gradle wrapper' in the project, or install Gradle: https://gradle.org/install"
         )
 
+    def _task_path(self, task: str) -> str:
+        """
+        Gradle 태스크 경로. <target.name>/build.gradle.kts가 있으면 그 서브프로젝트로
+        범위를 좁힘 (":<target.name>:<task>") -- Gradle 멀티 프로젝트 빌드에서
+        여러 모듈을 include()해둔 구조. 없으면 루트 프로젝트 자기 자신으로만 범위를
+        좁힘 (":<task>").
+
+        콜론을 꼭 붙이는 이유: 콜론 없이 그냥 "<task>"만 주면 Gradle이 그 이름의
+        태스크를 가진 *모든* 서브프로젝트에서 전부 실행해버림 (멀티 프로젝트
+        빌드에서의 기본 동작) -- 이러면 stoke build worker가 다른 타겟까지
+        같이 빌드해버려서 진짜 독립적인 타겟이 아니게 됨.
+        """
+        subproject_build_gradle = self.project_root / self.target.name / "build.gradle.kts"
+        if subproject_build_gradle.is_file():
+            return f":{self.target.name}:{task}"
+        return f":{task}"
+
     def _resolve_java_home(self) -> Path | None:
         """
         stoke.toml의 java_version에 맞는 JDK 찾기.
@@ -83,10 +100,12 @@ class KotlinAdapter(BaseAdapter):
         """gradlew build로 빌드."""
         gradle_cmd = self._find_gradle()
         java_home_args = self._java_home_args()
+        build_task = self._task_path("build")
+        test_task = self._task_path("test")
 
-        print("Building 'gradle build'...")
+        print(f"Building 'gradle {build_task}'...")
 
-        cmd = gradle_cmd + java_home_args + ["build", "-x", "test"]
+        cmd = gradle_cmd + java_home_args + [build_task, "-x", test_task]
         if force:
             cmd.append("--rerun-tasks")
         result = subprocess.run(
@@ -106,9 +125,10 @@ class KotlinAdapter(BaseAdapter):
     def run(self) -> int:
         """Gradle Application 플러그인으로 실행 (build.gradle.kts에 'application' 필요)."""
         gradle_cmd = self._find_gradle()
-        cmd = gradle_cmd + self._java_home_args() + ["run", "-q", "--console=plain"]
+        run_task = self._task_path("run")
+        cmd = gradle_cmd + self._java_home_args() + [run_task, "-q", "--console=plain"]
 
-        print("Running: gradle run\n")
+        print(f"Running: gradle {run_task}\n")
         try:
             result = subprocess.run(cmd, cwd=str(self.project_root))
             return result.returncode
@@ -118,7 +138,8 @@ class KotlinAdapter(BaseAdapter):
     def get_run_command(self) -> list[str]:
         """hot-reload용 실행 명령어."""
         gradle_cmd = self._find_gradle()
-        return gradle_cmd + self._java_home_args() + ["run", "-q", "--console=plain"]
+        run_task = self._task_path("run")
+        return gradle_cmd + self._java_home_args() + [run_task, "-q", "--console=plain"]
 
     def _gitignore_entries(self) -> list[str]:
         return [".stoke/", "build/", ".gradle/"]

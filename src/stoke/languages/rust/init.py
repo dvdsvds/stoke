@@ -1,6 +1,8 @@
 """Rust 프로젝트 초기화 로직"""
+import re
 import subprocess
 import shutil
+import tomllib
 from pathlib import Path
 
 from stoke.prompts import _prompt
@@ -73,3 +75,69 @@ edition = "2021"
 }
 '''
     main_rs.write_text(content, encoding="utf-8")
+
+def _write_example_rust_subdir(target_root: Path, target_name: str) -> None:
+    """
+    멀티 타겟 프로젝트에 두 번째 이후 Rust 타겟 추가할 때 사용.
+    target_root 안에 자체 Cargo.toml + src/main.rs를 갖춘 완전한 패키지를 생성함
+    (Cargo 워크스페이스 멤버). 루트 Cargo.toml의 [workspace] members 등록은
+    _add_rust_workspace_member()가 별도로 처리.
+    """
+    target_root.mkdir(parents=True, exist_ok=True)
+    cargo_toml = target_root / "Cargo.toml"
+    cargo_toml.write_text(
+        f'''[package]
+name = "{target_name}"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+''',
+        encoding="utf-8",
+    )
+    src_dir = target_root / "src"
+    src_dir.mkdir(exist_ok=True)
+    main_rs = src_dir / "main.rs"
+    main_rs.write_text(
+        f'''fn main() {{
+    println!("Hello from stoke! ({target_name})");
+}}
+''',
+        encoding="utf-8",
+    )
+
+def _add_rust_workspace_member(root_cargo_toml_path: Path, new_member: str) -> None:
+    """
+    루트 Cargo.toml에 Cargo 워크스페이스 멤버 추가.
+
+    [workspace] 섹션이 이미 있으면 members 리스트에 추가, 없으면 새로 만듦.
+    루트 Cargo.toml은 자체 [package]를 유지한 채로 [workspace]도 같이 가질 수
+    있음 ("워크스페이스 루트 패키지") -- 그래서 첫 번째 Rust 타겟의 기존 파일은
+    안 건드리고 [workspace] 섹션만 추가/갱신하면 됨.
+    """
+    if not root_cargo_toml_path.is_file():
+        raise RuntimeError(
+            f"{root_cargo_toml_path} not found -- expected an existing Rust project"
+        )
+
+    with open(root_cargo_toml_path, "rb") as f:
+        data = tomllib.load(f)
+
+    members = list(data.get("workspace", {}).get("members", []))
+    if new_member in members:
+        return
+    members.append(new_member)
+    members_toml = "[" + ", ".join(f'"{m}"' for m in members) + "]"
+
+    text = root_cargo_toml_path.read_text(encoding="utf-8")
+    if "[workspace]" in text:
+        if re.search(r"(?m)^members\s*=", text):
+            text = re.sub(r"(?m)^members\s*=.*$", f"members = {members_toml}", text, count=1)
+        else:
+            text = text.replace("[workspace]", f"[workspace]\nmembers = {members_toml}", 1)
+    else:
+        if not text.endswith("\n"):
+            text += "\n"
+        text += f"\n[workspace]\nmembers = {members_toml}\n"
+
+    root_cargo_toml_path.write_text(text, encoding="utf-8")
