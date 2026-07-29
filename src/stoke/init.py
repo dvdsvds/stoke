@@ -28,6 +28,8 @@ from stoke.languages.cpp.init import (
     _write_example_cpp,
 )
 from stoke.languages.go.init import (
+    _select_go_version,
+    _pin_go_version,
     _write_stoke_toml_go,
     _write_example_go,
     _write_example_go_subdir,
@@ -74,6 +76,10 @@ from stoke.languages.javascript.init import (
 from stoke.languages.typescript.init import (
     _write_stoke_toml_typescript,
     _write_example_typescript,
+)
+from stoke.languages._node_version import (
+    _select_node_version,
+    _pin_node_version,
 )
 
 def _select_lock_mode() -> str:
@@ -385,7 +391,8 @@ def cmd_init() -> None:
         version_info = f"C++ standard:    {cpp_standard}"
         _prompt_vcpkg_install()
     elif language == "go":
-        version_info = "Language:        Go"
+        go_version = _select_go_version()
+        version_info = f"Toolchain pin:   {go_version or '(none)'}"
     elif language == "rust":
         rust_version = _select_rust_version()
         version_info = f"Toolchain pin:   {rust_version or '(none)'}"
@@ -402,9 +409,11 @@ def cmd_init() -> None:
         php_version = _select_php_version()
         version_info = f"Version pin:     {php_version or '(none)'}"
     elif language == "javascript":
-        version_info = "Language:        JavaScript"
+        node_version = _select_node_version()
+        version_info = f"Node pin:        {node_version or '(none)'}"
     elif language == "typescript":
-        version_info = "Language:        TypeScript"
+        node_version = _select_node_version()
+        version_info = f"Node pin:        {node_version or '(none)'}"
 
     # 4. lock 모드 선택
     lock_mode = _select_lock_mode()
@@ -441,6 +450,7 @@ def cmd_init() -> None:
     elif language == "go":
         _write_stoke_toml_go(stoke_toml_path, project_name, lock_mode)
         _write_example_go(cwd, project_name)
+        _pin_go_version(cwd, go_version)
     elif language == "rust":
         _write_stoke_toml_rust(stoke_toml_path, project_name, lock_mode)
         _write_example_rust(cwd, project_name)
@@ -463,9 +473,11 @@ def cmd_init() -> None:
     elif language == "javascript":
         _write_stoke_toml_javascript(stoke_toml_path, project_name, lock_mode)
         _write_example_javascript(cwd)
+        _pin_node_version(cwd, node_version)
     elif language == "typescript":
         _write_stoke_toml_typescript(stoke_toml_path, project_name, lock_mode)
         _write_example_typescript(cwd)
+        _pin_node_version(cwd, node_version)
     print(f"\nCreated {stoke_toml_path}")
     print("Next: run 'stoke build' to build your project.")
 
@@ -493,8 +505,7 @@ def cmd_init_noninteractive(
     --version 의미는 언어마다 다름:
       python/java/kotlin: 버전 (없으면 시스템 기본 설치 사용)
       c/cpp: 표준 (c17/c++17 등, 없으면 기본값)
-      rust/csharp/ruby/php: 선택적 toolchain pin (없으면 pin 안 함)
-      go/javascript/typescript: 사용 안 함
+      rust/go/csharp/ruby/php/javascript/typescript: 선택적 toolchain pin (없으면 pin 안 함)
     """
     if language not in _NONINTERACTIVE_LANGUAGES:
         print(f"Error: unsupported language '{language}'", file=sys.stderr)
@@ -550,6 +561,8 @@ def cmd_init_noninteractive(
     elif language == "go":
         _write_stoke_toml_go(stoke_toml_path, project_name, lock_mode)
         _write_example_go(cwd, project_name)
+        if version:
+            _pin_go_version(cwd, version)
     elif language == "rust":
         _write_stoke_toml_rust(stoke_toml_path, project_name, lock_mode)
         _write_example_rust(cwd, project_name)
@@ -577,9 +590,13 @@ def cmd_init_noninteractive(
     elif language == "javascript":
         _write_stoke_toml_javascript(stoke_toml_path, project_name, lock_mode)
         _write_example_javascript(cwd)
+        if version:
+            _pin_node_version(cwd, version)
     elif language == "typescript":
         _write_stoke_toml_typescript(stoke_toml_path, project_name, lock_mode)
         _write_example_typescript(cwd)
+        if version:
+            _pin_node_version(cwd, version)
 
     print(f"Created {stoke_toml_path}")
     print("Next: run 'stoke build' to build your project.")

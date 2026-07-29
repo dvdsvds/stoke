@@ -2,6 +2,39 @@
 import subprocess
 import shutil
 from pathlib import Path
+import re
+
+from stoke.prompts import _prompt
+
+def _select_go_version() -> str:
+    """
+    선택적 Go 버전 pin. 빈 입력이면 pin 안함
+    (go.mod가 `go mod init` 시점의 로컬 go 버전을 그대로 씀)
+    """
+    return _prompt( "Pin Go version? (e.g. 1.22.3, blank to skip)", default="").strip()
+
+def _pin_go_version(project_root: Path, version: str) -> None:
+    """
+    go.mod의 `go`/`toolchain` 지시문을 patch
+    `go` 지시문 = 최소 요구 버전 (낮으면 go build 자체가 실패)
+    `toolchain` 지시문 = 정확한 버전 (GOTOOLCHAIN=auto가 기본값이라
+    로컬 go가 이보다 낮으면 go가 알아서 해당 버전을 자동 다운로드함) --
+    그래서 이 두 줄만 있으면 stoke가 따로 버전 체크 코드를 안짜도 됨
+    (Rust의 rust-toolchain.toml을 rustup이 읽는 것과 같은 원리)
+    version이 빈 문자열이면 아무것도 안 함
+    """
+    if not version:
+        return
+    go_mod = project_root / "go.mod"
+    if not go_mod.is_file():
+        return
+    text = go_mod.read_text(encoding="utf-8")
+    text = re.sub(r"(?m)^go .+$", f"go {version}", text, count=1)
+    if re.search(r"(?m)^toolchain ", text):
+        text = re.sub(r"(?m)^toolchain .+$", f"toolchain go{version}", text, count=1)
+    else:
+        text = text.rstrip("\n") + f"\ntoolchain go{version}\n"
+    go_mod.write_text(text, encoding="utf-8")
 
 def _write_stoke_toml_go(
     path: Path,
