@@ -38,6 +38,7 @@ stoke run
 - **Private registry / mirror support** — point toolchain installs and Java's Maven dependency downloads at an internal mirror, with optional Basic Auth
 - **Build cache** — content-hash cache invalidation plus a shared/remote cache for C/C++ and Java
 - **Parallel multi-target builds** — `stoke build --all`, and `stoke init` can add a target to an existing project
+- **Pre/post-build hooks** — `pre_build`/`post_build` shell commands per target, for every language and every build path (`build`, `build --all`, `watch`, `hot-reload`)
 - **Reproducible builds** via lock files
 - **Auto IDE integration** (VSCode, IntelliJ, Eclipse)
 

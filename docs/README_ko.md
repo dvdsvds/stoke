@@ -377,6 +377,19 @@ export STOKE_VERSION_API_PASSWORD=***    # stoke install용
 - **원격/공유 캐시 (C/C++, Java)** — 여러 머신에서 접근 가능한 디렉토리(네트워크 공유, NAS, 매핑된 드라이브)를 `STOKE_REMOTE_CACHE_DIR`로 지정하면, 별도 캐시 서버 프로토콜 없이 `stoke build`가 컴파일된 오브젝트를 그 디렉토리에서 가져오거나 올림. C/C++은 컴파일된 `.o` 파일 단위(hit마다 헤더 content 매니페스트로 재검증), Java는 타겟 전체 단위(`javac`가 한 번의 호출로 배치 컴파일하기 때문에 파일 1:1 매핑이 없음)로 캐싱. 캐시 디렉토리가 없거나 접근 불가능하거나 오류가 나도 fail open — 빌드를 절대 깨뜨리지 않고 속도 향상만 못 받음.
 - **범위** — C/C++, Java 컴파일만 해당. Python은 캐싱할 만한 컴파일 단계가 없음. Rust/Kotlin/C#/Ruby/PHP/Go/JS/TS는 각자 자기 빌드 도구(Cargo, Gradle, dotnet 등)에 위임하는 구조라, stoke 캐시 모듈과는 완전히 별개의 캐싱 스토리를 가짐.
 
+## 빌드 전/후 훅
+
+모든 타겟은 `pre_build`/`post_build` — 언어별 빌드 단계 전/후에 실행할 셸 커맨드 리스트 — 를 선언할 수 있습니다:
+
+```toml
+[targets.myapp]
+language = "python"
+pre_build = ["echo starting build"]
+post_build = ["cp dist/myapp ./release/myapp"]
+```
+
+커맨드는 셸을 통해(파이프/환경변수/여러 인자 다 가능) 선언된 순서대로 실행되며, `stoke build`, `stoke build --all`, `stoke watch`, `stoke hot-reload` 전부 동일하게 적용됩니다. `pre_build` 커맨드 중 하나라도 0이 아닌 종료 코드를 내면 언어 빌드 자체를 시작하지 않고 중단하고, `post_build` 커맨드가 실패해도 전체 빌드가 실패로 처리됩니다.
+
 ## Lock 파일 모드
 
 - **`commit`** — 프로젝트 루트에 `stoke.lock`, git 커밋 대상 (팀 재현성)
@@ -491,7 +504,6 @@ from computer.hardware.cpu import CPU
 - macOS/Linux 네이티브 설치파일 아직 없음 (pip는 되지만 end-to-end 검증은 안 됨)
 - C/C++용 CMake/Meson 통합 없음 — stoke는 자체 단순 빌드 모델이라 대형/생성형 C/C++ 빌드 그래프는 안 맞음
 - C/C++용 MSVC(`cl.exe`) 미지원, gcc/clang만
-- pre/post-build 훅 시스템 없음
 - 플러그인/확장 시스템 없음 — 사내 전용 언어/프레임워크 템플릿을 추가하려면 아직 stoke 소스 자체를 고쳐야 함
 - Rust, Kotlin, C#, Ruby, PHP는 가장 최근에 추가된 언어라, 커맨드 생성/템플릿은 검증됐지만 각 생태계의 대형 실전 프로젝트로는 아직 충분히 검증 안 됨
 - 타겟 간 의존성 그래프 없음 — `stoke build --all`은 모든 타겟을 독립적이라고 가정

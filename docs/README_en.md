@@ -377,6 +377,19 @@ This covers `stoke install` (toolchain download) and Java's project-dependency d
 - **Remote/shared cache (C/C++, Java)** — set `STOKE_REMOTE_CACHE_DIR` to any directory reachable from multiple machines (network share, NAS, mapped drive) and `stoke build` fetches/uploads compiled objects there instead of a cache-server protocol. C/C++ caches per compiled `.o` file (with a header-content manifest verified on every hit); Java caches per-target (`javac` batches its whole compile into one invocation, so there's no 1:1 file→output mapping to cache per-file). A missing/unreachable/misconfigured cache dir fails open — it never breaks a build, only skips the speedup.
 - **Scope** — C/C++ and Java compilation only. Python has no real compile step to cache. Rust/Kotlin/C#/Ruby/PHP/Go/JS/TS delegate to their own build tools (Cargo, Gradle, dotnet, etc.), which have their own separate caching outside stoke's cache module entirely.
 
+## Pre/post-build hooks
+
+Any target can declare `pre_build`/`post_build` — lists of shell commands run before/after the language-specific build step, for every language:
+
+```toml
+[targets.myapp]
+language = "python"
+pre_build = ["echo starting build"]
+post_build = ["cp dist/myapp ./release/myapp"]
+```
+
+Commands run via the shell (so pipes/env vars/multiple args work), in declared order, for `stoke build`, `stoke build --all`, `stoke watch`, and `stoke hot-reload` alike. A non-zero exit from any `pre_build` command aborts before the language build runs; a non-zero `post_build` command fails the overall build too.
+
 ## Lock file modes
 
 - **`commit`** — `stoke.lock` at project root, committed to git (team reproducibility)
@@ -491,7 +504,6 @@ from computer.hardware.cpu import CPU
 - No macOS/Linux native installer yet (pip works, but isn't verified end-to-end)
 - No CMake/Meson integration for C/C++ — stoke has its own simple build model, so large/generated C/C++ build graphs don't fit
 - MSVC (`cl.exe`) not supported for C/C++, only gcc/clang
-- No pre/post-build hook system
 - No plugin/extension system — adding a company-internal language or framework template currently means patching stoke's own source
 - Rust, Kotlin, C#, Ruby, PHP are the newest languages — command construction and templates are verified, but not yet battle-tested against large real-world projects in each ecosystem
 - No inter-target dependency graph — `stoke build --all` treats every target as independent
