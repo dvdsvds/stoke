@@ -8,6 +8,7 @@ from watchdog.observers import Observer
 
 from stoke.adapters import make_adapter
 from stoke.config import Config, Target
+from stoke.hooks import run_hooks
 
 DEBOUNCE_SECONDS = 0.3
 # 언어별 소스 파일 확장자
@@ -130,8 +131,10 @@ def _run_build(target: Target, config: Config, project_root: Path, profile=None,
     print(f"[watch] Rebuilding '{target.name}'...")
     print("=" * 50)
     try:
+        run_hooks(target.pre_build, project_root, "pre_build")
         adapter = make_adapter(target, config.project, project_root, profile=profile, verbose=verbose)
         adapter.build()
+        run_hooks(target.post_build, project_root, "post_build")
     except RuntimeError as e:
         print(f"\n[watch] Build failed: {e}", file=sys.stderr)
         print("[watch] Continuing to watch for changes...")

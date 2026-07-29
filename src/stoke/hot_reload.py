@@ -8,6 +8,7 @@ from watchdog.observers import Observer
 
 from stoke.adapters import make_adapter
 from stoke.config import Config, Target
+from stoke.hooks import run_hooks
 from stoke.watcher import _DebouncedHandler, _watch_roots_from_target, LANGUAGE_EXTENSIONS
 
 
@@ -107,8 +108,10 @@ def _run_build(target: Target, config: Config, project_root: Path, profile=None,
     print(f"[hot-reload] Rebuilding '{target.name}'...")
     print("=" * 50)
     try:
+        run_hooks(target.pre_build, project_root, "pre_build")
         adapter = make_adapter(target, config.project, project_root, profile=profile, verbose=verbose)
         adapter.build()
+        run_hooks(target.post_build, project_root, "post_build")
         return True
     except RuntimeError as e:
         print(f"\n[hot-reload] Build failed: {e}", file=sys.stderr)

@@ -23,7 +23,8 @@ class Target:
     cpp_standard: str | None = None
     includes: list[str] = field(default_factory=list)
     env_type: str = "venv" # "venv" (default) or "conda"
-    go_version: str | None = None
+    pre_build: list[str] = field(default_factory=list)
+    post_build: list[str] = field(default_factory=list)
 
 @dataclass
 class Profile:
@@ -117,7 +118,8 @@ def load_config(config_path: Path | None = None) -> Config:
             cpp_standard=target_config.get("cpp_standard"),
             includes=target_config.get("includes", []),
             env_type=env_type,
-            go_version=target_config.get("go_version")
+            pre_build=target_config.get("pre_build", []),
+            post_build=target_config.get("post_build", []),
         )
     if not targets:
         raise ValueError(f"No targets defined in {config_path}")

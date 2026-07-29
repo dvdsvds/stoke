@@ -15,12 +15,9 @@ def _select_node_version() -> str:
 
 def _pin_node_version(project_root: Path, version: str) -> None:
     """
-    .nvmrc (nvm/fnm이 자동으로 읽음) + package.json의 engines.node를 씀.
-    Ruby의 .ruby-version과 같은 급의 소프트 pin -- npm install이 버전 안 맞으면
-    경고만 하고 막지는 않음. 실제로 설치 자체를 막고 싶으면 .npmrc에
-    engine-strict=true를 직접 추가하면 됨 (여기선 기본으로 안 씀 -- 의존성
-    트리 안 다른 패키지의 engines까지 엄격 검사 대상이 될 수 있어서 무관한
-    설치가 막히는 부작용이 있을 수 있음).
+    .nvmrc (nvm/fnm이 읽음) + package.json의 engines.node를 씀.
+    Ruby의 .ruby-version과 같은 급의 소프트 pin -- npm install이 버전 안
+    맞으면 경고만 하고 막지는 않음(의도적으로 .npmrc engine-strict는 안 씀).
     version이 빈 문자열이면 아무것도 안 함.
     """
     if not version:

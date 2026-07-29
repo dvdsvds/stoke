@@ -6,6 +6,7 @@ import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from stoke.adapters import make_adapter
 from stoke.cli.utils import load_config_or_exit, resolve_target_or_exit, check_profile_or_exit
+from stoke.hooks import run_hooks
 
 def cmd_build(target_name, force: bool = False, profile: str = "debug", verbose: bool = False):
     config = load_config_or_exit()
@@ -20,8 +21,10 @@ def cmd_build(target_name, force: bool = False, profile: str = "debug", verbose:
     project_root = config.config_path.parent
     try:
         profile_obj = config.profiles[profile]
+        run_hooks(target.pre_build, project_root, "pre_build")
         adapter = make_adapter(target, config.project, project_root, profile=profile_obj, verbose=verbose)
         adapter.build(force=force)
+        run_hooks(target.post_build, project_root, "post_build")
     except RuntimeError as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
@@ -87,8 +90,10 @@ def cmd_build_all(force: bool = False, profile: str = "debug", verbose: bool = F
         # threading.local()이 알아서 함.
         target = config.targets[name]
         try:
+            run_hooks(target.pre_build, project_root, "pre_build")
             adapter = make_adapter(target, config.project, project_root, profile=profile_obj, verbose=verbose)
             adapter.build(force=force)
+            run_hooks(target.post_build, project_root, "post_build")
             return name, True, thread_stdout.pop(), None
         except RuntimeError as e:
             return name, False, thread_stdout.pop(), str(e)
