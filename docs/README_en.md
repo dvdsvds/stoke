@@ -55,8 +55,8 @@ stoke run
 | --- | --- | --- |
 | Python | pip / venv / conda (own dependency resolution + lock) | `python_version` in `stoke.toml`, enforced against detected installs |
 | Java | `javac` directly (Maven Central for deps, no Maven build) | `java_version` in `stoke.toml`, enforced against detected JDKs |
-| C | gcc/clang directly, own header-dependency tracking | `c_standard` in `stoke.toml` |
-| C++ | gcc/clang directly, own header-dependency tracking | `cpp_standard` in `stoke.toml` |
+| C | gcc/clang/MSVC directly, own header-dependency tracking | `c_standard` in `stoke.toml` |
+| C++ | gcc/clang/MSVC directly, own header-dependency tracking | `cpp_standard` in `stoke.toml` |
 | Go | `go build` / `go run` | optional pin via `go.mod`'s `go`/`toolchain` directives (read by the Go toolchain itself) |
 | Rust | `cargo build --release` / run | optional `rust-toolchain.toml` (read by rustup) |
 | Kotlin | Gradle Wrapper (`gradlew`) or system `gradle` | `java_version` in `stoke.toml`, enforced via `-Dorg.gradle.java.home` |
@@ -208,6 +208,13 @@ sources = ["src/**/*.cpp"]
 
 [targets.myapp.deps]
 fmt = "latest"
+```
+
+On Windows, set `compiler = "msvc"` on a profile to build with `cl.exe` (Visual Studio's own toolchain) instead of gcc/clang — vcpkg dependencies resolve against the `x64-windows` triplet automatically:
+
+```toml
+[profiles.debug]
+compiler = "msvc"
 ```
 
 ### Go
@@ -503,7 +510,6 @@ from computer.hardware.cpu import CPU
 
 - No macOS/Linux native installer yet (pip works, but isn't verified end-to-end)
 - No CMake/Meson integration for C/C++ — stoke has its own simple build model, so large/generated C/C++ build graphs don't fit
-- MSVC (`cl.exe`) not supported for C/C++, only gcc/clang
 - No plugin/extension system — adding a company-internal language or framework template currently means patching stoke's own source
 - Rust, Kotlin, C#, Ruby, PHP are the newest languages — command construction and templates are verified, but not yet battle-tested against large real-world projects in each ecosystem
 - No inter-target dependency graph — `stoke build --all` treats every target as independent

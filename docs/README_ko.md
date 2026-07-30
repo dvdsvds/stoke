@@ -55,8 +55,8 @@ stoke run
 | --- | --- | --- |
 | Python | pip / venv / conda (자체 의존성 해석 + lock) | `stoke.toml`의 `python_version`, 감지된 설치와 대조해 강제 |
 | Java | `javac` 직접 호출 (의존성은 Maven Central, 빌드는 Maven 안 씀) | `stoke.toml`의 `java_version`, 감지된 JDK와 대조해 강제 |
-| C | gcc/clang 직접 호출, 자체 헤더 의존성 추적 | `stoke.toml`의 `c_standard` |
-| C++ | gcc/clang 직접 호출, 자체 헤더 의존성 추적 | `stoke.toml`의 `cpp_standard` |
+| C | gcc/clang/MSVC 직접 호출, 자체 헤더 의존성 추적 | `stoke.toml`의 `c_standard` |
+| C++ | gcc/clang/MSVC 직접 호출, 자체 헤더 의존성 추적 | `stoke.toml`의 `cpp_standard` |
 | Go | `go build` / `go run` | 선택적 pin, `go.mod`의 `go`/`toolchain` 지시문 (Go 툴체인 자체가 읽음) |
 | Rust | `cargo build --release` / run | 선택적 `rust-toolchain.toml` (rustup이 읽음) |
 | Kotlin | Gradle Wrapper(`gradlew`) 또는 시스템 `gradle` | `stoke.toml`의 `java_version`, `-Dorg.gradle.java.home`으로 강제 |
@@ -208,6 +208,13 @@ sources = ["src/**/*.cpp"]
 
 [targets.myapp.deps]
 fmt = "latest"
+```
+
+Windows에서는 프로파일에 `compiler = "msvc"`를 설정하면 gcc/clang 대신 `cl.exe`(Visual Studio 자체 툴체인)로 빌드합니다 — vcpkg 의존성은 자동으로 `x64-windows` triplet으로 해석됩니다:
+
+```toml
+[profiles.debug]
+compiler = "msvc"
 ```
 
 ### Go
@@ -503,7 +510,6 @@ from computer.hardware.cpu import CPU
 
 - macOS/Linux 네이티브 설치파일 아직 없음 (pip는 되지만 end-to-end 검증은 안 됨)
 - C/C++용 CMake/Meson 통합 없음 — stoke는 자체 단순 빌드 모델이라 대형/생성형 C/C++ 빌드 그래프는 안 맞음
-- C/C++용 MSVC(`cl.exe`) 미지원, gcc/clang만
 - 플러그인/확장 시스템 없음 — 사내 전용 언어/프레임워크 템플릿을 추가하려면 아직 stoke 소스 자체를 고쳐야 함
 - Rust, Kotlin, C#, Ruby, PHP는 가장 최근에 추가된 언어라, 커맨드 생성/템플릿은 검증됐지만 각 생태계의 대형 실전 프로젝트로는 아직 충분히 검증 안 됨
 - 타겟 간 의존성 그래프 없음 — `stoke build --all`은 모든 타겟을 독립적이라고 가정

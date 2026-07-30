@@ -33,7 +33,7 @@ stoke run
 - **Project scaffolding** — `stoke init <type>` for Spring Boot, FastAPI, Flask, Django, Gin, Echo, Fiber, Chi, Actix Web, Axum, Rocket, Ktor, ASP.NET Core, Sinatra, Slim, Express, Fastify, Next.js, NestJS, Vite, Nuxt, SvelteKit, Hono
 - **Python environments** — venv or conda
 - **Watch mode and hot-reload** for all languages
-- **Build profiles** — debug/release and custom compile profiles for C/C++
+- **Build profiles** — debug/release and custom compile profiles for C/C++, including MSVC (`compiler = "msvc"`) alongside gcc/clang on Windows
 - **Version pinning** — every language now has a pin mechanism, prompted during `stoke init` (e.g. Go's `go.mod` `go`/`toolchain` directives, Node's `.nvmrc` + `package.json` `engines.node`, Rust's `rust-toolchain.toml`) so every teammate and CI runner builds against the same version
 - **Private registry / mirror support** — point toolchain installs and Java's Maven dependency downloads at an internal mirror, with optional Basic Auth
 - **Build cache** — content-hash cache invalidation plus a shared/remote cache for C/C++ and Java
