@@ -35,6 +35,7 @@ class TypeScriptAdapter(BaseAdapter, NodeToolsMixin):
             [node_exe, "--version"],
             capture_output=True,
             text=True,
+            errors="replace",
         )
         if result.returncode == 0:
             print(f"Using Node.js {result.stdout.strip()}")
@@ -50,6 +51,7 @@ class TypeScriptAdapter(BaseAdapter, NodeToolsMixin):
                 cwd=str(self.project_root),
                 capture_output=True,
                 text=True,
+                errors="replace",
                 shell=(sys.platform == "win32"),
             )
             if result.returncode != 0:

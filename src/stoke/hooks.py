@@ -13,7 +13,7 @@ def run_hooks(commands: list[str], project_root: Path, label: str) -> None:
     for cmd in commands:
         print(f"[{label}] {cmd}")
         result = subprocess.run(
-            cmd, shell=True, cwd=str(project_root), capture_output=True, text=True,
+            cmd, shell=True, cwd=str(project_root), capture_output=True, text=True, errors="replace",
         )
         if result.stdout:
             print(result.stdout, end="" if result.stdout.endswith("\n") else "\n")

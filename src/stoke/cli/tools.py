@@ -28,17 +28,20 @@ def cmd_java_list():
         print(f"    java:      {install.java}")
         print()
 
+_COMPILER_LABEL = {"gcc": "gcc", "clang": "clang", "msvc": "cl (MSVC)"}
+
 def cmd_c_list():
     from stoke.languages.c.versions import detect_all as detect_c
     installs = [i for i in detect_c() if i.kind == "c"]
     if not installs:
         print("No C compiler detected.")
-        print("Install gcc or ensure it's in your PATH.")
+        print("Install gcc/clang, or Visual Studio Build Tools (MSVC) for cl.exe.")
         return
     print(f"Detected {len(installs)} C compiler(s):\n")
     for install in installs:
         default_mark = " (default)" if install.is_default else ""
-        print(f"  gcc {install.version} (major: {install.major_version}){default_mark}")
+        label = _COMPILER_LABEL.get(install.family, install.family)
+        print(f"  {label} {install.version} (major: {install.major_version}){default_mark}")
         print(f"    executable: {install.executable}")
         print()
 
@@ -47,11 +50,12 @@ def cmd_cpp_list():
     installs = [i for i in detect_c() if i.kind == "cpp"]
     if not installs:
         print("No C++ compiler detected.")
-        print("Install g++ or ensure it's in your PATH.")
+        print("Install g++/clang++, or Visual Studio Build Tools (MSVC) for cl.exe.")
         return
     print(f"Detected {len(installs)} C++ compiler(s):\n")
     for install in installs:
         default_mark = " (default)" if install.is_default else ""
-        print(f"  g++ {install.version} (major: {install.major_version}){default_mark}")
+        label = _COMPILER_LABEL.get(install.family, install.family)
+        print(f"  {label} {install.version} (major: {install.major_version}){default_mark}")
         print(f"    executable: {install.executable}")
         print()

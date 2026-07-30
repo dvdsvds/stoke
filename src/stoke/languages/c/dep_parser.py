@@ -1,4 +1,5 @@
 """C/C++ 컴파일러가 생성한 .d 파일 (헤더 의존성 파일) 파싱."""
+import json
 from pathlib import Path
 
 def parse_dep_file(dep_path: Path) -> list[Path]:
@@ -35,3 +36,16 @@ def parse_dep_file(dep_path: Path) -> list[Path]:
         if token:
             headers.append(Path(token))
     return headers
+
+def parse_msvc_source_deps(json_path: Path) -> list[Path]:
+    """
+    cl.exe의 /sourceDependencies <file>이 만든 JSON 파일 파싱해서 헤더 파일 목록 반환.
+    형식: {"Version": "1.x", "Data": {"Includes": ["C:\\...\\header.h", ...], ...}}
+    """
+    if not json_path.exists():
+        return []
+    try:
+        data = json.loads(json_path.read_text(encoding="utf-8-sig"))
+    except (OSError, json.JSONDecodeError):
+        return []
+    return [Path(p) for p in data.get("Data", {}).get("Includes", [])]

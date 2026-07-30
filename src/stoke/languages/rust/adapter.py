@@ -72,6 +72,7 @@ class RustAdapter(BaseAdapter):
             [cargo_exe, "--version"],
             capture_output=True,
             text=True,
+            errors="replace",
         )
 
         if result.returncode == 0:
@@ -91,6 +92,7 @@ class RustAdapter(BaseAdapter):
             cwd=str(self.project_root),
             capture_output=True,
             text=True,
+            errors="replace",
         )
         if result.returncode != 0:
             raise RuntimeError(

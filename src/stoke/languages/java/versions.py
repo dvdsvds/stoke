@@ -20,6 +20,7 @@ def _get_javac_version(javac_path: str) -> str | None:
             [javac_path, "-version"],
             capture_output=True,
             text=True,
+            errors="replace",
             timeout=5,
         )
         # javac는 stderr로 버전 출력하는 경우가 있음 (Java 8 이하)

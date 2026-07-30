@@ -184,7 +184,7 @@ def _extract_7z(archive_path: Path, language: str, version: str) -> None:
 
     result = subprocess.run(
         [seven_zip, "x", str(archive_path), f"-o{dest}", "-y"],
-        capture_output=True, text=True,
+        capture_output=True, text=True, errors="replace",
     )
     if result.returncode != 0:
         print(f"Error: 7-Zip extraction failed:\n{result.stderr}", file=sys.stderr)

@@ -68,6 +68,7 @@ class CSharpAdapter(BaseAdapter):
             [dotnet_exe, "--version"],
             capture_output=True,
             text=True,
+            errors="replace",
         )
         if result.returncode == 0:
             print(f"Using .NET SDK {result.stdout.strip()}")
@@ -87,6 +88,7 @@ class CSharpAdapter(BaseAdapter):
             cwd=str(self.project_root),
             capture_output=True,
             text=True,
+            errors="replace",
         )
         if result.returncode != 0:
             raise RuntimeError(

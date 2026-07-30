@@ -194,7 +194,7 @@ class PythonAdapter(BaseAdapter):
 
         cmd = [str(pip_exe), "install", "--disable-pip-version-check"] + install_args
 
-        result = subprocess.run(cmd, capture_output=True, text=True)
+        result = subprocess.run(cmd, capture_output=True, text=True, errors="replace")
 
         if result.returncode != 0:
             raise RuntimeError(
@@ -212,6 +212,7 @@ class PythonAdapter(BaseAdapter):
             [str(pip_exe), "freeze", "--disable-pip-version-check"],
             capture_output=True,
             text=True,
+            errors="replace",
         )
 
         if result.returncode != 0:
@@ -302,6 +303,7 @@ class PythonAdapter(BaseAdapter):
                 [str(venv_python), "-m", "py_compile", str(file)],
                 capture_output=True,
                 text=True,
+                errors="replace",
             )
 
             if result.returncode == 0:
@@ -341,6 +343,7 @@ class PythonAdapter(BaseAdapter):
             [str(python.executable), "-m", "venv", str(self.venv_dir)],
             capture_output=True,
             text=True,
+            errors="replace",
         )
         if result.returncode != 0:
             raise RuntimeError(
@@ -358,6 +361,7 @@ class PythonAdapter(BaseAdapter):
                 [str(venv_python), "-m", "ensurepip", "--default-pip"],
                 capture_output=True,
                 text=True,
+                errors="replace",
             )
             if result.returncode != 0:
                 raise RuntimeError(
@@ -396,6 +400,7 @@ class PythonAdapter(BaseAdapter):
              "--yes", f"python={py_ver}"],
             capture_output=True,
             text=True,
+            errors="replace",
         )
         if result.returncode != 0:
             raise RuntimeError(
@@ -423,7 +428,7 @@ class PythonAdapter(BaseAdapter):
                     if conda_exe:
                         subprocess.run(
                             [conda_exe, "env", "remove", "--prefix", str(self.venv_dir), "--yes"],
-                            capture_output=True, text=True,
+                            capture_output=True, text=True, errors="replace",
                         )
                     # 폴더도 삭제 (혹시 남아있으면)
                     if self.venv_dir.exists():

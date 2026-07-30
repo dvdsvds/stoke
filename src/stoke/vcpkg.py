@@ -46,6 +46,7 @@ def get_vcpkg_version() -> str | None:
             [str(get_vcpkg_executable()), "version"],
             capture_output=True,
             text=True,
+            errors="replace",
             timeout=5,
         )
         if result.returncode != 0:
@@ -224,6 +225,7 @@ def list_installed_libraries() -> list[str]:
             [str(exe), "list"],
             capture_output=True,
             text=True,
+            errors="replace",
             timeout=10,
         )
         if result.returncode != 0:
@@ -310,6 +312,11 @@ def get_include_dir(triplet: str | None = None) -> Path:
 def get_lib_dir(triplet: str | None = None) -> Path:
     """vcpkg의 라이브러리 경로."""
     return get_installed_dir(triplet) / "lib"
+
+
+def get_bin_dir(triplet: str | None = None) -> Path:
+    """vcpkg의 DLL 경로. x64-windows처럼 동적 링크하는 triplet에서만 쓰임."""
+    return get_installed_dir(triplet) / "bin"
 
 
 def is_library_installed(name: str, triplet: str | None = None) -> bool:

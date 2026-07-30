@@ -113,6 +113,7 @@ class KotlinAdapter(BaseAdapter):
             cwd=str(self.project_root),
             capture_output=True,
             text=True,
+            errors="replace",
         )
         if result.returncode != 0:
             raise RuntimeError(

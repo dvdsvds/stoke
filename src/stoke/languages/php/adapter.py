@@ -35,6 +35,7 @@ class PHPAdapter(BaseAdapter):
             [php_exe, "--version"],
             capture_output=True,
             text=True,
+            errors="replace",
         )
         if result.returncode == 0:
             print(f"Using {result.stdout.splitlines()[0].strip()}")
@@ -54,6 +55,7 @@ class PHPAdapter(BaseAdapter):
                 cwd=str(self.project_root),
                 capture_output=True,
                 text=True,
+                errors="replace",
             )
             if result.returncode != 0:
                 raise RuntimeError(

@@ -17,6 +17,7 @@ def _get_version(exe: str) -> str | None:
             [exe, "--version"],
             capture_output=True,
             text=True,
+            errors="replace",
             timeout=5,
         )
         # 출력 예: "Python 3.12.12"
@@ -35,6 +36,7 @@ def _detect_via_py_launcher() -> list[PythonInstall]:
             ["py", "-0p"],
             capture_output=True,
             text=True,
+            errors="replace",
             timeout=5,
         )
         if result.returncode != 0:
@@ -229,6 +231,7 @@ def detect_all() -> list[PythonInstall]:
                 ["py", "-0"],
                 capture_output=True,
                 text=True,
+                errors="replace",
                 timeout=5,
             )
             if result.returncode == 0:

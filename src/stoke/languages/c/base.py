@@ -1,3 +1,4 @@
+import locale
 import os
 import subprocess
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -16,13 +17,38 @@ from stoke import remote_cache
 from stoke.languages.c.versions import CompilerInstall, find_compiler
 from stoke.config import Target, ProjectInfo, Profile
 from stoke.lock import load_lock, save_lock, CDep, CLock, CppDep, CppLock
-from stoke.languages.c.dep_parser import parse_dep_file
+from stoke.languages.c.dep_parser import parse_dep_file, parse_msvc_source_deps
 
 @dataclass
 class CompileResult:
     ok: bool
     error: str = ""
     from_remote_cache: bool = False
+
+# 기본 debug/release 프로파일(config.py)이 쓰는 gcc 스타일 플래그를 cl.exe로 번역.
+# 매핑에 없는 플래그는 그대로 통과 -- 사용자가 프로파일에 직접 MSVC 플래그를
+# 적었을 수도 있으므로. cl.exe가 인식 못 하면 그 시점에 에러가 명확하게 남.
+_MSVC_FLAG_MAP = {
+    "-O0": "/Od", "-O1": "/O1", "-O2": "/O2", "-O3": "/Ox",
+    # /Z7 puts debug info directly in each .obj instead of a shared .pdb --
+    # /Zi's shared .pdb causes C1041 ("multiple CL.EXE... use /FS") under
+    # stoke's parallel per-file compilation (reproduced, then fixed by using
+    # /Z7 instead of /Zi + /FS).
+    "-g": "/Z7", "-Wall": "/Wall",
+}
+
+def _translate_flags_for_msvc(flags: list[str]) -> list[str]:
+    return [_MSVC_FLAG_MAP.get(f, f) for f in flags]
+
+def _output_encoding(is_msvc: bool) -> str:
+    """
+    cl.exe/link.exe는 콘솔 코드페이지(OS 로케일 -- 한국어 Windows면 cp949)로
+    출력을 냄. UTF-8로 강제 디코딩하면 깨진 문자(U+FFFD)가 나오고, 그걸 다시
+    print()하면 그 코드페이지로 인코딩을 못 해서 죽는 걸 실제로 확인함
+    (VSLANG=1033으로 언어만 영어로 강제해도 바이트 인코딩 자체는 안 바뀜).
+    gcc/clang(MSYS2)은 UTF-8을 내므로 그대로 둠.
+    """
+    return locale.getpreferredencoding(False) if is_msvc else "utf-8"
 
 class CBaseAdapter(BaseAdapter):
     compiler_kind: str = ""       # 서브클래스에서 오버라이드
@@ -74,15 +100,31 @@ class CBaseAdapter(BaseAdapter):
         except ValueError:
            raise RuntimeError(
                f"Unknown compiler '{compiler_family}' in profile '{self.profile.name}'.\n"
-               f"  Supported: gcc, clang"
+               f"  Supported: gcc, clang, msvc"
            )
         if install is None:
             profile_note = f" (required by profile '{self.profile.name}')" if self.profile and self.profile.compiler else ""
+            hint = (
+                "Install Visual Studio Build Tools with the \"Desktop development with C++\" workload."
+                if compiler_family == "msvc"
+                else f"Install {compiler_family} or ensure it's in your PATH."
+            )
             raise RuntimeError(
                 f"No {self.compiler_kind} compiler ({compiler_family}) detected{profile_note}.\n"
-                f"  Install {compiler_family} or ensure it's in your PATH."
+                f"  {hint}"
             )
         return install
+
+    def _triplet_kind(self, compiler: CompilerInstall) -> str:
+        """vcpkg triplet 조회용 (get_triplet()이 받는 값): msvc면 x64-windows, 그 외엔 mingw 계열."""
+        return "msvc" if compiler.family == "msvc" else "gcc"
+
+    def _msvc_env(self, compiler: CompilerInstall) -> dict | None:
+        """MSVC는 vcvarsall 환경변수(INCLUDE/LIB)가 있어야 표준 헤더/라이브러리를 찾음."""
+        if compiler.family == "msvc" and compiler.vcvars_bat:
+            from stoke.languages.c.msvc_env import get_msvc_env
+            return get_msvc_env(compiler.vcvars_bat)
+        return None
 
     def collect_source_files(self) -> list[Path]:
         """sources 패턴에서 소스 파일 목록 수집."""
@@ -132,7 +174,7 @@ class CBaseAdapter(BaseAdapter):
 
         return sorted(r for r in roots if r.exists())
 
-    def _include_dirs(self) -> list[Path]:
+    def _include_dirs(self, compiler: CompilerInstall | None = None) -> list[Path]:
         """
         Include 경로 자동 수집.
         - 소스 폴더 (헤더 함께 있는 경우 대비)
@@ -155,12 +197,13 @@ class CBaseAdapter(BaseAdapter):
             path = self.project_root / path_str
             if path.is_dir():
                 includes.append(path)
-        
+
         # vcpkg include 경로 (deps 있으면)
         if self.target.deps:
-            from stoke.vcpkg import get_include_dir, is_vcpkg_installed
+            from stoke.vcpkg import get_include_dir, get_triplet, is_vcpkg_installed
             if is_vcpkg_installed():
-                vcpkg_include = get_include_dir()
+                triplet_kind = self._triplet_kind(compiler) if compiler else "gcc"
+                vcpkg_include = get_include_dir(get_triplet(triplet_kind))
                 if vcpkg_include.is_dir():
                     includes.append(vcpkg_include)
 
@@ -200,22 +243,27 @@ class CBaseAdapter(BaseAdapter):
         obj_path = self._object_path(file)
         obj_path.parent.mkdir(parents=True, exist_ok=True)
 
+        is_msvc = compiler.family == "msvc"
+
         # 표준 옵션
         standard = self._get_standard()
-        standard_flags = [f"{self.standard_flag_prefix}{standard}"] if standard else []
+        standard_flag_prefix = "/std:" if is_msvc else self.standard_flag_prefix
+        standard_flags = [f"{standard_flag_prefix}{standard}"] if standard else []
 
         # 프로파일별 컴파일 옵션 (오브젝트 결과물에 영향을 주는 플래그만 —
         # -I 인클루드 경로는 절대경로라 머신마다 달라서 fingerprint에서 제외;
         # 대신 실제 include된 헤더 내용을 아래에서 직접 검증함)
+        define_prefix = "/D" if is_msvc else "-D"
         profile_flags = []
         if self.profile:
-            profile_flags.extend(self.profile.compile_flags)
-            profile_flags.extend(f"-D{define}" for define in self.profile.defines)
+            raw_flags = _translate_flags_for_msvc(self.profile.compile_flags) if is_msvc else self.profile.compile_flags
+            profile_flags.extend(raw_flags)
+            profile_flags.extend(f"{define_prefix}{define}" for define in self.profile.defines)
 
         remote_dir = remote_cache.get_remote_cache_dir()
         if remote_dir is not None:
             source_hash = get_file_stat(file).content_hash
-            compiler_id = f"{compiler.kind}-{compiler.version}"
+            compiler_id = f"{compiler.kind}-{compiler.family}-{compiler.version}"
             fingerprint = remote_cache.compute_fingerprint(
                 source_hash, compiler_id, standard_flags + profile_flags
             )
@@ -223,30 +271,48 @@ class CBaseAdapter(BaseAdapter):
             if header_stats is not None:
                 return file, CompileResult(ok=True, from_remote_cache=True), header_stats
 
-        cmd = [str(compiler.executable)]
-        cmd.extend(standard_flags)
-        cmd.extend(profile_flags)
+        env = self._msvc_env(compiler)
 
-        # Include 경로
-        for include_dir in self._include_dirs():
-            cmd.extend(["-I", str(include_dir)])
-        # 헤더 의존성 파일 (.d) 자동 생성
-        dep_path = obj_path.with_suffix(".d")
-        cmd.extend(["-MD", "-MF", str(dep_path)])
-        # 컴파일만 (링크 X)
-        cmd.extend(["-c", str(file), "-o", str(obj_path)])
+        if is_msvc:
+            # /utf-8: gcc/clang assume UTF-8 source/execution charset by
+            # default, cl.exe doesn't -- without it, any UTF-8 source (or a
+            # UTF-8-only header like fmt's) fails with a static_assert-style
+            # error. Always on, not user-configurable, same as /nologo.
+            cmd = [str(compiler.executable), "/nologo", "/utf-8"]
+            cmd.extend(standard_flags)
+            cmd.extend(profile_flags)
+            for include_dir in self._include_dirs(compiler):
+                cmd.append(f"/I{include_dir}")
+            # 헤더 의존성 JSON 자동 생성 (/sourceDependencies)
+            dep_path = obj_path.with_suffix(".json")
+            cmd.extend(["/sourceDependencies", str(dep_path)])
+            # 컴파일만 (링크 X)
+            cmd.extend(["/c", str(file), f"/Fo{obj_path}"])
+        else:
+            cmd = [str(compiler.executable)]
+            cmd.extend(standard_flags)
+            cmd.extend(profile_flags)
+            # Include 경로
+            for include_dir in self._include_dirs(compiler):
+                cmd.extend(["-I", str(include_dir)])
+            # 헤더 의존성 파일 (.d) 자동 생성
+            dep_path = obj_path.with_suffix(".d")
+            cmd.extend(["-MD", "-MF", str(dep_path)])
+            # 컴파일만 (링크 X)
+            cmd.extend(["-c", str(file), "-o", str(obj_path)])
 
         proc = subprocess.run(
             cmd,
             capture_output=True,
             text=True,
-            encoding="utf-8",
+            encoding=_output_encoding(is_msvc),
             errors="replace",
+            env=env,
         )
 
         if proc.returncode == 0:
             # 헤더 의존성 파싱
-            headers = parse_dep_file(dep_path)
+            headers = parse_msvc_source_deps(dep_path) if is_msvc else parse_dep_file(dep_path)
             header_stats = {}
             for header in headers:
                 if header.exists():
@@ -359,31 +425,59 @@ class CBaseAdapter(BaseAdapter):
     def link(self, compiler: CompilerInstall, files: list[Path]) -> None:
         """오브젝트 파일들을 링크해서 실행 파일 생성."""
         object_files = [self._object_path(f) for f in files]
-        cmd = [str(compiler.executable)]
-        cmd.extend([str(o) for o in object_files])
-        cmd.extend(["-o", str(self.output_path)])
+        is_msvc = compiler.family == "msvc"
+
+        if is_msvc:
+            cmd = [str(compiler.executable), "/nologo"]
+            cmd.extend(str(o) for o in object_files)
+            cmd.append(f"/Fe{self.output_path}")
+            cmd.append("/link")
+        else:
+            cmd = [str(compiler.executable)]
+            cmd.extend(str(o) for o in object_files)
+            cmd.extend(["-o", str(self.output_path)])
 
         # vcpkg 라이브러리 링크 (deps 있으면)
         if self.target.deps:
-            from stoke.vcpkg import get_lib_dir, is_vcpkg_installed
+            from stoke.vcpkg import get_lib_dir, get_triplet, is_vcpkg_installed
             if is_vcpkg_installed():
-                lib_dir = get_lib_dir()
+                lib_dir = get_lib_dir(get_triplet(self._triplet_kind(compiler)))
                 if lib_dir.is_dir():
-                    cmd.append(f"-L{lib_dir}")
-                    for lib_name in self.target.deps:
-                        cmd.append(f"-l{lib_name}")
+                    if is_msvc:
+                        cmd.append(f"/LIBPATH:{lib_dir}")
+                        for lib_name in self.target.deps:
+                            cmd.append(f"{lib_name}.lib")
+                    else:
+                        cmd.append(f"-L{lib_dir}")
+                        for lib_name in self.target.deps:
+                            cmd.append(f"-l{lib_name}")
 
         self.output_path.parent.mkdir(parents=True, exist_ok=True)
         proc = subprocess.run(
             cmd,
             capture_output=True,
             text=True,
-            encoding="utf-8",
+            encoding=_output_encoding(is_msvc),
             errors="replace",
+            env=self._msvc_env(compiler),
         )
         if proc.returncode != 0:
             error_msg = proc.stderr.strip() or proc.stdout.strip()
             raise RuntimeError(f"Link failed:\n{error_msg}")
+
+        # x64-windows(MSVC) triplet은 동적 링크라 실행에 DLL이 필요함 (x64-mingw-static은
+        # 정적 링크라 해당 없음). vcpkg의 공유 설치 경로는 PATH에 없으므로 실행 파일
+        # 옆으로 복사해야 실제로 실행됨 (fmt.dll 누락으로 STATUS_DLL_NOT_FOUND 재현 후 확인).
+        if is_msvc and self.target.deps:
+            from stoke.vcpkg import get_bin_dir, get_triplet, is_vcpkg_installed
+            if is_vcpkg_installed():
+                bin_dir = get_bin_dir(get_triplet(self._triplet_kind(compiler)))
+                if bin_dir.is_dir():
+                    import shutil
+                    for lib_name in self.target.deps:
+                        dll = bin_dir / f"{lib_name}.dll"
+                        if dll.is_file():
+                            shutil.copy2(dll, self.output_path.parent / dll.name)
 
     def _generate_ide_files(self, compiler: CompilerInstall, source_files: list[Path]) -> None:
         """
@@ -404,9 +498,9 @@ class CBaseAdapter(BaseAdapter):
             compiler_path=compiler.executable,
             source_files=source_files,
             objects_dir=self.objects_dir,
-            include_dirs=self._include_dirs(),
+            include_dirs=self._include_dirs(compiler),
             standard=self._get_standard(),
-            standard_flag_prefix=self.standard_flag_prefix,
+            standard_flag_prefix="/std:" if compiler.family == "msvc" else self.standard_flag_prefix,
         )
         # c_cpp_properties.json (VSCode C/C++ 확장이 compile_commands.json 인식하도록)
         cpp_settings = make_cpp_settings(
@@ -430,7 +524,7 @@ class CBaseAdapter(BaseAdapter):
         if changed_files:
             print(f"IDE files updated: {', '.join(changed_files)}")
 
-    def _ensure_deps_installed(self) -> None:
+    def _ensure_deps_installed(self, compiler: CompilerInstall) -> None:
         """
         stoke.toml의 deps에 있는 라이브러리들이 vcpkg에 설치돼있는지 확인.
         없으면 자동 설치.
@@ -442,6 +536,7 @@ class CBaseAdapter(BaseAdapter):
             is_vcpkg_installed,
             is_library_installed,
             install_library,
+            get_triplet,
         )
 
         if not is_vcpkg_installed():
@@ -460,10 +555,12 @@ class CBaseAdapter(BaseAdapter):
                         f"  Cannot use in C project '{self.target.name}'"
                     )
 
+        triplet = get_triplet(self._triplet_kind(compiler))
+
         # 설치 여부 확인 + 필요 시 설치
         needs_install = []
         for lib_name, version in self.target.deps.items():
-            if not is_library_installed(lib_name):
+            if not is_library_installed(lib_name, triplet):
                 needs_install.append((lib_name, version))
 
         if not needs_install:
@@ -473,7 +570,7 @@ class CBaseAdapter(BaseAdapter):
         for lib_name, version in needs_install:
             actual_version = None if version == "latest" else version
             try:
-                install_library(lib_name, actual_version)
+                install_library(lib_name, actual_version, triplet)
             except RuntimeError as e:
                 raise RuntimeError(
                     f"Failed to install dependency '{lib_name}':\n  {e}"
@@ -500,7 +597,7 @@ class CBaseAdapter(BaseAdapter):
 
         # 라이브러리 정보 비교
         current_deps = lock.c_deps if self.compiler_kind == "c" else lock.cpp_deps
-        installed_deps = self._collect_deps_for_lock()
+        installed_deps = self._collect_deps_for_lock(compiler)
 
         # 라이브러리 이름 목록 비교
         if set(current_deps.keys()) != set(installed_deps.keys()):
@@ -523,7 +620,8 @@ class CBaseAdapter(BaseAdapter):
         standard = self._get_standard() or ""
 
         # vcpkg 라이브러리 정보 수집
-        deps_for_lock = self._collect_deps_for_lock()
+        deps_for_lock = self._collect_deps_for_lock(compiler)
+        compiler_label = "cl" if compiler.family == "msvc" else ("gcc" if self.compiler_kind == "c" else "g++")
 
         if self.compiler_kind == "c":
             from stoke.lock import CDep
@@ -531,7 +629,7 @@ class CBaseAdapter(BaseAdapter):
             lock_path, lock_changed = save_lock(
                 self.project_root,
                 self.project.lock_mode,
-                c=CLock(compiler="gcc", version=compiler.version, executable=str(compiler.executable), standard=standard),
+                c=CLock(compiler=compiler_label, version=compiler.version, executable=str(compiler.executable), standard=standard),
                 c_deps=c_deps_for_lock if c_deps_for_lock else None,
             )
         else:  # cpp
@@ -540,13 +638,13 @@ class CBaseAdapter(BaseAdapter):
             lock_path, lock_changed = save_lock(
                 self.project_root,
                 self.project.lock_mode,
-                cpp=CppLock(compiler="g++", version=compiler.version, executable=str(compiler.executable), standard=standard),
+                cpp=CppLock(compiler=compiler_label, version=compiler.version, executable=str(compiler.executable), standard=standard),
                 cpp_deps=cpp_deps_for_lock if cpp_deps_for_lock else None,
             )
         if lock_changed:
             print(f"Lock file saved: {lock_path}")
 
-    def _collect_deps_for_lock(self) -> dict[str, dict]:
+    def _collect_deps_for_lock(self, compiler: CompilerInstall) -> dict[str, dict]:
         """
         stoke.toml의 deps에 있는 라이브러리들의 실제 vcpkg 정보 수집.
         반환: {name: {"version": str, "triplet": str}}
@@ -563,7 +661,7 @@ class CBaseAdapter(BaseAdapter):
         if not is_vcpkg_installed():
             return {}
 
-        triplet = get_triplet()
+        triplet = get_triplet(self._triplet_kind(compiler))
         result = {}
         for name in self.target.deps:
             version = get_installed_library_version(name, triplet)
@@ -583,7 +681,7 @@ class CBaseAdapter(BaseAdapter):
             print(f"  executable: {compiler.executable}")
 
         # 의존성 확인/설치
-        self._ensure_deps_installed()
+        self._ensure_deps_installed(compiler)
 
         # 소스 수집
         if self.verbose:
