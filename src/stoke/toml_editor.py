@@ -119,6 +119,39 @@ def remove_dep(toml_path: Path, target_name: str, lib_name: str) -> bool:
     return True
 
 
+def remove_target(toml_path: Path, target_name: str) -> bool:
+    """
+    stoke.toml에서 [targets.<target_name>] 테이블과 그 하위 테이블
+    (예: [targets.<target_name>.deps])을 전부 제거.
+    반환: 제거했으면 True, 그 이름의 타겟이 없었으면 False.
+    """
+    content = toml_path.read_text(encoding="utf-8")
+
+    header_pattern = re.compile(
+        r"^\[targets\." + re.escape(target_name) + r"(\.[^\]]+)?\]\s*$",
+        re.MULTILINE,
+    )
+    matches = list(header_pattern.finditer(content))
+    if not matches:
+        return False
+
+    spans = []
+    for m in matches:
+        start = m.start()
+        next_header = re.search(r"^\[", content[m.end():], re.MULTILINE)
+        end = m.end() + next_header.start() if next_header else len(content)
+        spans.append((start, end))
+
+    for start, end in sorted(spans, reverse=True):
+        # 섹션 앞에 구분용으로 남은 빈 줄 하나까지 같이 지워서 결과물을 깔끔하게 유지
+        if start >= 2 and content[start - 1] == "\n" and content[start - 2] == "\n":
+            start -= 1
+        content = content[:start] + content[end:]
+
+    toml_path.write_text(content, encoding="utf-8")
+    return True
+
+
 def list_deps(toml_path: Path, target_name: str) -> dict[str, str]:
     """
     stoke.toml의 [targets.<target_name>.deps] 섹션의 라이브러리 목록.

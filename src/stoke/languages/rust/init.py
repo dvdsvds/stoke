@@ -141,3 +141,27 @@ def _add_rust_workspace_member(root_cargo_toml_path: Path, new_member: str) -> N
         text += f"\n[workspace]\nmembers = {members_toml}\n"
 
     root_cargo_toml_path.write_text(text, encoding="utf-8")
+
+def _remove_rust_workspace_member(root_cargo_toml_path: Path, member: str) -> None:
+    """
+    루트 Cargo.toml의 [workspace] members 리스트에서 멤버 하나를 뺌.
+    _add_rust_workspace_member()의 반대.
+    남은 멤버가 없어도 [workspace] 섹션 자체는 지우지 않음 -- 루트 패키지가
+    여전히 워크스페이스 루트로 남아있어도 무해하고, 다음에 타겟을 다시
+    추가할 때 그대로 재사용 가능.
+    """
+    if not root_cargo_toml_path.is_file():
+        return
+
+    with open(root_cargo_toml_path, "rb") as f:
+        data = tomllib.load(f)
+
+    members = list(data.get("workspace", {}).get("members", []))
+    if member not in members:
+        return
+    members.remove(member)
+    members_toml = "[" + ", ".join(f'"{m}"' for m in members) + "]"
+
+    text = root_cargo_toml_path.read_text(encoding="utf-8")
+    text = re.sub(r"(?m)^members\s*=.*$", f"members = {members_toml}", text, count=1)
+    root_cargo_toml_path.write_text(text, encoding="utf-8")

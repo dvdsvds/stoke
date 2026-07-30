@@ -1,3 +1,4 @@
+import shutil
 import sys
 import tempfile
 import tomllib
@@ -5,6 +6,7 @@ from pathlib import Path
 
 from stoke.languages.python.versions import detect_all, PythonInstall
 from stoke.prompts import _prompt, _prompt_choice, _prompt_yes_no
+from stoke.toml_editor import remove_target
 from stoke.languages.python.init import (
     _select_python_version,
     _select_env_type,
@@ -41,6 +43,7 @@ from stoke.languages.rust.init import (
     _write_example_rust,
     _write_example_rust_subdir,
     _add_rust_workspace_member,
+    _remove_rust_workspace_member,
 )
 from stoke.languages.kotlin.init import (
     _select_kotlin_jdk,
@@ -48,6 +51,7 @@ from stoke.languages.kotlin.init import (
     _write_example_kotlin,
     _write_example_kotlin_subdir,
     _add_gradle_module,
+    _remove_gradle_module,
 )
 from stoke.languages.csharp.init import (
     _select_csharp_version,
@@ -56,6 +60,7 @@ from stoke.languages.csharp.init import (
     _write_example_csharp,
     _write_example_csharp_subdir,
     _exclude_subdir_from_root_csproj,
+    _remove_csproj_exclude,
 )
 from stoke.languages.ruby.init import (
     _select_ruby_version,
@@ -268,7 +273,6 @@ def _add_target_flow(cwd: Path, stoke_toml_path: Path) -> None:
         with open(tmp_toml, "rb") as f:
             target_table = tomllib.load(f)["targets"][target_name]
     finally:
-        import shutil
         shutil.rmtree(tmp_dir, ignore_errors=True)
 
     target_root = cwd / target_name
@@ -335,6 +339,93 @@ def _add_target_flow(cwd: Path, stoke_toml_path: Path) -> None:
         print(f"No source files generated (see warning above) -- set up {language}'s project files at the root yourself.")
     print(f"Try: stoke build {target_name}")
 
+def _unregister_target_from_root_files(cwd: Path, target_name: str, language: str) -> None:
+    """
+    타겟 제거 시, add-target 시점에 만들어둔 루트 등록 파일을 되돌림
+    (Cargo workspace member / Gradle settings include / C# csproj exclude 규칙).
+    Go는 등록 파일이 따로 없어서(어댑터가 서브디렉토리 존재 여부만 봄) 해당 없음.
+    """
+    if language == "rust":
+        _remove_rust_workspace_member(cwd / "Cargo.toml", target_name)
+    elif language == "kotlin":
+        _remove_gradle_module(cwd / "settings.gradle.kts", target_name)
+    elif language == "csharp":
+        _remove_csproj_exclude(cwd, target_name)
+
+def _remove_target_flow(cwd: Path, stoke_toml_path: Path) -> None:
+    """
+    기존 stoke.toml에서 타겟 하나를 대화형으로 제거. _add_target_flow()의 반대.
+    <target_name>/ 소스 디렉토리를 지울지는 별도로 물어봄 -- 기본은 안 지움
+    (실수로 소스가 같이 날아가는 걸 막기 위해).
+    """
+    existing_names = sorted(_read_existing_target_names(stoke_toml_path))
+    if not existing_names:
+        print("No targets in stoke.toml to remove.")
+        return
+
+    idx = _prompt_choice("Select a target to remove:", existing_names, default_index=0)
+    target_name = existing_names[idx]
+
+    with open(stoke_toml_path, "rb") as f:
+        data = tomllib.load(f)
+    language = data["targets"][target_name].get("language", "?")
+
+    if len(existing_names) == 1:
+        print("Warning: this is the only target in the project -- stoke.toml will have no targets left.")
+
+    if not _prompt_yes_no(f"Remove target '{target_name}' ({language})?", default=False):
+        print("Aborted.")
+        return
+
+    if not remove_target(stoke_toml_path, target_name):
+        print(f"Error: target '{target_name}' not found in stoke.toml", file=sys.stderr)
+        return
+
+    _unregister_target_from_root_files(cwd, target_name, language)
+    print(f"\nRemoved target '{target_name}' from {stoke_toml_path}")
+
+    target_dir = cwd / target_name
+    if target_dir.is_dir():
+        if _prompt_yes_no(f"Also delete the '{target_name}/' source directory?", default=False):
+            shutil.rmtree(target_dir)
+            print(f"Deleted: {target_dir}")
+        else:
+            print(f"Source files left in place: {target_dir} (delete manually if you don't need them)")
+
+def cmd_remove_target_noninteractive(target_name: str, yes: bool = False) -> None:
+    """
+    비대화형 타겟 제거: `stoke init --remove-target=<name> [--yes]`.
+
+    소스 디렉토리는 절대 자동으로 지우지 않음 -- CI/스크립트에서 실수로 소스
+    파일이 같이 날아가는 걸 막기 위해, stoke.toml 항목과 루트 등록 파일만 정리함.
+    """
+    cwd = Path.cwd()
+    stoke_toml_path = cwd / "stoke.toml"
+    if not stoke_toml_path.exists():
+        print(f"Error: stoke.toml not found in {cwd}", file=sys.stderr)
+        sys.exit(1)
+
+    with open(stoke_toml_path, "rb") as f:
+        data = tomllib.load(f)
+    targets = data.get("targets", {})
+    if target_name not in targets:
+        print(f"Error: target '{target_name}' not found in stoke.toml", file=sys.stderr)
+        sys.exit(1)
+    language = targets[target_name].get("language", "?")
+
+    if not yes:
+        print(f"Error: this will remove target '{target_name}' ({language}) from stoke.toml", file=sys.stderr)
+        print("  Pass --yes to confirm.", file=sys.stderr)
+        sys.exit(1)
+
+    remove_target(stoke_toml_path, target_name)
+    _unregister_target_from_root_files(cwd, target_name, language)
+
+    print(f"Removed target '{target_name}' from {stoke_toml_path}")
+    target_dir = cwd / target_name
+    if target_dir.is_dir():
+        print(f"Note: source directory '{target_dir}' was left in place -- delete it yourself if you don't need it.")
+
 def cmd_init() -> None:
     """대화형 프로젝트 초기화."""
     cwd = Path.cwd()
@@ -347,6 +438,7 @@ def cmd_init() -> None:
             "What would you like to do?",
             [
                 "Add a new target to this project",
+                "Remove a target from this project",
                 "Overwrite (start over with a new stoke.toml)",
             ],
             default_index=0,
@@ -354,7 +446,10 @@ def cmd_init() -> None:
         if choice == 0:
             _add_target_flow(cwd, stoke_toml_path)
             return
-        # choice == 1: 덮어쓰기 -> 아래 기존 흐름 그대로 진행
+        if choice == 1:
+            _remove_target_flow(cwd, stoke_toml_path)
+            return
+        # choice == 2: 덮어쓰기 -> 아래 기존 흐름 그대로 진행
 
     print("\n=== stoke project setup ===\n")
 

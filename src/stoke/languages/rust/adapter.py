@@ -109,7 +109,7 @@ class RustAdapter(BaseAdapter):
                 f"Executable not found: {self.output_path}\n"
                 f"  Run 'stoke build' first."
             )
-        print(f"Running; {self.output_path}\n")
+        print(f"Running: {self.output_path}\n")
         try:
             result = subprocess.run([str(self.output_path)])
             return result.returncode

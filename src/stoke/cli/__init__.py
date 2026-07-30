@@ -22,7 +22,7 @@ from stoke.cli.install_lang import (
     cmd_uninstall_language,
 )
 from stoke.cli.ide import cmd_ide_sync
-from stoke.init import cmd_init, cmd_init_noninteractive
+from stoke.init import cmd_init, cmd_init_noninteractive, cmd_remove_target_noninteractive
 
 from stoke.languages.python.frameworks.fastapi import cmd_init_fastapi
 from stoke.languages.python.frameworks.flask import cmd_init_flask
@@ -167,7 +167,8 @@ def _build_parser():
     init_parser.add_argument("--env-type", choices=["venv", "conda"], help="Python environment type (non-interactive mode; default venv)")
     init_parser.add_argument("--lock-mode", choices=["commit", "local"], default="commit", help="Lock file mode (non-interactive mode; default commit)")
     init_parser.add_argument("--vcpkg", action="store_true", help="Install vcpkg for C/C++ if not already installed (non-interactive mode)")
-    init_parser.add_argument("--yes", action="store_true", help="Overwrite an existing stoke.toml without prompting (non-interactive mode)")
+    init_parser.add_argument("--yes", action="store_true", help="Overwrite an existing stoke.toml without prompting, or confirm --remove-target (non-interactive mode)")
+    init_parser.add_argument("--remove-target", help="Remove a target from an existing stoke.toml (non-interactive mode; requires --yes)")
 
     # stoke watch
     watch_parser = subparsers.add_parser("watch", help=_("watch.help"))
@@ -257,6 +258,8 @@ def _dispatch(args):
         handler = _INIT_FRAMEWORK_HANDLERS.get(args.type) or get_framework_plugin(args.type)
         if handler:
             handler()
+        elif args.remove_target:
+            cmd_remove_target_noninteractive(args.remove_target, yes=args.yes)
         elif args.language:
             cmd_init_noninteractive(
                 language=args.language,

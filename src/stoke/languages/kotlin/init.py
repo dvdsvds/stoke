@@ -104,3 +104,14 @@ def _add_gradle_module(settings_gradle_path: Path, module_name: str) -> None:
         text += "\n"
     text += f"{include_line}\n"
     settings_gradle_path.write_text(text, encoding="utf-8")
+
+def _remove_gradle_module(settings_gradle_path: Path, module_name: str) -> None:
+    """루트 settings.gradle.kts에서 include("<module_name>") 줄 제거. _add_gradle_module()의 반대."""
+    if not settings_gradle_path.is_file():
+        return
+
+    include_line = f'include("{module_name}")'
+    text = settings_gradle_path.read_text(encoding="utf-8")
+    lines = text.splitlines(keepends=True)
+    lines = [line for line in lines if line.strip() != include_line]
+    settings_gradle_path.write_text("".join(lines), encoding="utf-8")

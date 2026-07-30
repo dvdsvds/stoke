@@ -116,6 +116,21 @@ def _exclude_subdir_from_root_csproj(project_root: Path, target_name: str) -> No
         text += exclude_block
     root_csproj.write_text(text, encoding="utf-8")
 
+def _remove_csproj_exclude(project_root: Path, target_name: str) -> None:
+    """루트 .csproj에서 <target_name>/** 제외 규칙 제거. _exclude_subdir_from_root_csproj()의 반대."""
+    root_csproj_candidates = list(project_root.glob("*.csproj"))
+    if not root_csproj_candidates:
+        return
+    root_csproj = root_csproj_candidates[0]
+
+    remove_glob = f"{target_name}/**"
+    exclude_block = f'  <ItemGroup>\n    <Compile Remove="{remove_glob}" />\n  </ItemGroup>\n'
+    text = root_csproj.read_text(encoding="utf-8")
+    if exclude_block not in text:
+        return
+    text = text.replace(exclude_block, "")
+    root_csproj.write_text(text, encoding="utf-8")
+
 def _write_csproj(path: Path) -> None:
     content = '''<Project Sdk="Microsoft.NET.Sdk">
 
