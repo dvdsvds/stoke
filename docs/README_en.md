@@ -397,6 +397,24 @@ post_build = ["cp dist/myapp ./release/myapp"]
 
 Commands run via the shell (so pipes/env vars/multiple args work), in declared order, for `stoke build`, `stoke build --all`, `stoke watch`, and `stoke hot-reload` alike. A non-zero exit from any `pre_build` command aborts before the language build runs; a non-zero `post_build` command fails the overall build too.
 
+## Plugin system
+
+An external pip package can add a new language or `stoke init` scaffold without touching stoke's own source, via two entry point groups:
+
+```toml
+# plugin package's pyproject.toml
+[project.entry-points."stoke.languages"]
+mylang = "my_package.stoke_plugin:MYLANG_PLUGIN"
+
+[project.entry-points."stoke.frameworks"]
+my-framework = "my_package.stoke_plugin:cmd_init_my_framework"
+```
+
+- `stoke.languages` — the entry point resolves to a `stoke.plugins.LanguagePlugin` (an adapter factory plus the source file extensions to watch). Once installed, `stoke build`/`run`/`watch`/`hot-reload` dispatch to it exactly like a built-in language for any target with that `language` name in `stoke.toml`.
+- `stoke.frameworks` — the entry point resolves to a zero-argument callable, same contract as the built-in framework handlers (e.g. `cmd_init_fastapi`): it does its own prompting/file-writing and is responsible for producing a working `stoke.toml` + source tree.
+
+A `stoke.languages` plugin only wires up build/run/watch — it doesn't get an interactive `stoke init` wizard entry automatically. To also support `stoke init` for a brand-new language, register a `stoke.frameworks` entry point too that writes the `stoke.toml` (with `language = "<name>"`) itself, the same pattern already used internally for Gin/Echo/Fiber/Chi/Actix Web/etc.
+
 ## Lock file modes
 
 - **`commit`** — `stoke.lock` at project root, committed to git (team reproducibility)
@@ -510,7 +528,7 @@ from computer.hardware.cpu import CPU
 
 - No macOS/Linux native installer yet (pip works, but isn't verified end-to-end)
 - No CMake/Meson integration for C/C++ — stoke has its own simple build model, so large/generated C/C++ build graphs don't fit
-- No plugin/extension system — adding a company-internal language or framework template currently means patching stoke's own source
+- Plugin-based languages don't get an automatic interactive `stoke init` wizard entry (see "Plugin system" above)
 - Rust, Kotlin, C#, Ruby, PHP are the newest languages — command construction and templates are verified, but not yet battle-tested against large real-world projects in each ecosystem
 - No inter-target dependency graph — `stoke build --all` treats every target as independent
 - Rails and Laravel scaffolds are intentionally omitted (see [Framework scaffolding](#framework-scaffolding))

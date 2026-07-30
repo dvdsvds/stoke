@@ -397,6 +397,24 @@ post_build = ["cp dist/myapp ./release/myapp"]
 
 커맨드는 셸을 통해(파이프/환경변수/여러 인자 다 가능) 선언된 순서대로 실행되며, `stoke build`, `stoke build --all`, `stoke watch`, `stoke hot-reload` 전부 동일하게 적용됩니다. `pre_build` 커맨드 중 하나라도 0이 아닌 종료 코드를 내면 언어 빌드 자체를 시작하지 않고 중단하고, `post_build` 커맨드가 실패해도 전체 빌드가 실패로 처리됩니다.
 
+## 플러그인 시스템
+
+외부 pip 패키지가 entry point 그룹 두 개로 stoke 소스를 안 건드리고 새 언어나 `stoke init` 스캐폴드를 추가할 수 있습니다:
+
+```toml
+# 플러그인 패키지의 pyproject.toml
+[project.entry-points."stoke.languages"]
+mylang = "my_package.stoke_plugin:MYLANG_PLUGIN"
+
+[project.entry-points."stoke.frameworks"]
+my-framework = "my_package.stoke_plugin:cmd_init_my_framework"
+```
+
+- `stoke.languages` — entry point가 `stoke.plugins.LanguagePlugin`(어댑터 팩토리 + watch가 감시할 소스 확장자)로 resolve됩니다. 설치되면, `stoke.toml`에 그 `language` 이름을 쓴 타겟에 대해 `stoke build`/`run`/`watch`/`hot-reload`가 내장 언어와 똑같이 dispatch됩니다.
+- `stoke.frameworks` — entry point가 인자 없는 콜러블로 resolve되며, 내장 프레임워크 핸들러(`cmd_init_fastapi` 등)와 같은 계약을 씁니다: 프롬프트/파일쓰기를 전부 알아서 하고, 제대로 동작하는 `stoke.toml` + 소스 트리를 만드는 것까지 책임집니다.
+
+`stoke.languages` 플러그인은 build/run/watch만 연결해줄 뿐, 대화형 `stoke init` 마법사에 자동으로 항목이 생기진 않습니다. 완전히 새로운 언어에 `stoke init` 지원까지 원하면 `stoke.frameworks` entry point도 같이 등록해서 `stoke.toml`(`language = "<name>"` 포함)을 직접 쓰게 하면 됩니다 — Gin/Echo/Fiber/Chi/Actix Web 등에서 내부적으로 이미 쓰는 패턴과 동일합니다.
+
 ## Lock 파일 모드
 
 - **`commit`** — 프로젝트 루트에 `stoke.lock`, git 커밋 대상 (팀 재현성)
@@ -510,7 +528,7 @@ from computer.hardware.cpu import CPU
 
 - macOS/Linux 네이티브 설치파일 아직 없음 (pip는 되지만 end-to-end 검증은 안 됨)
 - C/C++용 CMake/Meson 통합 없음 — stoke는 자체 단순 빌드 모델이라 대형/생성형 C/C++ 빌드 그래프는 안 맞음
-- 플러그인/확장 시스템 없음 — 사내 전용 언어/프레임워크 템플릿을 추가하려면 아직 stoke 소스 자체를 고쳐야 함
+- 플러그인 기반 언어는 대화형 `stoke init` 마법사에 자동으로 항목이 생기지 않음 (위 "플러그인 시스템" 참고)
 - Rust, Kotlin, C#, Ruby, PHP는 가장 최근에 추가된 언어라, 커맨드 생성/템플릿은 검증됐지만 각 생태계의 대형 실전 프로젝트로는 아직 충분히 검증 안 됨
 - 타겟 간 의존성 그래프 없음 — `stoke build --all`은 모든 타겟을 독립적이라고 가정
 - Rails, Laravel 스캐폴딩은 의도적으로 제외 ([프레임워크 스캐폴딩](#프레임워크-스캐폴딩) 참고)

@@ -41,6 +41,7 @@ stoke run
 - **Pre/post-build hooks** — `pre_build`/`post_build` shell commands per target, for every language and every build path (`build`, `build --all`, `watch`, `hot-reload`)
 - **Reproducible builds** via lock files
 - **Auto IDE integration** (VSCode, IntelliJ, Eclipse)
+- **Plugin system** — add a new language or `stoke init` scaffold from an external pip package via entry points, no stoke source changes needed
 
 ## Documentation
 
