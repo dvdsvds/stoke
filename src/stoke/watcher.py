@@ -27,6 +27,15 @@ LANGUAGE_EXTENSIONS = {
     "typescript": {".ts"},
 }
 
+def source_extensions_for(language: str) -> set[str] | None:
+    """언어의 watch용 소스 확장자. 내장 언어에 없으면 플러그인에서 찾음."""
+    extensions = LANGUAGE_EXTENSIONS.get(language)
+    if extensions is not None:
+        return extensions
+    from stoke.plugins import get_language_plugin
+    plugin = get_language_plugin(language)
+    return plugin.source_extensions if plugin is not None else None
+
 class _DebouncedHandler(FileSystemEventHandler):
     """
     파일 변경 이벤트를 받아서 디바운싱 후 콜백 실행.
@@ -151,8 +160,8 @@ def watch(target: Target, config: Config, project_root: Path, profile=None, verb
             f"No watchable directories found for target '{target.name}'. "
             f"Check the 'sources' patterns in stoke.toml."
         )
-    # 언어별 소스 확장자 결정
-    source_extensions = LANGUAGE_EXTENSIONS.get(target.language)
+    # 언어별 소스 확장자 결정 (내장 언어 또는 플러그인)
+    source_extensions = source_extensions_for(target.language)
     if not source_extensions:
         raise RuntimeError(
             f"Watch mode not supported for language '{target.language}'.\n"

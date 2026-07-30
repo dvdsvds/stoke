@@ -9,7 +9,7 @@ from watchdog.observers import Observer
 from stoke.adapters import make_adapter
 from stoke.config import Config, Target
 from stoke.hooks import run_hooks
-from stoke.watcher import _DebouncedHandler, _watch_roots_from_target, LANGUAGE_EXTENSIONS
+from stoke.watcher import _DebouncedHandler, _watch_roots_from_target, LANGUAGE_EXTENSIONS, source_extensions_for
 
 
 GRACEFUL_TIMEOUT_SECONDS = 5
@@ -121,8 +121,9 @@ def _run_build(target: Target, config: Config, project_root: Path, profile=None,
         return False
 def hot_reload(target: Target, config: Config, project_root: Path, profile=None, verbose: bool = False):
     """hot-reload 진입점."""
-    # 언어 지원 여부 확인
-    if target.language not in LANGUAGE_EXTENSIONS:
+    # 언어 지원 여부 확인 (내장 언어 또는 플러그인)
+    source_extensions = source_extensions_for(target.language)
+    if source_extensions is None:
         raise RuntimeError(
             f"Hot-reload not supported for language '{target.language}'.\n"
             f"  Supported: {', '.join(sorted(LANGUAGE_EXTENSIONS.keys()))}"
@@ -182,7 +183,6 @@ def hot_reload(target: Target, config: Config, project_root: Path, profile=None,
             print("[hot-reload] Waiting for fixes...")
 
     # 옵저버 설정
-    source_extensions = LANGUAGE_EXTENSIONS[target.language]
     handler = _DebouncedHandler(on_change, source_extensions)
     observer = Observer()
     for root in roots:

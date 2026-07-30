@@ -159,7 +159,8 @@ def _build_parser():
 
     # stoke init [type]
     init_parser = subparsers.add_parser("init", help=_("init.help"))
-    init_parser.add_argument("type", nargs="?", choices=list(_INIT_FRAMEWORK_HANDLERS), help="Project type (optional)")
+    from stoke.plugins import all_framework_plugin_names
+    init_parser.add_argument("type", nargs="?", choices=list(_INIT_FRAMEWORK_HANDLERS) + all_framework_plugin_names(), help="Project type (optional)")
     init_parser.add_argument("--language", help="Language (non-interactive mode, e.g. --language=python)")
     init_parser.add_argument("--name", help="Project name (non-interactive mode; defaults to current folder name)")
     init_parser.add_argument("--version", help="Language version/standard/toolchain pin (non-interactive mode; meaning depends on language)")
@@ -252,7 +253,8 @@ def _dispatch(args):
         elif args.vcpkg_command == "version":
             cmd_vcpkg_version()
     elif args.command == "init":
-        handler = _INIT_FRAMEWORK_HANDLERS.get(args.type)
+        from stoke.plugins import get_framework_plugin
+        handler = _INIT_FRAMEWORK_HANDLERS.get(args.type) or get_framework_plugin(args.type)
         if handler:
             handler()
         elif args.language:

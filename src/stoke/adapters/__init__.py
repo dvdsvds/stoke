@@ -1,10 +1,6 @@
 from pathlib import Path
 
 from stoke.adapters.base import BaseAdapter
-from stoke.config import ProjectInfo, Target
-
-from pathlib import Path
-from stoke.adapters.base import BaseAdapter
 from stoke.config import ProjectInfo, Target, Profile
 
 def make_adapter(
@@ -56,4 +52,10 @@ def make_adapter(
     if target.language == "typescript":
         from stoke.languages.typescript.adapter import TypeScriptAdapter
         return TypeScriptAdapter(target, project, project_root, verbose=verbose)
+
+    from stoke.plugins import get_language_plugin
+    plugin = get_language_plugin(target.language)
+    if plugin is not None:
+        return plugin.make_adapter(target, project, project_root, profile=profile, verbose=verbose)
+
     raise RuntimeError(f"Unsupported language: '{target.language}'")
