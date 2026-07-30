@@ -1,4 +1,4 @@
-# stoke — How To Use (v1.5.0)
+# stoke — How To Use (v1.5.1)
 
 A practical guide: how to actually use stoke day to day, what setups it's good for, and concrete commands for each scenario.
 
@@ -138,6 +138,35 @@ stoke run worker
 | C# | Each target gets its own `.csproj` under `<target_name>/`. `stoke` passes that `.csproj` path explicitly to `dotnet build`, and patches the root `.csproj` to exclude the new target's folder from its own compile globbing (SDK-style `.csproj` recurses by default, which is what this exclusion works around). |
 
 All four of the above (Go/Rust/Kotlin/C#) were fixed to support this in the same session that produced this doc — if you're on an older stoke build, a second Go/Rust/Kotlin/C# target may not build independently; upgrade first.
+
+**Removing a target:** run `stoke init` again and pick **"Remove a target from this project"** instead. It undoes whatever the add-target flow registered for that target's language — a Rust workspace member, a Kotlin `settings.gradle.kts` `include()`, a C#'s root `.csproj` exclude rule — and then asks separately whether to also delete the target's `<target_name>/` source directory (default: no, so you don't lose files by accident).
+
+```
+$ stoke init
+stoke.toml already exists at ./stoke.toml
+
+What would you like to do?
+  1. Add a new target to this project (default)
+  2. Remove a target from this project
+  3. Overwrite (start over with a new stoke.toml)
+Select [1-3, default 1]: 2
+
+Select a target to remove:
+  1. api (default)
+  2. worker
+Select [1-2, default 1]: 2
+Remove target 'worker' (go)? [y/N]: y
+
+Removed target 'worker' from ./stoke.toml
+Also delete the 'worker/' source directory? [y/N]: y
+Deleted: ./worker
+```
+
+For scripts/CI, there's a non-interactive form too — it always leaves the source directory in place (never deletes files without a human in the loop):
+
+```bash
+stoke init --remove-target=worker --yes
+```
 
 ---
 

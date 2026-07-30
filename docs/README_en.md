@@ -20,7 +20,7 @@ Supports project scaffolding for Spring Boot, FastAPI, Flask, Django, and 20 oth
 - **Private registry / mirror support** — point toolchain installs and Java's Maven dependency downloads at an internal mirror, with optional Basic Auth (see [Private registries and mirrors](#private-registries-and-mirrors))
 - **Build cache** — content-hash based cache invalidation (works correctly across machines/CI, unlike mtime-based caches) plus an optional shared/remote cache for C/C++ and Java (see [Build cache](#build-cache))
 - **Parallel multi-target builds** — `stoke build --all` builds every target in `stoke.toml` concurrently
-- **Multi-target projects** — `stoke init`, run again inside an existing project, adds a new target instead of asking you to hand-edit `stoke.toml`
+- **Multi-target projects** — `stoke init`, run again inside an existing project, adds or removes a target instead of asking you to hand-edit `stoke.toml`
 - **Automatic IDE integration** — auto-generated config files for VSCode, IntelliJ, Eclipse
 - **Watch mode + Hot-reload** — auto rebuild on file change, restart running process
 - **Build profiles** — debug/release and custom profiles (compile flags, defines, compiler) for C/C++
@@ -74,7 +74,7 @@ C/C++ dependency management uses vcpkg. Python/Java use stoke's own lock file (`
 
 | Command | Description |
 | --- | --- |
-| `stoke init` | Interactive project initialization. Run again inside an existing project to add a new target instead of overwriting. |
+| `stoke init` | Interactive project initialization. Run again inside an existing project to add or remove a target instead of overwriting. |
 | `stoke init <framework>` | Scaffold a framework project directly (see [Framework scaffolding](#framework-scaffolding)) |
 | `stoke init --language=<lang> [--version] [--name] [--env-type] [--lock-mode] [--vcpkg] [--yes]` | Non-interactive init for CI/onboarding scripts — no prompts |
 | `stoke build [target]` | Build target (defaults to the first target in `stoke.toml` if omitted) |
@@ -554,6 +554,7 @@ See [`FEATURES.md`](../FEATURES.md) at the repo root for the full, current statu
 - **v1.3** — JavaScript and TypeScript support, 8 web frameworks (Express, Fastify, Next.js, NestJS, Vite, Nuxt, SvelteKit, Hono)
 - **v1.4** — Rust, Kotlin, C#, Ruby, PHP support (12 languages, 24 frameworks total); non-interactive `stoke init --language=X` for CI/onboarding; version pinning for the 5 new languages plus real `java_version` enforcement for Kotlin; private-registry/mirror support (including authentication) for toolchain installs and Java's Maven dependencies; content-hash build cache invalidation plus a remote/shared cache (`STOKE_REMOTE_CACHE_DIR`) for C/C++ and Java; parallel multi-target builds (`stoke build --all`); `stoke init` can add a target to an existing project; Go/Rust/Kotlin/C# adapters fixed to build each target independently instead of always rebuilding the whole project root
 - **v1.5** — Version pinning for Go (`go.mod` `go`/`toolchain` directives) and JavaScript/TypeScript (`.nvmrc` + `package.json` `engines.node`)
+- **v1.5.1** — Pre/post-build hooks (`pre_build`/`post_build` in `stoke.toml`); MSVC support for Windows C/C++ (`compiler = "msvc"`, including vcpkg's dynamic-linking DLL distribution); hardened subprocess output decoding against non-UTF-8 Windows locales; a plugin system (`stoke.languages`/`stoke.frameworks` entry points) for adding languages or `stoke init` scaffolds from an external pip package; `stoke init` can now remove a target from an existing project (the counterpart to adding one), undoing whatever the language needed registered at the project root (Cargo workspace member, Gradle `settings.gradle.kts` include, C#'s root `.csproj` exclude rule)
 
 ## License
 

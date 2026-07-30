@@ -37,7 +37,7 @@ stoke run
 - **Version pinning** — every language now has a pin mechanism, prompted during `stoke init` (e.g. Go's `go.mod` `go`/`toolchain` directives, Node's `.nvmrc` + `package.json` `engines.node`, Rust's `rust-toolchain.toml`) so every teammate and CI runner builds against the same version
 - **Private registry / mirror support** — point toolchain installs and Java's Maven dependency downloads at an internal mirror, with optional Basic Auth
 - **Build cache** — content-hash cache invalidation plus a shared/remote cache for C/C++ and Java
-- **Parallel multi-target builds** — `stoke build --all`, and `stoke init` can add a target to an existing project
+- **Parallel multi-target builds** — `stoke build --all`, and `stoke init` can add or remove a target from an existing project
 - **Pre/post-build hooks** — `pre_build`/`post_build` shell commands per target, for every language and every build path (`build`, `build --all`, `watch`, `hot-reload`)
 - **Reproducible builds** via lock files
 - **Auto IDE integration** (VSCode, IntelliJ, Eclipse)

@@ -74,7 +74,7 @@ C/C++ 의존성 관리는 vcpkg 사용. Python/Java는 stoke 자체 lock 파일(
 
 | 명령어 | 설명 |
 | --- | --- |
-| `stoke init` | 대화형 프로젝트 초기화. 기존 프로젝트 안에서 다시 실행하면 덮어쓰는 대신 새 타겟 추가 |
+| `stoke init` | 대화형 프로젝트 초기화. 기존 프로젝트 안에서 다시 실행하면 덮어쓰는 대신 타겟 추가/제거 선택 |
 | `stoke init <framework>` | 프레임워크 프로젝트 바로 생성 ([프레임워크 스캐폴딩](#프레임워크-스캐폴딩) 참고) |
 | `stoke init --language=<lang> [--version] [--name] [--env-type] [--lock-mode] [--vcpkg] [--yes]` | 프롬프트 없는 비대화형 초기화 (CI/온보딩 스크립트용) |
 | `stoke build [target]` | 타겟 빌드 (생략하면 `stoke.toml`의 첫 번째 타겟) |
@@ -553,6 +553,7 @@ from computer.hardware.cpu import CPU
 - **v1.3** — JavaScript, TypeScript 지원, 웹 프레임워크 8종 추가 (Express, Fastify, Next.js, NestJS, Vite, Nuxt, SvelteKit, Hono)
 - **v1.4** — Rust, Kotlin, C#, Ruby, PHP 지원 (총 12개 언어, 24개 프레임워크); CI/온보딩용 비대화형 `stoke init --language=X`; 새 5개 언어 버전 pin + Kotlin `java_version` 실제 강제; 툴체인 설치와 Java Maven 의존성용 사설 레지스트리/미러 지원(인증 포함); content-hash 빌드 캐시 무효화 + C/C++·Java용 원격/공유 캐시(`STOKE_REMOTE_CACHE_DIR`); 병렬 멀티타겟 빌드(`stoke build --all`); `stoke init`으로 기존 프로젝트에 타겟 추가; Go/Rust/Kotlin/C# 어댑터가 항상 프로젝트 루트 전체를 재빌드하던 문제 수정 — 이제 타겟별로 독립 빌드
 - **v1.5** — Go(`go.mod`의 `go`/`toolchain` 지시문), JavaScript/TypeScript(`.nvmrc` + `package.json`의 `engines.node`) 버전 pin 추가
+- **v1.5.1** — Pre/post-build 훅(`stoke.toml`의 `pre_build`/`post_build`); Windows C/C++용 MSVC 지원(`compiler = "msvc"`, vcpkg 동적 링크 DLL 배포 포함); 비-UTF-8 Windows 로케일에 대한 subprocess 출력 디코딩 강화; 외부 pip 패키지로 언어나 `stoke init` 스캐폴드를 추가할 수 있는 플러그인 시스템(`stoke.languages`/`stoke.frameworks` entry point); `stoke init`에서 이제 타겟 추가의 반대인 타겟 제거도 가능(그 언어가 프로젝트 루트에 등록해뒀던 것 — Cargo 워크스페이스 멤버, Gradle `settings.gradle.kts`의 include, C# 루트 `.csproj`의 exclude 규칙 — 도 같이 원복)
 
 ## 라이선스
 
