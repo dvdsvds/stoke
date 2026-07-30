@@ -10,7 +10,7 @@ def cmd_init_spring_boot_kotlin():
     """stoke init spring-boot-kotlin 명령어."""
     print("Creating Spring Boot (Kotlin) project\n")
 
-    project_name, project_path = resolve_project_dir("myapp")
+    project_name, project_path, is_empty = resolve_project_dir("myapp")
     package_name = project_name.lower().replace("-", "_")
 
     _write_stoke_toml(project_path, project_name)
@@ -35,7 +35,8 @@ def cmd_init_spring_boot_kotlin():
     print(f"\nSpring Boot (Kotlin) project created at: {project_path}")
     print()
     print("Next steps:")
-    print(f"  cd {project_name}")
+    if not is_empty:
+        print(f"  cd {project_name}")
     print(f"  stoke build")
     print(f"  stoke run")
     print()

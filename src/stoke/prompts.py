@@ -20,18 +20,22 @@ def resolve_project_name(default_name: str = "myapp") -> tuple[str, bool]:
     project_name = _prompt("Project name", cwd.name if is_empty else default_name)
     return project_name, is_empty
 
-def resolve_project_dir(default_name: str = "myapp") -> tuple[str, Path]:
-    """이름 프롬프트 + 디렉토리 생성. 반환: (proejct_name, project_path)"""
+def resolve_project_dir(default_name: str = "myapp") -> tuple[str, Path, bool]:
+    """이름 프롬프트 + 디렉토리 생성. 반환: (project_name, project_path, is_empty)
+
+    is_empty가 True면 project_path는 cwd 자체이고 하위 디렉토리가 생성되지 않았으므로,
+    호출부의 "다음 단계" 안내에서 `cd {project_name}`을 출력하면 안 됨.
+    """
     project_name, is_empty = resolve_project_name(default_name)
     cwd = Path.cwd()
     if is_empty:
-        return project_name, cwd
+        return project_name, cwd, True
     project_path = cwd / project_name
     if project_path.exists():
         print(f"Error: directory '{project_name}' already exists", file=sys.stderr)
         sys.exit(1)
     project_path.mkdir()
-    return project_name, project_path
+    return project_name, project_path, False
 
 def _prompt_choice(question: str, choices: list[str], default_index: int = 0) -> int:
     """번호로 선택 받기. 1-indexed로 보여주고 0-indexed로 반환."""

@@ -11,7 +11,7 @@ def cmd_init_slim():
     """stoke init slim 명령어."""
     print("Creating Slim Framework (PHP) project\n")
 
-    project_name, project_path = resolve_project_dir("myapp")
+    project_name, project_path, is_empty = resolve_project_dir("myapp")
 
     _write_stoke_toml(project_path, project_name)
     _write_composer_json(project_path / "composer.json", project_name)
@@ -32,7 +32,8 @@ def cmd_init_slim():
     print(f"\nSlim project created at: {project_path}")
     print()
     print("Next steps:")
-    print(f"  cd {project_name}")
+    if not is_empty:
+        print(f"  cd {project_name}")
     print(f"  composer install   (if not already run above)")
     print(f"  php -S localhost:8000 -t public")
     print()

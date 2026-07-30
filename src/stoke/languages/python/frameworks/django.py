@@ -9,7 +9,7 @@ from stoke.languages.python.init import _select_python_version, _select_env_type
 def cmd_init_django():
     print("Creating Django project\n")
 
-    project_name, project_path = resolve_project_dir("myapp")
+    project_name, project_path, is_empty = resolve_project_dir("myapp")
 
     installs = detect_all()
     python_version = _select_python_version(installs)
@@ -43,7 +43,8 @@ def cmd_init_django():
     print(f"\nDjango project created at: {project_path}")
     print()
     print("Next steps:")
-    print(f"  cd {project_name}")
+    if not is_empty:
+        print(f"  cd {project_name}")
     print(f"  stoke build")
     print(f"  stoke run")
     print()

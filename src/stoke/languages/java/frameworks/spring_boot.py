@@ -145,7 +145,8 @@ def cmd_init_spring_boot():
     print(f"\nSpring Boot project created at: {project_path}")
     print()
     print("Next steps:")
-    print(f"  cd {project_name}")
+    if not is_empty:
+        print(f"  cd {project_name}")
 
     if build_tool == "maven-project":
         print(f"  mvnw spring-boot:run    (Linux/macOS)")

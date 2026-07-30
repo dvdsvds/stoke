@@ -11,7 +11,7 @@ def cmd_init_express():
     """stoke init express 명령어."""
     print("Creating Express project\n")
 
-    project_name, project_path = resolve_project_dir("myapp")
+    project_name, project_path, is_empty = resolve_project_dir("myapp")
 
     (project_path / "src").mkdir()
     (project_path / "src" / "routes").mkdir()
@@ -37,7 +37,8 @@ def cmd_init_express():
     print(f"\nExpress project created at: {project_path}")
     print()
     print("Next steps:")
-    print(f"  cd {project_name}")
+    if not is_empty:
+        print(f"  cd {project_name}")
     print(f"  stoke build")
     print(f"  stoke run")
     print()

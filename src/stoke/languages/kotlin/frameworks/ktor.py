@@ -10,7 +10,7 @@ def cmd_init_ktor():
     """stoke init ktor 명령어."""
     print("Creating Ktor (Kotlin) project\n")
 
-    project_name, project_path = resolve_project_dir("myapp")
+    project_name, project_path, is_empty = resolve_project_dir("myapp")
 
     _write_stoke_toml(project_path, project_name)
     _write_settings_gradle(project_path / "settings.gradle.kts", project_name)
@@ -34,7 +34,8 @@ def cmd_init_ktor():
     print(f"\nKtor project created at: {project_path}")
     print()
     print("Next steps:")
-    print(f"  cd {project_name}")
+    if not is_empty:
+        print(f"  cd {project_name}")
     print(f"  stoke build")
     print(f"  stoke run")
     print()

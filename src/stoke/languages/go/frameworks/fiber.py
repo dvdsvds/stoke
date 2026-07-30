@@ -10,7 +10,7 @@ def cmd_init_fiber():
     """stoke init fiber 명령어."""
     print("Creating Fiber (Go) project\n")
 
-    project_name, project_path = resolve_project_dir("myapp") 
+    project_name, project_path, is_empty = resolve_project_dir("myapp") 
 
     module_name = _prompt("Go module name (e.g. github.com/user/myapp)", project_name)
 
@@ -40,7 +40,8 @@ def cmd_init_fiber():
     print(f"\nFiber project created at: {project_path}")
     print()
     print("Next steps:")
-    print(f"  cd {project_name}")
+    if not is_empty:
+        print(f"  cd {project_name}")
     print(f"  stoke build")
     print(f"  stoke run")
     print()

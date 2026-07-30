@@ -10,7 +10,7 @@ def cmd_init_sinatra():
     """stoke init sinatra 명령어."""
     print("Creating Sinatra (Ruby) project\n")
 
-    project_name, project_path = resolve_project_dir("myapp")
+    project_name, project_path, is_empty = resolve_project_dir("myapp")
 
     _write_stoke_toml(project_path, project_name)
     _write_gemfile(project_path / "Gemfile")
@@ -31,7 +31,8 @@ def cmd_init_sinatra():
     print(f"\nSinatra project created at: {project_path}")
     print()
     print("Next steps:")
-    print(f"  cd {project_name}")
+    if not is_empty:
+        print(f"  cd {project_name}")
     print(f"  stoke build")
     print(f"  stoke run")
     print()
@@ -53,6 +54,8 @@ def _write_gemfile(path: Path) -> None:
     content = '''source "https://rubygems.org"
 
 gem "sinatra", "~> 4.0"
+gem "rackup", "~> 2.0"
+gem "puma", "~> 6.0"
 '''
     path.write_text(content, encoding="utf-8")
 
