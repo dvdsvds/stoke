@@ -5,6 +5,7 @@ stoke가 vcpkg를 다운로드/설치/관리해요.
 """
 
 import platform
+import re
 import shutil
 import subprocess
 from pathlib import Path
@@ -339,6 +340,56 @@ def is_library_installed(name: str, triplet: str | None = None) -> bool:
         return True
 
     return False
+
+_INTERFACE_LINK_LIBRARIES_RE = re.compile(r'INTERFACE_LINK_LIBRARIES\s+"([^"]*)"')
+_LINK_ONLY_RE = re.compile(r"\$<LINK_ONLY:([^>]*)>")
+
+
+def get_transitive_system_libs(name: str, triplet: str | None = None) -> list[str]:
+    """
+    vcpkg 패키지의 CMake export 파일(installed/<triplet>/share/<name>/*.cmake)에서
+    INTERFACE_LINK_LIBRARIES에 적힌 OS 시스템 라이브러리 이름들을 뽑아온다.
+
+    정적 링크(mingw-static 등) 환경에서는 vcpkg 라이브러리 자체를 -l로 링크해도
+    그 라이브러리가 내부적으로 의존하는 시스템 라이브러리(예: SDL2가 쓰는
+    user32/gdi32/winmm 등)는 따로 링크해줘야 undefined reference가 안 남.
+    CMake로 소비하면 find_package()가 이 필드를 읽어 자동으로 전이 링크해주지만,
+    stoke는 raw -l 방식이라 직접 파싱해서 채워줘야 함.
+
+    반환: 발견된 순서대로 중복 제거한 라이브러리 이름 리스트. 패키지가 없거나
+    필드가 없으면 빈 리스트.
+    """
+    if triplet is None:
+        triplet = get_triplet()
+
+    share_dir = get_installed_dir(triplet) / "share" / name
+    if not share_dir.is_dir():
+        return []
+
+    libs: list[str] = []
+    seen: set[str] = set()
+
+    for cmake_file in sorted(share_dir.glob("*.cmake")):
+        try:
+            text = cmake_file.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+
+        for match in _INTERFACE_LINK_LIBRARIES_RE.finditer(text):
+            value = match.group(1)
+            entries = _LINK_ONLY_RE.findall(value) or value.split(";")
+            for entry in entries:
+                entry = entry.strip()
+                # "SDL2::SDL2" 같은 다른 CMake 타겟 참조, 빈 문자열, 안 풀린
+                # generator expression, 절대경로(.lib/.a 등)는 시스템 라이브러리가 아니라 제외
+                if not entry or "::" in entry or "$<" in entry or "/" in entry or "\\" in entry:
+                    continue
+                if entry not in seen:
+                    seen.add(entry)
+                    libs.append(entry)
+
+    return libs
+
 
 def get_installed_library_version(name: str, triplet: str | None = None) -> str | None:
     """

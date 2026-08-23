@@ -439,9 +439,10 @@ class CBaseAdapter(BaseAdapter):
 
         # vcpkg 라이브러리 링크 (deps 있으면)
         if self.target.deps:
-            from stoke.vcpkg import get_lib_dir, get_triplet, is_vcpkg_installed
+            from stoke.vcpkg import get_lib_dir, get_transitive_system_libs, get_triplet, is_vcpkg_installed
             if is_vcpkg_installed():
-                lib_dir = get_lib_dir(get_triplet(self._triplet_kind(compiler)))
+                triplet = get_triplet(self._triplet_kind(compiler))
+                lib_dir = get_lib_dir(triplet)
                 if lib_dir.is_dir():
                     if is_msvc:
                         cmd.append(f"/LIBPATH:{lib_dir}")
@@ -451,6 +452,19 @@ class CBaseAdapter(BaseAdapter):
                         cmd.append(f"-L{lib_dir}")
                         for lib_name in self.target.deps:
                             cmd.append(f"-l{lib_name}")
+
+                        # 정적 링크(mingw 계열)에서는 vcpkg 라이브러리가 내부적으로 의존하는
+                        # OS 시스템 라이브러리(예: SDL2 -> user32/gdi32/winmm/...)를 따로
+                        # 링크해줘야 함. ld는 명령줄을 왼쪽->오른쪽으로 훑으면서 아직 안 풀린
+                        # 심볼만 archive에서 채워가므로, 이 라이브러리들은 반드시 방금 추가한
+                        # -l<dep> 뒤쪽에 와야 한다(앞에 두면 ld가 이미 지나친 뒤라 못 찾음).
+                        seen = set(self.target.deps.keys())
+                        for lib_name in self.target.deps:
+                            for sys_lib in get_transitive_system_libs(lib_name, triplet):
+                                if sys_lib in seen:
+                                    continue
+                                seen.add(sys_lib)
+                                cmd.append(f"-l{sys_lib}")
 
         self.output_path.parent.mkdir(parents=True, exist_ok=True)
         proc = subprocess.run(
