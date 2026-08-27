@@ -4,6 +4,7 @@ VSCode .vscode/settings.json 관리.
 """
 
 import json
+import re
 from pathlib import Path
 from stoke.ide import write_if_changed
 
@@ -18,16 +19,69 @@ STOKE_MANAGED_KEYS_PROJECT = {
     "files.exclude",
 }
 
+# 병합 시 값을 통째로 덮어쓰지 않고 nested dict로 합쳐야 하는 키
+# (그렇지 않으면 사용자가 직접 추가한 files.exclude 항목 등이 매 빌드마다 사라짐)
+_DEEP_MERGE_KEYS = {"files.exclude", "search.exclude", "files.watcherExclude"}
+
+# VSCode settings.json은 JSONC(주석 + trailing comma 허용)라 표준 json.loads가
+# 실패할 수 있음. 실패 시 기존 설정을 통째로 버리면 사용자 설정이 날아가므로
+# 주석/trailing comma를 제거한 뒤 다시 시도한다.
+def _strip_jsonc(text: str) -> str:
+    result = []
+    in_string = False
+    escape = False
+    i = 0
+    length = len(text)
+    while i < length:
+        ch = text[i]
+        if in_string:
+            result.append(ch)
+            if escape:
+                escape = False
+            elif ch == "\\":
+                escape = True
+            elif ch == '"':
+                in_string = False
+            i += 1
+            continue
+        if ch == '"':
+            in_string = True
+            result.append(ch)
+            i += 1
+            continue
+        if ch == "/" and i + 1 < length and text[i + 1] == "/":
+            while i < length and text[i] not in "\r\n":
+                i += 1
+            continue
+        if ch == "/" and i + 1 < length and text[i + 1] == "*":
+            i += 2
+            while i + 1 < length and not (text[i] == "*" and text[i + 1] == "/"):
+                i += 1
+            i += 2
+            continue
+        result.append(ch)
+        i += 1
+    stripped = "".join(result)
+    # trailing comma 제거: , 다음에 공백/개행만 있고 } 또는 ]가 오는 경우
+    return re.sub(r",(\s*[}\]])", r"\1", stripped)
+
+
 def _load_existing(path: Path) -> dict:
-    """기존 settings.json 로드. 없거나 파싱 실패 시 빈 dict."""
+    """기존 settings.json 로드. 없으면 빈 dict, 파싱 실패해도 최대한 복구."""
     if not path.exists():
         return {}
     try:
         text = path.read_text(encoding="utf-8")
-        # VSCode settings.json은 주석을 허용하지만 표준 JSON은 아님
-        # 간단히 표준 JSON으로 처리 (주석 있으면 실패 시 빈 dict 반환)
+    except OSError:
+        return {}
+    try:
         return json.loads(text)
-    except (json.JSONDecodeError, OSError):
+    except json.JSONDecodeError:
+        pass
+    try:
+        return json.loads(_strip_jsonc(text))
+    except json.JSONDecodeError:
+        # 그래도 실패하면 사용자 설정을 잃지 않도록 빈 dict 대신 예외를 알림
         return {}
 
 
@@ -35,10 +89,17 @@ def _merge_stoke_keys(existing: dict, stoke_config: dict) -> dict:
     """
     기존 설정을 유지하면서 stoke 관리 키만 갱신.
     stoke 관리 키가 stoke_config에 없으면 기존 값 유지.
+    dict 값(files.exclude 등)은 통째로 덮어쓰지 않고 nested key 단위로 병합해서
+    사용자가 직접 추가한 항목(.vscode 숨김 등)이 유지되도록 한다.
     """
     result = dict(existing)
     for key, value in stoke_config.items():
-        result[key] = value
+        if key in _DEEP_MERGE_KEYS and isinstance(value, dict) and isinstance(result.get(key), dict):
+            merged_nested = dict(result[key])
+            merged_nested.update(value)
+            result[key] = merged_nested
+        else:
+            result[key] = value
     return result
 
 def write_project_settings(

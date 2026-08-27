@@ -194,6 +194,8 @@ class PythonAdapter(BaseAdapter):
 
         cmd = [str(pip_exe), "install", "--disable-pip-version-check"] + install_args
 
+        print(f"Installing into: {self.venv_dir}")
+
         result = subprocess.run(cmd, capture_output=True, text=True, errors="replace")
 
         if result.returncode != 0:
