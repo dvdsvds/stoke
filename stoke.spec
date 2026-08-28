@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['src\\stoke\\__main__.py'],
+    ['src/stoke/__main__.py'],
     pathex=[],
     binaries=[],
     datas=[],
