@@ -178,6 +178,7 @@ def _build_parser():
     # stoke run
     run_parser = subparsers.add_parser("run", help=_("run.help"))
     run_parser.add_argument("target", nargs="?", help=_("run.target"))
+    run_parser.add_argument("entry_file", nargs="?", help=_("run.entry_file"))
     add_debug_release_profile_args(run_parser, "run", include_verbose=False)
 
     # stoke ide-sync
@@ -280,6 +281,6 @@ def _dispatch(args):
         cmd_hot_reload(args.target, profile=profile_name, verbose=args.verbose)
     elif args.command == "run":
         profile_name = resolve_profile_from_args(args)
-        cmd_run(args.target, profile=profile_name)
+        cmd_run(args.target, entry_file=args.entry_file, profile=profile_name)
     elif args.command == "ide-sync":
         cmd_ide_sync()

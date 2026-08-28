@@ -64,6 +64,7 @@ MESSAGES = {
         # run
         "run.help": "Run the built target (Python: entry file, Java: main_class)",
         "run.target": "Target name",
+        "run.entry_file": "Run this file instead of the target's configured entry (Python/JS/TS/Ruby/PHP only)",
         "run.debug": "Run debug build (default, C/C++ only)",
         "run.release": "Run release build (C/C++ only)",
         "run.profile": "Run specific custom profile build (C/C++ only)",
@@ -140,6 +141,7 @@ MESSAGES = {
         # run
         "run.help": "빌드된 타겟 실행 (Python: entry 파일, Java: main_class)",
         "run.target": "타겟 이름",
+        "run.entry_file": "타겟에 설정된 entry 대신 이 파일을 실행 (Python/JS/TS/Ruby/PHP 전용)",
         "run.debug": "Debug 빌드 실행 (기본, C/C++ 전용)",
         "run.release": "Release 빌드 실행 (C/C++ 전용)",
         "run.profile": "특정 커스텀 프로파일 빌드 실행 (C/C++ 전용)",
