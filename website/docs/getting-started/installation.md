@@ -20,23 +20,21 @@ After installation, verify:
 stoke --version
 ```
 
-### Option 2: pip
-
-If you already have Python 3.10+ installed:
-
-```bash
-pip install stoke-build
-```
-
 ## Linux / macOS
 
-Install via pip:
+Download the tarball for your platform from [GitHub Releases](https://github.com/dvdsvds/stoke/releases/latest):
+
+- File: `stoke-X.Y.Z-macos-<arch>.tar.gz` or `stoke-X.Y.Z-linux-<arch>.tar.gz`
+- **No prerequisites** — Python is bundled with the binary
+
+Extract it and add it to your `PATH`:
 
 ```bash
-pip install stoke-build
+tar xzf stoke-*.tar.gz
+export PATH="$PWD/stoke:$PATH"   # add to your shell profile to persist
 ```
 
-Requires Python 3.10 or higher.
+Not code-signed: on macOS, Gatekeeper blocks the first run. Right-click (or Ctrl-click) the `stoke` binary, choose "Open", and confirm once — only needed the first time.
 
 ## Verify installation
 
@@ -48,9 +46,7 @@ Should output the installed version.
 
 ## Requirements
 
-**stoke itself**:
-- **Windows installer**: no prerequisites (Python is bundled)
-- **pip install**: Python 3.10 or higher required
+**stoke itself**: no prerequisites — Python is bundled in every installer/tarball.
 
 **Language toolchains** (auto-installable via `stoke install --language=X`):
 - **Python projects**: Python 3.8+ (any version stoke can detect)

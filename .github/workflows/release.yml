@@ -1,0 +1,103 @@
+name: Build and release installers
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  ensure-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create release if it doesn't exist yet
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if ! gh release view "${{ github.ref_name }}" >/dev/null 2>&1; then
+            gh release create "${{ github.ref_name }}" --title "${{ github.ref_name }}" --generate-notes
+          fi
+
+  windows-installer:
+    needs: ensure-release
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Determine version from tag
+        id: version
+        shell: bash
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Install stoke and PyInstaller
+        run: |
+          pip install .
+          pip install pyinstaller
+
+      - name: Build exe with PyInstaller
+        run: pyinstaller stoke.spec --noconfirm --clean
+
+      - name: Build installer with Inno Setup
+        shell: pwsh
+        run: |
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /DMyAppVersion=${{ steps.version.outputs.version }} installer.iss
+
+      - name: Upload installer to release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: gh release upload "${{ github.ref_name }}" "installer_output/stoke-setup-${{ steps.version.outputs.version }}.exe" --clobber
+
+  unix-tarball:
+    needs: ensure-release
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            platform: macos
+          - os: ubuntu-latest
+            platform: linux
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Determine version and arch
+        id: version
+        run: |
+          echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+          echo "arch=$(uname -m)" >> "$GITHUB_OUTPUT"
+
+      - name: Install stoke and PyInstaller
+        run: |
+          pip install .
+          pip install pyinstaller
+
+      - name: Build standalone binary with PyInstaller
+        run: pyinstaller stoke.spec --noconfirm --clean
+
+      - name: Package tarball
+        id: package
+        run: |
+          name="stoke-${{ steps.version.outputs.version }}-${{ matrix.platform }}-${{ steps.version.outputs.arch }}"
+          mkdir -p installer_output
+          tar czf "installer_output/${name}.tar.gz" -C dist stoke
+          echo "asset=installer_output/${name}.tar.gz" >> "$GITHUB_OUTPUT"
+
+      - name: Upload tarball to release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "${{ github.ref_name }}" "${{ steps.package.outputs.asset }}" --clobber

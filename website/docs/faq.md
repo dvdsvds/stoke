@@ -14,7 +14,7 @@ stoke provides a consistent interface without replacing the underlying tools. Un
 
 ### Is stoke a replacement for CMake / Meson / Make?
 
-Not really. stoke is more like a project runner than a build system. It's opinionated and works out of the box for common cases. For complex build scenarios (cross-compilation, code generation, custom build steps), you probably need CMake.
+Not really. stoke is more like a project runner than a build system. It's opinionated and works out of the box for common cases. For a C/C++ target with an existing `CMakeLists.txt`, set `build_system = "cmake"` and stoke delegates to `cmake` instead of driving the compiler itself — see [stoke.toml reference](configuration/stoke-toml.md#cmake-for-cc). For build scenarios CMake itself doesn't cover well, or for Meson, you're on your own.
 
 ### What languages does stoke support?
 
@@ -38,8 +38,8 @@ More languages may come in the future.
 ### Which platforms?
 
 - Windows (native installer)
-- Linux (via pip)
-- macOS (via pip)
+- Linux (native tarball)
+- macOS (native tarball)
 
 Actively developed on Windows (MSYS2/MinGW64).
 
@@ -49,13 +49,13 @@ Actively developed on Windows (MSYS2/MinGW64).
 
 Windows installer users: download the new installer and run it. It replaces the old version.
 
-pip users: `pip install -U stoke-build`.
+macOS/Linux tarball users: download the new tarball from [Releases](https://github.com/dvdsvds/stoke/releases/latest) and extract it over the old one.
 
 ### How do I uninstall stoke?
 
 Windows installer: use Windows "Add or Remove Programs" or run the uninstaller in the install directory.
 
-pip: `pip uninstall stoke-build`.
+macOS/Linux: delete the extracted `stoke` folder and remove it from your `PATH`.
 
 ## Configuration
 
@@ -80,6 +80,18 @@ Build one: `stoke build server`
 
 Yes. Each target has its own `language`.
 
+### Can one target depend on another?
+
+Yes, with `depends_on`:
+
+```toml
+[targets.backend]
+language = "python"
+depends_on = ["shared_lib"]
+```
+
+`stoke build backend` builds `shared_lib` first. `stoke build --all` builds independent targets in parallel but waits for each target's dependencies to finish first, and skips a target if its dependency failed. Cycles and references to unknown targets are rejected when `stoke.toml` loads.
+
 ### Can I share code between targets?
 
 Yes. Adjust `sources` glob patterns to include shared code:
@@ -100,7 +112,7 @@ sources = ["worker/**/*.py", "shared/**/*.py"]
 
 ### Can I add custom build steps?
 
-Not directly. stoke doesn't support pre/post-build hooks yet. Wrap `stoke build` in a shell script if needed.
+Yes — `pre_build`/`post_build` on any target run shell commands before/after that target's build. See [stoke.toml reference](configuration/stoke-toml.md#build-hooks). They run through the shell with your user's permissions, so only build `stoke.toml` files you trust.
 
 ## Language-specific
 
@@ -124,7 +136,7 @@ Override with build profiles. MSVC (`cl.exe`) is not currently supported.
 
 ### C/C++: can I use CMake?
 
-Not through stoke. stoke has its own simple build model. If you need CMake, use CMake directly.
+Yes — set `build_system = "cmake"` on the target and point `source_dir` at the folder with `CMakeLists.txt`. stoke then runs `cmake` configure/build instead of its own compile model; `c_standard`/`cpp_standard` and profile compile flags are ignored on this path since `CMakeLists.txt` owns them. See [stoke.toml reference](configuration/stoke-toml.md#cmake-for-cc).
 
 ### Rust, Kotlin, C#, Ruby, PHP: does stoke replace Cargo / Gradle / dotnet / Bundler / Composer?
 
@@ -174,7 +186,10 @@ Recommended: use `lock_mode = "strict"` in CI for reproducible builds.
 Yes. Install stoke in the Dockerfile:
 
 ```dockerfile
-RUN pip install stoke-build
+RUN curl -fsSL -o stoke.tar.gz \
+      https://github.com/dvdsvds/stoke/releases/latest/download/stoke-X.Y.Z-linux-x86_64.tar.gz \
+    && tar xzf stoke.tar.gz -C /opt \
+    && ln -s /opt/stoke/stoke /usr/local/bin/stoke
 ```
 
 Then `stoke build` normally.

@@ -7,24 +7,33 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from stoke.adapters import make_adapter
 from stoke.cli.utils import load_config_or_exit, resolve_target_or_exit, check_profile_or_exit
 from stoke.hooks import run_hooks
+from stoke.depgraph import closure, build_waves
 
-def cmd_build(target_name, force: bool = False, profile: str = "debug", verbose: bool = False):
-    config = load_config_or_exit()
-    check_profile_or_exit(config, profile)
-    target_name = resolve_target_or_exit(config, target_name, verb="using", verbose=verbose)
+def _build_one(config, target_name: str, project_root, profile_obj, force: bool, verbose: bool) -> None:
+    """의존성 해석 없이 타겟 하나만 빌드. 실패 시 RuntimeError 전파."""
     target = config.targets[target_name]
     if force:
         print(f"Building '{target.name}' ({target.language}) [force rebuild]...")
     else:
         print(f"Building '{target.name}' ({target.language})...")
+    run_hooks(target.pre_build, project_root, "pre_build")
+    adapter = make_adapter(target, config.project, project_root, profile=profile_obj, verbose=verbose)
+    adapter.build(force=force)
+    run_hooks(target.post_build, project_root, "post_build")
 
+def cmd_build(target_name, force: bool = False, profile: str = "debug", verbose: bool = False):
+    config = load_config_or_exit()
+    check_profile_or_exit(config, profile)
+    target_name = resolve_target_or_exit(config, target_name, verb="using", verbose=verbose)
     project_root = config.config_path.parent
+    profile_obj = config.profiles[profile]
+
+    # depends_on의 전이적 의존성을 먼저, 요청한 타겟을 마지막에 (의존성은 force 적용 안 함)
+    build_order = closure(config.targets, target_name)
+
     try:
-        profile_obj = config.profiles[profile]
-        run_hooks(target.pre_build, project_root, "pre_build")
-        adapter = make_adapter(target, config.project, project_root, profile=profile_obj, verbose=verbose)
-        adapter.build(force=force)
-        run_hooks(target.post_build, project_root, "post_build")
+        for name in build_order:
+            _build_one(config, name, project_root, profile_obj, force=(force and name == target_name), verbose=verbose)
     except RuntimeError as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
@@ -60,10 +69,11 @@ class _ThreadLocalStdout:
 
 def cmd_build_all(force: bool = False, profile: str = "debug", verbose: bool = False):
     """
-    stoke build --all: stoke.toml의 모든 타겟을 병렬로 빌드.
-    타겟 간 의존성 개념이 없으므로(stoke.toml에 선언할 방법 자체가 없음) 전부
-    서로 독립적이라고 가정하고 동시에 돌림. project.jobs로 동시 실행 개수 제어
-    (C/C++가 파일 단위 병렬 컴파일에 쓰는 것과 같은 설정 재사용).
+    stoke build --all: stoke.toml의 모든 타겟을 빌드.
+    depends_on으로 선언된 의존성은 먼저 끝나야 함 — 의존성 그래프를 파도(wave) 단위로
+    나눠서, 같은 파도 안의(서로 독립적인) 타겟들만 병렬로 돌리고 다음 파도로 넘어감.
+    의존성이 실패하면 그 의존성에 걸린 타겟들은 아예 시도하지 않고 스킵 처리.
+    project.jobs로 파도 내 동시 실행 개수 제어(C/C++ 파일 단위 병렬 컴파일과 같은 설정 재사용).
     """
     config = load_config_or_exit()
     check_profile_or_exit(config, profile)
@@ -75,8 +85,9 @@ def cmd_build_all(force: bool = False, profile: str = "debug", verbose: bool = F
         print("No targets defined in stoke.toml", file=sys.stderr)
         sys.exit(1)
 
+    waves = build_waves(config.targets, target_names)
     max_workers = min(config.project.jobs or os.cpu_count() or 1, len(target_names))
-    print(f"Building {len(target_names)} target(s) (up to {max_workers} in parallel)...")
+    print(f"Building {len(target_names)} target(s) in {len(waves)} wave(s) (up to {max_workers} in parallel per wave)...")
 
     thread_stdout = _ThreadLocalStdout()
 
@@ -105,14 +116,26 @@ def cmd_build_all(force: bool = False, profile: str = "debug", verbose: bool = F
     real_stdout = sys.stdout
     sys.stdout = thread_stdout
     try:
-        with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            futures = {executor.submit(build_one, name): name for name in target_names}
-            for future in as_completed(futures):
-                name, ok, output, error = future.result()
-                results[name] = (ok, output, error)
+        for wave in waves:
+            # 이 파도의 타겟 중 의존성이 이미 실패한 건 시도하지 않고 스킵으로 기록
+            runnable = []
+            for name in wave:
+                failed_dep = next((d for d in config.targets[name].depends_on if not results.get(d, (True,))[0]), None)
+                if failed_dep is not None:
+                    results[name] = (False, "", f"skipped: dependency '{failed_dep}' failed")
+                else:
+                    runnable.append(name)
+
+            if not runnable:
+                continue
+
+            with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                futures = {executor.submit(build_one, name): name for name in runnable}
+                for future in as_completed(futures):
+                    name, ok, output, error = future.result()
+                    results[name] = (ok, output, error)
     finally:
-        # with 블록이 끝나면 ThreadPoolExecutor가 모든 워커를 join한 뒤라
-        # (기본 shutdown(wait=True)) 이 시점엔 전부 끝난 게 보장됨 — 딱 한 번만 복구.
+        # 각 with 블록이 끝나면 그 파도의 워커가 전부 join된 뒤이므로, 전체가 끝나면 딱 한 번만 복구.
         sys.stdout = real_stdout
 
     # 원래 타겟 순서대로 출력 (완료 순서가 아니라 stoke.toml에 적힌 순서 —

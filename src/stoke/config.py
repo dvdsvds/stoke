@@ -25,6 +25,9 @@ class Target:
     env_type: str = "venv" # "venv" (default) or "conda"
     pre_build: list[str] = field(default_factory=list)
     post_build: list[str] = field(default_factory=list)
+    depends_on: list[str] = field(default_factory=list)
+    build_system: str | None = None  # None (stoke 자체 빌드) 또는 "cmake". c/cpp만 사용.
+    source_dir: str = "."  # build_system="cmake"일 때 CMakeLists.txt가 있는 폴더 (프로젝트 루트 기준)
 
 @dataclass
 class Profile:
@@ -105,6 +108,18 @@ def load_config(config_path: Path | None = None) -> Config:
                 f"Must be 'venv' or 'conda'."
             )
 
+        build_system = target_config.get("build_system")
+        if build_system is not None and build_system != "cmake":
+            raise ValueError(
+                f"Invalid build_system '{build_system}' for target '{target_name}'. "
+                f"Must be 'cmake'."
+            )
+        if build_system == "cmake" and target_config["language"] not in ("c", "cpp"):
+            raise ValueError(
+                f"build_system = 'cmake' is only valid for language 'c' or 'cpp' "
+                f"(target '{target_name}' is '{target_config['language']}')"
+            )
+
         targets[target_name] = Target(
             name=target_name,
             language=target_config["language"],
@@ -120,9 +135,15 @@ def load_config(config_path: Path | None = None) -> Config:
             env_type=env_type,
             pre_build=target_config.get("pre_build", []),
             post_build=target_config.get("post_build", []),
+            depends_on=target_config.get("depends_on", []),
+            build_system=build_system,
+            source_dir=target_config.get("source_dir", "."),
         )
     if not targets:
         raise ValueError(f"No targets defined in {config_path}")
+
+    from stoke.depgraph import validate_depends_on
+    validate_depends_on(targets)
 
     # [profiles.*] 섹션들 파싱 (선택적)
     profiles = {}

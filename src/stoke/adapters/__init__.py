@@ -22,6 +22,9 @@ def make_adapter(
     if target.language == "java":
         from stoke.languages.java.adapter import JavaAdapter
         return JavaAdapter(target, project, project_root, verbose=verbose)
+    if target.language in ("c", "cpp") and target.build_system == "cmake":
+        from stoke.languages.cmake_adapter import CMakeAdapter
+        return CMakeAdapter(target, project, project_root, profile=profile, verbose=verbose)
     if target.language == "c":
         from stoke.languages.c.adapter import CAdapter
         return CAdapter(target, project, project_root, profile=profile, verbose=verbose)

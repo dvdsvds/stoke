@@ -25,10 +25,9 @@ One `stoke.toml` per project. One CLI for build/run/watch/scaffold across 12 lan
 - Environments where you already use a specific toolchain per language (Cargo, Gradle, `dotnet`, Bundler, Composer, npm, Maven Central) — stoke delegates to them rather than reinventing dependency resolution, so you keep using `Cargo.toml`/`build.gradle.kts`/etc. as normal.
 
 **Not a good fit (see §9 for the full list):**
-- Large C/C++ codebases needing CMake or complex/generated build graphs.
+- Large C/C++ codebases needing Meson or another generated build graph (CMake projects can opt into `build_system = "cmake"` instead — see §9 below).
 - Windows-native C++ shops that need MSVC (stoke only drives gcc/clang).
 - Teams that need a plugin system to add a company-internal language/framework without patching stoke's own source.
-- Projects with real inter-target build dependencies (target B must build after target A finishes) — `stoke build --all` treats every target as independent and has no dependency graph.
 
 ---
 
@@ -37,10 +36,13 @@ One `stoke.toml` per project. One CLI for build/run/watch/scaffold across 12 lan
 **Windows** — native installer, bundles Python, no prerequisites:
 Download from the [Releases page](https://github.com/dvdsvds/stoke/releases/latest).
 
-**Linux/macOS/anywhere with Python 3.11+:**
+**Linux/macOS** — native tarball, bundles Python, no prerequisites:
+Download `stoke-X.Y.Z-<platform>-<arch>.tar.gz` from the [Releases page](https://github.com/dvdsvds/stoke/releases/latest), extract it, and add it to your `PATH`:
 ```bash
-pip install stoke-build
+tar xzf stoke-*.tar.gz
+export PATH="$PWD/stoke:$PATH"
 ```
+Not code-signed: macOS Gatekeeper blocks the first run — right-click the `stoke` binary, choose "Open", confirm once.
 
 ---
 
@@ -279,7 +281,17 @@ stoke build --all              # every target in stoke.toml, in parallel
 stoke build --all --force      # same, ignoring cache
 ```
 
-Capped by `project.jobs` in `stoke.toml` if set, otherwise CPU count. Output is grouped per-target (`=== name [OK|FAILED] ===`), printed in `stoke.toml` declaration order so logs stay reproducible across runs. One target failing doesn't stop the others — you get a full report and a non-zero exit if anything failed.
+Capped by `project.jobs` in `stoke.toml` if set, otherwise CPU count. Output is grouped per-target (`=== name [OK|FAILED] ===`), printed in `stoke.toml` declaration order so logs stay reproducible across runs. One target failing doesn't stop the others — you get a full report and a non-zero exit if anything failed, except its own dependents, which are skipped rather than attempted (see below).
+
+**Target dependencies:**
+
+```toml
+[targets.backend]
+language = "python"
+depends_on = ["shared_lib"]
+```
+
+`stoke build backend` builds `shared_lib` first automatically; `stoke build --all` builds independent targets in parallel but waits for each target's `depends_on` to finish before starting it. Unknown targets and dependency cycles are rejected when `stoke.toml` loads, before any build starts.
 
 ### 7.5 Locked-down / air-gapped networks
 
@@ -320,11 +332,9 @@ Verified against a real Sonatype Nexus setup, both anonymous and authenticated. 
 
 ## 9. When NOT to reach for stoke
 
-- Large/complex C or C++ builds needing CMake, code generation, or a non-trivial build graph — stoke's C/C++ model is intentionally simple (direct gcc/clang invocation + its own header tracking).
+- Large/complex C or C++ builds needing Meson, code generation, or a non-trivial build graph — stoke's own C/C++ model is intentionally simple (direct gcc/clang invocation + its own header tracking). If you already have a `CMakeLists.txt`, set `build_system = "cmake"` on that target instead: stoke delegates `build`/`run`/`watch`/`hot-reload`/`clean` to `cmake configure`/`--build` rather than driving the compiler itself.
 - Windows C++ shops that specifically need MSVC — only gcc/clang (via MSYS2/MinGW) are supported.
 - You need a plugin system to add a company-internal language or framework template without touching stoke's own source — doesn't exist yet.
-- Your targets have real build-order dependencies (target B needs target A's output before it can build) — `stoke build --all` has no dependency graph, every target is assumed independent.
-- You need a macOS/Linux native installer — pip works but isn't packaged as one yet.
 - You're deep into Rust/Kotlin/C#/Ruby/PHP already at large scale — these five are the newest additions and are less battle-tested against large real-world codebases than the original seven languages.
 
 ---

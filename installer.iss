@@ -1,6 +1,10 @@
+#ifndef MyAppVersion
+  #define MyAppVersion "1.5.3"
+#endif
+
 [Setup]
 AppName=stoke
-AppVersion=1.5.2
+AppVersion={#MyAppVersion}
 AppPublisher=dvdsvds
 AppPublisherURL=https://github.com/dvdsvds/stoke
 DefaultDirName={localappdata}\Programs\stoke
@@ -8,7 +12,7 @@ DefaultGroupName=stoke
 DisableProgramGroupPage=yes
 PrivilegesRequired=lowest
 OutputDir=installer_output
-OutputBaseFilename=stoke-setup-1.5.2
+OutputBaseFilename=stoke-setup-{#MyAppVersion}
 Compression=lzma2
 SolidCompression=yes
 ArchitecturesInstallIn64BitMode=x64compatible

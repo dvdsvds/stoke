@@ -20,6 +20,8 @@ Spring Boot, FastAPI, Flask, Django, 그리고 Go/Rust/Kotlin/C#/Ruby/PHP/JavaSc
 - **사설 레지스트리 / 미러 지원** — 툴체인 설치와 Java의 Maven 의존성 다운로드를 사내 미러로 돌릴 수 있음, 선택적 Basic Auth 지원 (아래 [사설 레지스트리와 미러](#사설-레지스트리와-미러) 참고)
 - **빌드 캐시** — content-hash 기반 캐시 무효화(mtime 기반과 달리 머신/CI 간에도 정확히 동작), C/C++·Java용 선택적 공유/원격 캐시 (아래 [빌드 캐시](#빌드-캐시) 참고)
 - **병렬 멀티타겟 빌드** — `stoke build --all`로 `stoke.toml`의 모든 타겟을 동시에 빌드
+- **타겟 간 의존성** — 타겟에 `depends_on = ["다른_타겟"]` 선언 가능. `stoke build`/`stoke build --all`이 의존성부터 순서대로 빌드 (순환·존재하지 않는 타겟 참조는 설정 로드 시점에 바로 에러)
+- **C/C++용 CMake 위임** — 타겟에 `build_system = "cmake"`를 지정하면 stoke 자체 컴파일 모델 대신 `cmake`의 configure/build로 `build`/`run`/`watch`/`hot-reload`/`clean`을 그대로 위임. 이미 `CMakeLists.txt`가 있는 프로젝트용
 - **멀티타겟 프로젝트** — 기존 프로젝트 안에서 `stoke init`을 다시 실행하면 `stoke.toml`을 직접 고치는 대신 새 타겟을 추가
 - **자동 IDE 통합** — VSCode, IntelliJ, Eclipse 설정 파일 자동 생성
 - **Watch 모드 + Hot-reload** — 파일 변경 감지 후 자동 재빌드, 프로세스 재시작
@@ -30,14 +32,16 @@ Spring Boot, FastAPI, Flask, Django, 그리고 Go/Rust/Kotlin/C#/Ruby/PHP/JavaSc
 
 ## 설치
 
-### Windows (초심자 추천)
+### Windows
 [Releases](https://github.com/dvdsvds/stoke/releases/latest)에서 인스톨러 다운로드. Python 포함되어 있어 별도 설치 필요 없음.
 
-### pip (개발자용)
+### macOS / Linux
+[Releases](https://github.com/dvdsvds/stoke/releases/latest)에서 `stoke-X.Y.Z-macos-<arch>.tar.gz` 또는 `stoke-X.Y.Z-linux-<arch>.tar.gz` 다운로드 후 압축 풀고 `PATH`에 추가. Python 포함되어 있어 별도 설치 필요 없음.
 ```bash
-pip install stoke-build
+tar xzf stoke-*.tar.gz
+export PATH="$PWD/stoke:$PATH"
 ```
-pip 방식은 Python 3.11 이상 필요.
+서명이 안 돼 있어서 macOS는 처음 실행 시 Gatekeeper가 막음 — `stoke` 실행 파일을 우클릭 → "열기"로 한 번만 허용하면 됨.
 
 ## 빠른 시작
 
@@ -397,6 +401,8 @@ post_build = ["cp dist/myapp ./release/myapp"]
 
 커맨드는 셸을 통해(파이프/환경변수/여러 인자 다 가능) 선언된 순서대로 실행되며, `stoke build`, `stoke build --all`, `stoke watch`, `stoke hot-reload` 전부 동일하게 적용됩니다. `pre_build` 커맨드 중 하나라도 0이 아닌 종료 코드를 내면 언어 빌드 자체를 시작하지 않고 중단하고, `post_build` 커맨드가 실패해도 전체 빌드가 실패로 처리됩니다.
 
+**보안 주의**: `pre_build`/`post_build`는 `stoke.toml`에 적힌 문자열을 그대로 셸로 실행합니다. `stoke build`(및 `--all`, `watch`, `hot-reload`)를 돌리는 순간 그 프로젝트의 `stoke.toml`에 적힌 임의 커맨드가 사용자 권한으로 실행된다는 뜻이므로, **신뢰하지 않는 저장소를 clone해서 바로 build하지 마세요.** 실행 전에 `stoke.toml`의 `pre_build`/`post_build` 값을 먼저 확인하는 습관을 들이는 걸 권장합니다.
+
 ## 플러그인 시스템
 
 외부 pip 패키지가 entry point 그룹 두 개로 stoke 소스를 안 건드리고 새 언어나 `stoke init` 스캐폴드를 추가할 수 있습니다:
@@ -526,11 +532,9 @@ from computer.hardware.cpu import CPU
 
 ## 알려진 한계
 
-- macOS/Linux 네이티브 설치파일 아직 없음 (pip는 되지만 end-to-end 검증은 안 됨)
-- C/C++용 CMake/Meson 통합 없음 — stoke는 자체 단순 빌드 모델이라 대형/생성형 C/C++ 빌드 그래프는 안 맞음
+- C/C++용 Meson 통합 없음 (CMake는 `build_system = "cmake"`로 지원)
 - 플러그인 기반 언어는 대화형 `stoke init` 마법사에 자동으로 항목이 생기지 않음 (위 "플러그인 시스템" 참고)
 - Rust, Kotlin, C#, Ruby, PHP는 가장 최근에 추가된 언어라, 커맨드 생성/템플릿은 검증됐지만 각 생태계의 대형 실전 프로젝트로는 아직 충분히 검증 안 됨
-- 타겟 간 의존성 그래프 없음 — `stoke build --all`은 모든 타겟을 독립적이라고 가정
 - Rails, Laravel 스캐폴딩은 의도적으로 제외 ([프레임워크 스캐폴딩](#프레임워크-스캐폴딩) 참고)
 
 전체 현황(검증된 것/남은 gap/대규모 조직에 맞는지 여부)은 [`FEATURES.ko.md`](./FEATURES.ko.md)를 참고하세요.
@@ -554,6 +558,7 @@ from computer.hardware.cpu import CPU
 - **v1.4** — Rust, Kotlin, C#, Ruby, PHP 지원 (총 12개 언어, 24개 프레임워크); CI/온보딩용 비대화형 `stoke init --language=X`; 새 5개 언어 버전 pin + Kotlin `java_version` 실제 강제; 툴체인 설치와 Java Maven 의존성용 사설 레지스트리/미러 지원(인증 포함); content-hash 빌드 캐시 무효화 + C/C++·Java용 원격/공유 캐시(`STOKE_REMOTE_CACHE_DIR`); 병렬 멀티타겟 빌드(`stoke build --all`); `stoke init`으로 기존 프로젝트에 타겟 추가; Go/Rust/Kotlin/C# 어댑터가 항상 프로젝트 루트 전체를 재빌드하던 문제 수정 — 이제 타겟별로 독립 빌드
 - **v1.5** — Go(`go.mod`의 `go`/`toolchain` 지시문), JavaScript/TypeScript(`.nvmrc` + `package.json`의 `engines.node`) 버전 pin 추가
 - **v1.5.1** — Pre/post-build 훅(`stoke.toml`의 `pre_build`/`post_build`); Windows C/C++용 MSVC 지원(`compiler = "msvc"`, vcpkg 동적 링크 DLL 배포 포함); 비-UTF-8 Windows 로케일에 대한 subprocess 출력 디코딩 강화; 외부 pip 패키지로 언어나 `stoke init` 스캐폴드를 추가할 수 있는 플러그인 시스템(`stoke.languages`/`stoke.frameworks` entry point); `stoke init`에서 이제 타겟 추가의 반대인 타겟 제거도 가능(그 언어가 프로젝트 루트에 등록해뒀던 것 — Cargo 워크스페이스 멤버, Gradle `settings.gradle.kts`의 include, C# 루트 `.csproj`의 exclude 규칙 — 도 같이 원복)
+- **v1.5.3** — macOS/Linux 네이티브 tarball 설치 지원(태그 push 시 CI가 Windows exe와 함께 자동 빌드해서 Release에 업로드) 및 pip 설치 경로 전면 제거; 타겟 간 의존성(`depends_on`) 추가 — `stoke build`/`build --all`이 의존성부터 순서대로 빌드, 순환·미존재 타겟 참조는 로드 시점에 거부; C/C++용 `build_system = "cmake"` 추가 — 기존 `CMakeLists.txt` 프로젝트에 build/run/watch/hot-reload/clean 전부 위임; pre/post-build 훅의 임의 셸 실행 위험에 대한 보안 고지 추가
 
 ## 라이선스
 

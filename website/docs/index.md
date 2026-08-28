@@ -56,5 +56,4 @@ That's it.
 ## Links
 
 - **GitHub**: [github.com/dvdsvds/stoke](https://github.com/dvdsvds/stoke)
-- **PyPI**: [pypi.org/project/stoke-build](https://pypi.org/project/stoke-build/)
 - **Releases**: [Latest version](https://github.com/dvdsvds/stoke/releases)

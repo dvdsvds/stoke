@@ -83,6 +83,11 @@ If no target is specified, the first one in the file is used.
 |-------|----------|-------------|
 | `language` | Yes | `"python"`, `"java"`, `"c"`, `"cpp"` |
 | `sources` | Depends | Glob patterns for source files |
+| `pre_build` | No | Shell commands to run before the build, in order |
+| `post_build` | No | Shell commands to run after the build, in order |
+| `depends_on` | No | List of target names this target depends on; built first, in order |
+| `build_system` | No | C/C++ only. Set to `"cmake"` to delegate to CMake instead of stoke's own build model |
+| `source_dir` | No | C/C++ + `build_system = "cmake"` only. Folder containing `CMakeLists.txt`, relative to the project root (default `"."`) |
 
 ### Python-specific fields
 
@@ -155,6 +160,42 @@ compiler = "clang"
 ```
 
 See [Profiles](profiles.md) for the full reference.
+
+## Build hooks
+
+```toml
+[targets.myapp]
+language = "python"
+pre_build = ["echo starting build"]
+post_build = ["cp dist/myapp ./release/myapp"]
+```
+
+Runs through the shell, in declared order, for `stoke build`, `stoke build --all`, `stoke watch`, and `stoke hot-reload` alike. A non-zero `pre_build` command skips the build entirely; a failing `post_build` command fails the build.
+
+> **Security note**: these commands are whatever string is in `stoke.toml`, executed verbatim through the shell with your user's permissions. Don't run `stoke build` on a `stoke.toml` you haven't read from a repository you don't trust.
+
+## Target dependencies
+
+```toml
+[targets.backend]
+language = "python"
+depends_on = ["shared_lib"]
+```
+
+`stoke build backend` builds `shared_lib` first automatically. `stoke build --all` builds targets with no unmet dependencies in parallel, waits for a target's `depends_on` to finish before starting it, and skips (rather than attempts) a target whose dependency failed. Unknown target references and dependency cycles are rejected when `stoke.toml` loads, before any build starts.
+
+## CMake for C/C++
+
+For a C/C++ target that already has its own `CMakeLists.txt`, delegate to CMake instead of stoke's own compile model:
+
+```toml
+[targets.engine]
+language = "cpp"
+build_system = "cmake"
+source_dir = "."   # folder with CMakeLists.txt, relative to the project root
+```
+
+`stoke build`/`run`/`watch`/`hot-reload`/`clean` all work the same way as with stoke's own C/C++ model, but internally run `cmake -S <source_dir> -B <build_dir>` then `cmake --build <build_dir>`, and locate the produced executable automatically. `c_standard`/`cpp_standard`, `[profiles.*].compile_flags`/`defines`/`compiler`, and `includes` are ignored on this path — `CMakeLists.txt` owns those; only the profile name maps to `CMAKE_BUILD_TYPE` (`debug` → `Debug`, `release` → `Release`).
 
 ## Full example
 

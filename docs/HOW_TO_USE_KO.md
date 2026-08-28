@@ -25,10 +25,9 @@ stoke run       # 실행
 - 언어별로 이미 특정 툴체인(Cargo, Gradle, `dotnet`, Bundler, Composer, npm, Maven Central)을 쓰고 있는 환경 — stoke는 의존성 해결을 새로 만들지 않고 그대로 위임하므로 `Cargo.toml`/`build.gradle.kts` 등을 평소처럼 그대로 씀.
 
 **잘 안 맞는 경우 (9번 섹션에 전체 목록):**
-- CMake나 복잡한/코드생성이 필요한 빌드 그래프가 필요한 대규모 C/C++ 코드베이스.
+- Meson이나 그 외 코드생성 빌드 그래프가 필요한 대규모 C/C++ 코드베이스 (CMake 프로젝트는 `build_system = "cmake"`로 대신 지원 — 9번 섹션 참고).
 - MSVC가 필요한 Windows 네이티브 C++ 환경 (stoke는 gcc/clang만 씀).
 - stoke 자체 소스코드를 고치지 않고 사내 전용 언어/프레임워크 템플릿을 추가하는 플러그인 시스템이 필요한 팀.
-- 타겟 간에 진짜 빌드 순서 의존성이 있는 프로젝트(타겟 B가 타겟 A가 끝난 뒤에만 빌드돼야 함) — `stoke build --all`은 모든 타겟을 독립적이라고 가정하고, 의존성 그래프가 없음.
 
 ---
 
@@ -37,10 +36,13 @@ stoke run       # 실행
 **Windows** — 네이티브 설치 프로그램, Python 포함, 별도 사전 준비 필요 없음:
 [Releases 페이지](https://github.com/dvdsvds/stoke/releases/latest)에서 다운로드.
 
-**Linux/macOS/Python 3.11+ 있는 곳 어디든:**
+**Linux/macOS** — 네이티브 tarball, Python 포함, 별도 사전 준비 필요 없음:
+[Releases 페이지](https://github.com/dvdsvds/stoke/releases/latest)에서 `stoke-X.Y.Z-<platform>-<arch>.tar.gz` 다운로드 후 압축 풀고 `PATH`에 추가:
 ```bash
-pip install stoke-build
+tar xzf stoke-*.tar.gz
+export PATH="$PWD/stoke:$PATH"
 ```
+서명은 안 돼 있어서 macOS는 처음 실행 시 Gatekeeper가 막음 — `stoke` 실행 파일을 우클릭 → "열기"로 한 번만 허용하면 됨.
 
 ---
 
@@ -279,7 +281,17 @@ stoke build --all              # stoke.toml의 모든 타겟을 병렬로
 stoke build --all --force      # 위와 동일 + 캐시 무시
 ```
 
-`stoke.toml`에 `project.jobs`가 설정돼 있으면 그걸로, 아니면 CPU 개수로 병렬 수 제한. 출력은 타겟별로 묶여서(`=== name [OK|FAILED] ===`) `stoke.toml`에 선언된 순서대로 출력되므로 실행할 때마다 로그가 재현 가능함. 타겟 하나가 실패해도 나머지는 계속 빌드됨 — 전체 결과 리포트를 받고, 하나라도 실패했으면 0이 아닌 종료 코드로 끝남.
+`stoke.toml`에 `project.jobs`가 설정돼 있으면 그걸로, 아니면 CPU 개수로 병렬 수 제한. 출력은 타겟별로 묶여서(`=== name [OK|FAILED] ===`) `stoke.toml`에 선언된 순서대로 출력되므로 실행할 때마다 로그가 재현 가능함. 타겟 하나가 실패해도 나머지는 계속 빌드됨 — 전체 결과 리포트를 받고, 하나라도 실패했으면 0이 아닌 종료 코드로 끝남. 단, 그 타겟에 의존하는 타겟들은 시도조차 안 하고 스킵됨(아래 참고).
+
+**타겟 간 의존성:**
+
+```toml
+[targets.backend]
+language = "python"
+depends_on = ["shared_lib"]
+```
+
+`stoke build backend`는 `shared_lib`을 먼저 자동으로 빌드함. `stoke build --all`은 서로 독립적인 타겟은 병렬로 돌리되, 각 타겟의 `depends_on`이 끝날 때까지 기다린 뒤 시작함. 존재하지 않는 타겟 참조나 순환 의존성은 `stoke.toml`을 읽는 시점에 바로 거부됨(빌드 시작 전).
 
 ### 7.5 폐쇄망/사내망 환경
 
@@ -320,11 +332,9 @@ export STOKE_MAVEN_PASSWORD=***
 
 ## 9. stoke를 안 쓰는 게 나은 경우
 
-- CMake, 코드 생성, 복잡한 빌드 그래프가 필요한 대규모/복잡한 C 또는 C++ 빌드 — stoke의 C/C++ 모델은 의도적으로 단순함(gcc/clang 직접 호출 + 자체 헤더 추적).
+- Meson, 코드 생성, 복잡한 빌드 그래프가 필요한 대규모/복잡한 C 또는 C++ 빌드 — stoke 자체 C/C++ 모델은 의도적으로 단순함(gcc/clang 직접 호출 + 자체 헤더 추적). 이미 `CMakeLists.txt`가 있다면 그 타겟에 `build_system = "cmake"`를 지정하세요 — stoke가 컴파일러를 직접 돌리는 대신 `build`/`run`/`watch`/`hot-reload`/`clean`을 `cmake configure`/`--build`로 위임합니다.
 - MSVC가 꼭 필요한 Windows C++ 환경 — gcc/clang(MSYS2/MinGW 경유)만 지원됨.
 - stoke 자체 소스코드를 안 건드리고 사내 전용 언어/프레임워크 템플릿을 추가하는 플러그인 시스템이 필요한 경우 — 아직 없음.
-- 타겟 사이에 진짜 빌드 순서 의존성이 있는 경우(타겟 B가 빌드되려면 타겟 A의 산출물이 먼저 필요함) — `stoke build --all`은 의존성 그래프가 없고 모든 타겟을 독립적이라고 가정함.
-- macOS/Linux 네이티브 설치 프로그램이 필요한 경우 — pip는 되지만 아직 설치 프로그램으로 패키징되진 않음.
 - 이미 Rust/Kotlin/C#/Ruby/PHP를 대규모로 깊게 쓰고 있는 경우 — 이 다섯은 가장 최근에 추가된 언어라 원래 7개 언어만큼 대규모 실전 코드베이스에서 검증되지 않음.
 
 ---
