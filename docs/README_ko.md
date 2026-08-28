@@ -1,7 +1,7 @@
 # stoke
 
 여러 언어로 프로젝트를 만들고, 빌드하고, 실행하는 도구
-[← 메인 README로 돌아가기](../README.md) · [English](./README_en.md)
+[← 메인 README로 돌아가기 (English)](../README.md)
 
 ## 소개
 
@@ -533,7 +533,7 @@ from computer.hardware.cpu import CPU
 - 타겟 간 의존성 그래프 없음 — `stoke build --all`은 모든 타겟을 독립적이라고 가정
 - Rails, Laravel 스캐폴딩은 의도적으로 제외 ([프레임워크 스캐폴딩](#프레임워크-스캐폴딩) 참고)
 
-전체 현황(검증된 것/남은 gap/대규모 조직에 맞는지 여부)은 저장소 루트의 [`FEATURES.ko.md`](../FEATURES.ko.md)를 참고하세요.
+전체 현황(검증된 것/남은 gap/대규모 조직에 맞는지 여부)은 [`FEATURES.ko.md`](./FEATURES.ko.md)를 참고하세요.
 
 ## 로드맵
 - **v0.1** — Python 빌드 (venv, 의존성, 문법 체크, 증분 빌드)

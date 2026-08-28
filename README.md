@@ -49,9 +49,8 @@ Full documentation: [https://dvdsvds.github.io/stoke/](https://dvdsvds.github.io
 
 Also available in the repo:
 - [How To Use guide](./docs/HOW_TO_USE.md) ([한국어](./docs/HOW_TO_USE_KO.md))
-- [English README](./docs/README_en.md)
 - [한국어 README](./docs/README_ko.md)
-- [Full feature status](./FEATURES.md) ([한국어](./FEATURES.ko.md)) — what's verified, known gaps, and whether stoke fits a larger org
+- [Full feature status](./docs/FEATURES.md) ([한국어](./docs/FEATURES.ko.md)) — what's verified, known gaps, and whether stoke fits a larger org
 
 ## License
 
