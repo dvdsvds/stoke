@@ -94,6 +94,90 @@ a { color: inherit; text-decoration: none; }
   border: 1px solid var(--border);
 }
 
+/* Search box (replaces the old Docs/Commands/Languages links) */
+.nav-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.nav-search .search-icon {
+  position: absolute;
+  left: 0.7rem;
+  width: 15px;
+  height: 15px;
+  color: var(--text-dimmer);
+  pointer-events: none;
+}
+
+.nav-search input {
+  width: 240px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.45rem 0.75rem 0.45rem 2rem;
+  font-family: var(--sans);
+  font-size: 0.88rem;
+  color: var(--text);
+  transition: border-color 0.12s ease, width 0.15s ease;
+}
+
+.nav-search input::placeholder { color: var(--text-dimmer); }
+.nav-search input:focus { outline: none; border-color: var(--flame); width: 280px; }
+
+.nav-search input::-webkit-search-cancel-button { display: none; }
+
+.search-results {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 360px;
+  max-height: 420px;
+  overflow-y: auto;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+  padding: 0.4rem;
+  z-index: 30;
+}
+
+.search-results a {
+  display: block;
+  padding: 0.55rem 0.7rem;
+  border-radius: 7px;
+}
+
+.search-results a:hover { background: rgba(247, 135, 30, 0.1); }
+
+.search-results .sr-title {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.search-results .sr-excerpt {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--text-dimmer);
+  margin-top: 0.15rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.search-results .search-empty {
+  padding: 0.7rem;
+  font-size: 0.85rem;
+  color: var(--text-dimmer);
+}
+
+@media (max-width: 640px) {
+  .nav-search input, .nav-search input:focus { width: 140px; }
+  .search-results { width: 300px; }
+}
+
 .nav-gh {
   display: flex;
   align-items: center;
