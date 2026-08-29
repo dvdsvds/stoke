@@ -4,6 +4,19 @@ site_url: https://dvdsvds.github.io/stoke/
 repo_url: https://github.com/dvdsvds/stoke
 repo_name: dvdsvds/stoke
 
+plugins:
+  - search
+  - i18n:
+      docs_structure: folder
+      languages:
+        - locale: en
+          name: English
+          build: true
+          default: true
+        - locale: ko
+          name: 한국어
+          build: true
+
 theme:
   name: material
   palette:
@@ -40,34 +53,18 @@ nav:
     - clean: commands/clean.md
     - init: commands/init.md
     - ide-sync: commands/ide-sync.md
-  # NOTE: this nav duplicates the language/framework tree once per locale (EN/KO)
-  # because mkdocs.yml has no templating. Adding/removing a language or framework
-  # means updating BOTH the "(EN)" and the "(한국어)" block below, or the two
-  # locales drift out of sync (see the Go/JS/TS gap this fixed).
-  - Languages (EN):
-    - Python: languages/en/python.md
-    - Java: languages/en/java.md
-    - C/C++: languages/en/cpp.md
-    - Go: languages/en/go.md
-    - Rust: languages/en/rust.md
-    - Kotlin: languages/en/kotlin.md
-    - C#: languages/en/csharp.md
-    - Ruby: languages/en/ruby.md
-    - PHP: languages/en/php.md
-    - JavaScript: languages/en/javascript.md
-    - TypeScript: languages/en/typescript.md
-  - 언어 (한국어):
-    - Python: languages/ko/python.md
-    - Java: languages/ko/java.md
-    - C/C++: languages/ko/cpp.md
-    - Go: languages/ko/go.md
-    - Rust: languages/ko/rust.md
-    - Kotlin: languages/ko/kotlin.md
-    - C#: languages/ko/csharp.md
-    - Ruby: languages/ko/ruby.md
-    - PHP: languages/ko/php.md
-    - JavaScript: languages/ko/javascript.md
-    - TypeScript: languages/ko/typescript.md
+  - Languages:
+    - Python: languages/python.md
+    - Java: languages/java.md
+    - C/C++: languages/cpp.md
+    - Go: languages/go.md
+    - Rust: languages/rust.md
+    - Kotlin: languages/kotlin.md
+    - C#: languages/csharp.md
+    - Ruby: languages/ruby.md
+    - PHP: languages/php.md
+    - JavaScript: languages/javascript.md
+    - TypeScript: languages/typescript.md
   - Configuration:
     - stoke.toml: configuration/stoke-toml.md
     - Profiles: configuration/profiles.md
@@ -75,81 +72,42 @@ nav:
   - Advanced:
     - vcpkg: advanced/vcpkg.md
     - IDE Integration: advanced/ide-integration.md
-  # NOTE: same EN/KO duplication issue as the Languages nav above — keep both
-  # "Frameworks (EN)" and "프레임워크 (한국어)" blocks in sync when a framework
-  # is added/removed.
-  - Frameworks (EN):
-    - Overview: frameworks/en/overview.md
+  - Frameworks:
+    - Overview: frameworks/overview.md
     - Java:
-      - Spring Boot: frameworks/en/spring-boot.md
+      - Spring Boot: frameworks/spring-boot.md
     - Python:
-      - FastAPI: frameworks/en/fastapi.md
-      - Flask: frameworks/en/flask.md
-      - Django: frameworks/en/django.md
+      - FastAPI: frameworks/fastapi.md
+      - Flask: frameworks/flask.md
+      - Django: frameworks/django.md
     - Go:
-      - Gin: frameworks/en/gin.md
-      - Echo: frameworks/en/echo.md
-      - Fiber: frameworks/en/fiber.md
-      - Chi: frameworks/en/chi.md
+      - Gin: frameworks/gin.md
+      - Echo: frameworks/echo.md
+      - Fiber: frameworks/fiber.md
+      - Chi: frameworks/chi.md
     - JavaScript:
-      - Express: frameworks/en/express.md
-      - Fastify: frameworks/en/fastify.md
+      - Express: frameworks/express.md
+      - Fastify: frameworks/fastify.md
     - TypeScript:
-      - Next.js: frameworks/en/nextjs.md
-      - NestJS: frameworks/en/nestjs.md
-      - Vite: frameworks/en/vite.md
-      - Nuxt: frameworks/en/nuxt.md
-      - SvelteKit: frameworks/en/sveltekit.md
-      - Hono: frameworks/en/hono.md
+      - Next.js: frameworks/nextjs.md
+      - NestJS: frameworks/nestjs.md
+      - Vite: frameworks/vite.md
+      - Nuxt: frameworks/nuxt.md
+      - SvelteKit: frameworks/sveltekit.md
+      - Hono: frameworks/hono.md
     - Rust:
-      - Actix-web: frameworks/en/actix-web.md
-      - Axum: frameworks/en/axum.md
-      - Rocket: frameworks/en/rocket.md
+      - Actix-web: frameworks/actix-web.md
+      - Axum: frameworks/axum.md
+      - Rocket: frameworks/rocket.md
     - Kotlin:
-      - Ktor: frameworks/en/ktor.md
-      - Spring Boot (Kotlin): frameworks/en/spring-boot-kotlin.md
+      - Ktor: frameworks/ktor.md
+      - Spring Boot (Kotlin): frameworks/spring-boot-kotlin.md
     - C#:
-      - ASP.NET Core: frameworks/en/aspnet-core.md
+      - ASP.NET Core: frameworks/aspnet-core.md
     - Ruby:
-      - Sinatra: frameworks/en/sinatra.md
+      - Sinatra: frameworks/sinatra.md
     - PHP:
-      - Slim: frameworks/en/slim.md
-  - 프레임워크 (한국어):
-    - 개요: frameworks/ko/overview.md
-    - Java:
-      - Spring Boot: frameworks/ko/spring-boot.md
-    - Python:
-      - FastAPI: frameworks/ko/fastapi.md
-      - Flask: frameworks/ko/flask.md
-      - Django: frameworks/ko/django.md
-    - Go:
-      - Gin: frameworks/ko/gin.md
-      - Echo: frameworks/ko/echo.md
-      - Fiber: frameworks/ko/fiber.md
-      - Chi: frameworks/ko/chi.md
-    - JavaScript:
-      - Express: frameworks/ko/express.md
-      - Fastify: frameworks/ko/fastify.md
-    - TypeScript:
-      - Next.js: frameworks/ko/nextjs.md
-      - NestJS: frameworks/ko/nestjs.md
-      - Vite: frameworks/ko/vite.md
-      - Nuxt: frameworks/ko/nuxt.md
-      - SvelteKit: frameworks/ko/sveltekit.md
-      - Hono: frameworks/ko/hono.md
-    - Rust:
-      - Actix-web: frameworks/ko/actix-web.md
-      - Axum: frameworks/ko/axum.md
-      - Rocket: frameworks/ko/rocket.md
-    - Kotlin:
-      - Ktor: frameworks/ko/ktor.md
-      - Spring Boot (Kotlin): frameworks/ko/spring-boot-kotlin.md
-    - C#:
-      - ASP.NET Core: frameworks/ko/aspnet-core.md
-    - Ruby:
-      - Sinatra: frameworks/ko/sinatra.md
-    - PHP:
-      - Slim: frameworks/ko/slim.md
+      - Slim: frameworks/slim.md
   - Troubleshooting: troubleshooting.md
   - FAQ: faq.md
 
