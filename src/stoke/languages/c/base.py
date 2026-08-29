@@ -96,7 +96,7 @@ class CBaseAdapter(BaseAdapter):
             compiler_family = self.profile.compiler
 
         try:
-            install = find_compiler(self.compiler_kind, compiler_family=compiler_family)
+            install = find_compiler(self.compiler_kind, compiler_family=compiler_family, project_root=self.project_root)
         except ValueError:
            raise RuntimeError(
                f"Unknown compiler '{compiler_family}' in profile '{self.profile.name}'.\n"

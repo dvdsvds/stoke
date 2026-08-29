@@ -1,8 +1,15 @@
 """python/java/c/cpp list 명령어."""
+from stoke.config import find_config_file
 from stoke.languages.python.versions import detect_all
 
+def _current_project_root():
+    try:
+        return find_config_file().parent
+    except FileNotFoundError:
+        return None
+
 def cmd_python_list():
-    installs = detect_all()
+    installs = detect_all(_current_project_root())
     if not installs:
         print("No Python installations detected.")
         return
@@ -14,7 +21,7 @@ def cmd_python_list():
 
 def cmd_java_list():
     from stoke.languages.java.versions import detect_all as detect_java
-    installs = detect_java()
+    installs = detect_java(_current_project_root())
     if not installs:
         print("No JDK detected.")
         print("Install a JDK or set the JAVA_HOME environment variable.")

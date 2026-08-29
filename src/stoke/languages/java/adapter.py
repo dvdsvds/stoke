@@ -63,9 +63,9 @@ class JavaAdapter(BaseAdapter):
                     pass
 
             # lock 버전으로 시스템에서 찾기
-            install = find_matching(str(lock.java.major_version))
+            install = find_matching(str(lock.java.major_version), self.project_root)
             if install is None:
-                available = detect_all()
+                available = detect_all(self.project_root)
                 available_versions = ", ".join(str(i.major_version) for i in available)
                 raise RuntimeError(
                     f"Lock file requires Java {lock.java.version}, but it's not installed on this system.\n"
@@ -83,19 +83,20 @@ class JavaAdapter(BaseAdapter):
     def _resolve_from_stoke_toml(self) -> JavaInstall:
         """stoke.toml 기준으로 JDK 결정."""
         if self.target.java_version:
-            install = find_matching(self.target.java_version)
+            install = find_matching(self.target.java_version, self.project_root)
             if install is None:
-                available = detect_all()
+                available = detect_all(self.project_root)
                 available_versions = ", ".join(str(i.major_version) for i in available)
                 raise RuntimeError(
                     f"Java {self.target.java_version} not found on this system.\n"
                     f"  Available versions: {available_versions or '(none)'}\n"
-                    f"  Install JDK {self.target.java_version} or update java_version in stoke.toml."
+                    f"  Install JDK {self.target.java_version} or update java_version in stoke.toml.\n"
+                    f"  (stoke install --language=java --version={self.target.java_version})"
                 )
             return install
 
         # stoke.toml에도 없으면 시스템 default
-        installs = detect_all()
+        installs = detect_all(self.project_root)
         if not installs:
             raise RuntimeError(
                 "No JDK detected on this system.\n"

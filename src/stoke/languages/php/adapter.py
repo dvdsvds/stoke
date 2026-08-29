@@ -1,6 +1,7 @@
 """PHP 어댑터: composer/php 실행."""
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 from stoke.adapters.base import BaseAdapter
@@ -18,7 +19,17 @@ class PHPAdapter(BaseAdapter):
         self.composer_json = project_root / "composer.json"
 
     def _find_php(self) -> str:
-        """php 실행파일 경로 찾기."""
+        """php 실행파일 경로 찾기. 프로젝트 로컬 설치(.stoke/toolchains)를 PATH보다 우선."""
+        exe_name = "php.exe" if sys.platform == "win32" else "php"
+        toolchains = self.project_root / ".stoke" / "toolchains"
+        if toolchains.is_dir():
+            for d in sorted(toolchains.iterdir(), reverse=True):
+                if not d.is_dir() or not d.name.startswith("php-"):
+                    continue
+                local_php = d / exe_name
+                if local_php.is_file():
+                    return str(local_php)
+
         php_exe = shutil.which("php")
         if php_exe is None:
             raise RuntimeError(

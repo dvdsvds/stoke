@@ -54,25 +54,49 @@ class RustAdapter(BaseAdapter):
         except(tomllib.TOMLDecodeError, OSError):
             return self.target.name
 
-    def _find_cargo(self) -> str:
-        """cargo 실행파일 경로 찾기"""
+    def _find_local_rust_dir(self) -> Path | None:
+        """프로젝트의 .stoke/toolchains/rust-*/ 에서 stoke install로 받은 rustup 설치 찾기."""
+        toolchains = self.project_root / ".stoke" / "toolchains"
+        if not toolchains.is_dir():
+            return None
+        for d in sorted(toolchains.iterdir(), reverse=True):
+            if d.is_dir() and d.name.startswith("rust-") and (d / "cargo" / "bin" / "cargo.exe").exists():
+                return d
+        return None
+
+    def _find_cargo(self) -> tuple[str, dict]:
+        """
+        cargo 실행파일 경로와 그걸 실행할 때 필요한 환경변수 찾기.
+        rustup으로 설치된 cargo는 실제 컴파일러로 넘겨주는 얇은 프록시라서,
+        어느 RUSTUP_HOME/CARGO_HOME을 볼지 환경변수로 알려줘야 함 — 안 그러면
+        로컬 경로의 cargo.exe를 실행해도 기본 전역 ~/.rustup을 보러 감.
+        """
+        import os
+        local_dir = self._find_local_rust_dir()
+        if local_dir is not None:
+            env = dict(os.environ)
+            env["RUSTUP_HOME"] = str(local_dir / "rustup")
+            env["CARGO_HOME"] = str(local_dir / "cargo")
+            return str(local_dir / "cargo" / "bin" / "cargo.exe"), env
+
         cargo_exe = shutil.which("cargo")
         if cargo_exe is None:
             raise RuntimeError(
                 "cargo not found in PATH.\n"
                 "  Install Rust from: https://rustup.rs"
             )
-        return cargo_exe
+        return cargo_exe, dict(os.environ)
 
     def build(self, force: bool = False) -> None:
         """cargo build -- release로 빌드. (cargo 자체가 증분 빌드를 캐싱하므로 force는 별도 처리 안 함)"""
-        cargo_exe = self._find_cargo()
+        cargo_exe, cargo_env = self._find_cargo()
 
         result = subprocess.run(
             [cargo_exe, "--version"],
             capture_output=True,
             text=True,
             errors="replace",
+            env=cargo_env,
         )
 
         if result.returncode == 0:
@@ -93,6 +117,7 @@ class RustAdapter(BaseAdapter):
             capture_output=True,
             text=True,
             errors="replace",
+            env=cargo_env,
         )
         if result.returncode != 0:
             raise RuntimeError(

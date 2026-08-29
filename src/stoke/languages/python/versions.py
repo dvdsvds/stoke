@@ -191,9 +191,32 @@ def _detect_via_common_paths() -> list[PythonInstall]:
 
     return installs
 
-def detect_all() -> list[PythonInstall]:
-    """설치된 모든 파이썬 감지 (윈도우면 py launcher 우선)"""
+def _detect_local(project_root: Path) -> list[PythonInstall]:
+    """프로젝트의 .stoke/toolchains/python-*/ 에서 stoke install로 받은 파이썬 감지."""
+    toolchains = project_root / ".stoke" / "toolchains"
+    if not toolchains.is_dir():
+        return []
+
+    exe_name = "python.exe" if sys.platform == "win32" else "bin/python3"
+    installs = []
+    for d in toolchains.iterdir():
+        if not d.is_dir() or not d.name.startswith("python-"):
+            continue
+        exe = d / exe_name
+        if not exe.exists():
+            continue
+        version = _get_version(str(exe)) or d.name[len("python-"):]
+        installs.append(PythonInstall(version=version, executable=exe.resolve(), is_default=False))
+    return installs
+
+def detect_all(project_root: Path | None = None) -> list[PythonInstall]:
+    """설치된 모든 파이썬 감지. project_root가 주어지면 stoke install로 받은
+    프로젝트 로컬 설치(.stoke/toolchains)를 최우선으로 찾는다."""
     raw_installs = []
+
+    # 0. 프로젝트 로컬 설치 (stoke install) — 최우선
+    if project_root is not None:
+        raw_installs.extend(_detect_local(project_root))
 
     # 1. 윈도우: py launcher 시도
     if sys.platform == "win32":
@@ -291,12 +314,13 @@ def _version_tuple(v: str) -> tuple:
     return tuple(parts)
 
 
-def find_matching(constraint: str) -> PythonInstall | None:
+def find_matching(constraint: str, project_root: Path | None = None) -> PythonInstall | None:
     """
     버전 제약("3.12", "3.12.5" 등)에 맞는 파이썬 찾기.
     "3.12"면 3.12.x 아무거나 매칭.
+    project_root가 주어지면 프로젝트 로컬 설치(.stoke/toolchains)를 우선 매칭.
     """
-    installs = detect_all()
+    installs = detect_all(project_root)
     constraint_tuple = _version_tuple(constraint)
 
     for install in installs:

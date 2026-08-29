@@ -220,10 +220,50 @@ def _detect_via_common_paths() -> list[JavaInstall]:
 
     return installs
 
-def detect_all() -> list[JavaInstall]:
-    """설치된 모든 JDK 감지."""
+def _detect_local(project_root: Path) -> list[JavaInstall]:
+    """프로젝트의 .stoke/toolchains/java-*/ 에서 stoke install로 받은 JDK 감지.
+    Adoptium zip은 안에 jdk-<버전>/ 폴더가 한 겹 더 있어서 그 안을 찾는다."""
+    toolchains = project_root / ".stoke" / "toolchains"
+    if not toolchains.is_dir():
+        return []
+
+    installs = []
+    for d in toolchains.iterdir():
+        if not d.is_dir() or not d.name.startswith("java-"):
+            continue
+        # dest 바로 밑, 또는 한 겹 안쪽(jdk-X.Y.Z+N/) 둘 다 시도
+        candidates = [d] + [c for c in d.iterdir() if c.is_dir()]
+        for java_home in candidates:
+            javac = _find_javac_in(java_home)
+            java = _find_java_in(java_home)
+            if javac is None or java is None:
+                continue
+            version = _get_javac_version(str(javac)) or d.name[len("java-"):]
+            installs.append(JavaInstall(
+                version=version,
+                major_version=_parse_major_version(version),
+                java_home=java_home,
+                javac=javac,
+                java=java,
+                is_default=False,
+            ))
+            break
+    return installs
+
+def detect_all(project_root: Path | None = None) -> list[JavaInstall]:
+    """설치된 모든 JDK 감지. project_root가 주어지면 stoke install로 받은
+    프로젝트 로컬 설치(.stoke/toolchains)를 최우선으로 찾는다."""
     installs = []
     seen_homes: set[Path] = set()
+
+    # 0. 프로젝트 로컬 설치 (stoke install) — 최우선
+    if project_root is not None:
+        for local in _detect_local(project_root):
+            resolved = local.java_home.resolve()
+            if resolved not in seen_homes:
+                seen_homes.add(resolved)
+                installs.append(local)
+
     # 1. JAVA_HOME 우선
     from_env = _detect_via_java_home()
     if from_env is not None:
@@ -246,12 +286,13 @@ def detect_all() -> list[JavaInstall]:
             installs.append(install)
     return installs
 
-def find_matching(constraint: str) -> JavaInstall | None:
+def find_matching(constraint: str, project_root: Path | None = None) -> JavaInstall | None:
     """
     버전 제약("21", "17.0.1")에 맞는 JDK 찾기.
     "21"이면 major 버전 21 매칭.
+    project_root가 주어지면 프로젝트 로컬 설치(.stoke/toolchains)를 우선 매칭.
     """
-    installs = detect_all()
+    installs = detect_all(project_root)
 
     # 숫자만 있는 경우 (예: "21") -> 메이저 버전 매칭
     try:

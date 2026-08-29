@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "stoke-build"
-version = "1.5.4"
+version = "1.6.0"
 description = "Build, run, and scaffold projects in multiple languages (Python, Java, C, C++, Go, Rust, Kotlin, C#, Ruby, PHP, JavaScript, TypeScript)"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -27,6 +27,7 @@ classifiers = [
 ]
 dependencies = [
     "watchdog>=4.0.0",
+    "py7zr>=0.21.0",
 ]
 
 [project.urls]

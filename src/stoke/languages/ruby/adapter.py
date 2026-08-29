@@ -1,6 +1,7 @@
 """Ruby 어댑터: bundler/ruby 실행."""
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 from stoke.adapters.base import BaseAdapter
@@ -17,8 +18,30 @@ class RubyAdapter(BaseAdapter):
         super().__init__(target, project, project_root, verbose=verbose)
         self.gemfile = project_root / "Gemfile"
 
+    def _find_local_ruby_bin(self) -> Path | None:
+        """프로젝트의 .stoke/toolchains/ruby-*/ 에서 stoke install로 받은 RubyInstaller의
+        bin/ 폴더 찾기. RubyInstaller 압축을 풀면 안에 rubyinstaller-X.Y.Z-x64/ 폴더가 있음."""
+        toolchains = self.project_root / ".stoke" / "toolchains"
+        if not toolchains.is_dir():
+            return None
+        exe_name = "ruby.exe" if sys.platform == "win32" else "ruby"
+        for d in sorted(toolchains.iterdir(), reverse=True):
+            if not d.is_dir() or not d.name.startswith("ruby-"):
+                continue
+            if (d / "bin" / exe_name).is_file():
+                return d / "bin"
+            for nested in d.iterdir():
+                if nested.is_dir() and (nested / "bin" / exe_name).is_file():
+                    return nested / "bin"
+        return None
+
     def _find_ruby(self) -> str:
-        """ruby 실행파일 경로 찾기."""
+        """ruby 실행파일 경로 찾기. 프로젝트 로컬 설치(.stoke/toolchains)를 PATH보다 우선."""
+        local_bin = self._find_local_ruby_bin()
+        if local_bin is not None:
+            exe_name = "ruby.exe" if sys.platform == "win32" else "ruby"
+            return str(local_bin / exe_name)
+
         ruby_exe = shutil.which("ruby")
         if ruby_exe is None:
             raise RuntimeError(
@@ -28,6 +51,12 @@ class RubyAdapter(BaseAdapter):
         return ruby_exe
 
     def _find_bundle(self) -> str | None:
+        local_bin = self._find_local_ruby_bin()
+        if local_bin is not None:
+            bundle_name = "bundle.bat" if sys.platform == "win32" else "bundle"
+            local_bundle = local_bin / bundle_name
+            if local_bundle.is_file():
+                return str(local_bundle)
         return shutil.which("bundle")
 
     def build(self, force: bool = False) -> None:

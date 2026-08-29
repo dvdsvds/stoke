@@ -24,7 +24,17 @@ class GoAdapter(BaseAdapter):
         return sys.platform == "win32"
 
     def _find_go(self) -> str:
-        """go 실행파일 경로 찾기."""
+        """go 실행파일 경로 찾기. 프로젝트 로컬 설치(.stoke/toolchains)를 PATH보다 우선."""
+        exe_name = "go.exe" if self._is_windows() else "go"
+        toolchains = self.project_root / ".stoke" / "toolchains"
+        if toolchains.is_dir():
+            for d in sorted(toolchains.iterdir(), reverse=True):
+                if not d.is_dir() or not d.name.startswith("go-"):
+                    continue
+                local_go = d / "go" / "bin" / exe_name
+                if local_go.is_file():
+                    return str(local_go)
+
         go_exe = shutil.which("go")
         if go_exe is None:
             raise RuntimeError(

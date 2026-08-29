@@ -61,9 +61,9 @@ class PythonAdapter(BaseAdapter):
                     )
                     return self._resolve_from_stoke_toml(), True
 
-            install = find_matching(lock.python.version)
+            install = find_matching(lock.python.version, self.project_root)
             if install is None:
-                available = detect_all()
+                available = detect_all(self.project_root)
                 available_versions = ", ".join(i.version for i in available)
                 raise RuntimeError(
                     f"Lock file requires Python {lock.python.version}, but it's not installed on this system.\n"
@@ -81,19 +81,20 @@ class PythonAdapter(BaseAdapter):
     def _resolve_from_stoke_toml(self) -> PythonInstall:
         """stoke.toml 기준으로 파이썬 결정 (lock 무시)."""
         if self.target.python_version:
-            install = find_matching(self.target.python_version)
+            install = find_matching(self.target.python_version, self.project_root)
             if install is None:
-                available = detect_all()
+                available = detect_all(self.project_root)
                 available_versions = ", ".join(i.version for i in available)
                 raise RuntimeError(
                     f"Python {self.target.python_version} not found on this system.\n"
                     f"  Available versions: {available_versions}\n"
-                    f"  Install Python {self.target.python_version} or update python_version in stoke.toml."
+                    f"  Install Python {self.target.python_version} or update python_version in stoke.toml.\n"
+                    f"  (stoke install --language=python --version={self.target.python_version})"
                 )
             return install
 
         # stoke.toml에도 없으면 셸 default
-        installs = detect_all()
+        installs = detect_all(self.project_root)
         if not installs:
             raise RuntimeError("No Python installation detected on this system")
 
@@ -340,9 +341,15 @@ class PythonAdapter(BaseAdapter):
 
         print(f"Creating venv at {self.venv_dir}")
         print(f"  Using Python {python.version} ({python.executable})")
+
+        # stoke install로 받은 embeddable 배포판은 stdlib venv/ensurepip이 없어서
+        # (pip으로 미리 부트스트랩해둔) virtualenv 패키지로 대신 생성해야 함.
+        is_embeddable = (python.executable.parent / ".stoke-embeddable").exists()
+        venv_cmd = "virtualenv" if is_embeddable else "venv"
+
         # 1. venv 생성
         result = subprocess.run(
-            [str(python.executable), "-m", "venv", str(self.venv_dir)],
+            [str(python.executable), "-m", venv_cmd, str(self.venv_dir)],
             capture_output=True,
             text=True,
             errors="replace",
@@ -356,7 +363,14 @@ class PythonAdapter(BaseAdapter):
 
         # 2. pip이 설치 안 됐으면 ensurepip으로 강제 설치
         # MSYS2/MinGW 파이썬 등 일부 배포판은 자동으로 안 됨
+        # (embeddable 배포판엔 ensurepip 자체가 없음 — virtualenv가 항상 pip을 같이 넣어주므로
+        # 이 경로를 안 타야 정상. 혹시 타면 바로 에러로 알림)
         pip_exe = self.venv_pip_exe()
+        if not pip_exe.exists() and is_embeddable:
+            raise RuntimeError(
+                f"pip not found in virtualenv created from embeddable Python: {pip_exe}\n"
+                f"  The embeddable install at {python.executable} may be missing its pip bootstrap."
+            )
         if not pip_exe.exists():
             venv_python = self.venv_python_exe()
             result = subprocess.run(

@@ -45,7 +45,17 @@ class CSharpAdapter(BaseAdapter):
         return None
 
     def _find_dotnet(self) -> str:
-        """dotnet 실행파일 경로 찾기."""
+        """dotnet 실행파일 경로 찾기. 프로젝트 로컬 설치(.stoke/toolchains)를 PATH보다 우선."""
+        exe_name = "dotnet.exe" if self._is_windows() else "dotnet"
+        toolchains = self.project_root / ".stoke" / "toolchains"
+        if toolchains.is_dir():
+            for d in sorted(toolchains.iterdir(), reverse=True):
+                if not d.is_dir() or not d.name.startswith("csharp-"):
+                    continue
+                local_dotnet = d / exe_name
+                if local_dotnet.is_file():
+                    return str(local_dotnet)
+
         dotnet_exe = shutil.which("dotnet")
         if dotnet_exe is None:
             raise RuntimeError(

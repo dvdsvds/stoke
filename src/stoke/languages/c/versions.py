@@ -3,6 +3,7 @@ import os
 import re
 import shutil
 import subprocess
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -185,6 +186,37 @@ def _detect_compiler(kind: str, compiler_family: str = "gcc") -> CompilerInstall
         family=compiler_family,
     )
 
+def _detect_local(kind: str, project_root: Path) -> CompilerInstall | None:
+    """프로젝트의 .stoke/toolchains/gcc-*/ 에서 stoke install로 받은 gcc/g++ 감지.
+    mingw-builds 7z는 안에 mingw64/ 폴더가 한 겹 더 있음."""
+    toolchains = project_root / ".stoke" / "toolchains"
+    if not toolchains.is_dir():
+        return None
+
+    if sys.platform == "win32":
+        exe_name = "gcc.exe" if kind == "c" else "g++.exe"
+    else:
+        exe_name = "gcc" if kind == "c" else "g++"
+
+    for d in sorted(toolchains.iterdir()):
+        if not d.is_dir() or not d.name.startswith("gcc-"):
+            continue
+        candidates = [d / "bin" / exe_name] + list(d.glob(f"*/bin/{exe_name}"))
+        for exe in candidates:
+            if exe.is_file():
+                version = _get_compiler_version(str(exe))
+                if version is None:
+                    continue
+                return CompilerInstall(
+                    kind=kind,
+                    version=version,
+                    major_version=_parse_major_version(version),
+                    executable=exe,
+                    is_default=False,
+                    family="gcc",
+                )
+    return None
+
 def detect_all() -> list[CompilerInstall]:
     """설치된 C/C++ 컴파일러 감지. C, C++ 각각 (gcc/clang) + MSVC."""
     installs = []
@@ -198,12 +230,30 @@ def detect_all() -> list[CompilerInstall]:
             installs.append(install)
     return installs
 
-def find_compiler(kind: str, requested_version: str | None = None, compiler_family: str = "gcc") -> CompilerInstall | None:
+def _version_matches(install: CompilerInstall, requested_version: str) -> bool:
+    try:
+        target_major = int(requested_version)
+        return install.major_version == target_major
+    except ValueError:
+        return install.version == requested_version or install.version.startswith(requested_version + ".")
+
+def find_compiler(
+    kind: str,
+    requested_version: str | None = None,
+    compiler_family: str = "gcc",
+    project_root: Path | None = None,
+) -> CompilerInstall | None:
     """
     kind와 원하는 버전에 맞는 컴파일러 찾기.
     requested_version 없으면 시스템 default.
     compiler_family: "gcc" 또는 "clang"
+    project_root가 주어지면 프로젝트 로컬 설치(.stoke/toolchains)를 시스템보다 우선 확인.
     """
+    if project_root is not None and compiler_family == "gcc":
+        local = _detect_local(kind, project_root)
+        if local is not None and (requested_version is None or _version_matches(local, requested_version)):
+            return local
+
     install = _detect_compiler(kind, compiler_family=compiler_family)
     if install is None:
         return None
@@ -211,15 +261,7 @@ def find_compiler(kind: str, requested_version: str | None = None, compiler_fami
     if requested_version is None:
         return install
 
-    # 버전 매칭 (메이저 버전 또는 정확한 버전)
-    try:
-        target_major = int(requested_version)
-        if install.major_version == target_major:
-            return install
-    except ValueError:
-        if install.version == requested_version:
-            return install
-        if install.version.startswith(requested_version + "."):
-            return install
+    if _version_matches(install, requested_version):
+        return install
 
     return None
