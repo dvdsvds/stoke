@@ -16,6 +16,25 @@ plugins:
         - locale: ko
           name: 한국어
           build: true
+          nav_translations:
+            Home: 홈
+            Getting Started: 시작하기
+            Installation: 설치
+            Quick Start: 빠른 시작
+            Commands: 명령어
+            Overview: 개요
+            Languages: 언어
+            Configuration: 설정
+            stoke.toml: stoke.toml
+            Profiles: 프로파일
+            Lock file: 락 파일
+            Advanced: 고급
+            IDE Integration: IDE 연동
+            Frameworks: 프레임워크
+            Spring Boot (Kotlin): Spring Boot (Kotlin)
+            ASP.NET Core: ASP.NET Core
+            Troubleshooting: 문제 해결
+            FAQ: 자주 묻는 질문
 
 theme:
   name: material

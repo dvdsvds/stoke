@@ -82,7 +82,7 @@ mypackage = "git+https://..."  # VCS
 
 이후 빌드는 venv가 lock 파일과 일치하면 설치 스킵.
 
-## 소스 레이아웃
+## 소스 레이아웃 { #source-layout }
 
 stoke는 표준 Python 규칙을 사용. 프로젝트 루트에서 import 가능하도록 구성:
 
