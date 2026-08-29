@@ -1,6 +1,31 @@
-document.querySelectorAll(".side-group-toggle").forEach(function (btn) {
+document.querySelectorAll(".side-group").forEach(function (group) {
+  var btn = group.querySelector(".side-group-toggle");
+  var list = group.querySelector(".side-group-list");
+  if (!btn || !list) return;
+
+  // Set an exact starting max-height (instead of the CSS default's generous
+  // 1000px cap) so the very first toggle animates over the real distance,
+  // not however much of the 1000px range happens to matter.
+  list.style.maxHeight = group.classList.contains("expanded")
+    ? list.scrollHeight + "px"
+    : "0px";
+
   btn.addEventListener("click", function () {
-    btn.parentElement.classList.toggle("expanded");
+    var expanding = !group.classList.contains("expanded");
+    if (expanding) {
+      group.classList.add("expanded");
+      list.style.maxHeight = list.scrollHeight + "px";
+    } else {
+      // Force the current (measured) height first so the transition has a
+      // real starting point instead of jumping from "auto"/1000px.
+      list.style.maxHeight = list.scrollHeight + "px";
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          list.style.maxHeight = "0px";
+        });
+      });
+      group.classList.remove("expanded");
+    }
   });
 });
 
