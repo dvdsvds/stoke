@@ -6,6 +6,17 @@
   --stoke-ember: #e0342b;
 }
 
+/* Pull the header logo mark and "stoke" title right next to each other,
+   like the original logo lockup, instead of Material's default gap */
+.md-header__button.md-logo {
+  margin-right: 0.1rem;
+  padding-right: 0.2rem;
+}
+
+.md-header__title {
+  margin-left: 0.2rem;
+}
+
 /* Typography polish */
 .md-typeset {
   font-feature-settings: "liga" 1, "kern" 1;
