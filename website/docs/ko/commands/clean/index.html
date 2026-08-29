@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>stoke clean — stoke</title>
+<link rel="icon" href="../../../assets/favicon-src.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/home.css">
+<link rel="stylesheet" href="../../../assets/docs.css">
+</head>
+<body>
+<nav class="nav">
+  <div class="wrap">
+    <a class="nav-brand" href="../../../"><img src="../../../assets/logo-mark.png" alt="stoke">stoke</a>
+    <div class="nav-links">
+      <a href="../../../ko/getting-started/installation/">문서</a>
+<a href="../../../ko/commands/overview/">명령어</a>
+<a href="../../../ko/languages/python/">언어</a>
+      <div class="lang-switch"><a href="../../../">EN</a><a class="active" href=".">한국어</a></div>
+    </div>
+    <a class="nav-gh" href="https://github.com/dvdsvds/stoke"><svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>dvdsvds/stoke</a>
+  </div>
+</nav>
+<div class="doc-layout">
+  <div class="doc-sidebar-col"><nav class="side-nav">
+<div class="side-group">
+<div class="side-group-title">시작하기</div>
+<ul>
+<li><a class="" href="../../../ko/getting-started/installation/">설치</a></li>
+<li><a class="" href="../../../ko/getting-started/quick-start/">빠른 시작</a></li>
+</ul></div>
+<div class="side-group">
+<div class="side-group-title">명령어</div>
+<ul>
+<li><a class="" href="../../../ko/commands/overview/">개요</a></li>
+<li><a class="" href="../../../ko/commands/build/">build</a></li>
+<li><a class="" href="../../../ko/commands/run/">run</a></li>
+<li><a class="" href="../../../ko/commands/watch/">watch</a></li>
+<li><a class="" href="../../../ko/commands/hot-reload/">hot-reload</a></li>
+<li><a class="active" href="../../../ko/commands/clean/">clean</a></li>
+<li><a class="" href="../../../ko/commands/init/">init</a></li>
+<li><a class="" href="../../../ko/commands/ide-sync/">ide-sync</a></li>
+</ul></div>
+<div class="side-group">
+<div class="side-group-title">언어</div>
+<ul>
+<li><a class="" href="../../../ko/languages/python/">Python</a></li>
+<li><a class="" href="../../../ko/languages/java/">Java</a></li>
+<li><a class="" href="../../../ko/languages/cpp/">C/C++</a></li>
+<li><a class="" href="../../../ko/languages/go/">Go</a></li>
+<li><a class="" href="../../../ko/languages/rust/">Rust</a></li>
+<li><a class="" href="../../../ko/languages/kotlin/">Kotlin</a></li>
+<li><a class="" href="../../../ko/languages/csharp/">C#</a></li>
+<li><a class="" href="../../../ko/languages/ruby/">Ruby</a></li>
+<li><a class="" href="../../../ko/languages/php/">PHP</a></li>
+<li><a class="" href="../../../ko/languages/javascript/">JavaScript</a></li>
+<li><a class="" href="../../../ko/languages/typescript/">TypeScript</a></li>
+</ul></div>
+<div class="side-group">
+<div class="side-group-title">설정</div>
+<ul>
+<li><a class="" href="../../../ko/configuration/stoke-toml/">stoke.toml</a></li>
+<li><a class="" href="../../../ko/configuration/profiles/">프로파일</a></li>
+<li><a class="" href="../../../ko/configuration/lock-file/">락 파일</a></li>
+</ul></div>
+<div class="side-group">
+<div class="side-group-title">고급</div>
+<ul>
+<li><a class="" href="../../../ko/advanced/vcpkg/">vcpkg</a></li>
+<li><a class="" href="../../../ko/advanced/ide-integration/">IDE 연동</a></li>
+</ul></div>
+<div class="side-group">
+<div class="side-group-title">프레임워크</div>
+<ul>
+<li><a class="" href="../../../ko/frameworks/overview/">개요</a></li>
+<li><a class="" href="../../../ko/frameworks/spring-boot/">Spring Boot</a></li>
+<li><a class="" href="../../../ko/frameworks/fastapi/">FastAPI</a></li>
+<li><a class="" href="../../../ko/frameworks/flask/">Flask</a></li>
+<li><a class="" href="../../../ko/frameworks/django/">Django</a></li>
+<li><a class="" href="../../../ko/frameworks/gin/">Gin</a></li>
+<li><a class="" href="../../../ko/frameworks/echo/">Echo</a></li>
+<li><a class="" href="../../../ko/frameworks/fiber/">Fiber</a></li>
+<li><a class="" href="../../../ko/frameworks/chi/">Chi</a></li>
+<li><a class="" href="../../../ko/frameworks/express/">Express</a></li>
+<li><a class="" href="../../../ko/frameworks/fastify/">Fastify</a></li>
+<li><a class="" href="../../../ko/frameworks/nextjs/">Next.js</a></li>
+<li><a class="" href="../../../ko/frameworks/nestjs/">NestJS</a></li>
+<li><a class="" href="../../../ko/frameworks/vite/">Vite</a></li>
+<li><a class="" href="../../../ko/frameworks/nuxt/">Nuxt</a></li>
+<li><a class="" href="../../../ko/frameworks/sveltekit/">SvelteKit</a></li>
+<li><a class="" href="../../../ko/frameworks/hono/">Hono</a></li>
+<li><a class="" href="../../../ko/frameworks/actix-web/">Actix-web</a></li>
+<li><a class="" href="../../../ko/frameworks/axum/">Axum</a></li>
+<li><a class="" href="../../../ko/frameworks/rocket/">Rocket</a></li>
+<li><a class="" href="../../../ko/frameworks/ktor/">Ktor</a></li>
+<li><a class="" href="../../../ko/frameworks/spring-boot-kotlin/">Spring Boot (Kotlin)</a></li>
+<li><a class="" href="../../../ko/frameworks/aspnet-core/">ASP.NET Core</a></li>
+<li><a class="" href="../../../ko/frameworks/sinatra/">Sinatra</a></li>
+<li><a class="" href="../../../ko/frameworks/slim/">Slim</a></li>
+</ul></div>
+<div class="side-group"><a class="side-top" href="../../../ko/troubleshooting/">문제 해결</a></div>
+<div class="side-group"><a class="side-top" href="../../../ko/faq/">자주 묻는 질문</a></div>
+</nav></div>
+  <main class="doc-content">
+    <article>
+<h1 id="stoke-clean">stoke clean</h1>
+<p>빌드 산출물을 삭제합니다.</p>
+<h2 id="_1">사용법</h2>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>clean<span class="w"> </span><span class="o">[</span>target<span class="o">]</span><span class="w"> </span><span class="o">[</span>options<span class="o">]</span>
+</code></pre></div>
+
+<p><code>target</code>을 생략하면 모든 타깃이 정리됩니다.</p>
+<h2 id="_2">옵션</h2>
+<table>
+<thead>
+<tr>
+<th>옵션</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--all</code></td>
+<td>락 파일도 함께 삭제 (완전 초기화)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">예시</h2>
+<h3 id="_4">모든 타깃 정리</h3>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>clean
+</code></pre></div>
+
+<p>삭제 대상:</p>
+<ul>
+<li>각 타깃의 <code>.stoke/{language}/{target}/</code> (Kotlin은 예외 — 프로젝트 루트의 Gradle 자체 <code>build/</code> 디렉토리를 사용하며, 이것도 <code>stoke clean</code>이 함께 삭제)</li>
+<li><code>.stoke/cache.json</code></li>
+<li>프로젝트 내 모든 <code>__pycache__</code> 폴더</li>
+</ul>
+<h3 id="_5">특정 타깃 정리</h3>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>clean<span class="w"> </span>myapp
+</code></pre></div>
+
+<p><code>myapp</code>의 산출물만 삭제합니다.</p>
+<h3 id="_6">완전 초기화</h3>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>clean<span class="w"> </span>--all
+</code></pre></div>
+
+<p><code>.stoke/lock.toml</code>도 함께 삭제해서, 다음 빌드 때 의존성을 다시 해석하도록 강제합니다.</p>
+<p>이럴 때 사용하세요:
+- 락 파일이 손상됐을 때
+- 의존성을 최신 버전으로 가져오고 싶을 때
+- Python/JDK 버전을 바꿨다가 문제가 생겼을 때</p>
+<h2 id="_7">삭제되는 것</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th><code>clean</code></th>
+<th><code>clean --all</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>오브젝트 파일 (<code>.o</code>, <code>.class</code>)</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>실행 파일</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Python venv</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td><code>.stoke/cache.json</code></td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td><code>__pycache__/</code></td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td><code>.stoke/lock.toml</code></td>
+<td></td>
+<td>✓</td>
+</tr>
+<tr>
+<td>IDE 파일 (<code>.vscode/</code>, <code>.classpath</code> 등)</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>IDE 파일은 절대 삭제되지 않습니다. 다음 빌드 때 다시 생성됩니다.</p>
+<h2 id="_8">정리 후</h2>
+<p>다음 빌드는:</p>
+<ul>
+<li>전체 재컴파일 (캐시 없음)</li>
+<li>Python venv 재생성 (해당하는 경우)</li>
+<li>의존성 재설치 (<code>--all</code> 사용 시)</li>
+</ul>
+<h2 id="_9">관련 문서</h2>
+<ul>
+<li><a href="../../../ko/commands/build/"><code>stoke build --force</code></a> — 산출물을 지우지 않고 강제 재빌드</li>
+</ul>
+    </article>
+  </main>
+  <div class="doc-toc-col"><nav class="page-toc"><div class="page-toc-title">On this page</div><ul>
+<li class=""><a href="#_1">사용법</a></li>
+<li class=""><a href="#_2">옵션</a></li>
+<li class=""><a href="#_3">예시</a></li>
+<li class="sub"><a href="#_4">모든 타깃 정리</a></li>
+<li class="sub"><a href="#_5">특정 타깃 정리</a></li>
+<li class="sub"><a href="#_6">완전 초기화</a></li>
+<li class=""><a href="#_7">삭제되는 것</a></li>
+<li class=""><a href="#_8">정리 후</a></li>
+<li class=""><a href="#_9">관련 문서</a></li>
+</ul></nav></div>
+</div>
+<footer class="footer doc-footer">
+  <div class="wrap">
+    <span>© stoke — MIT License</span>
+    <div class="footer-links">
+      <a href="../../../ko/getting-started/installation/">문서</a>
+      <a href="https://github.com/dvdsvds/stoke">GitHub</a>
+      <a href="../../../ko/faq/">FAQ</a>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

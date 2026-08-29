@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IDE 연동 — stoke</title>
+<link rel="icon" href="../../../assets/favicon-src.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/home.css">
+<link rel="stylesheet" href="../../../assets/docs.css">
+</head>
+<body>
+<nav class="nav">
+  <div class="wrap">
+    <a class="nav-brand" href="../../../"><img src="../../../assets/logo-mark.png" alt="stoke">stoke</a>
+    <div class="nav-links">
+      <a href="../../../ko/getting-started/installation/">문서</a>
+<a href="../../../ko/commands/overview/">명령어</a>
+<a href="../../../ko/languages/python/">언어</a>
+      <div class="lang-switch"><a href="../../../">EN</a><a class="active" href=".">한국어</a></div>
+    </div>
+    <a class="nav-gh" href="https://github.com/dvdsvds/stoke"><svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>dvdsvds/stoke</a>
+  </div>
+</nav>
+<div class="doc-layout">
+  <div class="doc-sidebar-col"><nav class="side-nav">
+<div class="side-group">
+<div class="side-group-title">시작하기</div>
+<ul>
+<li><a class="" href="../../../ko/getting-started/installation/">설치</a></li>
+<li><a class="" href="../../../ko/getting-started/quick-start/">빠른 시작</a></li>
+</ul></div>
+<div class="side-group">
+<div class="side-group-title">명령어</div>
+<ul>
+<li><a class="" href="../../../ko/commands/overview/">개요</a></li>
+<li><a class="" href="../../../ko/commands/build/">build</a></li>
+<li><a class="" href="../../../ko/commands/run/">run</a></li>
+<li><a class="" href="../../../ko/commands/watch/">watch</a></li>
+<li><a class="" href="../../../ko/commands/hot-reload/">hot-reload</a></li>
+<li><a class="" href="../../../ko/commands/clean/">clean</a></li>
+<li><a class="" href="../../../ko/commands/init/">init</a></li>
+<li><a class="" href="../../../ko/commands/ide-sync/">ide-sync</a></li>
+</ul></div>
+<div class="side-group">
+<div class="side-group-title">언어</div>
+<ul>
+<li><a class="" href="../../../ko/languages/python/">Python</a></li>
+<li><a class="" href="../../../ko/languages/java/">Java</a></li>
+<li><a class="" href="../../../ko/languages/cpp/">C/C++</a></li>
+<li><a class="" href="../../../ko/languages/go/">Go</a></li>
+<li><a class="" href="../../../ko/languages/rust/">Rust</a></li>
+<li><a class="" href="../../../ko/languages/kotlin/">Kotlin</a></li>
+<li><a class="" href="../../../ko/languages/csharp/">C#</a></li>
+<li><a class="" href="../../../ko/languages/ruby/">Ruby</a></li>
+<li><a class="" href="../../../ko/languages/php/">PHP</a></li>
+<li><a class="" href="../../../ko/languages/javascript/">JavaScript</a></li>
+<li><a class="" href="../../../ko/languages/typescript/">TypeScript</a></li>
+</ul></div>
+<div class="side-group">
+<div class="side-group-title">설정</div>
+<ul>
+<li><a class="" href="../../../ko/configuration/stoke-toml/">stoke.toml</a></li>
+<li><a class="" href="../../../ko/configuration/profiles/">프로파일</a></li>
+<li><a class="" href="../../../ko/configuration/lock-file/">락 파일</a></li>
+</ul></div>
+<div class="side-group">
+<div class="side-group-title">고급</div>
+<ul>
+<li><a class="" href="../../../ko/advanced/vcpkg/">vcpkg</a></li>
+<li><a class="active" href="../../../ko/advanced/ide-integration/">IDE 연동</a></li>
+</ul></div>
+<div class="side-group">
+<div class="side-group-title">프레임워크</div>
+<ul>
+<li><a class="" href="../../../ko/frameworks/overview/">개요</a></li>
+<li><a class="" href="../../../ko/frameworks/spring-boot/">Spring Boot</a></li>
+<li><a class="" href="../../../ko/frameworks/fastapi/">FastAPI</a></li>
+<li><a class="" href="../../../ko/frameworks/flask/">Flask</a></li>
+<li><a class="" href="../../../ko/frameworks/django/">Django</a></li>
+<li><a class="" href="../../../ko/frameworks/gin/">Gin</a></li>
+<li><a class="" href="../../../ko/frameworks/echo/">Echo</a></li>
+<li><a class="" href="../../../ko/frameworks/fiber/">Fiber</a></li>
+<li><a class="" href="../../../ko/frameworks/chi/">Chi</a></li>
+<li><a class="" href="../../../ko/frameworks/express/">Express</a></li>
+<li><a class="" href="../../../ko/frameworks/fastify/">Fastify</a></li>
+<li><a class="" href="../../../ko/frameworks/nextjs/">Next.js</a></li>
+<li><a class="" href="../../../ko/frameworks/nestjs/">NestJS</a></li>
+<li><a class="" href="../../../ko/frameworks/vite/">Vite</a></li>
+<li><a class="" href="../../../ko/frameworks/nuxt/">Nuxt</a></li>
+<li><a class="" href="../../../ko/frameworks/sveltekit/">SvelteKit</a></li>
+<li><a class="" href="../../../ko/frameworks/hono/">Hono</a></li>
+<li><a class="" href="../../../ko/frameworks/actix-web/">Actix-web</a></li>
+<li><a class="" href="../../../ko/frameworks/axum/">Axum</a></li>
+<li><a class="" href="../../../ko/frameworks/rocket/">Rocket</a></li>
+<li><a class="" href="../../../ko/frameworks/ktor/">Ktor</a></li>
+<li><a class="" href="../../../ko/frameworks/spring-boot-kotlin/">Spring Boot (Kotlin)</a></li>
+<li><a class="" href="../../../ko/frameworks/aspnet-core/">ASP.NET Core</a></li>
+<li><a class="" href="../../../ko/frameworks/sinatra/">Sinatra</a></li>
+<li><a class="" href="../../../ko/frameworks/slim/">Slim</a></li>
+</ul></div>
+<div class="side-group"><a class="side-top" href="../../../ko/troubleshooting/">문제 해결</a></div>
+<div class="side-group"><a class="side-top" href="../../../ko/faq/">자주 묻는 질문</a></div>
+</nav></div>
+  <main class="doc-content">
+    <article>
+<h1 id="ide">IDE 연동</h1>
+<p>stoke는 <code>stoke build</code> 중에 IDE 설정 파일을 자동으로 생성합니다. IDE에서 프로젝트를 열기만 하면 바로 동작합니다.</p>
+<h2 id="ide_1">지원 IDE</h2>
+<table>
+<thead>
+<tr>
+<th>IDE</th>
+<th>Python</th>
+<th>Java</th>
+<th>C/C++</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>VSCode</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Eclipse</td>
+<td></td>
+<td>✓</td>
+<td></td>
+</tr>
+<tr>
+<td>IntelliJ / JetBrains</td>
+<td></td>
+<td>✓ (Maven 경유)</td>
+<td></td>
+</tr>
+<tr>
+<td>clangd 기반</td>
+<td></td>
+<td></td>
+<td>✓</td>
+</tr>
+</tbody>
+</table>
+<h2 id="vscode">VSCode</h2>
+<h3 id="_1">생성되는 파일</h3>
+<p>프로젝트별 (프로젝트 루트에):</p>
+<ul>
+<li><code>.vscode/settings.json</code></li>
+</ul>
+<p>C/C++의 경우:
+- <code>.vscode/c_cpp_properties.json</code> (Microsoft C/C++ 확장)
+- <code>compile_commands.json</code> (clangd, Native Debug)</p>
+<p>Java의 경우:
+- <code>.classpath</code> (Eclipse 형식, VSCode Java 확장에서 사용)
+- <code>.project</code> (Eclipse 형식)
+- <code>pom.xml</code> (Maven 형식)</p>
+<h3 id="_2">설정 내용</h3>
+<p><code>settings.json</code>에 포함되는 것:</p>
+<ul>
+<li><strong>Python</strong>: 인터프리터 경로, 추가 경로, 제외 항목</li>
+<li><strong>Java</strong>: 소스 경로, 참조 JAR</li>
+<li><strong>C/C++</strong>: include 경로, define, 컴파일러 경로</li>
+</ul>
+<p>에디터 렉을 줄이기 위해 <code>.stoke/</code>는 파일 감시에서도 제외됩니다.</p>
+<h3 id="_3">확장 프로그램</h3>
+<p>추천 VSCode 확장:</p>
+<ul>
+<li><strong>Python</strong> — Microsoft Python 확장</li>
+<li><strong>Java</strong> — Extension Pack for Java</li>
+<li><strong>C/C++</strong> — Microsoft C/C++ 확장 또는 clangd</li>
+</ul>
+<h2 id="eclipse-java">Eclipse (Java)</h2>
+<p>기존 Eclipse 프로젝트로 임포트:</p>
+<ol>
+<li>File → Import → General → Existing Projects into Workspace</li>
+<li>프로젝트 폴더 선택</li>
+</ol>
+<p>Eclipse가 <code>.classpath</code>와 <code>.project</code>를 읽습니다.</p>
+<h2 id="intellij-jetbrains-java">IntelliJ / JetBrains (Java)</h2>
+<p>Maven 프로젝트로 임포트:</p>
+<ol>
+<li>File → Open → 프로젝트 폴더 또는 <code>pom.xml</code> 선택</li>
+<li>IntelliJ가 <code>pom.xml</code>을 읽습니다</li>
+</ol>
+<h2 id="clangd-cc">clangd (C/C++)</h2>
+<p>프로젝트 루트의 <code>compile_commands.json</code>은 clangd 기반 도구들의 표준입니다:</p>
+<ul>
+<li>clangd LSP 서버</li>
+<li>CLion (clangd 경유)</li>
+<li>Neovim + clangd</li>
+<li>Emacs + clangd</li>
+<li>clangd를 지원하는 모든 에디터</li>
+</ul>
+<p>추가 설정 필요 없이 프로젝트를 열기만 하면 됩니다.</p>
+<h2 id="_4">멀티 프로젝트 워크스페이스</h2>
+<p>여러 stoke 프로젝트가 있는 저장소의 경우:
+myworkspace/
+├── frontend/         # python
+│   └── stoke.toml
+├── backend/          # java
+│   └── stoke.toml
+└── engine/           # cpp
+└── stoke.toml</p>
+<p>루트에서 실행:</p>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>ide-sync
+</code></pre></div>
+
+<p>생성되는 것:</p>
+<ul>
+<li><code>.vscode/settings.json</code> — 워크스페이스 레벨 설정</li>
+<li><code>myworkspace.code-workspace</code> — 멀티 루트 VSCode 워크스페이스</li>
+</ul>
+<p><code>.code-workspace</code> 파일을 열면 모든 프로젝트를 함께 작업할 수 있습니다.</p>
+<p>자세한 내용은 <a href="../../../ko/commands/ide-sync/"><code>stoke ide-sync</code></a>를 참고하세요.</p>
+<h2 id="ide_2">IDE 파일 재생성</h2>
+<p>IDE 파일은 <code>stoke build</code>마다 다시 생성됩니다. 동기화가 안 맞는 경우(예: 의존성 변경 후) 그냥 다시 빌드하세요:</p>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>build
+</code></pre></div>
+
+<p>또는 강제로:</p>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>build<span class="w"> </span>--force
+</code></pre></div>
+
+<h2 id="_5">수동으로 수정하지 마세요</h2>
+<p>IDE 파일은 재생성되기 때문에, 수동으로 수정해도 다음 빌드 때 덮어써집니다. 대신 <code>stoke.toml</code>을 통해 설정하세요.</p>
+<p><code>stoke.toml</code>에 추가 include 경로 넣기:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[targets.myapp]</span>
+<span class="n">include_dirs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"third_party/include"</span><span class="p">]</span>
+</code></pre></div>
+
+<h2 id="_6">관련 문서</h2>
+<ul>
+<li><a href="../../../ko/commands/ide-sync/"><code>stoke ide-sync</code></a></li>
+<li><a href="../../../ko/commands/build/"><code>stoke build</code></a></li>
+</ul>
+    </article>
+  </main>
+  <div class="doc-toc-col"><nav class="page-toc"><div class="page-toc-title">On this page</div><ul>
+<li class=""><a href="#ide_1">지원 IDE</a></li>
+<li class=""><a href="#vscode">VSCode</a></li>
+<li class="sub"><a href="#_1">생성되는 파일</a></li>
+<li class="sub"><a href="#_2">설정 내용</a></li>
+<li class="sub"><a href="#_3">확장 프로그램</a></li>
+<li class=""><a href="#eclipse-java">Eclipse (Java)</a></li>
+<li class=""><a href="#intellij-jetbrains-java">IntelliJ / JetBrains (Java)</a></li>
+<li class=""><a href="#clangd-cc">clangd (C/C++)</a></li>
+<li class=""><a href="#_4">멀티 프로젝트 워크스페이스</a></li>
+<li class=""><a href="#ide_2">IDE 파일 재생성</a></li>
+<li class=""><a href="#_5">수동으로 수정하지 마세요</a></li>
+<li class=""><a href="#_6">관련 문서</a></li>
+</ul></nav></div>
+</div>
+<footer class="footer doc-footer">
+  <div class="wrap">
+    <span>© stoke — MIT License</span>
+    <div class="footer-links">
+      <a href="../../../ko/getting-started/installation/">문서</a>
+      <a href="https://github.com/dvdsvds/stoke">GitHub</a>
+      <a href="../../../ko/faq/">FAQ</a>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

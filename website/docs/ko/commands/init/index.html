@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>stoke init — stoke</title>
+<link rel="icon" href="../../../assets/favicon-src.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/home.css">
+<link rel="stylesheet" href="../../../assets/docs.css">
+</head>
+<body>
+<nav class="nav">
+  <div class="wrap">
+    <a class="nav-brand" href="../../../"><img src="../../../assets/logo-mark.png" alt="stoke">stoke</a>
+    <div class="nav-links">
+      <a href="../../../ko/getting-started/installation/">문서</a>
+<a href="../../../ko/commands/overview/">명령어</a>
+<a href="../../../ko/languages/python/">언어</a>
+      <div class="lang-switch"><a href="../../../">EN</a><a class="active" href=".">한국어</a></div>
+    </div>
+    <a class="nav-gh" href="https://github.com/dvdsvds/stoke"><svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>dvdsvds/stoke</a>
+  </div>
+</nav>
+<div class="doc-layout">
+  <div class="doc-sidebar-col"><nav class="side-nav">
+<div class="side-group">
+<div class="side-group-title">시작하기</div>
+<ul>
+<li><a class="" href="../../../ko/getting-started/installation/">설치</a></li>
+<li><a class="" href="../../../ko/getting-started/quick-start/">빠른 시작</a></li>
+</ul></div>
+<div class="side-group">
+<div class="side-group-title">명령어</div>
+<ul>
+<li><a class="" href="../../../ko/commands/overview/">개요</a></li>
+<li><a class="" href="../../../ko/commands/build/">build</a></li>
+<li><a class="" href="../../../ko/commands/run/">run</a></li>
+<li><a class="" href="../../../ko/commands/watch/">watch</a></li>
+<li><a class="" href="../../../ko/commands/hot-reload/">hot-reload</a></li>
+<li><a class="" href="../../../ko/commands/clean/">clean</a></li>
+<li><a class="active" href="../../../ko/commands/init/">init</a></li>
+<li><a class="" href="../../../ko/commands/ide-sync/">ide-sync</a></li>
+</ul></div>
+<div class="side-group">
+<div class="side-group-title">언어</div>
+<ul>
+<li><a class="" href="../../../ko/languages/python/">Python</a></li>
+<li><a class="" href="../../../ko/languages/java/">Java</a></li>
+<li><a class="" href="../../../ko/languages/cpp/">C/C++</a></li>
+<li><a class="" href="../../../ko/languages/go/">Go</a></li>
+<li><a class="" href="../../../ko/languages/rust/">Rust</a></li>
+<li><a class="" href="../../../ko/languages/kotlin/">Kotlin</a></li>
+<li><a class="" href="../../../ko/languages/csharp/">C#</a></li>
+<li><a class="" href="../../../ko/languages/ruby/">Ruby</a></li>
+<li><a class="" href="../../../ko/languages/php/">PHP</a></li>
+<li><a class="" href="../../../ko/languages/javascript/">JavaScript</a></li>
+<li><a class="" href="../../../ko/languages/typescript/">TypeScript</a></li>
+</ul></div>
+<div class="side-group">
+<div class="side-group-title">설정</div>
+<ul>
+<li><a class="" href="../../../ko/configuration/stoke-toml/">stoke.toml</a></li>
+<li><a class="" href="../../../ko/configuration/profiles/">프로파일</a></li>
+<li><a class="" href="../../../ko/configuration/lock-file/">락 파일</a></li>
+</ul></div>
+<div class="side-group">
+<div class="side-group-title">고급</div>
+<ul>
+<li><a class="" href="../../../ko/advanced/vcpkg/">vcpkg</a></li>
+<li><a class="" href="../../../ko/advanced/ide-integration/">IDE 연동</a></li>
+</ul></div>
+<div class="side-group">
+<div class="side-group-title">프레임워크</div>
+<ul>
+<li><a class="" href="../../../ko/frameworks/overview/">개요</a></li>
+<li><a class="" href="../../../ko/frameworks/spring-boot/">Spring Boot</a></li>
+<li><a class="" href="../../../ko/frameworks/fastapi/">FastAPI</a></li>
+<li><a class="" href="../../../ko/frameworks/flask/">Flask</a></li>
+<li><a class="" href="../../../ko/frameworks/django/">Django</a></li>
+<li><a class="" href="../../../ko/frameworks/gin/">Gin</a></li>
+<li><a class="" href="../../../ko/frameworks/echo/">Echo</a></li>
+<li><a class="" href="../../../ko/frameworks/fiber/">Fiber</a></li>
+<li><a class="" href="../../../ko/frameworks/chi/">Chi</a></li>
+<li><a class="" href="../../../ko/frameworks/express/">Express</a></li>
+<li><a class="" href="../../../ko/frameworks/fastify/">Fastify</a></li>
+<li><a class="" href="../../../ko/frameworks/nextjs/">Next.js</a></li>
+<li><a class="" href="../../../ko/frameworks/nestjs/">NestJS</a></li>
+<li><a class="" href="../../../ko/frameworks/vite/">Vite</a></li>
+<li><a class="" href="../../../ko/frameworks/nuxt/">Nuxt</a></li>
+<li><a class="" href="../../../ko/frameworks/sveltekit/">SvelteKit</a></li>
+<li><a class="" href="../../../ko/frameworks/hono/">Hono</a></li>
+<li><a class="" href="../../../ko/frameworks/actix-web/">Actix-web</a></li>
+<li><a class="" href="../../../ko/frameworks/axum/">Axum</a></li>
+<li><a class="" href="../../../ko/frameworks/rocket/">Rocket</a></li>
+<li><a class="" href="../../../ko/frameworks/ktor/">Ktor</a></li>
+<li><a class="" href="../../../ko/frameworks/spring-boot-kotlin/">Spring Boot (Kotlin)</a></li>
+<li><a class="" href="../../../ko/frameworks/aspnet-core/">ASP.NET Core</a></li>
+<li><a class="" href="../../../ko/frameworks/sinatra/">Sinatra</a></li>
+<li><a class="" href="../../../ko/frameworks/slim/">Slim</a></li>
+</ul></div>
+<div class="side-group"><a class="side-top" href="../../../ko/troubleshooting/">문제 해결</a></div>
+<div class="side-group"><a class="side-top" href="../../../ko/faq/">자주 묻는 질문</a></div>
+</nav></div>
+  <main class="doc-content">
+    <article>
+<h1 id="stoke-init">stoke init</h1>
+<p>대화형으로 새 stoke 프로젝트를 생성합니다.</p>
+<h2 id="_1">사용법</h2>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>init
+</code></pre></div>
+
+<p>현재 디렉토리에서 대화형 마법사를 실행합니다.</p>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>init<span class="w"> </span>&lt;framework&gt;
+</code></pre></div>
+
+<p>마법사를 건너뛰고 특정 프레임워크를 바로 스캐폴딩합니다 (예: <code>stoke init fastapi</code>, <code>stoke init gin</code>). 전체 목록은 <a href="../../../ko/frameworks/overview/">프레임워크 스캐폴딩</a>을 참고하세요.</p>
+<h2 id="_2">동작 방식</h2>
+<p>마법사가 다음을 물어봅니다:</p>
+<ol>
+<li><strong>프로젝트 이름</strong> — 기본값은 현재 폴더 이름</li>
+<li><strong>언어</strong> — Python, Java, C, C++, Go, Rust, Kotlin, C#, Ruby, PHP, JavaScript, TypeScript</li>
+<li><strong>언어 버전</strong> — Python 3.12, Java 25, C11, C++20 등 (Go/JavaScript/TypeScript는 버전을 아예 안 물어보고 PATH에 있는 툴체인을 그대로 씀; Kotlin은 Java 감지 로직을 재사용해서 JDK 버전을 물어봄; Rust/C#/Ruby/PHP는 <em>선택적인</em> 툴체인 버전 고정을 물어봄 — 자세한 내용은 <a href="#non-interactive-mode-ci-team-onboarding">비대화형 모드</a>와 각 언어 페이지 참고)</li>
+<li><strong>진입점 / 메인 클래스</strong> — 언어에 따라 다름</li>
+<li><strong>의존성</strong> — 선택사항</li>
+</ol>
+<p>그 다음 생성되는 것:</p>
+<ul>
+<li><code>stoke.toml</code> — 프로젝트 설정</li>
+<li><code>src/</code> — 소스 디렉토리</li>
+<li>hello-world 소스 파일</li>
+</ul>
+<h2 id="c">예시: C++ 프로젝트</h2>
+<p>$ mkdir myapp &amp;&amp; cd myapp
+$ stoke init
+Project name [myapp]:
+Language [python/java/c/cpp]: cpp
+C++ standard [17/20/23] [20]:
+Executable name [myapp]:
+Install vcpkg for C/C++ library management? [y/N]: n
+Created:
+stoke.toml
+src/main.cpp
+Try:
+stoke build
+stoke run</p>
+<p>생성된 <code>stoke.toml</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[project]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"myapp"</span>
+<span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"0.1.0"</span>
+
+<span class="k">[targets.myapp]</span>
+<span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"cpp"</span>
+<span class="n">sources</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"src/**/*.cpp"</span><span class="p">]</span>
+<span class="n">cpp_standard</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"c++20"</span>
+</code></pre></div>
+
+<h2 id="python">예시: Python 프로젝트</h2>
+<p>$ mkdir myapp &amp;&amp; cd myapp
+$ stoke init
+Project name [myapp]:
+Language [python/java/c/cpp]: python
+Python version [3.10/3.11/3.12/3.13]: 3.12
+Entry file [src/main.py]:
+Created:
+stoke.toml
+src/main.py</p>
+<p>생성된 <code>stoke.toml</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[project]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"myapp"</span>
+<span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"0.1.0"</span>
+
+<span class="k">[targets.myapp]</span>
+<span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"python"</span>
+<span class="n">python_version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"3.12"</span>
+<span class="n">entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"src/main.py"</span>
+<span class="n">sources</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"src/**/*.py"</span><span class="p">]</span>
+</code></pre></div>
+
+<h2 id="java">예시: Java 프로젝트</h2>
+<p>$ mkdir myapp &amp;&amp; cd myapp
+$ stoke init
+Project name [myapp]:
+Language [python/java/c/cpp]: java
+Java version [17/21/25]: 25
+Package [com.myapp]:
+Main class [Main]:
+Created:
+stoke.toml
+src/main/java/com/myapp/Main.java</p>
+<p>생성된 <code>stoke.toml</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[project]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"myapp"</span>
+<span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"0.1.0"</span>
+
+<span class="k">[targets.myapp]</span>
+<span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"java"</span>
+<span class="n">java_version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"25"</span>
+<span class="n">sources</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"src/main/java/**/*.java"</span><span class="p">]</span>
+<span class="n">main_class</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"com.myapp.Main"</span>
+</code></pre></div>
+
+<h2 id="non-interactive-mode-ci-team-onboarding">비대화형 모드 (CI / 팀 온보딩)</h2>
+<p>프롬프트를 쓸 수 없는 스크립트, CI, 스캐폴딩 도구에서는 <code>--language</code>를 넘기면 stoke가 마법사를 완전히 건너뜁니다:</p>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>init<span class="w"> </span>--language<span class="o">=</span>rust<span class="w"> </span>--name<span class="o">=</span>myapp<span class="w"> </span>--version<span class="o">=</span><span class="m">1</span>.75.0<span class="w"> </span>--lock-mode<span class="o">=</span>commit<span class="w"> </span>--yes
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>플래그</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--language</code></td>
+<td>필수. <code>python</code>, <code>java</code>, <code>c</code>, <code>cpp</code>, <code>go</code>, <code>rust</code>, <code>kotlin</code>, <code>csharp</code>, <code>ruby</code>, <code>php</code>, <code>javascript</code>, <code>typescript</code> 중 하나</td>
+</tr>
+<tr>
+<td><code>--name</code></td>
+<td>프로젝트 이름. 기본값은 현재 폴더 이름</td>
+</tr>
+<tr>
+<td><code>--version</code></td>
+<td>언어에 따라 의미가 다름 (아래 표 참고). 생략하면 적절한 기본값 사용</td>
+</tr>
+<tr>
+<td><code>--env-type</code></td>
+<td><code>venv</code> 또는 <code>conda</code>. Python 전용, 기본값은 <code>venv</code></td>
+</tr>
+<tr>
+<td><code>--lock-mode</code></td>
+<td><code>commit</code> 또는 <code>local</code>. 기본값은 <code>commit</code></td>
+</tr>
+<tr>
+<td><code>--vcpkg</code></td>
+<td>vcpkg가 없으면 설치. C/C++ 전용</td>
+</tr>
+<tr>
+<td><code>--yes</code></td>
+<td>기존 <code>stoke.toml</code>을 묻지 않고 덮어씀. 이 플래그가 없으면 <code>stoke.toml</code>이 이미 있을 때 init이 명확히 실패함 — 스크립트에서 팀원 설정을 조용히 덮어쓰는 것보다 안전함</td>
+</tr>
+</tbody>
+</table>
+<p>언어별 <code>--version</code> 의미:</p>
+<table>
+<thead>
+<tr>
+<th>언어</th>
+<th><code>--version</code>의 의미</th>
+<th>생략 시 기본값</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Python</td>
+<td>Python 버전 (예: <code>3.12</code>)</td>
+<td>시스템에서 감지된 기본 설치</td>
+</tr>
+<tr>
+<td>Java</td>
+<td>JDK 버전 (예: <code>21</code>)</td>
+<td>시스템에서 감지된 기본 설치</td>
+</tr>
+<tr>
+<td>Kotlin</td>
+<td>JDK 버전, <code>stoke.toml</code>에는 <code>java_version</code>으로 기록됨</td>
+<td>시스템에서 감지된 기본 설치</td>
+</tr>
+<tr>
+<td>C</td>
+<td>C 표준 (예: <code>c17</code>)</td>
+<td><code>c17</code></td>
+</tr>
+<tr>
+<td>C++</td>
+<td>C++ 표준 (예: <code>c++20</code>)</td>
+<td><code>c++17</code></td>
+</tr>
+<tr>
+<td>Rust</td>
+<td>선택적 툴체인 고정, <code>rust-toolchain.toml</code>에 기록됨</td>
+<td>기록 안 함 (고정 없음)</td>
+</tr>
+<tr>
+<td>C#</td>
+<td>선택적 SDK 고정, <code>global.json</code>에 기록됨</td>
+<td>기록 안 함 (고정 없음)</td>
+</tr>
+<tr>
+<td>Ruby</td>
+<td>선택적 버전 고정, <code>.ruby-version</code>에 기록됨</td>
+<td>기록 안 함 (고정 없음)</td>
+</tr>
+<tr>
+<td>PHP</td>
+<td>선택적 버전 제약, <code>composer.json</code>의 <code>require.php</code>에 기록됨</td>
+<td>기록 안 함 (고정 없음)</td>
+</tr>
+<tr>
+<td>Go, JavaScript, TypeScript</td>
+<td>사용 안 함</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p>종료 코드가 의미 있게 반환되므로(<code>0</code> 성공, 0 아니면 실패) 온보딩 스크립트에 깔끔하게 조합할 수 있습니다:</p>
+<div class="highlight"><pre><span></span><code><span class="ch">#!/usr/bin/env bash</span>
+<span class="nb">set</span><span class="w"> </span>-e
+mkdir<span class="w"> </span>myapp<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>myapp
+stoke<span class="w"> </span>init<span class="w"> </span>--language<span class="o">=</span>python<span class="w"> </span>--version<span class="o">=</span><span class="m">3</span>.12<span class="w"> </span>--lock-mode<span class="o">=</span>commit<span class="w"> </span>--yes
+stoke<span class="w"> </span>build
+</code></pre></div>
+
+<h2 id="_3">팀 일관성을 위한 버전 고정</h2>
+<p>Rust, C#, Ruby, PHP는 stoke 안에 Python/Java처럼 자체 버전 매니저 개념이 없어서, <code>stoke init</code>은 대신 각 생태계의 표준 고정 파일을 선택적으로 써줄 수 있습니다 — git에 커밋해두면 모든 팀원의 <code>stoke build</code>가 같은 툴체인 버전을 쓰게 하거나(안 맞으면 명확히 실패):</p>
+<ul>
+<li><strong>Rust</strong> → <code>rust-toolchain.toml</code> (<code>rustup</code>이 자동으로 읽음)</li>
+<li><strong>C#</strong> → <code>global.json</code> (<code>dotnet</code> CLI가 자동으로 읽음)</li>
+<li><strong>Ruby</strong> → <code>.ruby-version</code> (rbenv/rvm/asdf/chruby가 자동으로 읽음)</li>
+<li><strong>PHP</strong> → <code>composer.json</code>의 <code>require.php</code> 제약 (<code>composer.json</code>이 존재하면 <code>stoke build</code>의 일부로 실행되는 <code>composer install</code>이 강제함)</li>
+<li><strong>Kotlin</strong> → <code>stoke.toml</code>의 기존 <code>java_version</code> 필드를 stoke 자신이 강제함: <code>stoke build</code>/<code>stoke run</code>이 맞는 JDK를 찾아서 <code>-Dorg.gradle.java.home</code>으로 Gradle에 전달하고, 맞는 JDK가 없으면 명확한 에러로 실패</li>
+</ul>
+<p>대화형 마법사에서는 이 질문들이 선택사항이고(비워두면 건너뜀), 비대화형 모드에서는 <code>--version</code>을 넘겼을 때만 적용됩니다.</p>
+<h2 id="init">init 이후</h2>
+<p>빌드하고 실행:</p>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>build
+stoke<span class="w"> </span>run
+</code></pre></div>
+
+<h2 id="_4">관련 문서</h2>
+<ul>
+<li><a href="../../../ko/getting-started/quick-start/">빠른 시작</a></li>
+<li><a href="../../../ko/configuration/stoke-toml/"><code>stoke.toml</code> 레퍼런스</a></li>
+</ul>
+    </article>
+  </main>
+  <div class="doc-toc-col"><nav class="page-toc"><div class="page-toc-title">On this page</div><ul>
+<li class=""><a href="#_1">사용법</a></li>
+<li class=""><a href="#_2">동작 방식</a></li>
+<li class=""><a href="#c">예시: C++ 프로젝트</a></li>
+<li class=""><a href="#python">예시: Python 프로젝트</a></li>
+<li class=""><a href="#java">예시: Java 프로젝트</a></li>
+<li class=""><a href="#non-interactive-mode-ci-team-onboarding">비대화형 모드 (CI / 팀 온보딩)</a></li>
+<li class=""><a href="#_3">팀 일관성을 위한 버전 고정</a></li>
+<li class=""><a href="#init">init 이후</a></li>
+<li class=""><a href="#_4">관련 문서</a></li>
+</ul></nav></div>
+</div>
+<footer class="footer doc-footer">
+  <div class="wrap">
+    <span>© stoke — MIT License</span>
+    <div class="footer-links">
+      <a href="../../../ko/getting-started/installation/">문서</a>
+      <a href="https://github.com/dvdsvds/stoke">GitHub</a>
+      <a href="../../../ko/faq/">FAQ</a>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

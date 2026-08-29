@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>stoke.toml Reference — stoke</title>
+<link rel="icon" href="../../assets/favicon-src.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/home.css">
+<link rel="stylesheet" href="../../assets/docs.css">
+</head>
+<body>
+<nav class="nav">
+  <div class="wrap">
+    <a class="nav-brand" href="../../"><img src="../../assets/logo-mark.png" alt="stoke">stoke</a>
+    <div class="nav-links">
+      <a href="../../getting-started/installation/">Docs</a>
+<a href="../../commands/overview/">Commands</a>
+<a href="../../languages/python/">Languages</a>
+      <div class="lang-switch"><a class="active" href="../../">EN</a><a href="../../ko/">한국어</a></div>
+    </div>
+    <a class="nav-gh" href="https://github.com/dvdsvds/stoke"><svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>dvdsvds/stoke</a>
+  </div>
+</nav>
+<div class="doc-layout">
+  <div class="doc-sidebar-col"><nav class="side-nav">
+<div class="side-group">
+<div class="side-group-title">Getting Started</div>
+<ul>
+<li><a class="" href="../../getting-started/installation/">Installation</a></li>
+<li><a class="" href="../../getting-started/quick-start/">Quick Start</a></li>
+</ul></div>
+<div class="side-group">
+<div class="side-group-title">Commands</div>
+<ul>
+<li><a class="" href="../../commands/overview/">Overview</a></li>
+<li><a class="" href="../../commands/build/">build</a></li>
+<li><a class="" href="../../commands/run/">run</a></li>
+<li><a class="" href="../../commands/watch/">watch</a></li>
+<li><a class="" href="../../commands/hot-reload/">hot-reload</a></li>
+<li><a class="" href="../../commands/clean/">clean</a></li>
+<li><a class="" href="../../commands/init/">init</a></li>
+<li><a class="" href="../../commands/ide-sync/">ide-sync</a></li>
+</ul></div>
+<div class="side-group">
+<div class="side-group-title">Languages</div>
+<ul>
+<li><a class="" href="../../languages/python/">Python</a></li>
+<li><a class="" href="../../languages/java/">Java</a></li>
+<li><a class="" href="../../languages/cpp/">C/C++</a></li>
+<li><a class="" href="../../languages/go/">Go</a></li>
+<li><a class="" href="../../languages/rust/">Rust</a></li>
+<li><a class="" href="../../languages/kotlin/">Kotlin</a></li>
+<li><a class="" href="../../languages/csharp/">C#</a></li>
+<li><a class="" href="../../languages/ruby/">Ruby</a></li>
+<li><a class="" href="../../languages/php/">PHP</a></li>
+<li><a class="" href="../../languages/javascript/">JavaScript</a></li>
+<li><a class="" href="../../languages/typescript/">TypeScript</a></li>
+</ul></div>
+<div class="side-group">
+<div class="side-group-title">Configuration</div>
+<ul>
+<li><a class="active" href="../../configuration/stoke-toml/">stoke.toml</a></li>
+<li><a class="" href="../../configuration/profiles/">Profiles</a></li>
+<li><a class="" href="../../configuration/lock-file/">Lock file</a></li>
+</ul></div>
+<div class="side-group">
+<div class="side-group-title">Advanced</div>
+<ul>
+<li><a class="" href="../../advanced/vcpkg/">vcpkg</a></li>
+<li><a class="" href="../../advanced/ide-integration/">IDE Integration</a></li>
+</ul></div>
+<div class="side-group">
+<div class="side-group-title">Frameworks</div>
+<ul>
+<li><a class="" href="../../frameworks/overview/">Overview</a></li>
+<li><a class="" href="../../frameworks/spring-boot/">Spring Boot</a></li>
+<li><a class="" href="../../frameworks/fastapi/">FastAPI</a></li>
+<li><a class="" href="../../frameworks/flask/">Flask</a></li>
+<li><a class="" href="../../frameworks/django/">Django</a></li>
+<li><a class="" href="../../frameworks/gin/">Gin</a></li>
+<li><a class="" href="../../frameworks/echo/">Echo</a></li>
+<li><a class="" href="../../frameworks/fiber/">Fiber</a></li>
+<li><a class="" href="../../frameworks/chi/">Chi</a></li>
+<li><a class="" href="../../frameworks/express/">Express</a></li>
+<li><a class="" href="../../frameworks/fastify/">Fastify</a></li>
+<li><a class="" href="../../frameworks/nextjs/">Next.js</a></li>
+<li><a class="" href="../../frameworks/nestjs/">NestJS</a></li>
+<li><a class="" href="../../frameworks/vite/">Vite</a></li>
+<li><a class="" href="../../frameworks/nuxt/">Nuxt</a></li>
+<li><a class="" href="../../frameworks/sveltekit/">SvelteKit</a></li>
+<li><a class="" href="../../frameworks/hono/">Hono</a></li>
+<li><a class="" href="../../frameworks/actix-web/">Actix-web</a></li>
+<li><a class="" href="../../frameworks/axum/">Axum</a></li>
+<li><a class="" href="../../frameworks/rocket/">Rocket</a></li>
+<li><a class="" href="../../frameworks/ktor/">Ktor</a></li>
+<li><a class="" href="../../frameworks/spring-boot-kotlin/">Spring Boot (Kotlin)</a></li>
+<li><a class="" href="../../frameworks/aspnet-core/">ASP.NET Core</a></li>
+<li><a class="" href="../../frameworks/sinatra/">Sinatra</a></li>
+<li><a class="" href="../../frameworks/slim/">Slim</a></li>
+</ul></div>
+<div class="side-group"><a class="side-top" href="../../troubleshooting/">Troubleshooting</a></div>
+<div class="side-group"><a class="side-top" href="../../faq/">FAQ</a></div>
+</nav></div>
+  <main class="doc-content">
+    <article>
+<h1 id="stoketoml-reference">stoke.toml Reference</h1>
+<p>Complete reference for the <code>stoke.toml</code> configuration file.</p>
+<h2 id="file-structure">File structure</h2>
+<div class="highlight"><pre><span></span><code><span class="k">[project]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"myapp"</span>
+<span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"0.1.0"</span>
+
+<span class="k">[targets.myapp]</span>
+<span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"cpp"</span>
+<span class="n">sources</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"src/**/*.cpp"</span><span class="p">]</span>
+
+<span class="k">[targets.myapp.deps]</span>
+<span class="n">fmt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"*"</span>
+
+<span class="k">[profiles.custom]</span>
+<span class="n">compile_flags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"-O2"</span><span class="p">]</span>
+</code></pre></div>
+
+<p>Sections:</p>
+<ul>
+<li><strong><code>[project]</code></strong> — project-wide metadata</li>
+<li><strong><code>[targets.&lt;name&gt;]</code></strong> — one section per build target</li>
+<li><strong><code>[targets.&lt;name&gt;.deps]</code></strong> — dependencies for a target</li>
+<li><strong><code>[profiles.&lt;name&gt;]</code></strong> — build profiles (C/C++ only)</li>
+</ul>
+<h2 id="project"><code>[project]</code></h2>
+<p>Project-level configuration.</p>
+<div class="highlight"><pre><span></span><code><span class="k">[project]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"myapp"</span><span class="w">           </span><span class="c1"># Required. Project name.</span>
+<span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"0.1.0"</span><span class="w">        </span><span class="c1"># Optional. Project version.</span>
+<span class="n">lock_mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"auto"</span><span class="w">       </span><span class="c1"># Optional. Lock file behavior.</span>
+<span class="n">jobs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span><span class="w">                 </span><span class="c1"># Optional. Default parallel build workers.</span>
+</code></pre></div>
+
+<h3 id="fields">Fields</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td>Project name</td>
+</tr>
+<tr>
+<td><code>version</code></td>
+<td>string</td>
+<td>Semver-ish version</td>
+</tr>
+<tr>
+<td><code>lock_mode</code></td>
+<td><code>"auto"</code> | <code>"strict"</code> | <code>"off"</code></td>
+<td>Lock file behavior (default: <code>"auto"</code>)</td>
+</tr>
+<tr>
+<td><code>jobs</code></td>
+<td>int</td>
+<td>Default parallel workers for build (C/C++)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="lock_mode-values"><code>lock_mode</code> values</h3>
+<ul>
+<li><strong><code>"auto"</code></strong>: use lock file if present, update as needed</li>
+<li><strong><code>"strict"</code></strong>: require lock file, fail if versions don't match</li>
+<li><strong><code>"off"</code></strong>: don't use or write lock file</li>
+</ul>
+<h2 id="targetsname"><code>[targets.&lt;name&gt;]</code></h2>
+<p>One section per build target. Multiple targets allowed:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[targets.server]</span>
+<span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"python"</span>
+<span class="n">entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"src/server.py"</span>
+
+<span class="k">[targets.worker]</span>
+<span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"python"</span>
+<span class="n">entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"src/worker.py"</span>
+</code></pre></div>
+
+<p>Build a specific target:</p>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>build<span class="w"> </span>server
+stoke<span class="w"> </span>run<span class="w"> </span>worker
+</code></pre></div>
+
+<p>If no target is specified, the first one in the file is used.</p>
+<h3 id="common-fields">Common fields</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>language</code></td>
+<td>Yes</td>
+<td><code>"python"</code>, <code>"java"</code>, <code>"c"</code>, <code>"cpp"</code></td>
+</tr>
+<tr>
+<td><code>sources</code></td>
+<td>Depends</td>
+<td>Glob patterns for source files</td>
+</tr>
+<tr>
+<td><code>pre_build</code></td>
+<td>No</td>
+<td>Shell commands to run before the build, in order</td>
+</tr>
+<tr>
+<td><code>post_build</code></td>
+<td>No</td>
+<td>Shell commands to run after the build, in order</td>
+</tr>
+<tr>
+<td><code>depends_on</code></td>
+<td>No</td>
+<td>List of target names this target depends on; built first, in order</td>
+</tr>
+<tr>
+<td><code>build_system</code></td>
+<td>No</td>
+<td>C/C++ only. Set to <code>"cmake"</code> to delegate to CMake instead of stoke's own build model</td>
+</tr>
+<tr>
+<td><code>source_dir</code></td>
+<td>No</td>
+<td>C/C++ + <code>build_system = "cmake"</code> only. Folder containing <code>CMakeLists.txt</code>, relative to the project root (default <code>"."</code>)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="python-specific-fields">Python-specific fields</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>python_version</code></td>
+<td>Required Python version</td>
+</tr>
+<tr>
+<td><code>entry</code></td>
+<td>Entry script path</td>
+</tr>
+</tbody>
+</table>
+<h3 id="java-specific-fields">Java-specific fields</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>java_version</code></td>
+<td>Required JDK major version</td>
+</tr>
+<tr>
+<td><code>main_class</code></td>
+<td>Fully qualified main class</td>
+</tr>
+</tbody>
+</table>
+<h3 id="cc-specific-fields">C/C++-specific fields</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>c_standard</code></td>
+<td>C standard (<code>"c11"</code>, <code>"c17"</code>, etc.)</td>
+</tr>
+<tr>
+<td><code>cpp_standard</code></td>
+<td>C++ standard (<code>"c++17"</code>, <code>"c++20"</code>, etc.)</td>
+</tr>
+<tr>
+<td><code>include_dirs</code></td>
+<td>Extra include directories</td>
+</tr>
+<tr>
+<td><code>jobs</code></td>
+<td>Override project-level <code>jobs</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="targetsnamedeps"><code>[targets.&lt;name&gt;.deps]</code></h2>
+<p>Dependencies for a specific target. Format varies by language.</p>
+<h3 id="python-pip">Python (pip)</h3>
+<div class="highlight"><pre><span></span><code><span class="k">[targets.myapp.deps]</span>
+<span class="n">requests</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"*"</span>
+<span class="n">flask</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"&gt;=2.0"</span>
+<span class="n">numpy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"==1.24.3"</span>
+<span class="n">mypackage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"git+https://github.com/user/repo"</span>
+</code></pre></div>
+
+<h3 id="java-maven">Java (Maven)</h3>
+<div class="highlight"><pre><span></span><code><span class="k">[targets.myapp.deps]</span>
+<span class="s2">"com.google.code.gson:gson"</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"2.10.1"</span>
+<span class="s2">"org.slf4j:slf4j-api"</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"2.0.9"</span>
+</code></pre></div>
+
+<p>Key format: <code>"groupId:artifactId"</code>.</p>
+<h3 id="c-c-vcpkg">C / C++ (vcpkg)</h3>
+<div class="highlight"><pre><span></span><code><span class="k">[targets.myapp.deps]</span>
+<span class="n">fmt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"*"</span>
+<span class="n">sqlite3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"*"</span>
+</code></pre></div>
+
+<p>Version is passed to vcpkg. <code>"*"</code> means latest available.</p>
+<h2 id="profilesname"><code>[profiles.&lt;name&gt;]</code></h2>
+<p>Build profiles for C/C++.</p>
+<div class="highlight"><pre><span></span><code><span class="k">[profiles.small]</span>
+<span class="n">compile_flags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"-Os"</span><span class="p">,</span><span class="w"> </span><span class="s2">"-flto"</span><span class="p">]</span>
+<span class="n">defines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">NDEBUG</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">}</span>
+
+<span class="k">[profiles.clang]</span>
+<span class="n">compiler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"clang"</span>
+</code></pre></div>
+
+<p>See <a href="../../configuration/profiles/">Profiles</a> for the full reference.</p>
+<h2 id="build-hooks">Build hooks</h2>
+<div class="highlight"><pre><span></span><code><span class="k">[targets.myapp]</span>
+<span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"python"</span>
+<span class="n">pre_build</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"echo starting build"</span><span class="p">]</span>
+<span class="n">post_build</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"cp dist/myapp ./release/myapp"</span><span class="p">]</span>
+</code></pre></div>
+
+<p>Runs through the shell, in declared order, for <code>stoke build</code>, <code>stoke build --all</code>, <code>stoke watch</code>, and <code>stoke hot-reload</code> alike. A non-zero <code>pre_build</code> command skips the build entirely; a failing <code>post_build</code> command fails the build.</p>
+<blockquote>
+<p><strong>Security note</strong>: these commands are whatever string is in <code>stoke.toml</code>, executed verbatim through the shell with your user's permissions. Don't run <code>stoke build</code> on a <code>stoke.toml</code> you haven't read from a repository you don't trust.</p>
+</blockquote>
+<h2 id="target-dependencies">Target dependencies</h2>
+<div class="highlight"><pre><span></span><code><span class="k">[targets.backend]</span>
+<span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"python"</span>
+<span class="n">depends_on</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"shared_lib"</span><span class="p">]</span>
+</code></pre></div>
+
+<p><code>stoke build backend</code> builds <code>shared_lib</code> first automatically. <code>stoke build --all</code> builds targets with no unmet dependencies in parallel, waits for a target's <code>depends_on</code> to finish before starting it, and skips (rather than attempts) a target whose dependency failed. Unknown target references and dependency cycles are rejected when <code>stoke.toml</code> loads, before any build starts.</p>
+<h2 id="cmake-for-cc">CMake for C/C++</h2>
+<p>For a C/C++ target that already has its own <code>CMakeLists.txt</code>, delegate to CMake instead of stoke's own compile model:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[targets.engine]</span>
+<span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"cpp"</span>
+<span class="n">build_system</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"cmake"</span>
+<span class="n">source_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"."</span><span class="w">   </span><span class="c1"># folder with CMakeLists.txt, relative to the project root</span>
+</code></pre></div>
+
+<p><code>stoke build</code>/<code>run</code>/<code>watch</code>/<code>hot-reload</code>/<code>clean</code> all work the same way as with stoke's own C/C++ model, but internally run <code>cmake -S &lt;source_dir&gt; -B &lt;build_dir&gt;</code> then <code>cmake --build &lt;build_dir&gt;</code>, and locate the produced executable automatically. <code>c_standard</code>/<code>cpp_standard</code>, <code>[profiles.*].compile_flags</code>/<code>defines</code>/<code>compiler</code>, and <code>includes</code> are ignored on this path — <code>CMakeLists.txt</code> owns those; only the profile name maps to <code>CMAKE_BUILD_TYPE</code> (<code>debug</code> → <code>Debug</code>, <code>release</code> → <code>Release</code>).</p>
+<h2 id="full-example">Full example</h2>
+<p>Multi-target project:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[project]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"myservice"</span>
+<span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"1.0.0"</span>
+
+<span class="c1"># Python backend</span>
+<span class="k">[targets.backend]</span>
+<span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"python"</span>
+<span class="n">python_version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"3.12"</span>
+<span class="n">entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"backend/main.py"</span>
+<span class="n">sources</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"backend/**/*.py"</span><span class="p">]</span>
+
+<span class="k">[targets.backend.deps]</span>
+<span class="n">fastapi</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"*"</span>
+<span class="n">uvicorn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"*"</span>
+
+<span class="c1"># C++ engine</span>
+<span class="k">[targets.engine]</span>
+<span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"cpp"</span>
+<span class="n">sources</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"engine/src/**/*.cpp"</span><span class="p">]</span>
+<span class="n">cpp_standard</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"c++20"</span>
+<span class="n">include_dirs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"engine/include"</span><span class="p">]</span>
+<span class="n">jobs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">8</span>
+
+<span class="k">[targets.engine.deps]</span>
+<span class="n">fmt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"*"</span>
+<span class="n">spdlog</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"*"</span>
+
+<span class="c1"># Custom profile</span>
+<span class="k">[profiles.native]</span>
+<span class="n">compile_flags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"-O3"</span><span class="p">,</span><span class="w"> </span><span class="s2">"-march=native"</span><span class="p">]</span>
+</code></pre></div>
+
+<p>Build individual targets:</p>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>build<span class="w"> </span>backend
+stoke<span class="w"> </span>build<span class="w"> </span>engine<span class="w"> </span>--profile<span class="o">=</span>native
+</code></pre></div>
+
+<h2 id="related">Related</h2>
+<ul>
+<li><a href="../../configuration/profiles/">Profiles</a></li>
+<li><a href="../../configuration/lock-file/">Lock file</a></li>
+<li>Language guides: <a href="../../languages/python/">Python</a>, <a href="../../languages/java/">Java</a>, <a href="../../languages/cpp/">C/C++</a>, <a href="../../languages/go/">Go</a>, <a href="../../languages/rust/">Rust</a>, <a href="../../languages/kotlin/">Kotlin</a>, <a href="../../languages/csharp/">C#</a>, <a href="../../languages/ruby/">Ruby</a>, <a href="../../languages/php/">PHP</a>, <a href="../../languages/javascript/">JavaScript</a>, <a href="../../languages/typescript/">TypeScript</a></li>
+</ul>
+    </article>
+  </main>
+  <div class="doc-toc-col"><nav class="page-toc"><div class="page-toc-title">On this page</div><ul>
+<li class=""><a href="#file-structure">File structure</a></li>
+<li class=""><a href="#project">[project]</a></li>
+<li class="sub"><a href="#fields">Fields</a></li>
+<li class="sub"><a href="#lock_mode-values">lock_mode values</a></li>
+<li class=""><a href="#targetsname">[targets.&lt;name&gt;]</a></li>
+<li class="sub"><a href="#common-fields">Common fields</a></li>
+<li class="sub"><a href="#python-specific-fields">Python-specific fields</a></li>
+<li class="sub"><a href="#java-specific-fields">Java-specific fields</a></li>
+<li class="sub"><a href="#cc-specific-fields">C/C++-specific fields</a></li>
+<li class=""><a href="#targetsnamedeps">[targets.&lt;name&gt;.deps]</a></li>
+<li class="sub"><a href="#python-pip">Python (pip)</a></li>
+<li class="sub"><a href="#java-maven">Java (Maven)</a></li>
+<li class="sub"><a href="#c-c-vcpkg">C / C++ (vcpkg)</a></li>
+<li class=""><a href="#profilesname">[profiles.&lt;name&gt;]</a></li>
+<li class=""><a href="#build-hooks">Build hooks</a></li>
+<li class=""><a href="#target-dependencies">Target dependencies</a></li>
+<li class=""><a href="#cmake-for-cc">CMake for C/C++</a></li>
+<li class=""><a href="#full-example">Full example</a></li>
+<li class=""><a href="#related">Related</a></li>
+</ul></nav></div>
+</div>
+<footer class="footer doc-footer">
+  <div class="wrap">
+    <span>© stoke — MIT License</span>
+    <div class="footer-links">
+      <a href="../../getting-started/installation/">Docs</a>
+      <a href="https://github.com/dvdsvds/stoke">GitHub</a>
+      <a href="../../faq/">FAQ</a>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

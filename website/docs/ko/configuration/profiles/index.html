@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>빌드 프로파일 — stoke</title>
+<link rel="icon" href="../../../assets/favicon-src.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/home.css">
+<link rel="stylesheet" href="../../../assets/docs.css">
+</head>
+<body>
+<nav class="nav">
+  <div class="wrap">
+    <a class="nav-brand" href="../../../"><img src="../../../assets/logo-mark.png" alt="stoke">stoke</a>
+    <div class="nav-links">
+      <a href="../../../ko/getting-started/installation/">문서</a>
+<a href="../../../ko/commands/overview/">명령어</a>
+<a href="../../../ko/languages/python/">언어</a>
+      <div class="lang-switch"><a href="../../../">EN</a><a class="active" href=".">한국어</a></div>
+    </div>
+    <a class="nav-gh" href="https://github.com/dvdsvds/stoke"><svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>dvdsvds/stoke</a>
+  </div>
+</nav>
+<div class="doc-layout">
+  <div class="doc-sidebar-col"><nav class="side-nav">
+<div class="side-group">
+<div class="side-group-title">시작하기</div>
+<ul>
+<li><a class="" href="../../../ko/getting-started/installation/">설치</a></li>
+<li><a class="" href="../../../ko/getting-started/quick-start/">빠른 시작</a></li>
+</ul></div>
+<div class="side-group">
+<div class="side-group-title">명령어</div>
+<ul>
+<li><a class="" href="../../../ko/commands/overview/">개요</a></li>
+<li><a class="" href="../../../ko/commands/build/">build</a></li>
+<li><a class="" href="../../../ko/commands/run/">run</a></li>
+<li><a class="" href="../../../ko/commands/watch/">watch</a></li>
+<li><a class="" href="../../../ko/commands/hot-reload/">hot-reload</a></li>
+<li><a class="" href="../../../ko/commands/clean/">clean</a></li>
+<li><a class="" href="../../../ko/commands/init/">init</a></li>
+<li><a class="" href="../../../ko/commands/ide-sync/">ide-sync</a></li>
+</ul></div>
+<div class="side-group">
+<div class="side-group-title">언어</div>
+<ul>
+<li><a class="" href="../../../ko/languages/python/">Python</a></li>
+<li><a class="" href="../../../ko/languages/java/">Java</a></li>
+<li><a class="" href="../../../ko/languages/cpp/">C/C++</a></li>
+<li><a class="" href="../../../ko/languages/go/">Go</a></li>
+<li><a class="" href="../../../ko/languages/rust/">Rust</a></li>
+<li><a class="" href="../../../ko/languages/kotlin/">Kotlin</a></li>
+<li><a class="" href="../../../ko/languages/csharp/">C#</a></li>
+<li><a class="" href="../../../ko/languages/ruby/">Ruby</a></li>
+<li><a class="" href="../../../ko/languages/php/">PHP</a></li>
+<li><a class="" href="../../../ko/languages/javascript/">JavaScript</a></li>
+<li><a class="" href="../../../ko/languages/typescript/">TypeScript</a></li>
+</ul></div>
+<div class="side-group">
+<div class="side-group-title">설정</div>
+<ul>
+<li><a class="" href="../../../ko/configuration/stoke-toml/">stoke.toml</a></li>
+<li><a class="active" href="../../../ko/configuration/profiles/">프로파일</a></li>
+<li><a class="" href="../../../ko/configuration/lock-file/">락 파일</a></li>
+</ul></div>
+<div class="side-group">
+<div class="side-group-title">고급</div>
+<ul>
+<li><a class="" href="../../../ko/advanced/vcpkg/">vcpkg</a></li>
+<li><a class="" href="../../../ko/advanced/ide-integration/">IDE 연동</a></li>
+</ul></div>
+<div class="side-group">
+<div class="side-group-title">프레임워크</div>
+<ul>
+<li><a class="" href="../../../ko/frameworks/overview/">개요</a></li>
+<li><a class="" href="../../../ko/frameworks/spring-boot/">Spring Boot</a></li>
+<li><a class="" href="../../../ko/frameworks/fastapi/">FastAPI</a></li>
+<li><a class="" href="../../../ko/frameworks/flask/">Flask</a></li>
+<li><a class="" href="../../../ko/frameworks/django/">Django</a></li>
+<li><a class="" href="../../../ko/frameworks/gin/">Gin</a></li>
+<li><a class="" href="../../../ko/frameworks/echo/">Echo</a></li>
+<li><a class="" href="../../../ko/frameworks/fiber/">Fiber</a></li>
+<li><a class="" href="../../../ko/frameworks/chi/">Chi</a></li>
+<li><a class="" href="../../../ko/frameworks/express/">Express</a></li>
+<li><a class="" href="../../../ko/frameworks/fastify/">Fastify</a></li>
+<li><a class="" href="../../../ko/frameworks/nextjs/">Next.js</a></li>
+<li><a class="" href="../../../ko/frameworks/nestjs/">NestJS</a></li>
+<li><a class="" href="../../../ko/frameworks/vite/">Vite</a></li>
+<li><a class="" href="../../../ko/frameworks/nuxt/">Nuxt</a></li>
+<li><a class="" href="../../../ko/frameworks/sveltekit/">SvelteKit</a></li>
+<li><a class="" href="../../../ko/frameworks/hono/">Hono</a></li>
+<li><a class="" href="../../../ko/frameworks/actix-web/">Actix-web</a></li>
+<li><a class="" href="../../../ko/frameworks/axum/">Axum</a></li>
+<li><a class="" href="../../../ko/frameworks/rocket/">Rocket</a></li>
+<li><a class="" href="../../../ko/frameworks/ktor/">Ktor</a></li>
+<li><a class="" href="../../../ko/frameworks/spring-boot-kotlin/">Spring Boot (Kotlin)</a></li>
+<li><a class="" href="../../../ko/frameworks/aspnet-core/">ASP.NET Core</a></li>
+<li><a class="" href="../../../ko/frameworks/sinatra/">Sinatra</a></li>
+<li><a class="" href="../../../ko/frameworks/slim/">Slim</a></li>
+</ul></div>
+<div class="side-group"><a class="side-top" href="../../../ko/troubleshooting/">문제 해결</a></div>
+<div class="side-group"><a class="side-top" href="../../../ko/faq/">자주 묻는 질문</a></div>
+</nav></div>
+  <main class="doc-content">
+    <article>
+<h1 id="_1">빌드 프로파일</h1>
+<p>빌드 프로파일을 쓰면 코드를 수정하지 않고도 서로 다른 빌드 설정을 전환할 수 있습니다. 현재는 <strong>C, C++</strong>에서만 지원됩니다.</p>
+<h2 id="_2">내장 프로파일</h2>
+<p>stoke는 기본 프로파일 두 개를 제공합니다:</p>
+<h3 id="debug">debug</h3>
+<div class="highlight"><pre><span></span><code><span class="n">compile_flags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"-O0"</span><span class="p">,</span><span class="w"> </span><span class="s2">"-g"</span><span class="p">,</span><span class="w"> </span><span class="s2">"-Wall"</span><span class="p">]</span>
+<span class="n">defines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">DEBUG</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+
+<p><code>stoke build</code>를 실행할 때 기본값입니다. 개발에 적합합니다:</p>
+<ul>
+<li>최적화 없음 (<code>-O0</code>)</li>
+<li>전체 디버그 정보 (<code>-g</code>)</li>
+<li>모든 경고 활성화 (<code>-Wall</code>)</li>
+<li>조건부 컴파일을 위한 <code>DEBUG</code> 정의</li>
+</ul>
+<h3 id="release">release</h3>
+<div class="highlight"><pre><span></span><code><span class="n">compile_flags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"-O2"</span><span class="p">]</span>
+<span class="n">defines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">NDEBUG</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+
+<p><code>--release</code>와 함께 사용:</p>
+<ul>
+<li>최적화 (<code>-O2</code>)</li>
+<li><code>NDEBUG</code> 정의 (<code>assert()</code> 등 비활성화)</li>
+</ul>
+<h2 id="_3">프로파일 사용하기</h2>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>build<span class="w">                     </span><span class="c1"># debug (기본값)</span>
+stoke<span class="w"> </span>build<span class="w"> </span>--debug<span class="w">             </span><span class="c1"># debug (명시적)</span>
+stoke<span class="w"> </span>build<span class="w"> </span>--release<span class="w">           </span><span class="c1"># release</span>
+stoke<span class="w"> </span>build<span class="w"> </span>--profile<span class="o">=</span><span class="w">    </span><span class="c1"># 커스텀 프로파일</span>
+</code></pre></div>
+
+<p><code>stoke run</code>, <code>stoke watch</code>도 마찬가지:</p>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>run<span class="w"> </span>--release
+stoke<span class="w"> </span>watch<span class="w"> </span>--profile<span class="o">=</span>custom
+stoke<span class="w"> </span>hot-reload<span class="w"> </span>--release
+</code></pre></div>
+
+<h2 id="_4">커스텀 프로파일</h2>
+<p><code>stoke.toml</code>에서 커스텀 프로파일을 정의하세요:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[profiles.</span><span class="err">&lt;</span><span class="k">name</span><span class="err">&gt;</span><span class="k">]</span>
+<span class="n">compile_flags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="err">...]     # 추가 컴파일러 플래그</span>
+<span class="n">defines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">KEY</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="err">value } # 전처리기 define</span>
+<span class="n">compiler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"..."</span><span class="w">          </span><span class="c1"># 선택사항: 컴파일러 오버라이드</span>
+</code></pre></div>
+
+<h3 id="_5">예시: 크기 최적화</h3>
+<div class="highlight"><pre><span></span><code><span class="k">[profiles.small]</span>
+<span class="n">compile_flags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"-Os"</span><span class="p">,</span><span class="w"> </span><span class="s2">"-flto"</span><span class="p">,</span><span class="w"> </span><span class="s2">"-s"</span><span class="p">]</span>
+<span class="n">defines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">NDEBUG</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>build<span class="w"> </span>--profile<span class="o">=</span>small
+</code></pre></div>
+
+<h3 id="_6">예시: 네이티브 최적화</h3>
+<div class="highlight"><pre><span></span><code><span class="k">[profiles.native]</span>
+<span class="n">compile_flags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"-O3"</span><span class="p">,</span><span class="w"> </span><span class="s2">"-march=native"</span><span class="p">]</span>
+<span class="n">defines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">NDEBUG</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">NATIVE_BUILD</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+
+<h3 id="clang">예시: clang 오버라이드</h3>
+<div class="highlight"><pre><span></span><code><span class="k">[profiles.clang]</span>
+<span class="n">compiler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"clang"</span>
+<span class="n">compile_flags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"-O2"</span><span class="p">,</span><span class="w"> </span><span class="s2">"-Wall"</span><span class="p">,</span><span class="w"> </span><span class="s2">"-Wextra"</span><span class="p">]</span>
+</code></pre></div>
+
+<p><code>compiler</code> 필드는 이 프로파일의 기본 컴파일러를 오버라이드합니다. 값: <code>"gcc"</code> 또는 <code>"clang"</code>.</p>
+<h2 id="_7">출력 디렉토리</h2>
+<p>각 프로파일은 자기만의 디렉토리에 빌드됩니다:
+.stoke/
+└── cpp/
+└── myapp/
+├── debug/
+│   └── myapp.exe
+├── release/
+│   └── myapp.exe
+└── small/
+└── myapp.exe</p>
+<p>다른 프로파일을 다시 빌드해도 서로 영향을 주지 않습니다. 여러 빌드를 동시에 유지할 수 있습니다.</p>
+<h2 id="_8">충돌</h2>
+<p>플래그 스타일을 섞어 쓸 수는 없습니다:</p>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>build<span class="w"> </span>--debug<span class="w"> </span>--release<span class="w">           </span><span class="c1"># 에러: 함께 쓸 수 없음</span>
+stoke<span class="w"> </span>build<span class="w"> </span>--release<span class="w"> </span>--profile<span class="o">=</span>small<span class="w">   </span><span class="c1"># 에러: 함께 쓸 수 없음</span>
+</code></pre></div>
+
+<h2 id="pythonjava">Python/Java에는 적용 안 됨</h2>
+<p>프로파일은 C/C++에만 적용됩니다. Python과 Java 빌드는 프로파일 플래그를 무시하지만, 프로파일 기반 출력 디렉토리는 그대로 사용합니다:
+.stoke/
+├── python/
+│   └── myapp/
+│       └── venv/            # 프로파일과 무관하게 동일한 venv
+└── java/
+└── myapp/
+└── debug/           # 기본 프로파일 디렉토리
+└── classes/</p>
+<h2 id="_9">사용 가능한 필드</h2>
+<p>프로파일 필드:</p>
+<table>
+<thead>
+<tr>
+<th>필드</th>
+<th>타입</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>compile_flags</code></td>
+<td>list[string]</td>
+<td>컴파일러에 전달할 추가 플래그</td>
+</tr>
+<tr>
+<td><code>defines</code></td>
+<td>table</td>
+<td>전처리기 <code>-D</code> define</td>
+</tr>
+<tr>
+<td><code>compiler</code></td>
+<td>string</td>
+<td>컴파일러 오버라이드 (<code>"gcc"</code> 또는 <code>"clang"</code>)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_10">관련 문서</h2>
+<ul>
+<li><a href="../../../ko/commands/build/"><code>stoke build</code></a></li>
+<li><a href="../../../ko/languages/cpp/">언어 / C/C++</a></li>
+</ul>
+    </article>
+  </main>
+  <div class="doc-toc-col"><nav class="page-toc"><div class="page-toc-title">On this page</div><ul>
+<li class=""><a href="#_2">내장 프로파일</a></li>
+<li class="sub"><a href="#debug">debug</a></li>
+<li class="sub"><a href="#release">release</a></li>
+<li class=""><a href="#_3">프로파일 사용하기</a></li>
+<li class=""><a href="#_4">커스텀 프로파일</a></li>
+<li class="sub"><a href="#_5">예시: 크기 최적화</a></li>
+<li class="sub"><a href="#_6">예시: 네이티브 최적화</a></li>
+<li class="sub"><a href="#clang">예시: clang 오버라이드</a></li>
+<li class=""><a href="#_7">출력 디렉토리</a></li>
+<li class=""><a href="#_8">충돌</a></li>
+<li class=""><a href="#pythonjava">Python/Java에는 적용 안 됨</a></li>
+<li class=""><a href="#_9">사용 가능한 필드</a></li>
+<li class=""><a href="#_10">관련 문서</a></li>
+</ul></nav></div>
+</div>
+<footer class="footer doc-footer">
+  <div class="wrap">
+    <span>© stoke — MIT License</span>
+    <div class="footer-links">
+      <a href="../../../ko/getting-started/installation/">문서</a>
+      <a href="https://github.com/dvdsvds/stoke">GitHub</a>
+      <a href="../../../ko/faq/">FAQ</a>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

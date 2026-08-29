@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kotlin — stoke</title>
+<link rel="icon" href="../../../assets/favicon-src.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/home.css">
+<link rel="stylesheet" href="../../../assets/docs.css">
+</head>
+<body>
+<nav class="nav">
+  <div class="wrap">
+    <a class="nav-brand" href="../../../"><img src="../../../assets/logo-mark.png" alt="stoke">stoke</a>
+    <div class="nav-links">
+      <a href="../../../ko/getting-started/installation/">문서</a>
+<a href="../../../ko/commands/overview/">명령어</a>
+<a href="../../../ko/languages/python/">언어</a>
+      <div class="lang-switch"><a href="../../../">EN</a><a class="active" href=".">한국어</a></div>
+    </div>
+    <a class="nav-gh" href="https://github.com/dvdsvds/stoke"><svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>dvdsvds/stoke</a>
+  </div>
+</nav>
+<div class="doc-layout">
+  <div class="doc-sidebar-col"><nav class="side-nav">
+<div class="side-group">
+<div class="side-group-title">시작하기</div>
+<ul>
+<li><a class="" href="../../../ko/getting-started/installation/">설치</a></li>
+<li><a class="" href="../../../ko/getting-started/quick-start/">빠른 시작</a></li>
+</ul></div>
+<div class="side-group">
+<div class="side-group-title">명령어</div>
+<ul>
+<li><a class="" href="../../../ko/commands/overview/">개요</a></li>
+<li><a class="" href="../../../ko/commands/build/">build</a></li>
+<li><a class="" href="../../../ko/commands/run/">run</a></li>
+<li><a class="" href="../../../ko/commands/watch/">watch</a></li>
+<li><a class="" href="../../../ko/commands/hot-reload/">hot-reload</a></li>
+<li><a class="" href="../../../ko/commands/clean/">clean</a></li>
+<li><a class="" href="../../../ko/commands/init/">init</a></li>
+<li><a class="" href="../../../ko/commands/ide-sync/">ide-sync</a></li>
+</ul></div>
+<div class="side-group">
+<div class="side-group-title">언어</div>
+<ul>
+<li><a class="" href="../../../ko/languages/python/">Python</a></li>
+<li><a class="" href="../../../ko/languages/java/">Java</a></li>
+<li><a class="" href="../../../ko/languages/cpp/">C/C++</a></li>
+<li><a class="" href="../../../ko/languages/go/">Go</a></li>
+<li><a class="" href="../../../ko/languages/rust/">Rust</a></li>
+<li><a class="active" href="../../../ko/languages/kotlin/">Kotlin</a></li>
+<li><a class="" href="../../../ko/languages/csharp/">C#</a></li>
+<li><a class="" href="../../../ko/languages/ruby/">Ruby</a></li>
+<li><a class="" href="../../../ko/languages/php/">PHP</a></li>
+<li><a class="" href="../../../ko/languages/javascript/">JavaScript</a></li>
+<li><a class="" href="../../../ko/languages/typescript/">TypeScript</a></li>
+</ul></div>
+<div class="side-group">
+<div class="side-group-title">설정</div>
+<ul>
+<li><a class="" href="../../../ko/configuration/stoke-toml/">stoke.toml</a></li>
+<li><a class="" href="../../../ko/configuration/profiles/">프로파일</a></li>
+<li><a class="" href="../../../ko/configuration/lock-file/">락 파일</a></li>
+</ul></div>
+<div class="side-group">
+<div class="side-group-title">고급</div>
+<ul>
+<li><a class="" href="../../../ko/advanced/vcpkg/">vcpkg</a></li>
+<li><a class="" href="../../../ko/advanced/ide-integration/">IDE 연동</a></li>
+</ul></div>
+<div class="side-group">
+<div class="side-group-title">프레임워크</div>
+<ul>
+<li><a class="" href="../../../ko/frameworks/overview/">개요</a></li>
+<li><a class="" href="../../../ko/frameworks/spring-boot/">Spring Boot</a></li>
+<li><a class="" href="../../../ko/frameworks/fastapi/">FastAPI</a></li>
+<li><a class="" href="../../../ko/frameworks/flask/">Flask</a></li>
+<li><a class="" href="../../../ko/frameworks/django/">Django</a></li>
+<li><a class="" href="../../../ko/frameworks/gin/">Gin</a></li>
+<li><a class="" href="../../../ko/frameworks/echo/">Echo</a></li>
+<li><a class="" href="../../../ko/frameworks/fiber/">Fiber</a></li>
+<li><a class="" href="../../../ko/frameworks/chi/">Chi</a></li>
+<li><a class="" href="../../../ko/frameworks/express/">Express</a></li>
+<li><a class="" href="../../../ko/frameworks/fastify/">Fastify</a></li>
+<li><a class="" href="../../../ko/frameworks/nextjs/">Next.js</a></li>
+<li><a class="" href="../../../ko/frameworks/nestjs/">NestJS</a></li>
+<li><a class="" href="../../../ko/frameworks/vite/">Vite</a></li>
+<li><a class="" href="../../../ko/frameworks/nuxt/">Nuxt</a></li>
+<li><a class="" href="../../../ko/frameworks/sveltekit/">SvelteKit</a></li>
+<li><a class="" href="../../../ko/frameworks/hono/">Hono</a></li>
+<li><a class="" href="../../../ko/frameworks/actix-web/">Actix-web</a></li>
+<li><a class="" href="../../../ko/frameworks/axum/">Axum</a></li>
+<li><a class="" href="../../../ko/frameworks/rocket/">Rocket</a></li>
+<li><a class="" href="../../../ko/frameworks/ktor/">Ktor</a></li>
+<li><a class="" href="../../../ko/frameworks/spring-boot-kotlin/">Spring Boot (Kotlin)</a></li>
+<li><a class="" href="../../../ko/frameworks/aspnet-core/">ASP.NET Core</a></li>
+<li><a class="" href="../../../ko/frameworks/sinatra/">Sinatra</a></li>
+<li><a class="" href="../../../ko/frameworks/slim/">Slim</a></li>
+</ul></div>
+<div class="side-group"><a class="side-top" href="../../../ko/troubleshooting/">문제 해결</a></div>
+<div class="side-group"><a class="side-top" href="../../../ko/faq/">자주 묻는 질문</a></div>
+</nav></div>
+  <main class="doc-content">
+    <article>
+<h1 id="kotlin">Kotlin</h1>
+<p>stoke는 Gradle에 위임하는 방식으로 Kotlin 프로젝트를 지원합니다 (프로젝트의 Gradle Wrapper, 또는 시스템에 설치된 <code>gradle</code> 사용).</p>
+<h2 id="_1">요구사항</h2>
+<ul>
+<li>JDK (<a href="../../../ko/languages/java/">Java</a>와 동일한 감지 로직 재사용)</li>
+<li>프로젝트 내 Gradle Wrapper(<code>gradlew</code>), 또는 PATH의 시스템 <code>gradle</code></li>
+</ul>
+<h2 id="_2">설정</h2>
+<div class="highlight"><pre><span></span><code><span class="k">[project]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"myapp"</span>
+<span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"0.1.0"</span>
+
+<span class="k">[targets.myapp]</span>
+<span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"kotlin"</span>
+<span class="n">java_version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"21"</span>
+</code></pre></div>
+
+<h2 id="_3">동작 방식</h2>
+<ul>
+<li><code>stoke build</code>는 <code>gradlew build -x test</code> 실행 (빠른 루프를 위해 테스트 스킵)</li>
+<li><code>stoke run</code>은 <code>gradlew run</code> 실행 — <code>build.gradle.kts</code>에 Gradle <code>application</code> 플러그인과 <code>mainClass</code> 설정 필요</li>
+<li>프로젝트에 <code>gradlew</code>가 없으면 시스템에 설치된 <code>gradle</code>로 대체</li>
+<li><code>--force</code>는 <code>gradlew build --rerun-tasks</code>로 매핑됨</li>
+</ul>
+<h2 id="_4">예시</h2>
+<p>새 Kotlin 프로젝트 생성:</p>
+<div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>myapp
+<span class="nb">cd</span><span class="w"> </span>myapp
+stoke<span class="w"> </span>init
+</code></pre></div>
+
+<p>언어 메뉴에서 <code>Kotlin</code> 선택. stoke가:</p>
+<ul>
+<li><code>stoke.toml</code> 생성</li>
+<li><code>settings.gradle.kts</code>, <code>build.gradle.kts</code>, <code>src/main/kotlin/Main.kt</code> 생성</li>
+<li><code>gradle</code>이 있으면 <code>gradle wrapper</code> 실행해서 <code>gradlew</code> 생성</li>
+</ul>
+<p>그 다음:</p>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>build
+stoke<span class="w"> </span>run
+</code></pre></div>
+
+<h2 id="_5">프레임워크 스캐폴딩</h2>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>init<span class="w"> </span>ktor<span class="w">                 </span><span class="c1"># Ktor — 경량, 코루틴 기반 프레임워크</span>
+stoke<span class="w"> </span>init<span class="w"> </span>spring-boot-kotlin<span class="w">   </span><span class="c1"># Kotlin DSL + kotlin-spring 플러그인 사용 Spring Boot</span>
+</code></pre></div>
+
+<p>자세한 내용은 <a href="../../../ko/frameworks/overview/">Frameworks</a> 참조.</p>
+<h2 id="_6">참고</h2>
+<ul>
+<li>빌드 결과물은 Gradle 기본 <code>build/</code> 디렉토리(프로젝트 루트)를 사용 — 다른 언어처럼 <code>.stoke/kotlin/&lt;target&gt;</code>이 아님. <code>stoke clean</code>도 이걸 알고 <code>build/</code>를 대신 삭제함</li>
+<li><code>.stoke/</code>와 함께 <code>build/</code>, <code>.gradle/</code>도 <code>.gitignore</code>에 자동 추가됨</li>
+<li><code>stoke.toml</code>의 <code>java_version</code>은 참고용이 아니라 실제로 강제됨 — stoke가 일치하는 설치된 JDK를 찾아서 <code>-Dorg.gradle.java.home</code>으로 Gradle에 넘겨줌. 그래서 팀원 전원이 같은 JDK 메이저 버전으로 빌드하게 되고, 일치하는 JDK가 없으면 <code>stoke build</code>/<code>stoke run</code>이 조용히 아무 JDK나 쓰는 대신 명확한 에러로 실패함</li>
+<li><code>stoke init</code>이 생성하는 Gradle Wrapper(<code>gradlew</code>, <code>gradle/wrapper/gradle-wrapper.properties</code>)는 그 자체로 Gradle 버전을 pin함 — git에 커밋해두면 팀원들은 Gradle을 따로 설치할 필요도 없음 (wrapper가 처음 실행 시 pin된 버전을 알아서 다운로드)</li>
+</ul>
+    </article>
+  </main>
+  <div class="doc-toc-col"><nav class="page-toc"><div class="page-toc-title">On this page</div><ul>
+<li class=""><a href="#_1">요구사항</a></li>
+<li class=""><a href="#_2">설정</a></li>
+<li class=""><a href="#_3">동작 방식</a></li>
+<li class=""><a href="#_4">예시</a></li>
+<li class=""><a href="#_5">프레임워크 스캐폴딩</a></li>
+<li class=""><a href="#_6">참고</a></li>
+</ul></nav></div>
+</div>
+<footer class="footer doc-footer">
+  <div class="wrap">
+    <span>© stoke — MIT License</span>
+    <div class="footer-links">
+      <a href="../../../ko/getting-started/installation/">문서</a>
+      <a href="https://github.com/dvdsvds/stoke">GitHub</a>
+      <a href="../../../ko/faq/">FAQ</a>
+    </div>
+  </div>
+</footer>
+</body>
+</html>
