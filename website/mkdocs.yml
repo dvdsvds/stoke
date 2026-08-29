@@ -38,25 +38,42 @@ plugins:
 
 theme:
   name: material
+  logo: assets/logo-mark.png
+  favicon: assets/favicon-src.png
+  icon:
+    repo: fontawesome/brands/github
+  font:
+    text: Manrope
+    code: JetBrains Mono
   palette:
     - scheme: default
-      primary: indigo
-      accent: indigo
+      primary: black
+      accent: deep orange
       toggle:
-        icon: material/brightness-7
+        icon: material/weather-sunny
         name: Switch to dark mode
     - scheme: slate
-      primary: indigo
-      accent: indigo
+      primary: black
+      accent: deep orange
       toggle:
-        icon: material/brightness-4
+        icon: material/weather-night
         name: Switch to light mode
   features:
     - navigation.tabs
+    - navigation.tabs.sticky
     - navigation.sections
+    - navigation.indexes
     - navigation.top
-    - search.suggest
+    - navigation.footer
     - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+    - search.suggest
+    - search.highlight
+    - toc.follow
+
+extra_css:
+  - assets/extra.css
 
 nav:
   - Home: index.md
@@ -142,5 +159,8 @@ markdown_extensions:
       alternate_style: true
   - attr_list
   - md_in_html
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - toc:
       permalink: true

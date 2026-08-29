@@ -1,22 +1,73 @@
+<div class="stoke-hero" markdown>
+
+![stoke](../assets/logo-mark.png)
+
 # stoke
 
 **Build, run, and scaffold projects in multiple languages.**
 
-stoke unifies development workflows for Python, Java, C, C++, Go, Rust, Kotlin, C#, Ruby, PHP, JavaScript, and TypeScript projects. One command-line interface for building, running, watching, and scaffolding — including popular frameworks like Spring Boot, FastAPI, Flask, Django, Gin, Express, Next.js, Actix-web, Ktor, ASP.NET Core, and more. Configure your project once in `stoke.toml`, and stoke handles compilation, dependency management, IDE integration, and more.
+stoke unifies development workflows for Python, Java, C, C++, Go, Rust, Kotlin, C#, Ruby, PHP, JavaScript, and TypeScript. One CLI for building, running, watching, and scaffolding — including popular frameworks like Spring Boot, FastAPI, Flask, Django, Gin, Express, Next.js, Actix-web, Ktor, and ASP.NET Core.
+
+<div class="stoke-cta" markdown>
+[Get started](getting-started/installation.md){ .md-button .md-button--primary }
+[View on GitHub](https://github.com/dvdsvds/stoke){ .md-button }
+</div>
+
+</div>
 
 ## Features
 
-- **Multi-language**: Build Python, Java, C, C++, Go, Rust, Kotlin, C#, Ruby, PHP, JavaScript, and TypeScript projects with the same commands
-- **Language installation**: Install Python/JDK/gcc/Go/Node.js via `stoke install`
-- **Framework scaffolding**: Spring Boot, FastAPI, Flask, Django, plus web frameworks for Go, JavaScript, TypeScript, Rust, Kotlin, C#, Ruby, and PHP
-- **Python environments**: venv or conda
-- **Fast**: Incremental compilation with header dependency tracking
-- **Simple**: One `stoke.toml` for the whole project
-- **Watch mode**: Auto-rebuild on file changes
-- **Hot-reload**: Restart processes on rebuild
-- **IDE integration**: Auto-generates VSCode/Eclipse/IntelliJ configs
-- **Build profiles**: Debug/Release/custom profiles
-- **Dependency management**: pip for Python, Maven for Java, vcpkg for C/C++, go.mod for Go, Cargo for Rust, Gradle for Kotlin, NuGet for C#, Bundler for Ruby, Composer for PHP, npm for JavaScript/TypeScript
+<div class="grid cards" markdown>
+
+- :material-language-python:{ .lg .middle } **Multi-language**
+
+    ---
+
+    Build Python, Java, C, C++, Go, Rust, Kotlin, C#, Ruby, PHP, JavaScript, and TypeScript projects with the same commands.
+
+- :material-download-box:{ .lg .middle } **Language installation**
+
+    ---
+
+    Install Python/JDK/gcc/Go/Node.js via `stoke install` — no separate setup required.
+
+- :material-rocket-launch:{ .lg .middle } **Framework scaffolding**
+
+    ---
+
+    Spring Boot, FastAPI, Flask, Django, plus web frameworks for Go, JavaScript, TypeScript, Rust, Kotlin, C#, Ruby, and PHP.
+
+- :material-lightning-bolt:{ .lg .middle } **Fast**
+
+    ---
+
+    Incremental compilation with header dependency tracking. Only what changed gets rebuilt.
+
+- :material-file-cog:{ .lg .middle } **Simple**
+
+    ---
+
+    One `stoke.toml` for the whole project — no per-language config files to juggle.
+
+- :material-eye-refresh:{ .lg .middle } **Watch & hot-reload**
+
+    ---
+
+    Auto-rebuild on file changes, with optional process restart for long-running servers.
+
+- :material-application-brackets:{ .lg .middle } **IDE integration**
+
+    ---
+
+    Auto-generates VSCode/Eclipse/IntelliJ configs on every build.
+
+- :material-tune-variant:{ .lg .middle } **Build profiles**
+
+    ---
+
+    Debug/Release/custom profiles with their own flags and defines.
+
+</div>
 
 ## Quick example
 

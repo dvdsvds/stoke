@@ -1,0 +1,149 @@
+/* stoke docs — refined theme polish on top of Material for MkDocs */
+
+:root {
+  --stoke-flame: #f7871e;
+  --stoke-flame-dark: #e8590c;
+  --stoke-ember: #e0342b;
+}
+
+/* Typography polish */
+.md-typeset {
+  font-feature-settings: "liga" 1, "kern" 1;
+}
+
+.md-typeset h1,
+.md-typeset h2,
+.md-typeset h3 {
+  letter-spacing: -0.01em;
+  font-weight: 700;
+}
+
+.md-header__title,
+.md-nav__title {
+  font-weight: 600;
+}
+
+/* True near-black dark mode instead of Material's default blue-grey slate */
+[data-md-color-scheme="slate"] {
+  --md-default-bg-color: #0b0d10;
+  --md-default-fg-color: #e6e6e6;
+  --md-default-fg-color--light: #b3b3b3;
+  --md-default-fg-color--lighter: #7a7a7a;
+  --md-code-bg-color: #14171a;
+  --md-code-fg-color: #d8dee4;
+  --md-footer-bg-color: #0b0d10;
+  --md-footer-bg-color--dark: #08090b;
+}
+
+[data-md-color-scheme="slate"] .md-header {
+  background-color: #0b0d10;
+  border-bottom: 1px solid #1c1f23;
+}
+
+[data-md-color-scheme="slate"] .md-tabs {
+  background-color: #0b0d10;
+  border-bottom: 1px solid #1c1f23;
+}
+
+[data-md-color-scheme="default"] .md-header {
+  background-color: #0b0d10;
+}
+
+[data-md-color-scheme="default"] .md-tabs {
+  background-color: #14171a;
+}
+
+/* Accent-colored links within body text */
+.md-typeset a {
+  color: var(--stoke-flame-dark);
+  text-decoration-thickness: 1px;
+}
+
+[data-md-color-scheme="slate"] .md-typeset a {
+  color: var(--stoke-flame);
+}
+
+/* Feature grid cards — subtle lift instead of flat boxes */
+.md-typeset .grid.cards > ul > li,
+.md-typeset .grid.cards > ol > li {
+  border-radius: 10px;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.md-typeset .grid.cards > ul > li:hover,
+.md-typeset .grid.cards > ol > li:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border-color: var(--stoke-flame);
+}
+
+[data-md-color-scheme="slate"] .md-typeset .grid.cards > ul > li:hover,
+[data-md-color-scheme="slate"] .md-typeset .grid.cards > ol > li:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+/* Hero section on the home page */
+.stoke-hero {
+  text-align: center;
+  padding: 2.5rem 1rem 3rem;
+  margin: -1.2rem -1.2rem 2rem;
+  background: radial-gradient(ellipse at top, rgba(247, 135, 30, 0.10), transparent 60%);
+  border-bottom: 1px solid var(--md-default-fg-color--lightest);
+}
+
+.stoke-hero img {
+  width: 88px;
+  height: 88px;
+  margin-bottom: 1rem;
+}
+
+.stoke-hero h1 {
+  font-size: 2.2rem;
+  margin: 0.2rem 0 0.6rem;
+}
+
+.stoke-hero p {
+  font-size: 1.1rem;
+  color: var(--md-default-fg-color--light);
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.stoke-cta {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.stoke-cta .md-button {
+  border-radius: 8px;
+  color: var(--md-default-fg-color);
+  border-color: var(--md-default-fg-color--light);
+}
+
+.stoke-cta .md-button:hover {
+  color: var(--stoke-flame-dark);
+  border-color: var(--stoke-flame-dark);
+}
+
+.stoke-cta .md-button--primary {
+  background-color: var(--stoke-flame-dark);
+  border-color: var(--stoke-flame-dark);
+}
+
+.stoke-cta .md-button--primary:hover {
+  background-color: var(--stoke-ember);
+  border-color: var(--stoke-ember);
+}
+
+/* Code blocks: slightly tighter, rounder */
+.md-typeset pre > code {
+  border-radius: 8px;
+}
+
+.md-typeset code {
+  border-radius: 4px;
+}
