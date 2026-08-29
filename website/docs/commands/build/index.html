@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>stoke build — stoke</title>
+<link rel="icon" href="../../assets/favicon-src.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/home.css">
+<link rel="stylesheet" href="../../assets/docs.css">
+</head>
+<body>
+<nav class="nav">
+  <div class="wrap">
+    <a class="nav-brand" href="../../"><img src="../../assets/logo-mark.png" alt="stoke">stoke</a>
+    <div class="nav-links">
+      <a href="../../getting-started/installation/">Docs</a>
+<a href="../../commands/overview/">Commands</a>
+<a href="../../languages/python/">Languages</a>
+      <div class="lang-switch"><a class="active" href="../../">EN</a><a href="../../ko/">한국어</a></div>
+    </div>
+    <a class="nav-gh" href="https://github.com/dvdsvds/stoke"><svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>dvdsvds/stoke</a>
+  </div>
+</nav>
+<div class="doc-layout">
+  <div class="doc-sidebar-col"><nav class="side-nav">
+<div class="side-group">
+<div class="side-group-title">Getting Started</div>
+<ul>
+<li><a class="" href="../../getting-started/installation/">Installation</a></li>
+<li><a class="" href="../../getting-started/quick-start/">Quick Start</a></li>
+</ul></div>
+<div class="side-group">
+<div class="side-group-title">Commands</div>
+<ul>
+<li><a class="" href="../../commands/overview/">Overview</a></li>
+<li><a class="active" href="../../commands/build/">build</a></li>
+<li><a class="" href="../../commands/run/">run</a></li>
+<li><a class="" href="../../commands/watch/">watch</a></li>
+<li><a class="" href="../../commands/hot-reload/">hot-reload</a></li>
+<li><a class="" href="../../commands/clean/">clean</a></li>
+<li><a class="" href="../../commands/init/">init</a></li>
+<li><a class="" href="../../commands/ide-sync/">ide-sync</a></li>
+</ul></div>
+<div class="side-group">
+<div class="side-group-title">Languages</div>
+<ul>
+<li><a class="" href="../../languages/python/">Python</a></li>
+<li><a class="" href="../../languages/java/">Java</a></li>
+<li><a class="" href="../../languages/cpp/">C/C++</a></li>
+<li><a class="" href="../../languages/go/">Go</a></li>
+<li><a class="" href="../../languages/rust/">Rust</a></li>
+<li><a class="" href="../../languages/kotlin/">Kotlin</a></li>
+<li><a class="" href="../../languages/csharp/">C#</a></li>
+<li><a class="" href="../../languages/ruby/">Ruby</a></li>
+<li><a class="" href="../../languages/php/">PHP</a></li>
+<li><a class="" href="../../languages/javascript/">JavaScript</a></li>
+<li><a class="" href="../../languages/typescript/">TypeScript</a></li>
+</ul></div>
+<div class="side-group">
+<div class="side-group-title">Configuration</div>
+<ul>
+<li><a class="" href="../../configuration/stoke-toml/">stoke.toml</a></li>
+<li><a class="" href="../../configuration/profiles/">Profiles</a></li>
+<li><a class="" href="../../configuration/lock-file/">Lock file</a></li>
+</ul></div>
+<div class="side-group">
+<div class="side-group-title">Advanced</div>
+<ul>
+<li><a class="" href="../../advanced/vcpkg/">vcpkg</a></li>
+<li><a class="" href="../../advanced/ide-integration/">IDE Integration</a></li>
+</ul></div>
+<div class="side-group">
+<div class="side-group-title">Frameworks</div>
+<ul>
+<li><a class="" href="../../frameworks/overview/">Overview</a></li>
+<li><a class="" href="../../frameworks/spring-boot/">Spring Boot</a></li>
+<li><a class="" href="../../frameworks/fastapi/">FastAPI</a></li>
+<li><a class="" href="../../frameworks/flask/">Flask</a></li>
+<li><a class="" href="../../frameworks/django/">Django</a></li>
+<li><a class="" href="../../frameworks/gin/">Gin</a></li>
+<li><a class="" href="../../frameworks/echo/">Echo</a></li>
+<li><a class="" href="../../frameworks/fiber/">Fiber</a></li>
+<li><a class="" href="../../frameworks/chi/">Chi</a></li>
+<li><a class="" href="../../frameworks/express/">Express</a></li>
+<li><a class="" href="../../frameworks/fastify/">Fastify</a></li>
+<li><a class="" href="../../frameworks/nextjs/">Next.js</a></li>
+<li><a class="" href="../../frameworks/nestjs/">NestJS</a></li>
+<li><a class="" href="../../frameworks/vite/">Vite</a></li>
+<li><a class="" href="../../frameworks/nuxt/">Nuxt</a></li>
+<li><a class="" href="../../frameworks/sveltekit/">SvelteKit</a></li>
+<li><a class="" href="../../frameworks/hono/">Hono</a></li>
+<li><a class="" href="../../frameworks/actix-web/">Actix-web</a></li>
+<li><a class="" href="../../frameworks/axum/">Axum</a></li>
+<li><a class="" href="../../frameworks/rocket/">Rocket</a></li>
+<li><a class="" href="../../frameworks/ktor/">Ktor</a></li>
+<li><a class="" href="../../frameworks/spring-boot-kotlin/">Spring Boot (Kotlin)</a></li>
+<li><a class="" href="../../frameworks/aspnet-core/">ASP.NET Core</a></li>
+<li><a class="" href="../../frameworks/sinatra/">Sinatra</a></li>
+<li><a class="" href="../../frameworks/slim/">Slim</a></li>
+</ul></div>
+<div class="side-group"><a class="side-top" href="../../troubleshooting/">Troubleshooting</a></div>
+<div class="side-group"><a class="side-top" href="../../faq/">FAQ</a></div>
+</nav></div>
+  <main class="doc-content">
+    <article>
+<h1 id="stoke-build">stoke build</h1>
+<p>Build a target.</p>
+<h2 id="usage">Usage</h2>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>build<span class="w"> </span><span class="o">[</span>target<span class="o">]</span><span class="w"> </span><span class="o">[</span>options<span class="o">]</span>
+</code></pre></div>
+
+<p>If <code>target</code> is omitted, the first target in <code>stoke.toml</code> is used.</p>
+<h2 id="options">Options</h2>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--force</code></td>
+<td>Ignore cache and rebuild everything</td>
+</tr>
+<tr>
+<td><code>--debug</code></td>
+<td>Build with the debug profile (default)</td>
+</tr>
+<tr>
+<td><code>--release</code></td>
+<td>Build with the release profile</td>
+</tr>
+<tr>
+<td><code>--profile &lt;name&gt;</code></td>
+<td>Build with a custom profile from <code>stoke.toml</code></td>
+</tr>
+<tr>
+<td><code>-v</code>, <code>--verbose</code></td>
+<td>Show detailed build output</td>
+</tr>
+</tbody>
+</table>
+<h2 id="examples">Examples</h2>
+<h3 id="basic-build">Basic build</h3>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>build
+</code></pre></div>
+
+<p>Builds the default target with the debug profile.</p>
+<h3 id="specify-target">Specify target</h3>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>build<span class="w"> </span>myapp
+</code></pre></div>
+
+<p>Builds the <code>myapp</code> target.</p>
+<h3 id="release-build">Release build</h3>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>build<span class="w"> </span>--release
+</code></pre></div>
+
+<p>Optimized build (<code>-O2</code> for C/C++, defines <code>NDEBUG</code>).</p>
+<h3 id="custom-profile">Custom profile</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># stoke.toml</span>
+<span class="k">[profiles.small]</span>
+<span class="n">compile_flags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"-Os"</span><span class="p">,</span><span class="w"> </span><span class="s2">"-flto"</span><span class="p">]</span>
+<span class="n">defines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">NDEBUG</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>build<span class="w"> </span>--profile<span class="o">=</span>small
+</code></pre></div>
+
+<h3 id="force-rebuild">Force rebuild</h3>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>build<span class="w"> </span>--force
+</code></pre></div>
+
+<p>Ignores the cache and recompiles everything. Useful when you suspect stale artifacts.</p>
+<h3 id="verbose-output">Verbose output</h3>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>build<span class="w"> </span>-v
+</code></pre></div>
+
+<p>Shows compiler paths, per-file compilation status, and detailed steps.</p>
+<h2 id="output-structure">Output structure</h2>
+<p>Build artifacts are organized by language, target, and profile:
+.stoke/
+├── {language}/
+│   └── {target}/
+│       └── {profile}/
+│           ├── objects/         # C/C++ .o files
+│           ├── classes/         # Java .class files
+│           └── {target}.exe     # Final executable
+├── cache.json                   # Incremental build cache
+└── lock.toml                    # Locked versions</p>
+<p>Example for a C project:
+.stoke/
+├── c/
+│   └── myapp/
+│       ├── debug/
+│       │   ├── objects/
+│       │   └── myapp.exe
+│       └── release/
+│           ├── objects/
+│           └── myapp.exe
+├── cache.json
+└── lock.toml</p>
+<h2 id="incremental-compilation">Incremental compilation</h2>
+<p>stoke tracks file modifications and header dependencies. Only changed files are recompiled.</p>
+<p>For C/C++, header dependencies are tracked via gcc's <code>-MMD</code> flag. If <code>header.h</code> changes, all files that <code>#include "header.h"</code> (directly or indirectly) will be recompiled.</p>
+<p>To bypass the cache, use <code>--force</code>.</p>
+<h2 id="build-profiles">Build profiles</h2>
+<p>Default profiles:</p>
+<ul>
+<li><strong>debug</strong> — <code>-O0 -g -Wall</code>, defines <code>DEBUG</code> (C/C++ only)</li>
+<li><strong>release</strong> — <code>-O2</code>, defines <code>NDEBUG</code> (C/C++ only)</li>
+</ul>
+<p>Note: profiles only affect C/C++ builds. Python and Java ignore profiles.</p>
+<p>Custom profiles are defined in <code>stoke.toml</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[profiles.myprofile]</span>
+<span class="n">compile_flags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"-O3"</span><span class="p">,</span><span class="w"> </span><span class="s2">"-march=native"</span><span class="p">]</span>
+<span class="n">defines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">MYFLAG</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">}</span>
+<span class="n">compiler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"clang"</span><span class="w">  </span><span class="c1"># optional: override compiler</span>
+</code></pre></div>
+
+<p>See <a href="../../configuration/profiles/">Profiles</a> for details.</p>
+<h2 id="related">Related</h2>
+<ul>
+<li><a href="../../commands/run/"><code>stoke run</code></a> — run the built target</li>
+<li><a href="../../commands/watch/"><code>stoke watch</code></a> — auto-rebuild on changes</li>
+<li><a href="../../commands/clean/"><code>stoke clean</code></a> — remove build artifacts</li>
+<li><a href="../../configuration/profiles/">Profiles</a> — profile system reference</li>
+</ul>
+    </article>
+  </main>
+  <div class="doc-toc-col"><nav class="page-toc"><div class="page-toc-title">On this page</div><ul>
+<li class=""><a href="#usage">Usage</a></li>
+<li class=""><a href="#options">Options</a></li>
+<li class=""><a href="#examples">Examples</a></li>
+<li class="sub"><a href="#basic-build">Basic build</a></li>
+<li class="sub"><a href="#specify-target">Specify target</a></li>
+<li class="sub"><a href="#release-build">Release build</a></li>
+<li class="sub"><a href="#custom-profile">Custom profile</a></li>
+<li class="sub"><a href="#force-rebuild">Force rebuild</a></li>
+<li class="sub"><a href="#verbose-output">Verbose output</a></li>
+<li class=""><a href="#output-structure">Output structure</a></li>
+<li class=""><a href="#incremental-compilation">Incremental compilation</a></li>
+<li class=""><a href="#build-profiles">Build profiles</a></li>
+<li class=""><a href="#related">Related</a></li>
+</ul></nav></div>
+</div>
+<footer class="footer doc-footer">
+  <div class="wrap">
+    <span>© stoke — MIT License</span>
+    <div class="footer-links">
+      <a href="../../getting-started/installation/">Docs</a>
+      <a href="https://github.com/dvdsvds/stoke">GitHub</a>
+      <a href="../../faq/">FAQ</a>
+    </div>
+  </div>
+</footer>
+</body>
+</html>
