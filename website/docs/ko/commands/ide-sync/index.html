@@ -121,25 +121,28 @@
 <li><code>{workspace_name}.code-workspace</code> — VSCode 멀티 루트 워크스페이스 파일</li>
 </ul>
 <h2 id="_3">예시</h2>
-<p>디렉토리 구조:
-myworkspace/
+<p>디렉토리 구조:</p>
+<div class="highlight"><pre><span></span><code>myworkspace/
 ├── frontend/
 │   └── stoke.toml       # python
 ├── backend/
 │   └── stoke.toml       # java
 └── engine/
-└── stoke.toml       # cpp</p>
-<p>실행:
-$ cd myworkspace
-$ stoke ide-sync
-Scanning for stoke projects under C:\Users...\myworkspace...
-Found 3 project(s):
-[python] frontend
-[java] backend
-[cpp] engine
-Generated: C:\Users...\myworkspace.vscode\settings.json
-Generated: C:\Users...\myworkspace\myworkspace.code-workspace
-Open in VSCode: C:\Users...\myworkspace\myworkspace.code-workspace</p>
+    └── stoke.toml       # cpp
+</code></pre></div>
+
+<p>실행:</p>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>cd<span class="w"> </span>myworkspace
+$<span class="w"> </span>stoke<span class="w"> </span>ide-sync
+Scanning<span class="w"> </span>for<span class="w"> </span>stoke<span class="w"> </span>projects<span class="w"> </span>under<span class="w"> </span>C:\Users...\myworkspace...
+Found<span class="w"> </span>3<span class="w"> </span>project(s):
+[python]<span class="w"> </span>frontend
+[java]<span class="w"> </span>backend
+[cpp]<span class="w"> </span>engine
+Generated:<span class="w"> </span>C:\Users...\myworkspace\.vscode\settings.json
+Generated:<span class="w"> </span>C:\Users...\myworkspace\myworkspace.code-workspace
+Open<span class="w"> </span>in<span class="w"> </span>VSCode:<span class="w"> </span>C:\Users...\myworkspace\myworkspace.code-workspace
+</code></pre></div>
 <p>VSCode에서 <code>.code-workspace</code> 파일을 열면 각 프로젝트에 맞는 언어 지원을 받으면서 모든 프로젝트를 함께 작업할 수 있습니다.</p>
 <h2 id="ide">개별 프로젝트 IDE 파일</h2>
 <p><code>stoke build</code>도 프로젝트별 IDE 파일(VSCode 설정, Eclipse <code>.classpath</code>, <code>pom.xml</code> 등)을 생성합니다. <code>ide-sync</code>와는 별개입니다.</p>

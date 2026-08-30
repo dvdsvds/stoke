@@ -182,8 +182,8 @@
 
 <p>Shows compiler paths, per-file compilation status, and detailed steps.</p>
 <h2 id="output-structure">Output structure</h2>
-<p>Build artifacts are organized by language, target, and profile:
-.stoke/
+<p>Build artifacts are organized by language, target, and profile:</p>
+<div class="highlight"><pre><span></span><code>.stoke/
 ├── {language}/
 │   └── {target}/
 │       └── {profile}/
@@ -191,9 +191,11 @@
 │           ├── classes/         # Java .class files
 │           └── {target}.exe     # Final executable
 ├── cache.json                   # Incremental build cache
-└── lock.toml                    # Locked versions</p>
-<p>Example for a C project:
-.stoke/
+└── lock.toml                    # Locked versions
+</code></pre></div>
+
+<p>Example for a C project:</p>
+<div class="highlight"><pre><span></span><code>.stoke/
 ├── c/
 │   └── myapp/
 │       ├── debug/
@@ -203,7 +205,8 @@
 │           ├── objects/
 │           └── myapp.exe
 ├── cache.json
-└── lock.toml</p>
+└── lock.toml
+</code></pre></div>
 <h2 id="incremental-compilation">Incremental compilation</h2>
 <p>stoke tracks file modifications and header dependencies. Only changed files are recompiled.</p>
 <p>For C/C++, header dependencies are tracked via gcc's <code>-MMD</code> flag. If <code>header.h</code> changes, all files that <code>#include "header.h"</code> (directly or indirectly) will be recompiled.</p>

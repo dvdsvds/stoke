@@ -121,25 +121,28 @@
 <li><code>{workspace_name}.code-workspace</code> — VSCode multi-root workspace file</li>
 </ul>
 <h2 id="example">Example</h2>
-<p>Directory structure:
-myworkspace/
+<p>Directory structure:</p>
+<div class="highlight"><pre><span></span><code>myworkspace/
 ├── frontend/
 │   └── stoke.toml       # python
 ├── backend/
 │   └── stoke.toml       # java
 └── engine/
-└── stoke.toml       # cpp</p>
-<p>Run:
-$ cd myworkspace
-$ stoke ide-sync
-Scanning for stoke projects under C:\Users...\myworkspace...
-Found 3 project(s):
-[python] frontend
-[java] backend
-[cpp] engine
-Generated: C:\Users...\myworkspace.vscode\settings.json
-Generated: C:\Users...\myworkspace\myworkspace.code-workspace
-Open in VSCode: C:\Users...\myworkspace\myworkspace.code-workspace</p>
+    └── stoke.toml       # cpp
+</code></pre></div>
+
+<p>Run:</p>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>cd<span class="w"> </span>myworkspace
+$<span class="w"> </span>stoke<span class="w"> </span>ide-sync
+Scanning<span class="w"> </span>for<span class="w"> </span>stoke<span class="w"> </span>projects<span class="w"> </span>under<span class="w"> </span>C:\Users...\myworkspace...
+Found<span class="w"> </span>3<span class="w"> </span>project(s):
+[python]<span class="w"> </span>frontend
+[java]<span class="w"> </span>backend
+[cpp]<span class="w"> </span>engine
+Generated:<span class="w"> </span>C:\Users...\myworkspace\.vscode\settings.json
+Generated:<span class="w"> </span>C:\Users...\myworkspace\myworkspace.code-workspace
+Open<span class="w"> </span>in<span class="w"> </span>VSCode:<span class="w"> </span>C:\Users...\myworkspace\myworkspace.code-workspace
+</code></pre></div>
 <p>Open the <code>.code-workspace</code> file in VSCode to work on all projects together with proper language support for each.</p>
 <h2 id="individual-project-ide-files">Individual project IDE files</h2>
 <p><code>stoke build</code> also generates per-project IDE files (VSCode settings, Eclipse <code>.classpath</code>, <code>pom.xml</code>, etc.). Those are separate from <code>ide-sync</code>.</p>

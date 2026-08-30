@@ -177,16 +177,17 @@ stoke<span class="w"> </span>hot-reload<span class="w"> </span>--release
 
 <p>The <code>compiler</code> field overrides the default compiler for this profile. Value: <code>"gcc"</code> or <code>"clang"</code>.</p>
 <h2 id="output-directories">Output directories</h2>
-<p>Each profile builds into its own directory:
-.stoke/
+<p>Each profile builds into its own directory:</p>
+<div class="highlight"><pre><span></span><code>.stoke/
 └── cpp/
-└── myapp/
-├── debug/
-│   └── myapp.exe
-├── release/
-│   └── myapp.exe
-└── small/
-└── myapp.exe</p>
+    └── myapp/
+        ├── debug/
+        │   └── myapp.exe
+        ├── release/
+        │   └── myapp.exe
+        └── small/
+            └── myapp.exe
+</code></pre></div>
 <p>Rebuilding a different profile doesn't affect others. You can maintain multiple builds simultaneously.</p>
 <h2 id="conflicts">Conflicts</h2>
 <p>You can't combine flag styles:</p>
@@ -195,15 +196,16 @@ stoke<span class="w"> </span>build<span class="w"> </span>--release<span class="
 </code></pre></div>
 
 <h2 id="not-available-for-pythonjava">Not available for Python/Java</h2>
-<p>Profiles apply to C/C++ only. Python and Java builds ignore the profile flag but still use profile-based output directories:
-.stoke/
+<p>Profiles apply to C/C++ only. Python and Java builds ignore the profile flag but still use profile-based output directories:</p>
+<div class="highlight"><pre><span></span><code>.stoke/
 ├── python/
 │   └── myapp/
 │       └── venv/            # same venv regardless of profile
 └── java/
-└── myapp/
-└── debug/           # default profile dir
-└── classes/</p>
+    └── myapp/
+        └── debug/           # default profile dir
+            └── classes/
+</code></pre></div>
 <h2 id="available-flags">Available flags</h2>
 <p>Profile fields:</p>
 <table>

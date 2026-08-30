@@ -198,14 +198,15 @@
 </ul>
 <p>No extra config needed. Just open the project.</p>
 <h2 id="multi-project-workspaces">Multi-project workspaces</h2>
-<p>For a repository with multiple stoke projects:
-myworkspace/
+<p>For a repository with multiple stoke projects:</p>
+<div class="highlight"><pre><span></span><code>myworkspace/
 ├── frontend/         # python
 │   └── stoke.toml
 ├── backend/          # java
 │   └── stoke.toml
 └── engine/           # cpp
-└── stoke.toml</p>
+    └── stoke.toml
+</code></pre></div>
 <p>Run in the root:</p>
 <div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>ide-sync
 </code></pre></div>

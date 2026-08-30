@@ -204,16 +204,17 @@
 <li>All Maven dependency JARs</li>
 </ul>
 <h2 id="source-layout">Source layout</h2>
-<p>Standard Maven convention:
-myapp/
+<p>Standard Maven convention:</p>
+<div class="highlight"><pre><span></span><code>myapp/
 ├── stoke.toml
 └── src/
-└── main/
-└── java/
-└── com/
-└── example/
-├── Main.java
-└── Utils.java</p>
+    └── main/
+        └── java/
+            └── com/
+                └── example/
+                    ├── Main.java
+                    └── Utils.java
+</code></pre></div>
 <p>You can use any layout; adjust the <code>sources</code> glob to match:</p>
 <div class="highlight"><pre><span></span><code><span class="n">sources</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"src/**/*.java"</span><span class="p">]</span><span class="w">              </span><span class="c1"># any location under src/</span>
 <span class="n">sources</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"src/main/java/**/*.java"</span><span class="p">]</span><span class="w">    </span><span class="c1"># Maven convention</span>

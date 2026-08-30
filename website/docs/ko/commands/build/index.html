@@ -182,8 +182,8 @@
 
 <p>컴파일러 경로, 파일별 컴파일 상태, 세부 단계를 보여줍니다.</p>
 <h2 id="output-structure">출력 구조</h2>
-<p>빌드 산출물은 언어, 타깃, 프로파일별로 정리됩니다:
-.stoke/
+<p>빌드 산출물은 언어, 타깃, 프로파일별로 정리됩니다:</p>
+<div class="highlight"><pre><span></span><code>.stoke/
 ├── {language}/
 │   └── {target}/
 │       └── {profile}/
@@ -191,9 +191,11 @@
 │           ├── classes/         # Java .class 파일
 │           └── {target}.exe     # 최종 실행 파일
 ├── cache.json                   # 증분 빌드 캐시
-└── lock.toml                    # 고정된 버전</p>
-<p>C 프로젝트 예시:
-.stoke/
+└── lock.toml                    # 고정된 버전
+</code></pre></div>
+
+<p>C 프로젝트 예시:</p>
+<div class="highlight"><pre><span></span><code>.stoke/
 ├── c/
 │   └── myapp/
 │       ├── debug/
@@ -203,7 +205,8 @@
 │           ├── objects/
 │           └── myapp.exe
 ├── cache.json
-└── lock.toml</p>
+└── lock.toml
+</code></pre></div>
 <h2 id="_9">증분 컴파일</h2>
 <p>stoke는 파일 수정과 헤더 의존성을 추적합니다. 변경된 파일만 재컴파일됩니다.</p>
 <p>C/C++의 경우 gcc의 <code>-MMD</code> 플래그로 헤더 의존성을 추적합니다. <code>header.h</code>가 변경되면 (직접 또는 간접적으로) <code>#include "header.h"</code>하는 모든 파일이 재컴파일됩니다.</p>
