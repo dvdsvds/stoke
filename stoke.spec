@@ -5,7 +5,7 @@ a = Analysis(
     ['src/stoke/__main__.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[('src/stoke/languages/c/vendor/doctest.h', 'stoke/languages/c/vendor')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
