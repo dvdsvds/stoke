@@ -37,8 +37,8 @@
 
 ## 3. 언어/툴체인 설치
 
-- `stoke install --language <python|java|c|cpp|go|node> [--version] [--list] [--base-url]` — 버전 매니저 없이 stoke가 직접 설치. Rust/Kotlin/C#/Ruby/PHP는 자체 설치 도구(rustup 등)로 위임 (직접 설치 지원 안 함).
-- `stoke uninstall --language ...`
+- `stoke install <python|java|c|cpp|go|nodejs|rust|csharp|ruby|php> [--version] [--list] [--base-url]` (`--language=`는 하위 호환용으로 남아있음) — 버전 매니저 없이 stoke가 직접 설치. **정정 (2026-08-30)**: 이전 버전의 이 문서는 "Rust/Kotlin/C#/Ruby/PHP는 자체 설치 도구로 위임(직접 설치 미지원)"이라고 적어뒀는데, `website/docs/versions/*.json`을 실제로 확인해보니 rust/csharp/ruby/php는 전부 실제 다운로드 URL이 있는 정식 버전 소스가 있고 `install_lang.py`가 그대로 설치함 — 확인 없이 옮겨 적은 이전 기록이 틀렸음. **Kotlin만 진짜로 별도 설치가 없음** — `SUPPORTED_LANGUAGES`엔 들어있지만 `kotlin.json`이 없어서 `stoke install kotlin`을 치면 raw `HTTP 404` 에러로 죽던 버그가 있었음(2026-08-30에 발견/수정, 아래 참고).
+- `stoke uninstall <language> | vcpkg`
 - `--base-url` / `STOKE_VERSION_API_BASE`로 사내 미러 서버 지정 가능 (폐쇄망 대응)
 
 ## 4. C/C++ 전용 기능
@@ -104,6 +104,32 @@ Sonatype Nexus 기준 실증(raw 리포 + maven-central 프록시, Basic Auth �
 기능 목록 자체는 코드와 거의 일치하고 죽은 코드나 미사용 기능은 없음 — 오히려 최근 커밋(`2a4b7a8`)에서 실제로 안 쓰는 `go_version` 설정 필드를 스스로 제거한 이력이 있을 정도로 정리가 잘 돼 있음. 홍보에서 조심할 부분은 "기능이 쓸모없다"가 아니라 **검증 범위를 실제보다 넓게 말하지 않는 것**(캐시 언어 범위, 신규 5개 언어의 실전 검증 여부, Rails/Laravel 부재, CMake/Meson 경로에서 무시되는 필드).
 
 2026-08-30 기준: 이 문서에 남아있던 항목(5. install API 비일관성, 8. Meson 미지원) 전부 해결됨.
+
+## 새 기능: stoke test, stoke add/remove, kotlin install 버그 (2026-08-30)
+
+사용자가 "stoke 기능에 개선점 없나" 물어봐서 코드 훑다가 나온 3개 항목, 전부 처리함.
+
+- **`stoke test [target] [--debug|--release|--profile] [-v]`** — 이전엔 build/run/watch/hot-reload/clean만 있고 테스트 실행이 아예 없었음(가장 큰 구멍으로 판단해서 1순위 제안했었음). 언어별로 그 생태계의 표준 테스트 도구에 위임:
+  - python: venv에 pytest 있으면 `pytest`, 없으면 stdlib `unittest discover`
+  - go: `go test ./...`, rust: `cargo test`, csharp: `dotnet test`
+  - kotlin: `gradle test`(빌드에서 `-x test`로 빼뒀던 그 태스크를 여기서 돎)
+  - javascript/typescript: package.json의 `scripts.test`를 `npm test`로
+  - ruby: spec/ 있으면 rspec, 아니면 Rakefile의 test 태스크
+  - php: `vendor/bin/phpunit` (없으면 설치 안내)
+  - C/C++ build_system="cmake": `ctest --test-dir ... --output-on-failure`
+  - C/C++ build_system="meson": `meson test -C ...`
+  - java, C/C++ 네이티브 빌드는 처음엔 미지원으로 남겼다가 (2026-08-30, 사용자가 "그럼 프레임워크 추가하자"고 해서) **바로 이어서 둘 다 구현함** — 아래 참고.
+  - python/go 조합은 실제 pytest/go test 설치해서 end-to-end 스모크 테스트함(둘 다 통과 확인).
+
+- **java `stoke test` — JUnit 5 (JUnit Platform Console Standalone)**: stoke의 java 빌드가 순수 javac 직접 호출 모델이라(Maven/Gradle 없음) 테스트 프레임워크가 아예 없었음. `org.junit.platform:junit-platform-console-standalone:1.11.3` 하나(JUnit Jupiter API+엔진까지 다 들어있는 uber jar)를 Maven Central에서 받아서(기존 `maven.py`의 `download_jar`/`MavenCoordinate` 재사용) `.stoke/java/<target>/test-deps/`에 캐싱. 새 `test_sources` stoke.toml 필드(java_adapter가 `.java` 파일만 수집)로 테스트 파일 지정 → `.stoke/java/<target>/test-classes/`에 컴파일(메인 classes_dir + deps + junit jar가 classpath) → `java -jar <junit jar> execute --classpath ... --scan-classpath <test-classes> --disable-banner`로 실행. 사용자는 표준 `org.junit.jupiter.api.Test`/`Assertions`를 그대로 씀 — stoke 전용 assertion 문법 없음. 실제 JDK로 컴파일+실행해서 통과/실패 케이스(각각 exit 0/1) 둘 다 end-to-end 검증함.
+
+- **C++ `stoke test` — doctest (헤더 하나, stoke 패키지에 번들)**: [doctest](https://github.com/doctest/doctest) v2.4.11 `doctest.h`(MIT 라이선스, 라이선스 헤더 그대로 유지)를 `src/stoke/languages/c/vendor/doctest.h`로 번들함(네트워크 다운로드 불필요) — `pyproject.toml`의 `[tool.setuptools.package-data]`와 `stoke.spec`의 `datas`에 둘 다 등록해서 pip 설치판과 PyInstaller exe 양쪽에 실제로 포함되게 함. `test_sources`(cpp만) 글롭으로 테스트 파일 지정 → main()이 없는 나머지 소스(라이브러리 코드, 정규식으로 감지)와 같이 컴파일 → stoke가 자동 생성한 `_stoke_doctest_main.cpp`(`DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN`)로 링크해서 `test_runner.exe` 생성 후 실행. **plain C는 여전히 미지원**(doctest는 C++ 전용이라 — Unity 같은 C 프레임워크는 자동 디스커버리를 위해 테스트 함수 시그니처를 파싱해서 `RUN_TEST()` 호출부를 생성해야 해서 doctest/JUnit보다 작업량이 꽤 더 필요함, 이번 라운드에서 명시적으로 스코프 아웃함 — `stoke test`가 plain C 타겟에서 이 이유를 설명하는 에러를 냄). 실제 g++로 컴파일+링크해서 통과/실패 케이스(각각 exit 0/1) 둘 다 end-to-end 검증함(PowerShell에서 직접 확인 — Git Bash/MSYS2 서브프로세스 실행 시 exit 127로 잘못 보이는 환경 문제가 있었는데 이건 테스트 하네스 쪽 문제였고 실제 stoke 동작과는 무관함을 확인함).
+
+- **`stoke add <package> [version] [--target=X]` / `stoke remove <package> [--target=X]`** — python/java에서 stoke.toml의 `[targets.X.deps]`에 패키지 추가+즉시 설치(`add`는 내부적으로 `stoke build` 재사용)/제거. 다른 언어는 대상에서 뺌 — go/rust/kotlin/csharp/ruby/php/js/ts는 stoke.toml이 의존성 매니페스트가 아니라 각자 네이티브 파일(go.mod, Cargo.toml 등)이 매니페스트라 이미 `cargo add`/`npm install`/`go get` 등을 그대로 쓰는 게 맞음(README에 이미 명시된 설계 원칙) — 대신 시도하면 어떤 네이티브 명령어를 쓰라는 안내를 띄움. C/C++은 이미 `stoke vcpkg install/remove`가 같은 역할을 해서 제외. `toml_editor.add_dep`/`remove_dep`(기존에 vcpkg 명령어가 쓰던 것)을 그대로 재사용. python으로 실제 `stoke add requests` → 설치 확인 → `stoke remove requests` → 제거 확인까지 end-to-end 검증함.
+
+- **`stoke install kotlin` 실제 버그 발견/수정**: `SUPPORTED_LANGUAGES`엔 kotlin이 들어있는데 `website/docs/versions/kotlin.json`이 없어서 `fetch_versions()`가 raw `HTTP 404 Not Found`로 죽었음 — 사용자 입장에선 원인을 알 수 없는 에러. `_NO_DIRECT_INSTALL` 딕셔너리로 kotlin만 먼저 걸러서 "Kotlin은 별도 툴체인이 없고 JDK+Gradle로 빌드되니 `stoke install java`를 쓰라"는 명확한 안내로 바꿈. **이 과정에서 이전 기록(위 참고)이 rust/csharp/ruby/php를 "위임"이라고 잘못 적어놨던 것도 같이 정정함** — 실제로는 이 4개 다 `website/docs/versions/*.json`에 진짜 다운로드 URL이 있고 stoke가 직접 설치함. README.md/README_ko.md도 같이 고침.
+
+- **부수적으로 잡은 버그**: `cli/deps.py`의 `cmd_remove_dep` 안내 메시지에 em dash(—)를 그대로 썼다가 Windows cp949 콘솔에서 stdout에 UnicodeEncodeError로 죽는 걸 실제로 재현함 (stderr는 기본 errors="backslashreplace"라 안 죽지만 stdout은 "strict"라 죽음). ASCII 하이픈으로 교체.
 
 ## 추가로 발견된 버그 (2026-08-30, 사용자 질문 계기)
 

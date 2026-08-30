@@ -31,7 +31,7 @@ stoke run
 
 ## Features
 - **Multi-language** — Python, Java, C, C++, Go, Rust, Kotlin, C#, Ruby, PHP, JavaScript, TypeScript with a single stoke.toml
-- **Language installation** — install Python/JDK/gcc/Go/Node.js via `stoke install` (Rust/Kotlin/C#/Ruby/PHP delegate to their own installers)
+- **Language installation** — install Python/JDK/gcc/Go/Node.js/Rust/C#/Ruby/PHP via `stoke install` (Kotlin has no separate toolchain — it builds through Gradle on top of a JDK)
 - **Project scaffolding** — `stoke init <type>` for Spring Boot, FastAPI, Flask, Django, Gin, Echo, Fiber, Chi, Actix Web, Axum, Rocket, Ktor, ASP.NET Core, Sinatra, Slim, Express, Fastify, Next.js, NestJS, Vite, Nuxt, SvelteKit, Hono
 - **Python environments** — venv or conda
 - **Watch mode and hot-reload** for all languages
@@ -43,6 +43,8 @@ stoke run
 - **Target dependencies** — `depends_on = ["other_target"]` on a target; `stoke build`/`stoke build --all` build dependencies first and respect the order (cycles and unknown targets are rejected at load time)
 - **CMake escape hatch for C/C++** — `build_system = "cmake"` on a C/C++ target delegates `build`/`run`/`watch`/`hot-reload`/`clean` to `cmake configure`/`--build` instead of stoke's own compile model, for projects with an existing `CMakeLists.txt`
 - **Meson escape hatch for C/C++** — `build_system = "meson"` on a C/C++ target delegates `build`/`run`/`watch`/`hot-reload`/`clean` to `meson setup`/`meson compile` instead of stoke's own compile model, for projects with an existing `meson.build`
+- **`stoke test`** — runs the target's tests via each ecosystem's standard tool: pytest/unittest (Python), JUnit 5 via a bundled console launcher (Java), `go test`, `cargo test`, `dotnet test`, `gradle test`, `npm test`, RSpec/rake, PHPUnit, and `ctest`/`meson test` for `build_system = "cmake"/"meson"`. For plain C/C++ builds, `test_sources` + a bundled single-header [doctest](https://github.com/doctest/doctest) (C++ only for now)
+- **`stoke add`/`stoke remove`** — add or remove a dependency in `stoke.toml` for Python/Java (the two languages where `stoke.toml` is the actual manifest); every other language points you at its native tool (`cargo add`, `npm install`, `go get`, etc.) instead
 - **Pre/post-build hooks** — `pre_build`/`post_build` shell commands per target, for every language and every build path (`build`, `build --all`, `watch`, `hot-reload`)
 - **Reproducible builds** via lock files
 - **Auto IDE integration** (VSCode, IntelliJ, Eclipse)

@@ -12,7 +12,7 @@ Spring Boot, FastAPI, Flask, Django, 그리고 Go/Rust/Kotlin/C#/Ruby/PHP/JavaSc
 ## 주요 기능
 
 - **다국어 지원** — Python, Java, C, C++, Go, Rust, Kotlin, C#, Ruby, PHP, JavaScript, TypeScript 통합 관리 (12개 언어, `stoke.toml` 하나로)
-- **언어 설치** — `stoke install --language=X`로 Python/JDK/gcc/Go/Node.js 자동 설치 (Rust/Kotlin/C#/Ruby/PHP는 rustup, JDK 설치 도구, dotnet 인스톨러, rbenv/rvm 등 각자의 설치 도구에 위임)
+- **언어 설치** — `stoke install`로 Python/JDK/gcc/Go/Node.js/Rust/C#/Ruby/PHP 자동 설치 (Kotlin은 별도 툴체인이 없음 — JDK 위에서 Gradle로 빌드)
 - **프레임워크 스캐폴딩** — Spring Boot, FastAPI, Flask, Django, Gin, Echo, Fiber, Chi, Actix Web, Axum, Rocket, Ktor, Spring Boot(Kotlin), ASP.NET Core, Sinatra, Slim, Express, Fastify, Next.js, NestJS, Vite, Nuxt, SvelteKit, Hono
 - **Python 환경** — venv 또는 conda 선택 가능
 - **자동 의존성 관리** — stoke가 직접 관리하는 언어는 pip, Maven Central, vcpkg / 나머지는 Cargo, Gradle, NuGet, Bundler, Composer, npm이 각자 처리
@@ -23,6 +23,8 @@ Spring Boot, FastAPI, Flask, Django, 그리고 Go/Rust/Kotlin/C#/Ruby/PHP/JavaSc
 - **타겟 간 의존성** — 타겟에 `depends_on = ["다른_타겟"]` 선언 가능. `stoke build`/`stoke build --all`이 의존성부터 순서대로 빌드 (순환·존재하지 않는 타겟 참조는 설정 로드 시점에 바로 에러)
 - **C/C++용 CMake 위임** — 타겟에 `build_system = "cmake"`를 지정하면 stoke 자체 컴파일 모델 대신 `cmake`의 configure/build로 `build`/`run`/`watch`/`hot-reload`/`clean`을 그대로 위임. 이미 `CMakeLists.txt`가 있는 프로젝트용
 - **C/C++용 Meson 위임** — 타겟에 `build_system = "meson"`을 지정하면 stoke 자체 컴파일 모델 대신 `meson setup`/`meson compile`로 `build`/`run`/`watch`/`hot-reload`/`clean`을 그대로 위임. 이미 `meson.build`가 있는 프로젝트용
+- **`stoke test`** — 각 생태계의 표준 도구로 타겟 테스트 실행: pytest/unittest(Python), 번들된 콘솔 런처로 JUnit 5(Java), `go test`, `cargo test`, `dotnet test`, `gradle test`, `npm test`, RSpec/rake, PHPUnit, `build_system = "cmake"/"meson"`이면 `ctest`/`meson test`. 순수 C/C++ 빌드는 `test_sources` + 번들된 헤더 하나짜리 [doctest](https://github.com/doctest/doctest)(현재는 C++만)
+- **`stoke add`/`stoke remove`** — Python/Java(`stoke.toml`이 실제 매니페스트인 두 언어)에서 `stoke.toml`에 의존성 추가/제거. 다른 언어는 그 언어의 네이티브 도구(`cargo add`, `npm install`, `go get` 등)를 쓰라고 안내
 - **멀티타겟 프로젝트** — 기존 프로젝트 안에서 `stoke init`을 다시 실행하면 `stoke.toml`을 직접 고치는 대신 새 타겟을 추가
 - **자동 IDE 통합** — VSCode, IntelliJ, Eclipse 설정 파일 자동 생성
 - **Watch 모드 + Hot-reload** — 파일 변경 감지 후 자동 재빌드, 프로세스 재시작
