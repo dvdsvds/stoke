@@ -132,5 +132,20 @@ class CSharpAdapter(BaseAdapter):
             )
         return [str(self.output_path)]
 
+    def test(self, verbose: bool = False) -> int:
+        """dotnet test 실행. 보통 별도 테스트 프로젝트(csproj)를 dotnet이 알아서 찾음."""
+        dotnet_exe = self._find_dotnet()
+        scope_dir = self.project_root / self.target.name
+        scope = str(scope_dir) if scope_dir.is_dir() else str(self.project_root)
+        cmd = [dotnet_exe, "test", scope]
+        if verbose:
+            cmd.append("--verbosity=normal")
+        print(f"Running: dotnet test {scope}\n")
+        try:
+            result = subprocess.run(cmd, cwd=str(self.project_root))
+            return result.returncode
+        except KeyboardInterrupt:
+            return 130
+
     def _gitignore_entries(self) -> list[str]:
         return [".stoke/", "bin/", "obj/"]

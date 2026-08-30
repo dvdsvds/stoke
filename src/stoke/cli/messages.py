@@ -79,6 +79,23 @@ MESSAGES = {
         "hot-reload.release": "Release build (C/C++ only)",
         "hot-reload.profile": "Custom build profile name (C/C++ only)",
         "hot-reload.verbose": "Show detailed build output",
+
+        # test
+        "test.help": "Run the target's tests (pytest, go test, cargo test, ctest, meson test, etc. depending on language)",
+        "test.target": "Target name",
+        "test.debug": "Use the debug build's test output directory (C/C++ only)",
+        "test.release": "Use the release build's test output directory (C/C++ only)",
+        "test.profile": "Custom build profile name (C/C++ only)",
+        "test.verbose": "Show detailed test output",
+
+        # add/remove
+        "add.help": "Add a dependency to a Python/Java target's stoke.toml and install it",
+        "add.package": "Package name (pip package, or 'groupId:artifactId' for Java)",
+        "add.version": "Version (optional for Python, required for Java)",
+        "add.target": "Target name (default: first target)",
+        "remove.help": "Remove a dependency from a Python/Java target's stoke.toml",
+        "remove.package": "Package name",
+        "remove.target": "Target name (default: first target)",
     },
     "ko": {
         # stoke
@@ -156,6 +173,23 @@ MESSAGES = {
         "hot-reload.release": "Release 빌드 (C/C++ 전용)",
         "hot-reload.profile": "커스텀 빌드 프로파일 이름 (C/C++ 전용)",
         "hot-reload.verbose": "상세 빌드 출력 표시",
+
+        # test
+        "test.help": "타겟의 테스트 실행 (언어에 따라 pytest, go test, cargo test, ctest, meson test 등)",
+        "test.target": "타겟 이름",
+        "test.debug": "Debug 빌드의 테스트 출력 디렉토리 사용 (C/C++ 전용)",
+        "test.release": "Release 빌드의 테스트 출력 디렉토리 사용 (C/C++ 전용)",
+        "test.profile": "커스텀 빌드 프로파일 이름 (C/C++ 전용)",
+        "test.verbose": "상세 테스트 출력 표시",
+
+        # add/remove
+        "add.help": "Python/Java 타겟의 stoke.toml에 의존성 추가 후 설치",
+        "add.package": "패키지 이름 (pip 패키지, Java는 'groupId:artifactId')",
+        "add.version": "버전 (Python은 선택, Java는 필수)",
+        "add.target": "타겟 이름 (기본값: 첫 번째 타겟)",
+        "remove.help": "Python/Java 타겟의 stoke.toml에서 의존성 제거",
+        "remove.package": "패키지 이름",
+        "remove.target": "타겟 이름 (기본값: 첫 번째 타겟)",
     },
 }
 

@@ -125,5 +125,32 @@ class RubyAdapter(BaseAdapter):
         """hot-reload용 실행 명령어."""
         return self._run_command()
 
+    def test(self, verbose: bool = False) -> int:
+        """spec/ 있으면 rspec, 아니면 Rakefile의 test 태스크. Bundler로 감싸져 있으면 그걸 통해 실행."""
+        bundle_exe = self._find_bundle()
+        use_bundle = self.gemfile.exists() and bundle_exe is not None
+
+        spec_dir = self.project_root / "spec"
+        rakefile = self.project_root / "Rakefile"
+
+        if spec_dir.is_dir():
+            cmd = [bundle_exe, "exec", "rspec"] if use_bundle else [shutil.which("rspec") or "rspec"]
+        elif rakefile.is_file():
+            cmd = [bundle_exe, "exec", "rake", "test"] if use_bundle else ["rake", "test"]
+        else:
+            raise RuntimeError(
+                "No test setup found: expected a spec/ directory (RSpec) or a Rakefile with a 'test' task.\n"
+                "  Add one of these, or run your test command manually."
+            )
+        if verbose:
+            cmd.append("--verbose" if any("rspec" in part.lower() for part in cmd) else "--trace")
+
+        print(f"Running: {' '.join(cmd)}\n")
+        try:
+            result = subprocess.run(cmd, cwd=str(self.project_root))
+            return result.returncode
+        except KeyboardInterrupt:
+            return 130
+
     def _gitignore_entries(self) -> list[str]:
         return [".stoke/", ".bundle/", "vendor/bundle/"]

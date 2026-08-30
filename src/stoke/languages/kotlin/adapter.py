@@ -142,5 +142,19 @@ class KotlinAdapter(BaseAdapter):
         run_task = self._task_path("run")
         return gradle_cmd + self._java_home_args() + [run_task, "-q", "--console=plain"]
 
+    def test(self, verbose: bool = False) -> int:
+        """gradle test 실행 (build에서는 -x로 빼둔 태스크를 여기서 돌림)."""
+        gradle_cmd = self._find_gradle()
+        test_task = self._task_path("test")
+        cmd = gradle_cmd + self._java_home_args() + [test_task]
+        if verbose:
+            cmd.append("--info")
+        print(f"Running: gradle {test_task}\n")
+        try:
+            result = subprocess.run(cmd, cwd=str(self.project_root))
+            return result.returncode
+        except KeyboardInterrupt:
+            return 130
+
     def _gitignore_entries(self) -> list[str]:
         return [".stoke/", "build/", ".gradle/"]

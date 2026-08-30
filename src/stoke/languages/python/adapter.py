@@ -601,3 +601,29 @@ class PythonAdapter(BaseAdapter):
             )
 
         return [str(self.venv_python_exe()), str(entry_path)]
+
+    def test(self, verbose: bool = False) -> int:
+        """pytest가 venv에 설치돼 있으면 그걸로, 아니면 stdlib unittest discover로 테스트."""
+        if not self.venv_exists():
+            raise RuntimeError(
+                f"venv not found at {self.venv_dir}\n"
+                f"  Run 'stoke build' first."
+            )
+
+        venv_python = self.venv_python_exe()
+        installed = {name.lower() for name in self._pip_freeze()}
+        if "pytest" in installed:
+            cmd = [str(venv_python), "-m", "pytest"]
+            if verbose:
+                cmd.append("-v")
+        else:
+            cmd = [str(venv_python), "-m", "unittest", "discover"]
+            if verbose:
+                cmd.append("-v")
+
+        print(f"Running: {' '.join(cmd)}\n")
+        try:
+            result = subprocess.run(cmd, cwd=str(self.project_root))
+            return result.returncode
+        except KeyboardInterrupt:
+            return 130

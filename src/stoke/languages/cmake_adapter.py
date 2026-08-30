@@ -114,3 +114,20 @@ class CMakeAdapter(BaseAdapter):
 
     def _gitignore_entries(self) -> list[str]:
         return [".stoke/"]
+
+    def test(self, verbose: bool = False) -> int:
+        """ctest 실행 (cmake 설치 시 보통 같이 깔림). CTest가 등록돼 있어야 함(enable_testing()/add_test())."""
+        ctest = shutil.which("ctest")
+        if ctest is None:
+            raise RuntimeError(
+                "ctest not found in PATH (usually installed alongside cmake)."
+            )
+        cmd = [ctest, "--test-dir", str(self.build_dir), "--build-config", self._build_type(), "--output-on-failure"]
+        if verbose:
+            cmd.append("--verbose")
+        print(f"Running: ctest --test-dir {self.build_dir}\n")
+        try:
+            result = subprocess.run(cmd)
+            return result.returncode
+        except KeyboardInterrupt:
+            return 130

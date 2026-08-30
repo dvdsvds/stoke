@@ -28,6 +28,7 @@ class Target:
     depends_on: list[str] = field(default_factory=list)
     build_system: str | None = None  # None (stoke 자체 빌드), "cmake" 또는 "meson". c/cpp만 사용.
     source_dir: str = "."  # build_system="cmake"/"meson"일 때 CMakeLists.txt/meson.build가 있는 폴더 (프로젝트 루트 기준)
+    test_sources: list[str] = field(default_factory=list)  # `stoke test` 대상 테스트 소스 glob. java/cpp만 사용 (JUnit 5 / doctest).
 
 @dataclass
 class Profile:
@@ -138,6 +139,7 @@ def load_config(config_path: Path | None = None) -> Config:
             depends_on=target_config.get("depends_on", []),
             build_system=build_system,
             source_dir=target_config.get("source_dir", "."),
+            test_sources=target_config.get("test_sources", []),
         )
     if not targets:
         raise ValueError(f"No targets defined in {config_path}")

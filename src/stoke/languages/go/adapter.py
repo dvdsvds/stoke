@@ -121,5 +121,19 @@ class GoAdapter(BaseAdapter):
             )
         return [str(self.output_path)]
 
+    def test(self, verbose: bool = False) -> int:
+        """go test ./... 실행. go test는 알아서 빌드하므로 stoke build가 먼저 필요 없음."""
+        go_exe = self._find_go()
+        cmd = [go_exe, "test"]
+        if verbose:
+            cmd.append("-v")
+        cmd.append("./...")
+        print(f"Running: {' '.join(cmd)}\n")
+        try:
+            result = subprocess.run(cmd, cwd=str(self.project_root))
+            return result.returncode
+        except KeyboardInterrupt:
+            return 130
+
     def _gitignore_entries(self) -> list[str]:
         return [".stoke/"]

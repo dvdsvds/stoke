@@ -113,3 +113,21 @@ class MesonAdapter(BaseAdapter):
 
     def _gitignore_entries(self) -> list[str]:
         return [".stoke/"]
+
+    def test(self, verbose: bool = False) -> int:
+        """meson test 실행. meson.build에 test()로 등록된 테스트가 있어야 함."""
+        meson = shutil.which("meson")
+        if meson is None:
+            raise RuntimeError(
+                "meson not found in PATH.\n"
+                "  Install Meson: https://mesonbuild.com/Getting-meson.html"
+            )
+        cmd = [meson, "test", "-C", str(self.build_dir), "--print-errorlogs"]
+        if verbose:
+            cmd.append("-v")
+        print(f"Running: meson test -C {self.build_dir}\n")
+        try:
+            result = subprocess.run(cmd)
+            return result.returncode
+        except KeyboardInterrupt:
+            return 130

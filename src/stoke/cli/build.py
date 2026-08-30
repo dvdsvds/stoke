@@ -289,3 +289,19 @@ def cmd_hot_reload(target_name, profile: str = "debug", verbose: bool = False):
     except RuntimeError as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
+
+def cmd_test(target_name, profile: str = "debug", verbose: bool = False):
+    config = load_config_or_exit()
+    check_profile_or_exit(config, profile)
+    target_name = resolve_target_or_exit(config, target_name, verb="testing", verbose=verbose)
+    target = config.targets[target_name]
+    project_root = config.config_path.parent
+    profile_obj = config.profiles[profile]
+
+    try:
+        adapter = make_adapter(target, config.project, project_root, profile=profile_obj, verbose=verbose)
+        exit_code = adapter.test(verbose=verbose)
+        sys.exit(exit_code)
+    except RuntimeError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)

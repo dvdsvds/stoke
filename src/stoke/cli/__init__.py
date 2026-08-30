@@ -5,7 +5,7 @@ import sys
 from stoke.cli.messages import get_message as _
 
 from stoke.cli.utils import resolve_profile_from_args, add_debug_release_profile_args
-from stoke.cli.build import cmd_build, cmd_build_all, cmd_run, cmd_watch, cmd_hot_reload
+from stoke.cli.build import cmd_build, cmd_build_all, cmd_run, cmd_watch, cmd_hot_reload, cmd_test
 from stoke.cli.clean import cmd_clean
 from stoke.cli.tools import cmd_python_list, cmd_java_list, cmd_c_list, cmd_cpp_list
 from stoke.cli.vcpkg import (
@@ -23,6 +23,7 @@ from stoke.cli.install_lang import (
     SUPPORTED_LANGUAGES,
 )
 from stoke.cli.ide import cmd_ide_sync
+from stoke.cli.deps import cmd_add_dep, cmd_remove_dep
 from stoke.init import cmd_init, cmd_init_noninteractive, cmd_remove_target_noninteractive
 
 from stoke.languages.python.frameworks.fastapi import cmd_init_fastapi
@@ -182,6 +183,21 @@ def _build_parser():
     run_parser.add_argument("entry_file", nargs="?", help=_("run.entry_file"))
     add_debug_release_profile_args(run_parser, "run", include_verbose=False)
 
+    # stoke test
+    test_parser = subparsers.add_parser("test", help=_("test.help"))
+    test_parser.add_argument("target", nargs="?", help=_("test.target"))
+    add_debug_release_profile_args(test_parser, "test")
+
+    # stoke add / remove (python/java dependency management)
+    add_parser = subparsers.add_parser("add", help=_("add.help"))
+    add_parser.add_argument("package", help=_("add.package"))
+    add_parser.add_argument("version", nargs="?", help=_("add.version"))
+    add_parser.add_argument("--target", help=_("add.target"))
+
+    remove_parser = subparsers.add_parser("remove", help=_("remove.help"))
+    remove_parser.add_argument("package", help=_("remove.package"))
+    remove_parser.add_argument("--target", help=_("remove.target"))
+
     # stoke ide-sync
     subparsers.add_parser("ide-sync", help=_("ide-sync.help"))
 
@@ -285,5 +301,12 @@ def _dispatch(args):
     elif args.command == "run":
         profile_name = resolve_profile_from_args(args)
         cmd_run(args.target, entry_file=args.entry_file, profile=profile_name)
+    elif args.command == "test":
+        profile_name = resolve_profile_from_args(args)
+        cmd_test(args.target, profile=profile_name, verbose=args.verbose)
+    elif args.command == "add":
+        cmd_add_dep(args.package, args.version, args.target)
+    elif args.command == "remove":
+        cmd_remove_dep(args.package, args.target)
     elif args.command == "ide-sync":
         cmd_ide_sync()

@@ -49,6 +49,15 @@ class BaseAdapter(ABC):
             f"Running as subprocess is not supported for language '{self.target.language}'"
         )
 
+    def test(self, verbose: bool = False) -> int:
+        """
+        타겟의 테스트 실행. 반환: 종료 코드.
+        기본 구현은 지원 안 함 에러 — 어댑터가 그 언어의 표준 테스트 도구로 오버라이드.
+        """
+        raise RuntimeError(
+            f"'stoke test' is not supported for language '{self.target.language}'"
+        )
+
     def _ensure_gitignore(self) -> None:
         """
         .stoke/ 를 .gitignore에 자동 추가.

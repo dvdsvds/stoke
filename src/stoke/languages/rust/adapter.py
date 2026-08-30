@@ -150,5 +150,22 @@ class RustAdapter(BaseAdapter):
             )
         return [str(self.output_path)]
 
+    def test(self, verbose: bool = False) -> int:
+        """cargo test 실행. cargo test는 알아서 빌드하므로 stoke build가 먼저 필요 없음."""
+        cargo_exe, cargo_env = self._find_cargo()
+        cmd = [
+            cargo_exe, "test",
+            "--manifest-path", str(self.manifest_path),
+            "--target-dir", str(self.build_dir),
+        ]
+        if verbose:
+            cmd.append("--verbose")
+        print(f"Running: cargo test --manifest-path {self.manifest_path}\n")
+        try:
+            result = subprocess.run(cmd, cwd=str(self.project_root), env=cargo_env)
+            return result.returncode
+        except KeyboardInterrupt:
+            return 130
+
     def _gitignore_entries(self) -> list[str]:
         return [".stoke/", "target/"]

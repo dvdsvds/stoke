@@ -92,5 +92,8 @@ class TypeScriptAdapter(BaseAdapter, NodeToolsMixin):
         entry_path = self.project_root / self.target.entry
         return _resolve_tsx_cmd(entry_path, self.project_root)
 
+    def test(self, verbose: bool = False) -> int:
+        return self._run_npm_test(verbose=verbose)
+
     def _gitignore_entries(self) -> list[str]:
         return ["node_modules/", ".stoke/", "dist/"]

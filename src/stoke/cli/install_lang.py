@@ -15,6 +15,19 @@ SUPPORTED_LANGUAGES = (
     "rust", "kotlin", "csharp", "ruby", "php",
 )
 
+# 이름은 stoke.toml의 language 값으로는 유효하지만(SUPPORTED_LANGUAGES에 있음),
+# 이 언어들은 stoke가 직접 다운로드해서 설치할 버전 소스(website/docs/versions/*.json)가
+# 없음 — fetch_versions()가 그냥 404로 죽어서 사용자한테는 원인이 안 보이므로,
+# 여기서 먼저 걸러서 어디로 가야 하는지 알려줌.
+_NO_DIRECT_INSTALL = {
+    "kotlin": (
+        "Kotlin doesn't have its own stoke-managed toolchain - it builds through Gradle,\n"
+        "  which resolves the Kotlin compiler itself. Install a JDK instead:\n"
+        "    stoke install java --version=<version>\n"
+        "  and set java_version in stoke.toml if you need to pin it."
+    ),
+}
+
 def _toolchains_dir(project_root: Path) -> Path:
     """언어 툴체인 설치 폴더 반환. 프로젝트 로컬(.stoke/toolchains) — 전역 캐시 없음.
     프로젝트를 지우면 같이 지워지고, PC에 언어별 잔여 캐시가 남지 않음."""
@@ -46,6 +59,9 @@ def cmd_install_language(language: str, version: str, base_url: str | None = Non
     if language not in SUPPORTED_LANGUAGES:
         print(f"Error: unsupported language '{language}'", file=sys.stderr)
         print(f"Supported: {', '.join(SUPPORTED_LANGUAGES)}", file=sys.stderr)
+        sys.exit(1)
+    if language in _NO_DIRECT_INSTALL:
+        print(f"Error: {_NO_DIRECT_INSTALL[language]}", file=sys.stderr)
         sys.exit(1)
 
     project_root = _find_project_root()
@@ -363,6 +379,9 @@ def cmd_list_language_versions(language: str, base_url: str | None = None):
     if language not in SUPPORTED_LANGUAGES:
         print(f"Error: unsupported language '{language}'", file=sys.stderr)
         sys.exit(1)
+    if language in _NO_DIRECT_INSTALL:
+        print(f"Error: {_NO_DIRECT_INSTALL[language]}", file=sys.stderr)
+        sys.exit(1)
 
     # c/cpp는 gcc 툴체인 사용
     api_language = "gcc" if language in ("c", "cpp") else language
@@ -378,7 +397,7 @@ def cmd_list_language_versions(language: str, base_url: str | None = None):
         released = v.get("released", "unknown")
         print(f"  {v['version']}  (released {released})")
     print()
-    print(f"Install: stoke install --language={language} --version=<version>")
+    print(f"Install: stoke install {language} --version=<version>")
 
 def cmd_uninstall_language(language: str, version: str = None):
     """stoke uninstall --language=X --version=Y"""
@@ -409,7 +428,7 @@ def cmd_uninstall_language(language: str, version: str = None):
             v = d.name[len(prefix):]
             print(f"  {v}")
         print()
-        print(f"Usage: stoke uninstall --language={language} --version=<version>")
+        print(f"Usage: stoke uninstall {language} --version=<version>")
         return
 
     # 특정 버전 삭제

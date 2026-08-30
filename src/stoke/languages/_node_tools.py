@@ -47,3 +47,32 @@ class NodeToolsMixin:
         if npm is None:
             raise RuntimeError("npm not found in PATH.\n  Install Node.js first.")
         return npm
+
+    def _run_npm_test(self, verbose: bool = False) -> int:
+        """package.json의 "scripts.test"를 npm test로 실행. JS/TS 어댑터 공용."""
+        import json
+        import subprocess
+
+        package_json = self.project_root / "package.json"
+        if not package_json.exists():
+            raise RuntimeError("No package.json found, nothing to test.")
+
+        try:
+            scripts = json.loads(package_json.read_text(encoding="utf-8")).get("scripts", {})
+        except (OSError, ValueError):
+            scripts = {}
+
+        if "test" not in scripts:
+            raise RuntimeError(
+                'No "test" script found in package.json.\n'
+                '  Add one under "scripts", e.g. "test": "vitest run" or "test": "jest".'
+            )
+
+        npm_exe = self._find_npm()
+        cmd = [npm_exe, "test"]
+        print("Running: npm test\n")
+        try:
+            result = subprocess.run(cmd, cwd=str(self.project_root), shell=(sys.platform == "win32"))
+            return result.returncode
+        except KeyboardInterrupt:
+            return 130

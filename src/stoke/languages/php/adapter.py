@@ -100,5 +100,24 @@ class PHPAdapter(BaseAdapter):
         """hot-reload용 실행 명령어."""
         return self._run_command()
 
+    def test(self, verbose: bool = False) -> int:
+        """composer로 설치된 vendor/bin/phpunit 실행."""
+        phpunit_name = "phpunit.bat" if sys.platform == "win32" else "phpunit"
+        phpunit = self.project_root / "vendor" / "bin" / phpunit_name
+        if not phpunit.is_file():
+            raise RuntimeError(
+                f"PHPUnit not found at {phpunit}.\n"
+                "  Install it with: composer require --dev phpunit/phpunit"
+            )
+        cmd = [self._find_php(), str(phpunit)]
+        if verbose:
+            cmd.append("--verbose")
+        print(f"Running: {phpunit}\n")
+        try:
+            result = subprocess.run(cmd, cwd=str(self.project_root))
+            return result.returncode
+        except KeyboardInterrupt:
+            return 130
+
     def _gitignore_entries(self) -> list[str]:
         return [".stoke/", "vendor/"]

@@ -535,3 +535,94 @@ class JavaAdapter(BaseAdapter):
             "-cp", self._classpath(),
             self.target.main_class,
         ]
+
+    # JUnit Platform Console Standalone -- 하나의 jar에 JUnit Jupiter API/엔진까지 다 들어있어서
+    # 이거 하나만 받으면 별도 의존성 없이 컴파일+실행 둘 다 됨.
+    _JUNIT_CONSOLE_VERSION = "1.11.3"
+
+    def _junit_console_jar(self) -> Path:
+        """JUnit Platform Console Standalone jar 다운로드(캐시되면 재사용)해서 경로 반환."""
+        from stoke.languages.java.maven import MavenCoordinate, download_jar
+
+        coord = MavenCoordinate(
+            group_id="org.junit.platform",
+            artifact_id="junit-platform-console-standalone",
+            version=self._JUNIT_CONSOLE_VERSION,
+        )
+        return download_jar(coord, self.lang_dir / "test-deps")
+
+    def _collect_test_files(self) -> list[Path]:
+        """test_sources 패턴에서 .java 파일 목록 수집 (collect_source_files와 동일한 규칙)."""
+        collected = []
+        seen = set()
+        for pattern in self.target.test_sources:
+            for path in self.project_root.glob(pattern):
+                if not path.is_file() or path.suffix != ".java":
+                    continue
+                try:
+                    path.relative_to(self.project_root / ".stoke")
+                    continue
+                except ValueError:
+                    pass
+                real = path.resolve()
+                if real in seen:
+                    continue
+                seen.add(real)
+                collected.append(path)
+        return sorted(collected)
+
+    def test(self, verbose: bool = False) -> int:
+        """
+        test_sources를 JUnit 5(JUnit Jupiter)로 컴파일+실행.
+        JUnit Platform Console Standalone jar를 최초 1회 Maven Central에서 받아서 씀
+        (org.junit.jupiter.api.Test 등을 그대로 씀 -- 별도 stoke 전용 assertion 문법 없음).
+        """
+        import os
+
+        if not self.target.test_sources:
+            raise RuntimeError(
+                "No 'test_sources' configured for this target in stoke.toml.\n"
+                f"  Add e.g. test_sources = [\"src/test/**/*.java\"] under [targets.{self.target.name}]"
+            )
+        if not self.classes_dir.exists():
+            raise RuntimeError(
+                f"Classes directory not found: {self.classes_dir}\n"
+                f"  Run 'stoke build' first."
+            )
+
+        test_files = self._collect_test_files()
+        if not test_files:
+            raise RuntimeError(
+                f"No test files found matching test_sources patterns: {self.target.test_sources}"
+            )
+
+        jdk, _ = self.resolve_jdk()
+        junit_jar = self._junit_console_jar()
+
+        test_classes_dir = self.lang_dir / "test-classes"
+        test_classes_dir.mkdir(parents=True, exist_ok=True)
+
+        print(f"Compiling {len(test_files)} test file(s)...")
+        compile_cmd = [
+            str(jdk.javac),
+            "-encoding", "UTF-8",
+            "-d", str(test_classes_dir),
+            "-cp", os.pathsep.join([self._classpath(), str(junit_jar)]),
+        ] + [str(f) for f in test_files]
+        proc = subprocess.run(compile_cmd, capture_output=True, text=True, encoding="utf-8", errors="replace")
+        if proc.returncode != 0:
+            raise RuntimeError(f"Test compilation failed:\n{proc.stderr.strip() or proc.stdout.strip()}")
+
+        run_cmd = [str(jdk.java), "-jar", str(junit_jar), "execute", "--disable-banner"]
+        for entry in (self._classpath(), str(test_classes_dir)):
+            run_cmd += ["--classpath", entry]
+        run_cmd += ["--scan-classpath", str(test_classes_dir)]
+        if verbose:
+            run_cmd.append("--details=verbose")
+
+        print(f"Running: JUnit tests in {test_classes_dir}\n")
+        try:
+            result = subprocess.run(run_cmd)
+            return result.returncode
+        except KeyboardInterrupt:
+            return 130

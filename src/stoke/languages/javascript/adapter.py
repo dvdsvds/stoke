@@ -82,5 +82,8 @@ class JavaScriptAdapter(BaseAdapter, NodeToolsMixin):
         entry_path = self.project_root / self.target.entry
         return [node_exe, str(entry_path)]
 
+    def test(self, verbose: bool = False) -> int:
+        return self._run_npm_test(verbose=verbose)
+
     def _gitignore_entries(self) -> list[str]:
         return ["node_modules/", ".stoke/"]
