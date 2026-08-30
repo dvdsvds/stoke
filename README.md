@@ -42,6 +42,7 @@ stoke run
 - **Parallel multi-target builds** — `stoke build --all`, and `stoke init` can add or remove a target from an existing project
 - **Target dependencies** — `depends_on = ["other_target"]` on a target; `stoke build`/`stoke build --all` build dependencies first and respect the order (cycles and unknown targets are rejected at load time)
 - **CMake escape hatch for C/C++** — `build_system = "cmake"` on a C/C++ target delegates `build`/`run`/`watch`/`hot-reload`/`clean` to `cmake configure`/`--build` instead of stoke's own compile model, for projects with an existing `CMakeLists.txt`
+- **Meson escape hatch for C/C++** — `build_system = "meson"` on a C/C++ target delegates `build`/`run`/`watch`/`hot-reload`/`clean` to `meson setup`/`meson compile` instead of stoke's own compile model, for projects with an existing `meson.build`
 - **Pre/post-build hooks** — `pre_build`/`post_build` shell commands per target, for every language and every build path (`build`, `build --all`, `watch`, `hot-reload`)
 - **Reproducible builds** via lock files
 - **Auto IDE integration** (VSCode, IntelliJ, Eclipse)

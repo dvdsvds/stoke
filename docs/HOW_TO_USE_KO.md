@@ -25,7 +25,7 @@ stoke run       # 실행
 - 언어별로 이미 특정 툴체인(Cargo, Gradle, `dotnet`, Bundler, Composer, npm, Maven Central)을 쓰고 있는 환경 — stoke는 의존성 해결을 새로 만들지 않고 그대로 위임하므로 `Cargo.toml`/`build.gradle.kts` 등을 평소처럼 그대로 씀.
 
 **잘 안 맞는 경우 (9번 섹션에 전체 목록):**
-- Meson이나 그 외 코드생성 빌드 그래프가 필요한 대규모 C/C++ 코드베이스 (CMake 프로젝트는 `build_system = "cmake"`로 대신 지원 — 9번 섹션 참고).
+- CMake/Meson 위임 범위를 넘어서는 코드생성 빌드 그래프가 필요한 대규모 C/C++ 코드베이스 (CMake·Meson 프로젝트는 `build_system = "cmake"`/`"meson"`으로 지원 — 9번 섹션 참고).
 - MSVC가 필요한 Windows 네이티브 C++ 환경 (stoke는 gcc/clang만 씀).
 - stoke 자체 소스코드를 고치지 않고 사내 전용 언어/프레임워크 템플릿을 추가하는 플러그인 시스템이 필요한 팀.
 
@@ -332,7 +332,7 @@ export STOKE_MAVEN_PASSWORD=***
 
 ## 9. stoke를 안 쓰는 게 나은 경우
 
-- Meson, 코드 생성, 복잡한 빌드 그래프가 필요한 대규모/복잡한 C 또는 C++ 빌드 — stoke 자체 C/C++ 모델은 의도적으로 단순함(gcc/clang 직접 호출 + 자체 헤더 추적). 이미 `CMakeLists.txt`가 있다면 그 타겟에 `build_system = "cmake"`를 지정하세요 — stoke가 컴파일러를 직접 돌리는 대신 `build`/`run`/`watch`/`hot-reload`/`clean`을 `cmake configure`/`--build`로 위임합니다.
+- CMake/Meson 위임 범위를 넘어서는 코드 생성, 복잡한 빌드 그래프가 필요한 대규모/복잡한 C 또는 C++ 빌드 — stoke 자체 C/C++ 모델은 의도적으로 단순함(gcc/clang 직접 호출 + 자체 헤더 추적). 이미 `CMakeLists.txt`나 `meson.build`가 있다면 그 타겟에 `build_system = "cmake"` 또는 `"meson"`을 지정하세요 — stoke가 컴파일러를 직접 돌리는 대신 `build`/`run`/`watch`/`hot-reload`/`clean`을 `cmake configure`/`--build` 또는 `meson setup`/`compile`로 위임합니다.
 - MSVC가 꼭 필요한 Windows C++ 환경 — gcc/clang(MSYS2/MinGW 경유)만 지원됨.
 - stoke 자체 소스코드를 안 건드리고 사내 전용 언어/프레임워크 템플릿을 추가하는 플러그인 시스템이 필요한 경우 — 아직 없음.
 - 이미 Rust/Kotlin/C#/Ruby/PHP를 대규모로 깊게 쓰고 있는 경우 — 이 다섯은 가장 최근에 추가된 언어라 원래 7개 언어만큼 대규모 실전 코드베이스에서 검증되지 않음.

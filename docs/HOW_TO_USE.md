@@ -25,7 +25,7 @@ One `stoke.toml` per project. One CLI for build/run/watch/scaffold across 12 lan
 - Environments where you already use a specific toolchain per language (Cargo, Gradle, `dotnet`, Bundler, Composer, npm, Maven Central) — stoke delegates to them rather than reinventing dependency resolution, so you keep using `Cargo.toml`/`build.gradle.kts`/etc. as normal.
 
 **Not a good fit (see §9 for the full list):**
-- Large C/C++ codebases needing Meson or another generated build graph (CMake projects can opt into `build_system = "cmake"` instead — see §9 below).
+- Large C/C++ codebases needing a generated build graph beyond CMake/Meson (both are supported via `build_system = "cmake"`/`"meson"` — see §9 below).
 - Windows-native C++ shops that need MSVC (stoke only drives gcc/clang).
 - Teams that need a plugin system to add a company-internal language/framework without patching stoke's own source.
 
@@ -332,7 +332,7 @@ Verified against a real Sonatype Nexus setup, both anonymous and authenticated. 
 
 ## 9. When NOT to reach for stoke
 
-- Large/complex C or C++ builds needing Meson, code generation, or a non-trivial build graph — stoke's own C/C++ model is intentionally simple (direct gcc/clang invocation + its own header tracking). If you already have a `CMakeLists.txt`, set `build_system = "cmake"` on that target instead: stoke delegates `build`/`run`/`watch`/`hot-reload`/`clean` to `cmake configure`/`--build` rather than driving the compiler itself.
+- Large/complex C or C++ builds needing code generation or a non-trivial build graph beyond what CMake/Meson delegation covers — stoke's own C/C++ model is intentionally simple (direct gcc/clang invocation + its own header tracking). If you already have a `CMakeLists.txt` or `meson.build`, set `build_system = "cmake"` or `build_system = "meson"` on that target instead: stoke delegates `build`/`run`/`watch`/`hot-reload`/`clean` to `cmake configure`/`--build` or `meson setup`/`compile` rather than driving the compiler itself.
 - Windows C++ shops that specifically need MSVC — only gcc/clang (via MSYS2/MinGW) are supported.
 - You need a plugin system to add a company-internal language or framework template without touching stoke's own source — doesn't exist yet.
 - You're deep into Rust/Kotlin/C#/Ruby/PHP already at large scale — these five are the newest additions and are less battle-tested against large real-world codebases than the original seven languages.

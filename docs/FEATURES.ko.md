@@ -14,10 +14,11 @@
 - **멀티 타겟 프로젝트** — 기존 `stoke.toml`에 타겟을 추가/제거하는 것이 언어별 프로젝트 루트 등록(Cargo 워크스페이스 멤버, Gradle `settings.gradle.kts`의 include, C# 루트 `.csproj`의 exclude 등) 전부에 대해 검증됨.
 - **타겟 간 의존성** (`depends_on`) — `stoke build`/`stoke build --all`이 의존성부터 먼저 빌드하고, 서로 독립적인 타겟은 병렬로 돌리고, 순환/존재하지 않는 타겟 참조는 설정 로드 시점에 거부하고, 의존성이 실패한 타겟은 시도조차 하지 않고 스킵함을 검증.
 - **CMake 위임** (`build_system = "cmake"`) — Windows(MSVC/Visual Studio generator)에서 end-to-end 검증: `stoke build`/`run`/`clean`이 `cmake`로 configure+build하고 결과 실행 파일을 찾아내며, `stoke watch`/`hot-reload`의 기존 재빌드-재시작 루프를 코드 수정 없이 그대로 재사용.
+- **Meson 위임** (`build_system = "meson"`) — meson+ninja로 end-to-end 검증: `stoke build`/`run`/`clean`이 `meson setup`/`meson compile`로 configure+compile하고 결과 실행 파일을 찾아내며, CMake 경로와 같은 `stoke watch`/`hot-reload` 루프를 재사용.
 
 ## 남은 gap
 
-- C/C++용 Meson 통합 없음 (CMake는 `build_system = "cmake"`로 지원됨).
+
 - 플러그인 기반 언어는 대화형 `stoke init` 마법사에 자동으로 항목이 생기지 않음 — `stoke init`을 직접 지원하려면 플러그인 쪽에서 `stoke.frameworks` entry point를 따로 등록해야 함.
 - Rust, Kotlin, C#, Ruby, PHP는 가장 최근에 추가된 언어라 커맨드 생성/템플릿은 검증됐지만 각 생태계의 대형 실전 프로젝트로는 아직 충분히 검증 안 됨.
 - Rails, Laravel 스캐폴딩은 의도적으로 제외 — 둘 다 entry 스크립트를 직접 실행하는 대신 CLI 서브커맨드(`bin/rails server`, `php artisan serve`)로 시작하는 구조라 stoke의 실행 모델과 안 맞음.

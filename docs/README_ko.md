@@ -22,6 +22,7 @@ Spring Boot, FastAPI, Flask, Django, 그리고 Go/Rust/Kotlin/C#/Ruby/PHP/JavaSc
 - **병렬 멀티타겟 빌드** — `stoke build --all`로 `stoke.toml`의 모든 타겟을 동시에 빌드
 - **타겟 간 의존성** — 타겟에 `depends_on = ["다른_타겟"]` 선언 가능. `stoke build`/`stoke build --all`이 의존성부터 순서대로 빌드 (순환·존재하지 않는 타겟 참조는 설정 로드 시점에 바로 에러)
 - **C/C++용 CMake 위임** — 타겟에 `build_system = "cmake"`를 지정하면 stoke 자체 컴파일 모델 대신 `cmake`의 configure/build로 `build`/`run`/`watch`/`hot-reload`/`clean`을 그대로 위임. 이미 `CMakeLists.txt`가 있는 프로젝트용
+- **C/C++용 Meson 위임** — 타겟에 `build_system = "meson"`을 지정하면 stoke 자체 컴파일 모델 대신 `meson setup`/`meson compile`로 `build`/`run`/`watch`/`hot-reload`/`clean`을 그대로 위임. 이미 `meson.build`가 있는 프로젝트용
 - **멀티타겟 프로젝트** — 기존 프로젝트 안에서 `stoke init`을 다시 실행하면 `stoke.toml`을 직접 고치는 대신 새 타겟을 추가
 - **자동 IDE 통합** — VSCode, IntelliJ, Eclipse 설정 파일 자동 생성
 - **Watch 모드 + Hot-reload** — 파일 변경 감지 후 자동 재빌드, 프로세스 재시작
@@ -532,7 +533,6 @@ from computer.hardware.cpu import CPU
 
 ## 알려진 한계
 
-- C/C++용 Meson 통합 없음 (CMake는 `build_system = "cmake"`로 지원)
 - 플러그인 기반 언어는 대화형 `stoke init` 마법사에 자동으로 항목이 생기지 않음 (위 "플러그인 시스템" 참고)
 - Rust, Kotlin, C#, Ruby, PHP는 가장 최근에 추가된 언어라, 커맨드 생성/템플릿은 검증됐지만 각 생태계의 대형 실전 프로젝트로는 아직 충분히 검증 안 됨
 - Rails, Laravel 스캐폴딩은 의도적으로 제외 ([프레임워크 스캐폴딩](#프레임워크-스캐폴딩) 참고)

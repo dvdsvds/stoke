@@ -45,7 +45,8 @@
 
 - `stoke vcpkg install/remove/list/version`, `stoke install vcpkg` — vcpkg 라이브러리 매니저 연동
 - 빌드 프로파일(`[profiles.*]`) — debug/release 기본 제공 + 커스텀 프로파일, `compiler = "msvc"`로 Windows에서 MSVC 지정 가능 (gcc/clang과 나란히)
-- `build_system = "cmake"` (2026-08-29 추가) — 이미 `CMakeLists.txt`가 있는 C/C++ 타겟은 stoke 자체 컴파일 모델 대신 cmake configure/build로 위임. `build`/`run`/`watch`/`hot-reload`/`clean` 전부 그대로 씀. Meson은 여전히 미지원. c_standard/profile 필드는 이 경로에서 무시됨(CMakeLists.txt가 관리) — 홍보에서 "기존 CMake 프로젝트도 그대로 붙는다"는 정확하지만, "표준/컴파일 플래그도 stoke.toml로 관리된다"는 이 경로에서는 틀림.
+- `build_system = "cmake"` (2026-08-29 추가) — 이미 `CMakeLists.txt`가 있는 C/C++ 타겟은 stoke 자체 컴파일 모델 대신 cmake configure/build로 위임. `build`/`run`/`watch`/`hot-reload`/`clean` 전부 그대로 씀. c_standard/profile 필드는 이 경로에서 무시됨(CMakeLists.txt가 관리) — 홍보에서 "기존 CMake 프로젝트도 그대로 붙는다"는 정확하지만, "표준/컴파일 플래그도 stoke.toml로 관리된다"는 이 경로에서는 틀림.
+- `build_system = "meson"` (2026-08-30 추가) — 같은 구조로 `meson.build`가 있는 C/C++ 타겟을 meson setup + `meson compile`(ninja 백엔드)로 위임. `stoke build`(디버그/릴리스/--force 전부), `stoke run`, `stoke clean` 실제로 meson+ninja를 설치해서 end-to-end 스모크 테스트함(재빌드 시 재설정 스킵하고 ninja no-op 확인, --force는 빌드 디렉토리 삭제 후 재설정 확인). `watch`/`hot-reload`는 CMake 경로와 동일하게 `make_adapter()`를 통해 자연히 지원되지만 별도로 실행 검증은 안 함. cmake 경로와 마찬가지로 c_standard/profile 필드는 meson.build가 관리하므로 무시됨.
 
 ## 5. 버전 고정 (Version Pinning)
 
@@ -93,13 +94,19 @@ Sonatype Nexus 기준 실증(raw 리포 + maven-central 프록시, Basic Auth �
 2. **Rust/Kotlin/C#/Ruby/PHP는 "지원"이라고만 하고 "검증됨"이라고 하지 말 것** — 코드 경로는 있지만 대규모 실전 프로젝트에서 검증 안 됐다고 FEATURES.md에 스스로 적어둠. 과장하면 나중에 이슈로 돌아옴.
 3. ~~macOS/Linux는 아직 pip 설치만 되고 미검증~~ — **해결됨 (2026-08-29)**: `.github/workflows/release.yml`이 태그 push 시 Windows exe와 함께 macOS/Linux 네이티브 tarball도 빌드해서 Release에 올림. pip 설치 경로는 완전히 제거함(README 등 전체 문서 갱신).
 4. **Rails/Laravel 미지원은 버그 아님, 설계 결정** — "Ruby/PHP 지원"이라고만 쓰면 사용자가 Rails 기대하다 실망할 수 있음. Sinatra/Slim이라고 구체적으로 써야 함.
-5. **`stoke install <tool>`의 `tool` 인자가 사실상 `vcpkg` 하나뿐** (`choices=["vcpkg"]`) — CLI 형태상 여러 툴을 설치할 수 있을 것처럼 보이지만 실제로는 vcpkg 전용. 나머지는 전부 `--language` 플래그로 감. 향후 다른 tool이 추가되지 않는 한 이 서브커맨드 형태(`install vcpkg`)와 `--language` 형태가 공존하는 게 다소 일관성이 없어 보임 — API 설계상 정리 대상이지 지금 당장 없앨 기능은 아님.
+5. ~~`stoke install <tool>`의 `tool` 인자가 사실상 `vcpkg` 하나뿐~~ — **해결됨 (2026-08-30)**: positional `tool` 인자가 `vcpkg`뿐 아니라 `SUPPORTED_LANGUAGES`(python/java/c/cpp/conda/go/nodejs/rust/kotlin/csharp/ruby/php)도 받도록 확장함. 이제 `stoke install python`처럼 `stoke vcpkg install <library>`와 같은 패턴으로 씀. 기존 `stoke install --language=X`는 하위 호환으로 계속 동작(내부적으로 `--language`가 우선순위를 가짐), `--help` 문구에 "deprecated, use the positional argument instead"라고 안내. `install_lang.py`의 언어 목록이 세 곳에 중복돼 있던 것도 `SUPPORTED_LANGUAGES` 상수 하나로 통합.
 6. ~~pre/post-build 훅은 임의 셸 실행이라 보안 고지가 필요~~ — **해결됨 (2026-08-29)**: README/README_ko/설정 레퍼런스/FAQ에 "신뢰 안 되는 저장소를 clone해서 바로 build하지 말라"는 경고 문구 추가.
 7. ~~inter-target 의존성 그래프 없음~~ — **해결됨 (2026-08-29)**: `depends_on` 필드 추가 (config.py, depgraph.py). `stoke build`/`build --all`이 의존성부터 순서대로 빌드, 순환/미존재 타겟 참조는 로드 시점에 에러, 의존성 실패 시 그 타겟에 의존하는 타겟은 스킵. 실제 스모크 테스트로 체인 빌드/실패 전파/순환 검출/미존재 타겟 검출까지 확인함.
-8. ~~CMake/Meson 통합 없음~~ — **CMake는 해결됨 (2026-08-29)**: `build_system = "cmake"`로 기존 CMakeLists.txt 프로젝트에 위임 가능 (cmake_adapter.py). Windows MSVC/Visual Studio generator로 build/run/force-rebuild/clean 전부 실제 실행해서 확인함. **Meson은 여전히 미지원** — "CMake 프로젝트도 그대로 붙는다"는 정확하지만 "빌드 시스템 전반을 지원한다"고 뭉뚱그리면 안 됨.
+8. ~~CMake/Meson 통합 없음~~ — **둘 다 해결됨.** CMake(2026-08-29): `build_system = "cmake"`로 기존 CMakeLists.txt 프로젝트에 위임 가능 (cmake_adapter.py). Windows MSVC/Visual Studio generator로 build/run/force-rebuild/clean 전부 실제 실행해서 확인함. Meson(2026-08-30): `build_system = "meson"`으로 기존 meson.build 프로젝트에 위임 가능 (meson_adapter.py). meson+ninja 실제 설치해서 build/run/force-rebuild/clean 확인함.
 
 ## 결론
 
-기능 목록 자체는 코드와 거의 일치하고 죽은 코드나 미사용 기능은 없음 — 오히려 최근 커밋(`2a4b7a8`)에서 실제로 안 쓰는 `go_version` 설정 필드를 스스로 제거한 이력이 있을 정도로 정리가 잘 돼 있음. 홍보에서 조심할 부분은 "기능이 쓸모없다"가 아니라 **검증 범위를 실제보다 넓게 말하지 않는 것**(캐시 언어 범위, 신규 5개 언어의 실전 검증 여부, Rails/Laravel 부재, CMake 경로에서 무시되는 필드).
+기능 목록 자체는 코드와 거의 일치하고 죽은 코드나 미사용 기능은 없음 — 오히려 최근 커밋(`2a4b7a8`)에서 실제로 안 쓰는 `go_version` 설정 필드를 스스로 제거한 이력이 있을 정도로 정리가 잘 돼 있음. 홍보에서 조심할 부분은 "기능이 쓸모없다"가 아니라 **검증 범위를 실제보다 넓게 말하지 않는 것**(캐시 언어 범위, 신규 5개 언어의 실전 검증 여부, Rails/Laravel 부재, CMake/Meson 경로에서 무시되는 필드).
 
-2026-08-29 기준 남은 항목: 5(install vcpkg API 비일관성), 8의 Meson 미지원. 나머지는 전부 해결됨.
+2026-08-30 기준: 이 문서에 남아있던 항목(5. install API 비일관성, 8. Meson 미지원) 전부 해결됨.
+
+## 추가로 발견된 버그 (2026-08-30, 사용자 질문 계기)
+
+**`stoke c list`/`stoke cpp list`가 `stoke install`로 받은 프로젝트 로컬 gcc/g++를 안 보여줬음.** `python`/`java`의 `detect_all(project_root)`는 `.stoke/toolchains`를 최우선으로 스캔하는데, `c`/`cpp`의 `detect_all()`은 애초에 `project_root` 매개변수가 없어서 시스템 PATH의 gcc/clang/MSVC만 봤음 — `_detect_local()`이라는 관련 함수가 이미 있었지만 `find_compiler()`(빌드용, 버전 하나만 찾음)에서만 쓰이고 `detect_all`엔 연결이 안 돼 있었음.
+
+수정: `_detect_local()`을 전체 목록을 반환하는 `_detect_local_all()`로 확장하고(기존 `_detect_local`은 `_detect_local_all()[0]`으로 재구현, `find_compiler` 동작은 그대로 유지), `detect_all(project_root=None)`이 `project_root`를 받으면 로컬 설치를 시스템 설치보다 먼저 포함하도록 수정. `cli/tools.py`의 `cmd_c_list`/`cmd_cpp_list`가 `_current_project_root()`를 넘기도록 변경. 프로젝트 로컬에 실제 gcc 바이너리를 복사해 넣고 `stoke cpp list` 실행까지 end-to-end로 재현/검증함.
