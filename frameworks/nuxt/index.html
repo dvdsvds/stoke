@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nuxt — stoke</title>
+<link rel="icon" href="../../assets/favicon-src.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/home.css">
+<link rel="stylesheet" href="../../assets/docs.css">
+</head>
+<body data-root="../../" data-lang="en">
+<nav class="nav">
+  <div class="wrap">
+    <a class="nav-brand" href="../../"><img src="../../assets/logo-mark.png" alt="stoke">stoke</a>
+    <div class="nav-search">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input type="search" id="site-search" placeholder="Search docs..." autocomplete="off" spellcheck="false">
+        <div id="search-results" class="search-results" hidden></div>
+      </div>
+    <div class="nav-links">
+      <div class="lang-switch"><a class="active" href=".">영어</a><span class="sep">|</span><a href="../../ko/frameworks/nuxt/">한국어</a></div>
+      <a class="nav-gh" href="https://github.com/dvdsvds/stoke"><svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>dvdsvds/stoke</a>
+    </div>
+  </div>
+</nav>
+<div class="doc-layout">
+  <div class="doc-sidebar-col"><nav class="side-nav">
+<div class="side-group">
+<button class="side-group-toggle" type="button">Getting Started<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../getting-started/installation/">Installation</a></li>
+<li><a class="" href="../../getting-started/quick-start/">Quick Start</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">Commands<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../commands/overview/">Overview</a></li>
+<li><a class="" href="../../commands/build/">build</a></li>
+<li><a class="" href="../../commands/run/">run</a></li>
+<li><a class="" href="../../commands/watch/">watch</a></li>
+<li><a class="" href="../../commands/hot-reload/">hot-reload</a></li>
+<li><a class="" href="../../commands/clean/">clean</a></li>
+<li><a class="" href="../../commands/init/">init</a></li>
+<li><a class="" href="../../commands/ide-sync/">ide-sync</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">Languages<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../languages/python/">Python</a></li>
+<li><a class="" href="../../languages/java/">Java</a></li>
+<li><a class="" href="../../languages/cpp/">C/C++</a></li>
+<li><a class="" href="../../languages/go/">Go</a></li>
+<li><a class="" href="../../languages/rust/">Rust</a></li>
+<li><a class="" href="../../languages/kotlin/">Kotlin</a></li>
+<li><a class="" href="../../languages/csharp/">C#</a></li>
+<li><a class="" href="../../languages/ruby/">Ruby</a></li>
+<li><a class="" href="../../languages/php/">PHP</a></li>
+<li><a class="" href="../../languages/javascript/">JavaScript</a></li>
+<li><a class="" href="../../languages/typescript/">TypeScript</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">Configuration<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../configuration/stoke-toml/">stoke.toml</a></li>
+<li><a class="" href="../../configuration/profiles/">Profiles</a></li>
+<li><a class="" href="../../configuration/lock-file/">Lock file</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">Advanced<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../advanced/vcpkg/">vcpkg</a></li>
+<li><a class="" href="../../advanced/ide-integration/">IDE Integration</a></li>
+</ul></div>
+<div class="side-group expanded">
+<button class="side-group-toggle" type="button">Frameworks<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../frameworks/overview/">Overview</a></li>
+<li><a class="" href="../../frameworks/spring-boot/">Spring Boot</a></li>
+<li><a class="" href="../../frameworks/fastapi/">FastAPI</a></li>
+<li><a class="" href="../../frameworks/flask/">Flask</a></li>
+<li><a class="" href="../../frameworks/django/">Django</a></li>
+<li><a class="" href="../../frameworks/gin/">Gin</a></li>
+<li><a class="" href="../../frameworks/echo/">Echo</a></li>
+<li><a class="" href="../../frameworks/fiber/">Fiber</a></li>
+<li><a class="" href="../../frameworks/chi/">Chi</a></li>
+<li><a class="" href="../../frameworks/express/">Express</a></li>
+<li><a class="" href="../../frameworks/fastify/">Fastify</a></li>
+<li><a class="" href="../../frameworks/nextjs/">Next.js</a></li>
+<li><a class="" href="../../frameworks/nestjs/">NestJS</a></li>
+<li><a class="" href="../../frameworks/vite/">Vite</a></li>
+<li><a class="active" href="../../frameworks/nuxt/">Nuxt</a></li>
+<li><a class="" href="../../frameworks/sveltekit/">SvelteKit</a></li>
+<li><a class="" href="../../frameworks/hono/">Hono</a></li>
+<li><a class="" href="../../frameworks/actix-web/">Actix-web</a></li>
+<li><a class="" href="../../frameworks/axum/">Axum</a></li>
+<li><a class="" href="../../frameworks/rocket/">Rocket</a></li>
+<li><a class="" href="../../frameworks/ktor/">Ktor</a></li>
+<li><a class="" href="../../frameworks/spring-boot-kotlin/">Spring Boot (Kotlin)</a></li>
+<li><a class="" href="../../frameworks/aspnet-core/">ASP.NET Core</a></li>
+<li><a class="" href="../../frameworks/sinatra/">Sinatra</a></li>
+<li><a class="" href="../../frameworks/slim/">Slim</a></li>
+</ul></div>
+<div class="side-group"><a class="side-top" href="../../troubleshooting/">Troubleshooting</a></div>
+<div class="side-group"><a class="side-top" href="../../faq/">FAQ</a></div>
+</nav></div>
+  <main class="doc-content">
+    <article>
+<h1 id="nuxt">Nuxt</h1>
+<p>Create a Nuxt project via:</p>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>init<span class="w"> </span>nuxt
+</code></pre></div>
+
+<p>Nuxt is a Vue.js full-stack framework with SSR, SSG, and file-based routing.</p>
+<h2 id="prompts">Prompts</h2>
+<p>stoke calls <code>nuxi init</code> which prompts:</p>
+<ul>
+<li><strong>Template</strong>: minimal or other templates</li>
+<li><strong>Package manager</strong>: npm / yarn / pnpm / bun</li>
+<li><strong>Initialize git repository?</strong></li>
+</ul>
+<h2 id="generated-files">Generated files</h2>
+<p>Standard Nuxt structure:</p>
+<div class="highlight"><pre><span></span><code>myapp/
+├── app.vue
+├── nuxt.config.ts
+├── package.json
+└── (pages/, components/, etc.)
+</code></pre></div>
+
+<h2 id="dependencies">Dependencies</h2>
+<p>Standard Nuxt dependencies (nuxt, vue).</p>
+<h2 id="run">Run</h2>
+<p>Not managed by stoke — use Nuxt commands directly:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>myapp
+npm<span class="w"> </span>install
+npm<span class="w"> </span>run<span class="w"> </span>dev<span class="w">         </span><span class="c1"># Development server</span>
+npm<span class="w"> </span>run<span class="w"> </span>build<span class="w">       </span><span class="c1"># Production build</span>
+npm<span class="w"> </span>run<span class="w"> </span>preview<span class="w">     </span><span class="c1"># Preview production build</span>
+</code></pre></div>
+
+<p>Open <code>http://localhost:3000/</code></p>
+<h2 id="notes">Notes</h2>
+<ul>
+<li>stoke does not build or run Nuxt projects</li>
+<li>Nuxt uses file-based routing similar to Next.js but for Vue</li>
+<li>Refer to the <a href="https://nuxt.com/docs">Nuxt documentation</a> for details</li>
+</ul>
+    </article>
+  </main>
+  <div class="doc-toc-col"><nav class="page-toc"><div class="page-toc-title">On this page</div><ul>
+<li class=""><a href="#prompts">Prompts</a></li>
+<li class=""><a href="#generated-files">Generated files</a></li>
+<li class=""><a href="#dependencies">Dependencies</a></li>
+<li class=""><a href="#run">Run</a></li>
+<li class=""><a href="#notes">Notes</a></li>
+</ul></nav></div>
+</div>
+<footer class="footer doc-footer">
+  <div class="wrap">
+    <span>© stoke — MIT License</span>
+    <div class="footer-links">
+      <a href="../../getting-started/installation/">Docs</a>
+      <a href="https://github.com/dvdsvds/stoke">GitHub</a>
+      <a href="../../faq/">FAQ</a>
+    </div>
+  </div>
+</footer>
+<script src="../../assets/site.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Commands Overview — stoke</title>
+<link rel="icon" href="../../assets/favicon-src.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/home.css">
+<link rel="stylesheet" href="../../assets/docs.css">
+</head>
+<body data-root="../../" data-lang="en">
+<nav class="nav">
+  <div class="wrap">
+    <a class="nav-brand" href="../../"><img src="../../assets/logo-mark.png" alt="stoke">stoke</a>
+    <div class="nav-search">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input type="search" id="site-search" placeholder="Search docs..." autocomplete="off" spellcheck="false">
+        <div id="search-results" class="search-results" hidden></div>
+      </div>
+    <div class="nav-links">
+      <div class="lang-switch"><a class="active" href=".">영어</a><span class="sep">|</span><a href="../../ko/commands/overview/">한국어</a></div>
+      <a class="nav-gh" href="https://github.com/dvdsvds/stoke"><svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>dvdsvds/stoke</a>
+    </div>
+  </div>
+</nav>
+<div class="doc-layout">
+  <div class="doc-sidebar-col"><nav class="side-nav">
+<div class="side-group">
+<button class="side-group-toggle" type="button">Getting Started<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../getting-started/installation/">Installation</a></li>
+<li><a class="" href="../../getting-started/quick-start/">Quick Start</a></li>
+</ul></div>
+<div class="side-group expanded">
+<button class="side-group-toggle" type="button">Commands<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="active" href="../../commands/overview/">Overview</a></li>
+<li><a class="" href="../../commands/build/">build</a></li>
+<li><a class="" href="../../commands/run/">run</a></li>
+<li><a class="" href="../../commands/watch/">watch</a></li>
+<li><a class="" href="../../commands/hot-reload/">hot-reload</a></li>
+<li><a class="" href="../../commands/clean/">clean</a></li>
+<li><a class="" href="../../commands/init/">init</a></li>
+<li><a class="" href="../../commands/ide-sync/">ide-sync</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">Languages<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../languages/python/">Python</a></li>
+<li><a class="" href="../../languages/java/">Java</a></li>
+<li><a class="" href="../../languages/cpp/">C/C++</a></li>
+<li><a class="" href="../../languages/go/">Go</a></li>
+<li><a class="" href="../../languages/rust/">Rust</a></li>
+<li><a class="" href="../../languages/kotlin/">Kotlin</a></li>
+<li><a class="" href="../../languages/csharp/">C#</a></li>
+<li><a class="" href="../../languages/ruby/">Ruby</a></li>
+<li><a class="" href="../../languages/php/">PHP</a></li>
+<li><a class="" href="../../languages/javascript/">JavaScript</a></li>
+<li><a class="" href="../../languages/typescript/">TypeScript</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">Configuration<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../configuration/stoke-toml/">stoke.toml</a></li>
+<li><a class="" href="../../configuration/profiles/">Profiles</a></li>
+<li><a class="" href="../../configuration/lock-file/">Lock file</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">Advanced<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../advanced/vcpkg/">vcpkg</a></li>
+<li><a class="" href="../../advanced/ide-integration/">IDE Integration</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">Frameworks<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../frameworks/overview/">Overview</a></li>
+<li><a class="" href="../../frameworks/spring-boot/">Spring Boot</a></li>
+<li><a class="" href="../../frameworks/fastapi/">FastAPI</a></li>
+<li><a class="" href="../../frameworks/flask/">Flask</a></li>
+<li><a class="" href="../../frameworks/django/">Django</a></li>
+<li><a class="" href="../../frameworks/gin/">Gin</a></li>
+<li><a class="" href="../../frameworks/echo/">Echo</a></li>
+<li><a class="" href="../../frameworks/fiber/">Fiber</a></li>
+<li><a class="" href="../../frameworks/chi/">Chi</a></li>
+<li><a class="" href="../../frameworks/express/">Express</a></li>
+<li><a class="" href="../../frameworks/fastify/">Fastify</a></li>
+<li><a class="" href="../../frameworks/nextjs/">Next.js</a></li>
+<li><a class="" href="../../frameworks/nestjs/">NestJS</a></li>
+<li><a class="" href="../../frameworks/vite/">Vite</a></li>
+<li><a class="" href="../../frameworks/nuxt/">Nuxt</a></li>
+<li><a class="" href="../../frameworks/sveltekit/">SvelteKit</a></li>
+<li><a class="" href="../../frameworks/hono/">Hono</a></li>
+<li><a class="" href="../../frameworks/actix-web/">Actix-web</a></li>
+<li><a class="" href="../../frameworks/axum/">Axum</a></li>
+<li><a class="" href="../../frameworks/rocket/">Rocket</a></li>
+<li><a class="" href="../../frameworks/ktor/">Ktor</a></li>
+<li><a class="" href="../../frameworks/spring-boot-kotlin/">Spring Boot (Kotlin)</a></li>
+<li><a class="" href="../../frameworks/aspnet-core/">ASP.NET Core</a></li>
+<li><a class="" href="../../frameworks/sinatra/">Sinatra</a></li>
+<li><a class="" href="../../frameworks/slim/">Slim</a></li>
+</ul></div>
+<div class="side-group"><a class="side-top" href="../../troubleshooting/">Troubleshooting</a></div>
+<div class="side-group"><a class="side-top" href="../../faq/">FAQ</a></div>
+</nav></div>
+  <main class="doc-content">
+    <article>
+<h1 id="commands-overview">Commands Overview</h1>
+<p>stoke commands are organized by purpose.</p>
+<h2 id="build-run">Build &amp; run</h2>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../../commands/build/"><code>stoke build</code></a></td>
+<td>Compile the target</td>
+</tr>
+<tr>
+<td><a href="../../commands/run/"><code>stoke run</code></a></td>
+<td>Run the built target</td>
+</tr>
+<tr>
+<td><a href="../../commands/watch/"><code>stoke watch</code></a></td>
+<td>Auto-rebuild on file changes</td>
+</tr>
+<tr>
+<td><a href="../../commands/hot-reload/"><code>stoke hot-reload</code></a></td>
+<td>Rebuild + restart process</td>
+</tr>
+</tbody>
+</table>
+<h2 id="project-management">Project management</h2>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../../commands/init/"><code>stoke init</code></a></td>
+<td>Create a new project</td>
+</tr>
+<tr>
+<td><a href="../../commands/clean/"><code>stoke clean</code></a></td>
+<td>Delete build artifacts</td>
+</tr>
+<tr>
+<td><a href="../../commands/ide-sync/"><code>stoke ide-sync</code></a></td>
+<td>Generate IDE configs</td>
+</tr>
+</tbody>
+</table>
+<h2 id="toolchain">Toolchain</h2>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>stoke python list</code></td>
+<td>List detected Python installations</td>
+</tr>
+<tr>
+<td><code>stoke java list</code></td>
+<td>List detected JDKs</td>
+</tr>
+<tr>
+<td><code>stoke c list</code></td>
+<td>List detected C compilers</td>
+</tr>
+<tr>
+<td><code>stoke cpp list</code></td>
+<td>List detected C++ compilers</td>
+</tr>
+</tbody>
+</table>
+<h2 id="cc-libraries">C/C++ libraries</h2>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>stoke install vcpkg</code></td>
+<td>Install vcpkg</td>
+</tr>
+<tr>
+<td><code>stoke uninstall vcpkg</code></td>
+<td>Uninstall vcpkg</td>
+</tr>
+<tr>
+<td><code>stoke vcpkg install &lt;lib&gt;</code></td>
+<td>Install a library</td>
+</tr>
+<tr>
+<td><code>stoke vcpkg remove &lt;lib&gt;</code></td>
+<td>Remove a library</td>
+</tr>
+<tr>
+<td><code>stoke vcpkg list</code></td>
+<td>List installed libraries</td>
+</tr>
+<tr>
+<td><code>stoke vcpkg version</code></td>
+<td>Show vcpkg version</td>
+</tr>
+</tbody>
+</table>
+<p>See <a href="../../advanced/vcpkg/">vcpkg guide</a> for details.</p>
+<h2 id="global-options">Global options</h2>
+<p>Available across most commands:</p>
+<h3 id="-verbose-v"><code>--verbose</code> (<code>-v</code>)</h3>
+<p>Show detailed output:</p>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>build<span class="w"> </span>--verbose
+</code></pre></div>
+
+<p>Default output is concise. Verbose shows compiler paths, dependency scanning, and per-file progress.</p>
+<h3 id="language-selection">Language selection</h3>
+<p>Set <code>STOKE_LANG=ko</code> in your environment to see help messages in Korean:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">STOKE_LANG</span><span class="o">=</span>ko<span class="w"> </span>stoke<span class="w"> </span>--help
+</code></pre></div>
+
+<p>Default is English. CLI output (build progress, errors) remains in English.</p>
+<h2 id="getting-help">Getting help</h2>
+<p>Each command has its own help:</p>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>--help
+stoke<span class="w"> </span>build<span class="w"> </span>--help
+stoke<span class="w"> </span>vcpkg<span class="w"> </span>install<span class="w"> </span>--help
+</code></pre></div>
+    </article>
+  </main>
+  <div class="doc-toc-col"><nav class="page-toc"><div class="page-toc-title">On this page</div><ul>
+<li class=""><a href="#build-run">Build &amp; run</a></li>
+<li class=""><a href="#project-management">Project management</a></li>
+<li class=""><a href="#toolchain">Toolchain</a></li>
+<li class=""><a href="#cc-libraries">C/C++ libraries</a></li>
+<li class=""><a href="#global-options">Global options</a></li>
+<li class="sub"><a href="#-verbose-v">--verbose (-v)</a></li>
+<li class="sub"><a href="#language-selection">Language selection</a></li>
+<li class=""><a href="#getting-help">Getting help</a></li>
+</ul></nav></div>
+</div>
+<footer class="footer doc-footer">
+  <div class="wrap">
+    <span>© stoke — MIT License</span>
+    <div class="footer-links">
+      <a href="../../getting-started/installation/">Docs</a>
+      <a href="https://github.com/dvdsvds/stoke">GitHub</a>
+      <a href="../../faq/">FAQ</a>
+    </div>
+  </div>
+</footer>
+<script src="../../assets/site.js" defer></script>
+</body>
+</html>

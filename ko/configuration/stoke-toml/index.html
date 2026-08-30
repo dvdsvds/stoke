@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>stoke.toml 레퍼런스 — stoke</title>
+<link rel="icon" href="../../../assets/favicon-src.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/home.css">
+<link rel="stylesheet" href="../../../assets/docs.css">
+</head>
+<body data-root="../../../" data-lang="ko">
+<nav class="nav">
+  <div class="wrap">
+    <a class="nav-brand" href="../../../"><img src="../../../assets/logo-mark.png" alt="stoke">stoke</a>
+    <div class="nav-search">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input type="search" id="site-search" placeholder="문서 검색..." autocomplete="off" spellcheck="false">
+        <div id="search-results" class="search-results" hidden></div>
+      </div>
+    <div class="nav-links">
+      <div class="lang-switch"><a href="../../../configuration/stoke-toml/">영어</a><span class="sep">|</span><a class="active" href=".">한국어</a></div>
+      <a class="nav-gh" href="https://github.com/dvdsvds/stoke"><svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>dvdsvds/stoke</a>
+    </div>
+  </div>
+</nav>
+<div class="doc-layout">
+  <div class="doc-sidebar-col"><nav class="side-nav">
+<div class="side-group">
+<button class="side-group-toggle" type="button">시작하기<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../../ko/getting-started/installation/">설치</a></li>
+<li><a class="" href="../../../ko/getting-started/quick-start/">빠른 시작</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">명령어<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../../ko/commands/overview/">개요</a></li>
+<li><a class="" href="../../../ko/commands/build/">build</a></li>
+<li><a class="" href="../../../ko/commands/run/">run</a></li>
+<li><a class="" href="../../../ko/commands/watch/">watch</a></li>
+<li><a class="" href="../../../ko/commands/hot-reload/">hot-reload</a></li>
+<li><a class="" href="../../../ko/commands/clean/">clean</a></li>
+<li><a class="" href="../../../ko/commands/init/">init</a></li>
+<li><a class="" href="../../../ko/commands/ide-sync/">ide-sync</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">언어<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../../ko/languages/python/">Python</a></li>
+<li><a class="" href="../../../ko/languages/java/">Java</a></li>
+<li><a class="" href="../../../ko/languages/cpp/">C/C++</a></li>
+<li><a class="" href="../../../ko/languages/go/">Go</a></li>
+<li><a class="" href="../../../ko/languages/rust/">Rust</a></li>
+<li><a class="" href="../../../ko/languages/kotlin/">Kotlin</a></li>
+<li><a class="" href="../../../ko/languages/csharp/">C#</a></li>
+<li><a class="" href="../../../ko/languages/ruby/">Ruby</a></li>
+<li><a class="" href="../../../ko/languages/php/">PHP</a></li>
+<li><a class="" href="../../../ko/languages/javascript/">JavaScript</a></li>
+<li><a class="" href="../../../ko/languages/typescript/">TypeScript</a></li>
+</ul></div>
+<div class="side-group expanded">
+<button class="side-group-toggle" type="button">설정<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="active" href="../../../ko/configuration/stoke-toml/">stoke.toml</a></li>
+<li><a class="" href="../../../ko/configuration/profiles/">프로파일</a></li>
+<li><a class="" href="../../../ko/configuration/lock-file/">락 파일</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">고급<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../../ko/advanced/vcpkg/">vcpkg</a></li>
+<li><a class="" href="../../../ko/advanced/ide-integration/">IDE 연동</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">프레임워크<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../../ko/frameworks/overview/">개요</a></li>
+<li><a class="" href="../../../ko/frameworks/spring-boot/">Spring Boot</a></li>
+<li><a class="" href="../../../ko/frameworks/fastapi/">FastAPI</a></li>
+<li><a class="" href="../../../ko/frameworks/flask/">Flask</a></li>
+<li><a class="" href="../../../ko/frameworks/django/">Django</a></li>
+<li><a class="" href="../../../ko/frameworks/gin/">Gin</a></li>
+<li><a class="" href="../../../ko/frameworks/echo/">Echo</a></li>
+<li><a class="" href="../../../ko/frameworks/fiber/">Fiber</a></li>
+<li><a class="" href="../../../ko/frameworks/chi/">Chi</a></li>
+<li><a class="" href="../../../ko/frameworks/express/">Express</a></li>
+<li><a class="" href="../../../ko/frameworks/fastify/">Fastify</a></li>
+<li><a class="" href="../../../ko/frameworks/nextjs/">Next.js</a></li>
+<li><a class="" href="../../../ko/frameworks/nestjs/">NestJS</a></li>
+<li><a class="" href="../../../ko/frameworks/vite/">Vite</a></li>
+<li><a class="" href="../../../ko/frameworks/nuxt/">Nuxt</a></li>
+<li><a class="" href="../../../ko/frameworks/sveltekit/">SvelteKit</a></li>
+<li><a class="" href="../../../ko/frameworks/hono/">Hono</a></li>
+<li><a class="" href="../../../ko/frameworks/actix-web/">Actix-web</a></li>
+<li><a class="" href="../../../ko/frameworks/axum/">Axum</a></li>
+<li><a class="" href="../../../ko/frameworks/rocket/">Rocket</a></li>
+<li><a class="" href="../../../ko/frameworks/ktor/">Ktor</a></li>
+<li><a class="" href="../../../ko/frameworks/spring-boot-kotlin/">Spring Boot (Kotlin)</a></li>
+<li><a class="" href="../../../ko/frameworks/aspnet-core/">ASP.NET Core</a></li>
+<li><a class="" href="../../../ko/frameworks/sinatra/">Sinatra</a></li>
+<li><a class="" href="../../../ko/frameworks/slim/">Slim</a></li>
+</ul></div>
+<div class="side-group"><a class="side-top" href="../../../ko/troubleshooting/">문제 해결</a></div>
+<div class="side-group"><a class="side-top" href="../../../ko/faq/">자주 묻는 질문</a></div>
+</nav></div>
+  <main class="doc-content">
+    <article>
+<h1 id="stoketoml">stoke.toml 레퍼런스</h1>
+<p><code>stoke.toml</code> 설정 파일의 전체 레퍼런스입니다.</p>
+<h2 id="_1">파일 구조</h2>
+<div class="highlight"><pre><span></span><code><span class="k">[project]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"myapp"</span>
+<span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"0.1.0"</span>
+
+<span class="k">[targets.myapp]</span>
+<span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"cpp"</span>
+<span class="n">sources</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"src/**/*.cpp"</span><span class="p">]</span>
+
+<span class="k">[targets.myapp.deps]</span>
+<span class="n">fmt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"*"</span>
+
+<span class="k">[profiles.custom]</span>
+<span class="n">compile_flags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"-O2"</span><span class="p">]</span>
+</code></pre></div>
+
+<p>섹션:</p>
+<ul>
+<li><strong><code>[project]</code></strong> — 프로젝트 전체 메타데이터</li>
+<li><strong><code>[targets.&lt;name&gt;]</code></strong> — 빌드 타깃마다 하나씩</li>
+<li><strong><code>[targets.&lt;name&gt;.deps]</code></strong> — 타깃의 의존성</li>
+<li><strong><code>[profiles.&lt;name&gt;]</code></strong> — 빌드 프로파일 (C/C++ 전용)</li>
+</ul>
+<h2 id="project"><code>[project]</code></h2>
+<p>프로젝트 레벨 설정입니다.</p>
+<div class="highlight"><pre><span></span><code><span class="k">[project]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"myapp"</span><span class="w">           </span><span class="c1"># 필수. 프로젝트 이름.</span>
+<span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"0.1.0"</span><span class="w">        </span><span class="c1"># 선택. 프로젝트 버전.</span>
+<span class="n">lock_mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"auto"</span><span class="w">       </span><span class="c1"># 선택. 락 파일 동작.</span>
+<span class="n">jobs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span><span class="w">                 </span><span class="c1"># 선택. 기본 병렬 빌드 워커 수.</span>
+</code></pre></div>
+
+<h3 id="_2">필드</h3>
+<table>
+<thead>
+<tr>
+<th>필드</th>
+<th>타입</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td>프로젝트 이름</td>
+</tr>
+<tr>
+<td><code>version</code></td>
+<td>string</td>
+<td>semver 형식의 버전</td>
+</tr>
+<tr>
+<td><code>lock_mode</code></td>
+<td><code>"auto"</code> | <code>"strict"</code> | <code>"off"</code></td>
+<td>락 파일 동작 (기본값: <code>"auto"</code>)</td>
+</tr>
+<tr>
+<td><code>jobs</code></td>
+<td>int</td>
+<td>빌드(C/C++)의 기본 병렬 워커 수</td>
+</tr>
+</tbody>
+</table>
+<h3 id="lock_mode"><code>lock_mode</code> 값</h3>
+<ul>
+<li><strong><code>"auto"</code></strong>: 락 파일이 있으면 사용, 필요하면 갱신</li>
+<li><strong><code>"strict"</code></strong>: 락 파일 필수, 버전이 안 맞으면 실패</li>
+<li><strong><code>"off"</code></strong>: 락 파일을 사용하거나 쓰지 않음</li>
+</ul>
+<h2 id="targetsname"><code>[targets.&lt;name&gt;]</code></h2>
+<p>빌드 타깃마다 하나씩. 여러 타깃 가능:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[targets.server]</span>
+<span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"python"</span>
+<span class="n">entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"src/server.py"</span>
+
+<span class="k">[targets.worker]</span>
+<span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"python"</span>
+<span class="n">entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"src/worker.py"</span>
+</code></pre></div>
+
+<p>특정 타깃 빌드:</p>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>build<span class="w"> </span>server
+stoke<span class="w"> </span>run<span class="w"> </span>worker
+</code></pre></div>
+
+<p>타깃을 지정하지 않으면 파일의 첫 번째 타깃이 사용됩니다.</p>
+<h3 id="_3">공통 필드</h3>
+<table>
+<thead>
+<tr>
+<th>필드</th>
+<th>필수 여부</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>language</code></td>
+<td>예</td>
+<td><code>"python"</code>, <code>"java"</code>, <code>"c"</code>, <code>"cpp"</code></td>
+</tr>
+<tr>
+<td><code>sources</code></td>
+<td>경우에 따라</td>
+<td>소스 파일 glob 패턴</td>
+</tr>
+<tr>
+<td><code>pre_build</code></td>
+<td>아니오</td>
+<td>빌드 전에 순서대로 실행할 셸 명령어</td>
+</tr>
+<tr>
+<td><code>post_build</code></td>
+<td>아니오</td>
+<td>빌드 후에 순서대로 실행할 셸 명령어</td>
+</tr>
+<tr>
+<td><code>depends_on</code></td>
+<td>아니오</td>
+<td>이 타깃이 의존하는 타깃 이름 목록; 순서대로 먼저 빌드됨</td>
+</tr>
+<tr>
+<td><code>build_system</code></td>
+<td>아니오</td>
+<td>C/C++ 전용. <code>"cmake"</code>로 설정하면 stoke 자체 빌드 모델 대신 CMake에 위임</td>
+</tr>
+<tr>
+<td><code>source_dir</code></td>
+<td>아니오</td>
+<td>C/C++ + <code>build_system = "cmake"</code> 전용. <code>CMakeLists.txt</code>가 있는 폴더, 프로젝트 루트 기준 상대 경로 (기본값 <code>"."</code>)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="python">Python 전용 필드</h3>
+<table>
+<thead>
+<tr>
+<th>필드</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>python_version</code></td>
+<td>필요한 Python 버전</td>
+</tr>
+<tr>
+<td><code>entry</code></td>
+<td>진입 스크립트 경로</td>
+</tr>
+</tbody>
+</table>
+<h3 id="java">Java 전용 필드</h3>
+<table>
+<thead>
+<tr>
+<th>필드</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>java_version</code></td>
+<td>필요한 JDK 메이저 버전</td>
+</tr>
+<tr>
+<td><code>main_class</code></td>
+<td>완전한 형태의 메인 클래스</td>
+</tr>
+</tbody>
+</table>
+<h3 id="cc">C/C++ 전용 필드</h3>
+<table>
+<thead>
+<tr>
+<th>필드</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>c_standard</code></td>
+<td>C 표준 (<code>"c11"</code>, <code>"c17"</code> 등)</td>
+</tr>
+<tr>
+<td><code>cpp_standard</code></td>
+<td>C++ 표준 (<code>"c++17"</code>, <code>"c++20"</code> 등)</td>
+</tr>
+<tr>
+<td><code>include_dirs</code></td>
+<td>추가 include 디렉토리</td>
+</tr>
+<tr>
+<td><code>jobs</code></td>
+<td>프로젝트 레벨 <code>jobs</code> 오버라이드</td>
+</tr>
+</tbody>
+</table>
+<h2 id="targetsnamedeps"><code>[targets.&lt;name&gt;.deps]</code></h2>
+<p>특정 타깃의 의존성. 언어마다 형식이 다릅니다.</p>
+<h3 id="python-pip">Python (pip)</h3>
+<div class="highlight"><pre><span></span><code><span class="k">[targets.myapp.deps]</span>
+<span class="n">requests</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"*"</span>
+<span class="n">flask</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"&gt;=2.0"</span>
+<span class="n">numpy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"==1.24.3"</span>
+<span class="n">mypackage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"git+https://github.com/user/repo"</span>
+</code></pre></div>
+
+<h3 id="java-maven">Java (Maven)</h3>
+<div class="highlight"><pre><span></span><code><span class="k">[targets.myapp.deps]</span>
+<span class="s2">"com.google.code.gson:gson"</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"2.10.1"</span>
+<span class="s2">"org.slf4j:slf4j-api"</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"2.0.9"</span>
+</code></pre></div>
+
+<p>키 형식: <code>"groupId:artifactId"</code>.</p>
+<h3 id="c-c-vcpkg">C / C++ (vcpkg)</h3>
+<div class="highlight"><pre><span></span><code><span class="k">[targets.myapp.deps]</span>
+<span class="n">fmt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"*"</span>
+<span class="n">sqlite3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"*"</span>
+</code></pre></div>
+
+<p>버전은 vcpkg에 그대로 전달됩니다. <code>"*"</code>는 사용 가능한 최신 버전을 의미합니다.</p>
+<h2 id="profilesname"><code>[profiles.&lt;name&gt;]</code></h2>
+<p>C/C++용 빌드 프로파일입니다.</p>
+<div class="highlight"><pre><span></span><code><span class="k">[profiles.small]</span>
+<span class="n">compile_flags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"-Os"</span><span class="p">,</span><span class="w"> </span><span class="s2">"-flto"</span><span class="p">]</span>
+<span class="n">defines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">NDEBUG</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">}</span>
+
+<span class="k">[profiles.clang]</span>
+<span class="n">compiler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"clang"</span>
+</code></pre></div>
+
+<p>전체 레퍼런스는 <a href="../../../ko/configuration/profiles/">프로파일</a>을 참고하세요.</p>
+<h2 id="build-hooks">빌드 훅</h2>
+<div class="highlight"><pre><span></span><code><span class="k">[targets.myapp]</span>
+<span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"python"</span>
+<span class="n">pre_build</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"echo starting build"</span><span class="p">]</span>
+<span class="n">post_build</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"cp dist/myapp ./release/myapp"</span><span class="p">]</span>
+</code></pre></div>
+
+<p><code>stoke build</code>, <code>stoke build --all</code>, <code>stoke watch</code>, <code>stoke hot-reload</code> 모두에서 선언된 순서대로 셸을 통해 실행됩니다. <code>pre_build</code> 명령이 0이 아닌 값을 반환하면 빌드 자체를 건너뛰고, <code>post_build</code> 명령이 실패하면 빌드가 실패합니다.</p>
+<blockquote>
+<p><strong>보안 참고</strong>: 이 명령어들은 <code>stoke.toml</code>에 적힌 문자열 그대로 사용자 권한으로 셸을 통해 실행됩니다. 신뢰하지 않는 저장소의 <code>stoke.toml</code>을 읽어보지 않고 <code>stoke build</code>를 실행하지 마세요.</p>
+</blockquote>
+<h2 id="_4">타깃 의존성</h2>
+<div class="highlight"><pre><span></span><code><span class="k">[targets.backend]</span>
+<span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"python"</span>
+<span class="n">depends_on</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"shared_lib"</span><span class="p">]</span>
+</code></pre></div>
+
+<p><code>stoke build backend</code>는 <code>shared_lib</code>을 자동으로 먼저 빌드합니다. <code>stoke build --all</code>은 의존성이 해결된 타깃들을 병렬로 빌드하고, 어떤 타깃의 <code>depends_on</code>이 끝날 때까지 기다렸다가 시작하며, 의존 대상이 실패한 타깃은 시도하지 않고 건너뜁니다. 알 수 없는 타깃 참조와 의존성 순환은 빌드가 시작되기 전, <code>stoke.toml</code>을 불러오는 시점에 거부됩니다.</p>
+<h2 id="cmake-for-cc">C/C++용 CMake</h2>
+<p>이미 자체 <code>CMakeLists.txt</code>가 있는 C/C++ 타깃은 stoke 자체 컴파일 모델 대신 CMake에 위임할 수 있습니다:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[targets.engine]</span>
+<span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"cpp"</span>
+<span class="n">build_system</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"cmake"</span>
+<span class="n">source_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"."</span><span class="w">   </span><span class="c1"># CMakeLists.txt가 있는 폴더, 프로젝트 루트 기준 상대 경로</span>
+</code></pre></div>
+
+<p><code>stoke build</code>/<code>run</code>/<code>watch</code>/<code>hot-reload</code>/<code>clean</code>은 stoke 자체 C/C++ 모델과 똑같이 동작하지만, 내부적으로는 <code>cmake -S &lt;source_dir&gt; -B &lt;build_dir&gt;</code>를 실행한 뒤 <code>cmake --build &lt;build_dir&gt;</code>를 실행하고, 생성된 실행 파일을 자동으로 찾습니다. <code>c_standard</code>/<code>cpp_standard</code>, <code>[profiles.*].compile_flags</code>/<code>defines</code>/<code>compiler</code>, <code>includes</code>는 이 경로에서는 무시됩니다 — <code>CMakeLists.txt</code>가 그걸 담당하며, 프로파일 이름만 <code>CMAKE_BUILD_TYPE</code>에 매핑됩니다 (<code>debug</code> → <code>Debug</code>, <code>release</code> → <code>Release</code>).</p>
+<h2 id="_5">전체 예시</h2>
+<p>멀티 타깃 프로젝트:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[project]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"myservice"</span>
+<span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"1.0.0"</span>
+
+<span class="c1"># Python 백엔드</span>
+<span class="k">[targets.backend]</span>
+<span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"python"</span>
+<span class="n">python_version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"3.12"</span>
+<span class="n">entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"backend/main.py"</span>
+<span class="n">sources</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"backend/**/*.py"</span><span class="p">]</span>
+
+<span class="k">[targets.backend.deps]</span>
+<span class="n">fastapi</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"*"</span>
+<span class="n">uvicorn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"*"</span>
+
+<span class="c1"># C++ 엔진</span>
+<span class="k">[targets.engine]</span>
+<span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"cpp"</span>
+<span class="n">sources</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"engine/src/**/*.cpp"</span><span class="p">]</span>
+<span class="n">cpp_standard</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"c++20"</span>
+<span class="n">include_dirs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"engine/include"</span><span class="p">]</span>
+<span class="n">jobs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">8</span>
+
+<span class="k">[targets.engine.deps]</span>
+<span class="n">fmt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"*"</span>
+<span class="n">spdlog</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"*"</span>
+
+<span class="c1"># 커스텀 프로파일</span>
+<span class="k">[profiles.native]</span>
+<span class="n">compile_flags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"-O3"</span><span class="p">,</span><span class="w"> </span><span class="s2">"-march=native"</span><span class="p">]</span>
+</code></pre></div>
+
+<p>개별 타깃 빌드:</p>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>build<span class="w"> </span>backend
+stoke<span class="w"> </span>build<span class="w"> </span>engine<span class="w"> </span>--profile<span class="o">=</span>native
+</code></pre></div>
+
+<h2 id="_6">관련 문서</h2>
+<ul>
+<li><a href="../../../ko/configuration/profiles/">프로파일</a></li>
+<li><a href="../../../ko/configuration/lock-file/">락 파일</a></li>
+<li>언어 가이드: <a href="../../../ko/languages/python/">Python</a>, <a href="../../../ko/languages/java/">Java</a>, <a href="../../../ko/languages/cpp/">C/C++</a>, <a href="../../../ko/languages/go/">Go</a>, <a href="../../../ko/languages/rust/">Rust</a>, <a href="../../../ko/languages/kotlin/">Kotlin</a>, <a href="../../../ko/languages/csharp/">C#</a>, <a href="../../../ko/languages/ruby/">Ruby</a>, <a href="../../../ko/languages/php/">PHP</a>, <a href="../../../ko/languages/javascript/">JavaScript</a>, <a href="../../../ko/languages/typescript/">TypeScript</a></li>
+</ul>
+    </article>
+  </main>
+  <div class="doc-toc-col"><nav class="page-toc"><div class="page-toc-title">On this page</div><ul>
+<li class=""><a href="#_1">파일 구조</a></li>
+<li class=""><a href="#project">[project]</a></li>
+<li class="sub"><a href="#_2">필드</a></li>
+<li class="sub"><a href="#lock_mode">lock_mode 값</a></li>
+<li class=""><a href="#targetsname">[targets.&lt;name&gt;]</a></li>
+<li class="sub"><a href="#_3">공통 필드</a></li>
+<li class="sub"><a href="#python">Python 전용 필드</a></li>
+<li class="sub"><a href="#java">Java 전용 필드</a></li>
+<li class="sub"><a href="#cc">C/C++ 전용 필드</a></li>
+<li class=""><a href="#targetsnamedeps">[targets.&lt;name&gt;.deps]</a></li>
+<li class="sub"><a href="#python-pip">Python (pip)</a></li>
+<li class="sub"><a href="#java-maven">Java (Maven)</a></li>
+<li class="sub"><a href="#c-c-vcpkg">C / C++ (vcpkg)</a></li>
+<li class=""><a href="#profilesname">[profiles.&lt;name&gt;]</a></li>
+<li class=""><a href="#build-hooks">빌드 훅</a></li>
+<li class=""><a href="#_4">타깃 의존성</a></li>
+<li class=""><a href="#cmake-for-cc">C/C++용 CMake</a></li>
+<li class=""><a href="#_5">전체 예시</a></li>
+<li class=""><a href="#_6">관련 문서</a></li>
+</ul></nav></div>
+</div>
+<footer class="footer doc-footer">
+  <div class="wrap">
+    <span>© stoke — MIT License</span>
+    <div class="footer-links">
+      <a href="../../../ko/getting-started/installation/">문서</a>
+      <a href="https://github.com/dvdsvds/stoke">GitHub</a>
+      <a href="../../../ko/faq/">FAQ</a>
+    </div>
+  </div>
+</footer>
+<script src="../../../assets/site.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>stoke build — stoke</title>
+<link rel="icon" href="../../../assets/favicon-src.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/home.css">
+<link rel="stylesheet" href="../../../assets/docs.css">
+</head>
+<body data-root="../../../" data-lang="ko">
+<nav class="nav">
+  <div class="wrap">
+    <a class="nav-brand" href="../../../"><img src="../../../assets/logo-mark.png" alt="stoke">stoke</a>
+    <div class="nav-search">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input type="search" id="site-search" placeholder="문서 검색..." autocomplete="off" spellcheck="false">
+        <div id="search-results" class="search-results" hidden></div>
+      </div>
+    <div class="nav-links">
+      <div class="lang-switch"><a href="../../../commands/build/">영어</a><span class="sep">|</span><a class="active" href=".">한국어</a></div>
+      <a class="nav-gh" href="https://github.com/dvdsvds/stoke"><svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>dvdsvds/stoke</a>
+    </div>
+  </div>
+</nav>
+<div class="doc-layout">
+  <div class="doc-sidebar-col"><nav class="side-nav">
+<div class="side-group">
+<button class="side-group-toggle" type="button">시작하기<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../../ko/getting-started/installation/">설치</a></li>
+<li><a class="" href="../../../ko/getting-started/quick-start/">빠른 시작</a></li>
+</ul></div>
+<div class="side-group expanded">
+<button class="side-group-toggle" type="button">명령어<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../../ko/commands/overview/">개요</a></li>
+<li><a class="active" href="../../../ko/commands/build/">build</a></li>
+<li><a class="" href="../../../ko/commands/run/">run</a></li>
+<li><a class="" href="../../../ko/commands/watch/">watch</a></li>
+<li><a class="" href="../../../ko/commands/hot-reload/">hot-reload</a></li>
+<li><a class="" href="../../../ko/commands/clean/">clean</a></li>
+<li><a class="" href="../../../ko/commands/init/">init</a></li>
+<li><a class="" href="../../../ko/commands/ide-sync/">ide-sync</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">언어<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../../ko/languages/python/">Python</a></li>
+<li><a class="" href="../../../ko/languages/java/">Java</a></li>
+<li><a class="" href="../../../ko/languages/cpp/">C/C++</a></li>
+<li><a class="" href="../../../ko/languages/go/">Go</a></li>
+<li><a class="" href="../../../ko/languages/rust/">Rust</a></li>
+<li><a class="" href="../../../ko/languages/kotlin/">Kotlin</a></li>
+<li><a class="" href="../../../ko/languages/csharp/">C#</a></li>
+<li><a class="" href="../../../ko/languages/ruby/">Ruby</a></li>
+<li><a class="" href="../../../ko/languages/php/">PHP</a></li>
+<li><a class="" href="../../../ko/languages/javascript/">JavaScript</a></li>
+<li><a class="" href="../../../ko/languages/typescript/">TypeScript</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">설정<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../../ko/configuration/stoke-toml/">stoke.toml</a></li>
+<li><a class="" href="../../../ko/configuration/profiles/">프로파일</a></li>
+<li><a class="" href="../../../ko/configuration/lock-file/">락 파일</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">고급<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../../ko/advanced/vcpkg/">vcpkg</a></li>
+<li><a class="" href="../../../ko/advanced/ide-integration/">IDE 연동</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">프레임워크<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../../ko/frameworks/overview/">개요</a></li>
+<li><a class="" href="../../../ko/frameworks/spring-boot/">Spring Boot</a></li>
+<li><a class="" href="../../../ko/frameworks/fastapi/">FastAPI</a></li>
+<li><a class="" href="../../../ko/frameworks/flask/">Flask</a></li>
+<li><a class="" href="../../../ko/frameworks/django/">Django</a></li>
+<li><a class="" href="../../../ko/frameworks/gin/">Gin</a></li>
+<li><a class="" href="../../../ko/frameworks/echo/">Echo</a></li>
+<li><a class="" href="../../../ko/frameworks/fiber/">Fiber</a></li>
+<li><a class="" href="../../../ko/frameworks/chi/">Chi</a></li>
+<li><a class="" href="../../../ko/frameworks/express/">Express</a></li>
+<li><a class="" href="../../../ko/frameworks/fastify/">Fastify</a></li>
+<li><a class="" href="../../../ko/frameworks/nextjs/">Next.js</a></li>
+<li><a class="" href="../../../ko/frameworks/nestjs/">NestJS</a></li>
+<li><a class="" href="../../../ko/frameworks/vite/">Vite</a></li>
+<li><a class="" href="../../../ko/frameworks/nuxt/">Nuxt</a></li>
+<li><a class="" href="../../../ko/frameworks/sveltekit/">SvelteKit</a></li>
+<li><a class="" href="../../../ko/frameworks/hono/">Hono</a></li>
+<li><a class="" href="../../../ko/frameworks/actix-web/">Actix-web</a></li>
+<li><a class="" href="../../../ko/frameworks/axum/">Axum</a></li>
+<li><a class="" href="../../../ko/frameworks/rocket/">Rocket</a></li>
+<li><a class="" href="../../../ko/frameworks/ktor/">Ktor</a></li>
+<li><a class="" href="../../../ko/frameworks/spring-boot-kotlin/">Spring Boot (Kotlin)</a></li>
+<li><a class="" href="../../../ko/frameworks/aspnet-core/">ASP.NET Core</a></li>
+<li><a class="" href="../../../ko/frameworks/sinatra/">Sinatra</a></li>
+<li><a class="" href="../../../ko/frameworks/slim/">Slim</a></li>
+</ul></div>
+<div class="side-group"><a class="side-top" href="../../../ko/troubleshooting/">문제 해결</a></div>
+<div class="side-group"><a class="side-top" href="../../../ko/faq/">자주 묻는 질문</a></div>
+</nav></div>
+  <main class="doc-content">
+    <article>
+<h1 id="stoke-build">stoke build</h1>
+<p>타깃을 빌드합니다.</p>
+<h2 id="_1">사용법</h2>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>build<span class="w"> </span><span class="o">[</span>target<span class="o">]</span><span class="w"> </span><span class="o">[</span>options<span class="o">]</span>
+</code></pre></div>
+
+<p><code>target</code>을 생략하면 <code>stoke.toml</code>의 첫 번째 타깃이 사용됩니다.</p>
+<h2 id="_2">옵션</h2>
+<table>
+<thead>
+<tr>
+<th>옵션</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--force</code></td>
+<td>캐시를 무시하고 전체 재빌드</td>
+</tr>
+<tr>
+<td><code>--debug</code></td>
+<td>debug 프로파일로 빌드 (기본값)</td>
+</tr>
+<tr>
+<td><code>--release</code></td>
+<td>release 프로파일로 빌드</td>
+</tr>
+<tr>
+<td><code>--profile &lt;name&gt;</code></td>
+<td><code>stoke.toml</code>의 커스텀 프로파일로 빌드</td>
+</tr>
+<tr>
+<td><code>-v</code>, <code>--verbose</code></td>
+<td>자세한 빌드 출력 표시</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">예시</h2>
+<h3 id="_4">기본 빌드</h3>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>build
+</code></pre></div>
+
+<p>기본 타깃을 debug 프로파일로 빌드합니다.</p>
+<h3 id="_5">타깃 지정</h3>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>build<span class="w"> </span>myapp
+</code></pre></div>
+
+<p><code>myapp</code> 타깃을 빌드합니다.</p>
+<h3 id="release">Release 빌드</h3>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>build<span class="w"> </span>--release
+</code></pre></div>
+
+<p>최적화된 빌드입니다 (C/C++는 <code>-O2</code>, <code>NDEBUG</code> 정의).</p>
+<h3 id="_6">커스텀 프로파일</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># stoke.toml</span>
+<span class="k">[profiles.small]</span>
+<span class="n">compile_flags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"-Os"</span><span class="p">,</span><span class="w"> </span><span class="s2">"-flto"</span><span class="p">]</span>
+<span class="n">defines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">NDEBUG</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>build<span class="w"> </span>--profile<span class="o">=</span>small
+</code></pre></div>
+
+<h3 id="_7">강제 재빌드</h3>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>build<span class="w"> </span>--force
+</code></pre></div>
+
+<p>캐시를 무시하고 전부 재컴파일합니다. 산출물이 오래됐다고 의심될 때 유용합니다.</p>
+<h3 id="_8">자세한 출력</h3>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>build<span class="w"> </span>-v
+</code></pre></div>
+
+<p>컴파일러 경로, 파일별 컴파일 상태, 세부 단계를 보여줍니다.</p>
+<h2 id="output-structure">출력 구조</h2>
+<p>빌드 산출물은 언어, 타깃, 프로파일별로 정리됩니다:</p>
+<div class="highlight"><pre><span></span><code>.stoke/
+├── {language}/
+│   └── {target}/
+│       └── {profile}/
+│           ├── objects/         # C/C++ .o 파일
+│           ├── classes/         # Java .class 파일
+│           └── {target}.exe     # 최종 실행 파일
+├── cache.json                   # 증분 빌드 캐시
+└── lock.toml                    # 고정된 버전
+</code></pre></div>
+
+<p>C 프로젝트 예시:</p>
+<div class="highlight"><pre><span></span><code>.stoke/
+├── c/
+│   └── myapp/
+│       ├── debug/
+│       │   ├── objects/
+│       │   └── myapp.exe
+│       └── release/
+│           ├── objects/
+│           └── myapp.exe
+├── cache.json
+└── lock.toml
+</code></pre></div>
+<h2 id="_9">증분 컴파일</h2>
+<p>stoke는 파일 수정과 헤더 의존성을 추적합니다. 변경된 파일만 재컴파일됩니다.</p>
+<p>C/C++의 경우 gcc의 <code>-MMD</code> 플래그로 헤더 의존성을 추적합니다. <code>header.h</code>가 변경되면 (직접 또는 간접적으로) <code>#include "header.h"</code>하는 모든 파일이 재컴파일됩니다.</p>
+<p>캐시를 무시하려면 <code>--force</code>를 사용하세요.</p>
+<h2 id="_10">빌드 프로파일</h2>
+<p>기본 프로파일:</p>
+<ul>
+<li><strong>debug</strong> — <code>-O0 -g -Wall</code>, <code>DEBUG</code> 정의 (C/C++만 해당)</li>
+<li><strong>release</strong> — <code>-O2</code>, <code>NDEBUG</code> 정의 (C/C++만 해당)</li>
+</ul>
+<p>참고: 프로파일은 C/C++ 빌드에만 영향을 줍니다. Python과 Java는 프로파일을 무시합니다.</p>
+<p>커스텀 프로파일은 <code>stoke.toml</code>에서 정의합니다:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[profiles.myprofile]</span>
+<span class="n">compile_flags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"-O3"</span><span class="p">,</span><span class="w"> </span><span class="s2">"-march=native"</span><span class="p">]</span>
+<span class="n">defines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">MYFLAG</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">}</span>
+<span class="n">compiler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"clang"</span><span class="w">  </span><span class="c1"># 선택사항: 컴파일러 오버라이드</span>
+</code></pre></div>
+
+<p>자세한 내용은 <a href="../../../ko/configuration/profiles/">프로파일</a>을 참고하세요.</p>
+<h2 id="_11">관련 문서</h2>
+<ul>
+<li><a href="../../../ko/commands/run/"><code>stoke run</code></a> — 빌드된 타깃 실행</li>
+<li><a href="../../../ko/commands/watch/"><code>stoke watch</code></a> — 변경 시 자동 재빌드</li>
+<li><a href="../../../ko/commands/clean/"><code>stoke clean</code></a> — 빌드 산출물 제거</li>
+<li><a href="../../../ko/configuration/profiles/">프로파일</a> — 프로파일 시스템 레퍼런스</li>
+</ul>
+    </article>
+  </main>
+  <div class="doc-toc-col"><nav class="page-toc"><div class="page-toc-title">On this page</div><ul>
+<li class=""><a href="#_1">사용법</a></li>
+<li class=""><a href="#_2">옵션</a></li>
+<li class=""><a href="#_3">예시</a></li>
+<li class="sub"><a href="#_4">기본 빌드</a></li>
+<li class="sub"><a href="#_5">타깃 지정</a></li>
+<li class="sub"><a href="#release">Release 빌드</a></li>
+<li class="sub"><a href="#_6">커스텀 프로파일</a></li>
+<li class="sub"><a href="#_7">강제 재빌드</a></li>
+<li class="sub"><a href="#_8">자세한 출력</a></li>
+<li class=""><a href="#output-structure">출력 구조</a></li>
+<li class=""><a href="#_9">증분 컴파일</a></li>
+<li class=""><a href="#_10">빌드 프로파일</a></li>
+<li class=""><a href="#_11">관련 문서</a></li>
+</ul></nav></div>
+</div>
+<footer class="footer doc-footer">
+  <div class="wrap">
+    <span>© stoke — MIT License</span>
+    <div class="footer-links">
+      <a href="../../../ko/getting-started/installation/">문서</a>
+      <a href="https://github.com/dvdsvds/stoke">GitHub</a>
+      <a href="../../../ko/faq/">FAQ</a>
+    </div>
+  </div>
+</footer>
+<script src="../../../assets/site.js" defer></script>
+</body>
+</html>

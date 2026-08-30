@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>stoke ide-sync — stoke</title>
+<link rel="icon" href="../../assets/favicon-src.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/home.css">
+<link rel="stylesheet" href="../../assets/docs.css">
+</head>
+<body data-root="../../" data-lang="en">
+<nav class="nav">
+  <div class="wrap">
+    <a class="nav-brand" href="../../"><img src="../../assets/logo-mark.png" alt="stoke">stoke</a>
+    <div class="nav-search">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input type="search" id="site-search" placeholder="Search docs..." autocomplete="off" spellcheck="false">
+        <div id="search-results" class="search-results" hidden></div>
+      </div>
+    <div class="nav-links">
+      <div class="lang-switch"><a class="active" href=".">영어</a><span class="sep">|</span><a href="../../ko/commands/ide-sync/">한국어</a></div>
+      <a class="nav-gh" href="https://github.com/dvdsvds/stoke"><svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>dvdsvds/stoke</a>
+    </div>
+  </div>
+</nav>
+<div class="doc-layout">
+  <div class="doc-sidebar-col"><nav class="side-nav">
+<div class="side-group">
+<button class="side-group-toggle" type="button">Getting Started<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../getting-started/installation/">Installation</a></li>
+<li><a class="" href="../../getting-started/quick-start/">Quick Start</a></li>
+</ul></div>
+<div class="side-group expanded">
+<button class="side-group-toggle" type="button">Commands<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../commands/overview/">Overview</a></li>
+<li><a class="" href="../../commands/build/">build</a></li>
+<li><a class="" href="../../commands/run/">run</a></li>
+<li><a class="" href="../../commands/watch/">watch</a></li>
+<li><a class="" href="../../commands/hot-reload/">hot-reload</a></li>
+<li><a class="" href="../../commands/clean/">clean</a></li>
+<li><a class="" href="../../commands/init/">init</a></li>
+<li><a class="active" href="../../commands/ide-sync/">ide-sync</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">Languages<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../languages/python/">Python</a></li>
+<li><a class="" href="../../languages/java/">Java</a></li>
+<li><a class="" href="../../languages/cpp/">C/C++</a></li>
+<li><a class="" href="../../languages/go/">Go</a></li>
+<li><a class="" href="../../languages/rust/">Rust</a></li>
+<li><a class="" href="../../languages/kotlin/">Kotlin</a></li>
+<li><a class="" href="../../languages/csharp/">C#</a></li>
+<li><a class="" href="../../languages/ruby/">Ruby</a></li>
+<li><a class="" href="../../languages/php/">PHP</a></li>
+<li><a class="" href="../../languages/javascript/">JavaScript</a></li>
+<li><a class="" href="../../languages/typescript/">TypeScript</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">Configuration<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../configuration/stoke-toml/">stoke.toml</a></li>
+<li><a class="" href="../../configuration/profiles/">Profiles</a></li>
+<li><a class="" href="../../configuration/lock-file/">Lock file</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">Advanced<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../advanced/vcpkg/">vcpkg</a></li>
+<li><a class="" href="../../advanced/ide-integration/">IDE Integration</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">Frameworks<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../frameworks/overview/">Overview</a></li>
+<li><a class="" href="../../frameworks/spring-boot/">Spring Boot</a></li>
+<li><a class="" href="../../frameworks/fastapi/">FastAPI</a></li>
+<li><a class="" href="../../frameworks/flask/">Flask</a></li>
+<li><a class="" href="../../frameworks/django/">Django</a></li>
+<li><a class="" href="../../frameworks/gin/">Gin</a></li>
+<li><a class="" href="../../frameworks/echo/">Echo</a></li>
+<li><a class="" href="../../frameworks/fiber/">Fiber</a></li>
+<li><a class="" href="../../frameworks/chi/">Chi</a></li>
+<li><a class="" href="../../frameworks/express/">Express</a></li>
+<li><a class="" href="../../frameworks/fastify/">Fastify</a></li>
+<li><a class="" href="../../frameworks/nextjs/">Next.js</a></li>
+<li><a class="" href="../../frameworks/nestjs/">NestJS</a></li>
+<li><a class="" href="../../frameworks/vite/">Vite</a></li>
+<li><a class="" href="../../frameworks/nuxt/">Nuxt</a></li>
+<li><a class="" href="../../frameworks/sveltekit/">SvelteKit</a></li>
+<li><a class="" href="../../frameworks/hono/">Hono</a></li>
+<li><a class="" href="../../frameworks/actix-web/">Actix-web</a></li>
+<li><a class="" href="../../frameworks/axum/">Axum</a></li>
+<li><a class="" href="../../frameworks/rocket/">Rocket</a></li>
+<li><a class="" href="../../frameworks/ktor/">Ktor</a></li>
+<li><a class="" href="../../frameworks/spring-boot-kotlin/">Spring Boot (Kotlin)</a></li>
+<li><a class="" href="../../frameworks/aspnet-core/">ASP.NET Core</a></li>
+<li><a class="" href="../../frameworks/sinatra/">Sinatra</a></li>
+<li><a class="" href="../../frameworks/slim/">Slim</a></li>
+</ul></div>
+<div class="side-group"><a class="side-top" href="../../troubleshooting/">Troubleshooting</a></div>
+<div class="side-group"><a class="side-top" href="../../faq/">FAQ</a></div>
+</nav></div>
+  <main class="doc-content">
+    <article>
+<h1 id="stoke-ide-sync">stoke ide-sync</h1>
+<p>Generate IDE configurations for a multi-project workspace.</p>
+<h2 id="usage">Usage</h2>
+<p>Run from a directory that contains multiple stoke projects:</p>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>ide-sync
+</code></pre></div>
+
+<h2 id="what-it-does">What it does</h2>
+<p>Scans subdirectories for <code>stoke.toml</code> files and generates:</p>
+<ul>
+<li><code>.vscode/settings.json</code> — VSCode workspace settings</li>
+<li><code>{workspace_name}.code-workspace</code> — VSCode multi-root workspace file</li>
+</ul>
+<h2 id="example">Example</h2>
+<p>Directory structure:</p>
+<div class="highlight"><pre><span></span><code>myworkspace/
+├── frontend/
+│   └── stoke.toml       # python
+├── backend/
+│   └── stoke.toml       # java
+└── engine/
+    └── stoke.toml       # cpp
+</code></pre></div>
+
+<p>Run:</p>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>cd<span class="w"> </span>myworkspace
+$<span class="w"> </span>stoke<span class="w"> </span>ide-sync
+Scanning<span class="w"> </span>for<span class="w"> </span>stoke<span class="w"> </span>projects<span class="w"> </span>under<span class="w"> </span>C:\Users...\myworkspace...
+Found<span class="w"> </span>3<span class="w"> </span>project(s):
+[python]<span class="w"> </span>frontend
+[java]<span class="w"> </span>backend
+[cpp]<span class="w"> </span>engine
+Generated:<span class="w"> </span>C:\Users...\myworkspace\.vscode\settings.json
+Generated:<span class="w"> </span>C:\Users...\myworkspace\myworkspace.code-workspace
+Open<span class="w"> </span>in<span class="w"> </span>VSCode:<span class="w"> </span>C:\Users...\myworkspace\myworkspace.code-workspace
+</code></pre></div>
+<p>Open the <code>.code-workspace</code> file in VSCode to work on all projects together with proper language support for each.</p>
+<h2 id="individual-project-ide-files">Individual project IDE files</h2>
+<p><code>stoke build</code> also generates per-project IDE files (VSCode settings, Eclipse <code>.classpath</code>, <code>pom.xml</code>, etc.). Those are separate from <code>ide-sync</code>.</p>
+<ul>
+<li><strong>stoke build</strong> — per-project IDE files (single project)</li>
+<li><strong>stoke ide-sync</strong> — workspace-level VSCode setup (multiple projects)</li>
+</ul>
+<h2 id="related">Related</h2>
+<ul>
+<li><a href="../../advanced/ide-integration/">IDE Integration</a> — deep dive</li>
+</ul>
+    </article>
+  </main>
+  <div class="doc-toc-col"><nav class="page-toc"><div class="page-toc-title">On this page</div><ul>
+<li class=""><a href="#usage">Usage</a></li>
+<li class=""><a href="#what-it-does">What it does</a></li>
+<li class=""><a href="#example">Example</a></li>
+<li class=""><a href="#individual-project-ide-files">Individual project IDE files</a></li>
+<li class=""><a href="#related">Related</a></li>
+</ul></nav></div>
+</div>
+<footer class="footer doc-footer">
+  <div class="wrap">
+    <span>© stoke — MIT License</span>
+    <div class="footer-links">
+      <a href="../../getting-started/installation/">Docs</a>
+      <a href="https://github.com/dvdsvds/stoke">GitHub</a>
+      <a href="../../faq/">FAQ</a>
+    </div>
+  </div>
+</footer>
+<script src="../../assets/site.js" defer></script>
+</body>
+</html>

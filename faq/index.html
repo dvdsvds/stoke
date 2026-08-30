@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FAQ — stoke</title>
+<link rel="icon" href="../assets/favicon-src.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/home.css">
+<link rel="stylesheet" href="../assets/docs.css">
+</head>
+<body data-root="../" data-lang="en">
+<nav class="nav">
+  <div class="wrap">
+    <a class="nav-brand" href="../"><img src="../assets/logo-mark.png" alt="stoke">stoke</a>
+    <div class="nav-search">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input type="search" id="site-search" placeholder="Search docs..." autocomplete="off" spellcheck="false">
+        <div id="search-results" class="search-results" hidden></div>
+      </div>
+    <div class="nav-links">
+      <div class="lang-switch"><a class="active" href=".">영어</a><span class="sep">|</span><a href="../ko/faq/">한국어</a></div>
+      <a class="nav-gh" href="https://github.com/dvdsvds/stoke"><svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>dvdsvds/stoke</a>
+    </div>
+  </div>
+</nav>
+<div class="doc-layout">
+  <div class="doc-sidebar-col"><nav class="side-nav">
+<div class="side-group">
+<button class="side-group-toggle" type="button">Getting Started<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../getting-started/installation/">Installation</a></li>
+<li><a class="" href="../getting-started/quick-start/">Quick Start</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">Commands<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../commands/overview/">Overview</a></li>
+<li><a class="" href="../commands/build/">build</a></li>
+<li><a class="" href="../commands/run/">run</a></li>
+<li><a class="" href="../commands/watch/">watch</a></li>
+<li><a class="" href="../commands/hot-reload/">hot-reload</a></li>
+<li><a class="" href="../commands/clean/">clean</a></li>
+<li><a class="" href="../commands/init/">init</a></li>
+<li><a class="" href="../commands/ide-sync/">ide-sync</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">Languages<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../languages/python/">Python</a></li>
+<li><a class="" href="../languages/java/">Java</a></li>
+<li><a class="" href="../languages/cpp/">C/C++</a></li>
+<li><a class="" href="../languages/go/">Go</a></li>
+<li><a class="" href="../languages/rust/">Rust</a></li>
+<li><a class="" href="../languages/kotlin/">Kotlin</a></li>
+<li><a class="" href="../languages/csharp/">C#</a></li>
+<li><a class="" href="../languages/ruby/">Ruby</a></li>
+<li><a class="" href="../languages/php/">PHP</a></li>
+<li><a class="" href="../languages/javascript/">JavaScript</a></li>
+<li><a class="" href="../languages/typescript/">TypeScript</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">Configuration<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../configuration/stoke-toml/">stoke.toml</a></li>
+<li><a class="" href="../configuration/profiles/">Profiles</a></li>
+<li><a class="" href="../configuration/lock-file/">Lock file</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">Advanced<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../advanced/vcpkg/">vcpkg</a></li>
+<li><a class="" href="../advanced/ide-integration/">IDE Integration</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">Frameworks<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../frameworks/overview/">Overview</a></li>
+<li><a class="" href="../frameworks/spring-boot/">Spring Boot</a></li>
+<li><a class="" href="../frameworks/fastapi/">FastAPI</a></li>
+<li><a class="" href="../frameworks/flask/">Flask</a></li>
+<li><a class="" href="../frameworks/django/">Django</a></li>
+<li><a class="" href="../frameworks/gin/">Gin</a></li>
+<li><a class="" href="../frameworks/echo/">Echo</a></li>
+<li><a class="" href="../frameworks/fiber/">Fiber</a></li>
+<li><a class="" href="../frameworks/chi/">Chi</a></li>
+<li><a class="" href="../frameworks/express/">Express</a></li>
+<li><a class="" href="../frameworks/fastify/">Fastify</a></li>
+<li><a class="" href="../frameworks/nextjs/">Next.js</a></li>
+<li><a class="" href="../frameworks/nestjs/">NestJS</a></li>
+<li><a class="" href="../frameworks/vite/">Vite</a></li>
+<li><a class="" href="../frameworks/nuxt/">Nuxt</a></li>
+<li><a class="" href="../frameworks/sveltekit/">SvelteKit</a></li>
+<li><a class="" href="../frameworks/hono/">Hono</a></li>
+<li><a class="" href="../frameworks/actix-web/">Actix-web</a></li>
+<li><a class="" href="../frameworks/axum/">Axum</a></li>
+<li><a class="" href="../frameworks/rocket/">Rocket</a></li>
+<li><a class="" href="../frameworks/ktor/">Ktor</a></li>
+<li><a class="" href="../frameworks/spring-boot-kotlin/">Spring Boot (Kotlin)</a></li>
+<li><a class="" href="../frameworks/aspnet-core/">ASP.NET Core</a></li>
+<li><a class="" href="../frameworks/sinatra/">Sinatra</a></li>
+<li><a class="" href="../frameworks/slim/">Slim</a></li>
+</ul></div>
+<div class="side-group"><a class="side-top" href="../troubleshooting/">Troubleshooting</a></div>
+<div class="side-group"><a class="side-top active" href="../faq/">FAQ</a></div>
+</nav></div>
+  <main class="doc-content">
+    <article>
+<h1 id="faq">FAQ</h1>
+<h2 id="general">General</h2>
+<h3 id="what-is-stoke">What is stoke?</h3>
+<p>A build tool that unifies workflows for Python, Java, C, C++, Go, Rust, Kotlin, C#, Ruby, PHP, JavaScript, and TypeScript. One <code>stoke.toml</code> per project, one set of commands for all languages.</p>
+<h3 id="why-not-use-language-specific-tools">Why not use language-specific tools?</h3>
+<p>Language-specific tools (pip, Maven, Make, Cargo) are excellent. But when you work across multiple languages, remembering which command builds what, configuring each ecosystem separately, and coordinating IDE setups becomes friction.</p>
+<p>stoke provides a consistent interface without replacing the underlying tools. Under the hood, stoke uses pip, javac, Maven, gcc/clang, vcpkg, <code>go build</code>, and npm — it just wraps them consistently.</p>
+<h3 id="is-stoke-a-replacement-for-cmake-meson-make">Is stoke a replacement for CMake / Meson / Make?</h3>
+<p>Not really. stoke is more like a project runner than a build system. It's opinionated and works out of the box for common cases. For a C/C++ target with an existing <code>CMakeLists.txt</code>, set <code>build_system = "cmake"</code> and stoke delegates to <code>cmake</code> instead of driving the compiler itself — see <a href="../configuration/stoke-toml/#cmake-for-cc">stoke.toml reference</a>. For build scenarios CMake itself doesn't cover well, or for Meson, you're on your own.</p>
+<h3 id="what-languages-does-stoke-support">What languages does stoke support?</h3>
+<p>Currently:</p>
+<ul>
+<li>Python</li>
+<li>Java (JDK 17+)</li>
+<li>C</li>
+<li>C++</li>
+<li>Go</li>
+<li>Rust</li>
+<li>Kotlin (via Gradle)</li>
+<li>C# (via the .NET SDK)</li>
+<li>Ruby</li>
+<li>PHP</li>
+<li>JavaScript</li>
+<li>TypeScript</li>
+</ul>
+<p>More languages may come in the future.</p>
+<h3 id="which-platforms">Which platforms?</h3>
+<ul>
+<li>Windows (native installer)</li>
+<li>Linux (native tarball)</li>
+<li>macOS (native tarball)</li>
+</ul>
+<p>Actively developed on Windows (MSYS2/MinGW64).</p>
+<h2 id="installation">Installation</h2>
+<h3 id="how-do-i-update-stoke">How do I update stoke?</h3>
+<p>Windows installer users: download the new installer and run it. It replaces the old version.</p>
+<p>macOS/Linux tarball users: download the new tarball from <a href="https://github.com/dvdsvds/stoke/releases/latest">Releases</a> and extract it over the old one.</p>
+<h3 id="how-do-i-uninstall-stoke">How do I uninstall stoke?</h3>
+<p>Windows installer: use Windows "Add or Remove Programs" or run the uninstaller in the install directory.</p>
+<p>macOS/Linux: delete the extracted <code>stoke</code> folder and remove it from your <code>PATH</code>.</p>
+<h2 id="configuration">Configuration</h2>
+<h3 id="can-i-have-multiple-targets-in-one-project">Can I have multiple targets in one project?</h3>
+<p>Yes. Any number of <code>[targets.&lt;name&gt;]</code> sections:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[targets.server]</span>
+<span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"python"</span>
+<span class="n">entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"server/main.py"</span>
+
+<span class="k">[targets.client]</span>
+<span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"cpp"</span>
+<span class="n">sources</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"client/**/*.cpp"</span><span class="p">]</span>
+</code></pre></div>
+
+<p>Build all: <code>stoke build</code><br />
+Build one: <code>stoke build server</code></p>
+<h3 id="can-targets-use-different-languages">Can targets use different languages?</h3>
+<p>Yes. Each target has its own <code>language</code>.</p>
+<h3 id="can-one-target-depend-on-another">Can one target depend on another?</h3>
+<p>Yes, with <code>depends_on</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[targets.backend]</span>
+<span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"python"</span>
+<span class="n">depends_on</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"shared_lib"</span><span class="p">]</span>
+</code></pre></div>
+
+<p><code>stoke build backend</code> builds <code>shared_lib</code> first. <code>stoke build --all</code> builds independent targets in parallel but waits for each target's dependencies to finish first, and skips a target if its dependency failed. Cycles and references to unknown targets are rejected when <code>stoke.toml</code> loads.</p>
+<h3 id="can-i-share-code-between-targets">Can I share code between targets?</h3>
+<p>Yes. Adjust <code>sources</code> glob patterns to include shared code:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[targets.server]</span>
+<span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"python"</span>
+<span class="n">sources</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"server/**/*.py"</span><span class="p">,</span><span class="w"> </span><span class="s2">"shared/**/*.py"</span><span class="p">]</span>
+
+<span class="k">[targets.worker]</span>
+<span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"python"</span>
+<span class="n">sources</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"worker/**/*.py"</span><span class="p">,</span><span class="w"> </span><span class="s2">"shared/**/*.py"</span><span class="p">]</span>
+</code></pre></div>
+
+<h3 id="wheres-my-build-output">Where's my build output?</h3>
+<p><code>.stoke/{language}/{target}/{profile}/</code>. See <a href="../commands/build/#output-structure"><code>stoke build</code></a>.</p>
+<h3 id="can-i-add-custom-build-steps">Can I add custom build steps?</h3>
+<p>Yes — <code>pre_build</code>/<code>post_build</code> on any target run shell commands before/after that target's build. See <a href="../configuration/stoke-toml/#build-hooks">stoke.toml reference</a>. They run through the shell with your user's permissions, so only build <code>stoke.toml</code> files you trust.</p>
+<h2 id="language-specific">Language-specific</h2>
+<h3 id="python-does-stoke-replace-pip-venv">Python: does stoke replace pip / venv?</h3>
+<p>No. stoke uses venv and pip under the hood. It automates the venv creation, dependency installation, and PYTHONPATH setup.</p>
+<h3 id="java-does-stoke-use-maven">Java: does stoke use Maven?</h3>
+<p>stoke uses Maven Central for dependency downloads. It doesn't use Maven's build system — it invokes <code>javac</code> directly.</p>
+<p>The generated <code>pom.xml</code> is for IDE integration only.</p>
+<h3 id="cc-what-compiler-does-stoke-use">C/C++: what compiler does stoke use?</h3>
+<ul>
+<li>Linux default: gcc</li>
+<li>macOS default: clang</li>
+<li>Windows default: gcc (from MSYS2/MinGW)</li>
+</ul>
+<p>Override with build profiles. MSVC (<code>cl.exe</code>) is not currently supported.</p>
+<h3 id="cc-can-i-use-cmake">C/C++: can I use CMake?</h3>
+<p>Yes — set <code>build_system = "cmake"</code> on the target and point <code>source_dir</code> at the folder with <code>CMakeLists.txt</code>. stoke then runs <code>cmake</code> configure/build instead of its own compile model; <code>c_standard</code>/<code>cpp_standard</code> and profile compile flags are ignored on this path since <code>CMakeLists.txt</code> owns them. See <a href="../configuration/stoke-toml/#cmake-for-cc">stoke.toml reference</a>.</p>
+<h3 id="rust-kotlin-c-ruby-php-does-stoke-replace-cargo-gradle-dotnet-bundler-composer">Rust, Kotlin, C#, Ruby, PHP: does stoke replace Cargo / Gradle / dotnet / Bundler / Composer?</h3>
+<p>No. stoke delegates directly to each ecosystem's own tool — <code>cargo build</code>/<code>cargo run</code> for Rust, <code>gradlew build</code>/<code>gradlew run</code> for Kotlin, <code>dotnet build</code>/<code>dotnet run</code> for C#, <code>bundle install</code> + <code>ruby</code>/<code>bundle exec ruby</code> for Ruby, <code>composer install</code> + <code>php</code> for PHP. stoke just gives them a consistent <code>stoke build</code>/<code>stoke run</code> interface alongside the other languages.</p>
+<h3 id="why-dont-rails-and-laravel-have-stoke-init-scaffolds">Why don't Rails and Laravel have <code>stoke init</code> scaffolds?</h3>
+<p>Both start via a CLI subcommand (<code>bin/rails server</code>, <code>php artisan serve</code>) rather than by directly executing an entry script, which doesn't fit stoke's current run model (<code>stoke run</code> executes one script/binary). Sinatra (Ruby) and Slim (PHP) were added instead since they fit that model — see the <a href="../languages/ruby/">Ruby</a> and <a href="../languages/php/">PHP</a> language pages for details.</p>
+<h2 id="behavior">Behavior</h2>
+<h3 id="why-is-my-build-not-using-the-cache">Why is my build not using the cache?</h3>
+<p>Common reasons:</p>
+<ul>
+<li>Header changed (C/C++ tracks headers automatically)</li>
+<li>Source file's timestamp changed</li>
+<li>Compile flags changed (different profile)</li>
+<li><code>--force</code> was used</li>
+</ul>
+<p>Verbose mode may help debug:</p>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>build<span class="w"> </span>-v
+</code></pre></div>
+
+<h3 id="why-does-stoke-build-regenerate-ide-files-every-time">Why does <code>stoke build</code> regenerate IDE files every time?</h3>
+<p>It doesn't — since v0.7.2. IDE files are only rewritten when their content changes.</p>
+<p>If you see <code>IDE files updated: X, Y</code>, only those actually changed.</p>
+<h3 id="why-is-lock-file-saved-showing-every-time">Why is <code>Lock file saved</code> showing every time?</h3>
+<p>Fixed in v0.7.2. Update to the latest version.</p>
+<h2 id="integration">Integration</h2>
+<h3 id="does-stoke-work-in-ci">Does stoke work in CI?</h3>
+<p>Yes. <code>stoke build</code> in a container or CI runner works the same as locally. Cache the <code>.stoke/</code> directory to speed up subsequent builds.</p>
+<p>Recommended: use <code>lock_mode = "strict"</code> in CI for reproducible builds.</p>
+<h3 id="does-stoke-work-with-docker">Does stoke work with Docker?</h3>
+<p>Yes. Install stoke in the Dockerfile:</p>
+<div class="highlight"><pre><span></span><code><span class="k">RUN</span><span class="w"> </span>curl<span class="w"> </span>-fsSL<span class="w"> </span>-o<span class="w"> </span>stoke.tar.gz<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>https://github.com/dvdsvds/stoke/releases/latest/download/stoke-X.Y.Z-linux-x86_64.tar.gz<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">&amp;&amp;</span><span class="w"> </span>tar<span class="w"> </span>xzf<span class="w"> </span>stoke.tar.gz<span class="w"> </span>-C<span class="w"> </span>/opt<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">&amp;&amp;</span><span class="w"> </span>ln<span class="w"> </span>-s<span class="w"> </span>/opt/stoke/stoke<span class="w"> </span>/usr/local/bin/stoke
+</code></pre></div>
+
+<p>Then <code>stoke build</code> normally.</p>
+<h3 id="can-i-use-stoke-as-a-subprocess-from-another-tool">Can I use stoke as a subprocess from another tool?</h3>
+<p>Yes. Exit codes are meaningful:</p>
+<ul>
+<li>0: success</li>
+<li>non-zero: failure</li>
+</ul>
+<p>Output goes to stdout/stderr in the standard way.</p>
+<h2 id="contributing">Contributing</h2>
+<h3 id="how-can-i-contribute">How can I contribute?</h3>
+<ul>
+<li>Report bugs or request features: <a href="https://github.com/dvdsvds/stoke/issues">github.com/dvdsvds/stoke/issues</a></li>
+<li>Pull requests welcome on GitHub</li>
+</ul>
+<h3 id="wheres-the-source-code">Where's the source code?</h3>
+<p><a href="https://github.com/dvdsvds/stoke">github.com/dvdsvds/stoke</a></p>
+<p>MIT license.</p>
+<h2 id="related">Related</h2>
+<ul>
+<li><a href="../troubleshooting/">Troubleshooting</a></li>
+<li><a href="../getting-started/installation/">Getting Started</a></li>
+</ul>
+    </article>
+  </main>
+  <div class="doc-toc-col"><nav class="page-toc"><div class="page-toc-title">On this page</div><ul>
+<li class=""><a href="#general">General</a></li>
+<li class="sub"><a href="#what-is-stoke">What is stoke?</a></li>
+<li class="sub"><a href="#why-not-use-language-specific-tools">Why not use language-specific tools?</a></li>
+<li class="sub"><a href="#is-stoke-a-replacement-for-cmake-meson-make">Is stoke a replacement for CMake / Meson / Make?</a></li>
+<li class="sub"><a href="#what-languages-does-stoke-support">What languages does stoke support?</a></li>
+<li class="sub"><a href="#which-platforms">Which platforms?</a></li>
+<li class=""><a href="#installation">Installation</a></li>
+<li class="sub"><a href="#how-do-i-update-stoke">How do I update stoke?</a></li>
+<li class="sub"><a href="#how-do-i-uninstall-stoke">How do I uninstall stoke?</a></li>
+<li class=""><a href="#configuration">Configuration</a></li>
+<li class="sub"><a href="#can-i-have-multiple-targets-in-one-project">Can I have multiple targets in one project?</a></li>
+<li class="sub"><a href="#can-targets-use-different-languages">Can targets use different languages?</a></li>
+<li class="sub"><a href="#can-one-target-depend-on-another">Can one target depend on another?</a></li>
+<li class="sub"><a href="#can-i-share-code-between-targets">Can I share code between targets?</a></li>
+<li class="sub"><a href="#wheres-my-build-output">Where's my build output?</a></li>
+<li class="sub"><a href="#can-i-add-custom-build-steps">Can I add custom build steps?</a></li>
+<li class=""><a href="#language-specific">Language-specific</a></li>
+<li class="sub"><a href="#python-does-stoke-replace-pip-venv">Python: does stoke replace pip / venv?</a></li>
+<li class="sub"><a href="#java-does-stoke-use-maven">Java: does stoke use Maven?</a></li>
+<li class="sub"><a href="#cc-what-compiler-does-stoke-use">C/C++: what compiler does stoke use?</a></li>
+<li class="sub"><a href="#cc-can-i-use-cmake">C/C++: can I use CMake?</a></li>
+<li class="sub"><a href="#rust-kotlin-c-ruby-php-does-stoke-replace-cargo-gradle-dotnet-bundler-composer">Rust, Kotlin, C#, Ruby, PHP: does stoke replace Cargo / Gradle / dotnet / Bundler / Composer?</a></li>
+<li class="sub"><a href="#why-dont-rails-and-laravel-have-stoke-init-scaffolds">Why don't Rails and Laravel have stoke init scaffolds?</a></li>
+<li class=""><a href="#behavior">Behavior</a></li>
+<li class="sub"><a href="#why-is-my-build-not-using-the-cache">Why is my build not using the cache?</a></li>
+<li class="sub"><a href="#why-does-stoke-build-regenerate-ide-files-every-time">Why does stoke build regenerate IDE files every time?</a></li>
+<li class="sub"><a href="#why-is-lock-file-saved-showing-every-time">Why is Lock file saved showing every time?</a></li>
+<li class=""><a href="#integration">Integration</a></li>
+<li class="sub"><a href="#does-stoke-work-in-ci">Does stoke work in CI?</a></li>
+<li class="sub"><a href="#does-stoke-work-with-docker">Does stoke work with Docker?</a></li>
+<li class="sub"><a href="#can-i-use-stoke-as-a-subprocess-from-another-tool">Can I use stoke as a subprocess from another tool?</a></li>
+<li class=""><a href="#contributing">Contributing</a></li>
+<li class="sub"><a href="#how-can-i-contribute">How can I contribute?</a></li>
+<li class="sub"><a href="#wheres-the-source-code">Where's the source code?</a></li>
+<li class=""><a href="#related">Related</a></li>
+</ul></nav></div>
+</div>
+<footer class="footer doc-footer">
+  <div class="wrap">
+    <span>© stoke — MIT License</span>
+    <div class="footer-links">
+      <a href="../getting-started/installation/">Docs</a>
+      <a href="https://github.com/dvdsvds/stoke">GitHub</a>
+      <a href="../faq/">FAQ</a>
+    </div>
+  </div>
+</footer>
+<script src="../assets/site.js" defer></script>
+</body>
+</html>

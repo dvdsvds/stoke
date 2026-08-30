@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>C / C++ — stoke</title>
+<link rel="icon" href="../../assets/favicon-src.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/home.css">
+<link rel="stylesheet" href="../../assets/docs.css">
+</head>
+<body data-root="../../" data-lang="en">
+<nav class="nav">
+  <div class="wrap">
+    <a class="nav-brand" href="../../"><img src="../../assets/logo-mark.png" alt="stoke">stoke</a>
+    <div class="nav-search">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input type="search" id="site-search" placeholder="Search docs..." autocomplete="off" spellcheck="false">
+        <div id="search-results" class="search-results" hidden></div>
+      </div>
+    <div class="nav-links">
+      <div class="lang-switch"><a class="active" href=".">영어</a><span class="sep">|</span><a href="../../ko/languages/cpp/">한국어</a></div>
+      <a class="nav-gh" href="https://github.com/dvdsvds/stoke"><svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>dvdsvds/stoke</a>
+    </div>
+  </div>
+</nav>
+<div class="doc-layout">
+  <div class="doc-sidebar-col"><nav class="side-nav">
+<div class="side-group">
+<button class="side-group-toggle" type="button">Getting Started<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../getting-started/installation/">Installation</a></li>
+<li><a class="" href="../../getting-started/quick-start/">Quick Start</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">Commands<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../commands/overview/">Overview</a></li>
+<li><a class="" href="../../commands/build/">build</a></li>
+<li><a class="" href="../../commands/run/">run</a></li>
+<li><a class="" href="../../commands/watch/">watch</a></li>
+<li><a class="" href="../../commands/hot-reload/">hot-reload</a></li>
+<li><a class="" href="../../commands/clean/">clean</a></li>
+<li><a class="" href="../../commands/init/">init</a></li>
+<li><a class="" href="../../commands/ide-sync/">ide-sync</a></li>
+</ul></div>
+<div class="side-group expanded">
+<button class="side-group-toggle" type="button">Languages<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../languages/python/">Python</a></li>
+<li><a class="" href="../../languages/java/">Java</a></li>
+<li><a class="active" href="../../languages/cpp/">C/C++</a></li>
+<li><a class="" href="../../languages/go/">Go</a></li>
+<li><a class="" href="../../languages/rust/">Rust</a></li>
+<li><a class="" href="../../languages/kotlin/">Kotlin</a></li>
+<li><a class="" href="../../languages/csharp/">C#</a></li>
+<li><a class="" href="../../languages/ruby/">Ruby</a></li>
+<li><a class="" href="../../languages/php/">PHP</a></li>
+<li><a class="" href="../../languages/javascript/">JavaScript</a></li>
+<li><a class="" href="../../languages/typescript/">TypeScript</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">Configuration<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../configuration/stoke-toml/">stoke.toml</a></li>
+<li><a class="" href="../../configuration/profiles/">Profiles</a></li>
+<li><a class="" href="../../configuration/lock-file/">Lock file</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">Advanced<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../advanced/vcpkg/">vcpkg</a></li>
+<li><a class="" href="../../advanced/ide-integration/">IDE Integration</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">Frameworks<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../frameworks/overview/">Overview</a></li>
+<li><a class="" href="../../frameworks/spring-boot/">Spring Boot</a></li>
+<li><a class="" href="../../frameworks/fastapi/">FastAPI</a></li>
+<li><a class="" href="../../frameworks/flask/">Flask</a></li>
+<li><a class="" href="../../frameworks/django/">Django</a></li>
+<li><a class="" href="../../frameworks/gin/">Gin</a></li>
+<li><a class="" href="../../frameworks/echo/">Echo</a></li>
+<li><a class="" href="../../frameworks/fiber/">Fiber</a></li>
+<li><a class="" href="../../frameworks/chi/">Chi</a></li>
+<li><a class="" href="../../frameworks/express/">Express</a></li>
+<li><a class="" href="../../frameworks/fastify/">Fastify</a></li>
+<li><a class="" href="../../frameworks/nextjs/">Next.js</a></li>
+<li><a class="" href="../../frameworks/nestjs/">NestJS</a></li>
+<li><a class="" href="../../frameworks/vite/">Vite</a></li>
+<li><a class="" href="../../frameworks/nuxt/">Nuxt</a></li>
+<li><a class="" href="../../frameworks/sveltekit/">SvelteKit</a></li>
+<li><a class="" href="../../frameworks/hono/">Hono</a></li>
+<li><a class="" href="../../frameworks/actix-web/">Actix-web</a></li>
+<li><a class="" href="../../frameworks/axum/">Axum</a></li>
+<li><a class="" href="../../frameworks/rocket/">Rocket</a></li>
+<li><a class="" href="../../frameworks/ktor/">Ktor</a></li>
+<li><a class="" href="../../frameworks/spring-boot-kotlin/">Spring Boot (Kotlin)</a></li>
+<li><a class="" href="../../frameworks/aspnet-core/">ASP.NET Core</a></li>
+<li><a class="" href="../../frameworks/sinatra/">Sinatra</a></li>
+<li><a class="" href="../../frameworks/slim/">Slim</a></li>
+</ul></div>
+<div class="side-group"><a class="side-top" href="../../troubleshooting/">Troubleshooting</a></div>
+<div class="side-group"><a class="side-top" href="../../faq/">FAQ</a></div>
+</nav></div>
+  <main class="doc-content">
+    <article>
+<h1 id="c-c">C / C++</h1>
+<p>stoke handles C and C++ projects with header dependency tracking, parallel compilation, build profiles, and vcpkg integration.</p>
+<h2 id="example-stoketoml">Example <code>stoke.toml</code></h2>
+<p>C++ project:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[project]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"myapp"</span>
+<span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"0.1.0"</span>
+
+<span class="k">[targets.myapp]</span>
+<span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"cpp"</span>
+<span class="n">sources</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"src/**/*.cpp"</span><span class="p">]</span>
+<span class="n">cpp_standard</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"c++20"</span>
+</code></pre></div>
+
+<p>C project:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[project]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"myapp"</span>
+<span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"0.1.0"</span>
+
+<span class="k">[targets.myapp]</span>
+<span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"c"</span>
+<span class="n">sources</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"src/**/*.c"</span><span class="p">]</span>
+<span class="n">c_standard</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"c11"</span>
+
+<span class="k">[targets.myapp.deps]</span>
+<span class="n">sqlite3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"*"</span>
+</code></pre></div>
+
+<h2 id="target-fields">Target fields</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>language</code></td>
+<td>Yes</td>
+<td><code>"c"</code> or <code>"cpp"</code></td>
+</tr>
+<tr>
+<td><code>sources</code></td>
+<td>Yes</td>
+<td>Glob patterns for <code>.c</code>/<code>.cpp</code> files</td>
+</tr>
+<tr>
+<td><code>c_standard</code></td>
+<td>No</td>
+<td>e.g. <code>"c11"</code>, <code>"c17"</code> (C only)</td>
+</tr>
+<tr>
+<td><code>cpp_standard</code></td>
+<td>No</td>
+<td>e.g. <code>"c++17"</code>, <code>"c++20"</code>, <code>"c++23"</code> (C++ only)</td>
+</tr>
+<tr>
+<td><code>deps</code></td>
+<td>No</td>
+<td>vcpkg libraries</td>
+</tr>
+<tr>
+<td><code>jobs</code></td>
+<td>No</td>
+<td>Parallel compilation workers (default: CPU count)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="compiler-detection">Compiler detection</h2>
+<p>stoke uses:</p>
+<ul>
+<li><strong>Linux</strong>: <code>gcc</code> / <code>g++</code> (default)</li>
+<li><strong>macOS</strong>: <code>clang</code> / <code>clang++</code> (default)</li>
+<li><strong>Windows</strong>: <code>gcc</code> / <code>g++</code> from MSYS2/MinGW (default)</li>
+</ul>
+<p>Override with a build profile:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[profiles.clang]</span>
+<span class="n">compiler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"clang"</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>build<span class="w"> </span>--profile<span class="o">=</span>clang
+</code></pre></div>
+
+<p>Check detected compilers:</p>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>c<span class="w"> </span>list<span class="w">       </span><span class="c1"># C compilers</span>
+stoke<span class="w"> </span>cpp<span class="w"> </span>list<span class="w">     </span><span class="c1"># C++ compilers</span>
+</code></pre></div>
+
+<h2 id="header-dependencies">Header dependencies</h2>
+<p>stoke uses gcc's <code>-MMD</code> flag to track which headers each source includes. If a header changes, all files that include it are recompiled.</p>
+<p>Example: change <code>include/utils.h</code> → all <code>.cpp</code> files that <code>#include "utils.h"</code> (directly or transitively) rebuild.</p>
+<p>Header dependency files (<code>.d</code>) are stored alongside object files in <code>.stoke/</code>.</p>
+<h2 id="include-paths">Include paths</h2>
+<p>stoke automatically adds:</p>
+<ul>
+<li><code>src/</code> (project root sources)</li>
+<li><code>include/</code> (if it exists)</li>
+<li>vcpkg include paths (for installed dependencies)</li>
+<li>User-specified paths via <code>include_dirs</code></li>
+</ul>
+<p>You can add extra paths:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[targets.myapp]</span>
+<span class="n">include_dirs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"third_party/include"</span><span class="p">]</span>
+</code></pre></div>
+
+<h2 id="include-convention">Include convention</h2>
+<p>Use explicit paths in <code>#include</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">"hardware/cpu.hpp"</span><span class="w">        </span><span class="c1">// ✓ good</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">"cpu.hpp"</span><span class="w">                 </span><span class="c1">// ✗ ambiguous</span>
+</code></pre></div>
+
+<p>Same convention as Python/Java/Rust/Go. Makes imports unambiguous and refactoring safer.</p>
+<h2 id="parallel-compilation">Parallel compilation</h2>
+<p>stoke compiles files in parallel by default (worker count = CPU cores).</p>
+<p>Override:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[targets.myapp]</span>
+<span class="n">jobs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span>
+</code></pre></div>
+
+<p>Or override globally in <code>[project]</code>.</p>
+<h2 id="build-profiles">Build profiles</h2>
+<p>Default profiles:</p>
+<ul>
+<li><strong>debug</strong> — <code>-O0 -g -Wall</code>, defines <code>DEBUG</code></li>
+<li><strong>release</strong> — <code>-O2</code>, defines <code>NDEBUG</code></li>
+</ul>
+<p>Custom profiles in <code>stoke.toml</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[profiles.small]</span>
+<span class="n">compile_flags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"-Os"</span><span class="p">,</span><span class="w"> </span><span class="s2">"-flto"</span><span class="p">]</span>
+<span class="n">defines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">NDEBUG</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">}</span>
+
+<span class="k">[profiles.native]</span>
+<span class="n">compile_flags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"-O3"</span><span class="p">,</span><span class="w"> </span><span class="s2">"-march=native"</span><span class="p">]</span>
+
+<span class="k">[profiles.clang]</span>
+<span class="n">compiler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"clang"</span>
+<span class="n">compile_flags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"-O2"</span><span class="p">]</span>
+</code></pre></div>
+
+<p>Build with:</p>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>build<span class="w"> </span>--profile<span class="o">=</span>small
+</code></pre></div>
+
+<p>See <a href="../../configuration/profiles/">Profiles</a> for details.</p>
+<h2 id="dependencies-vcpkg">Dependencies (vcpkg)</h2>
+<p>C/C++ libraries via <a href="https://vcpkg.io">vcpkg</a>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[targets.myapp.deps]</span>
+<span class="n">sqlite3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"*"</span>
+<span class="n">fmt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"*"</span>
+</code></pre></div>
+
+<p>First install vcpkg:</p>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>install<span class="w"> </span>vcpkg
+</code></pre></div>
+
+<p>Then install libraries:</p>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>vcpkg<span class="w"> </span>install<span class="w"> </span>sqlite3
+stoke<span class="w"> </span>vcpkg<span class="w"> </span>install<span class="w"> </span>fmt
+</code></pre></div>
+
+<p>Or add them manually to <code>stoke.toml</code> and run <code>stoke build</code> — stoke will install them.</p>
+<p>See <a href="../../advanced/vcpkg/">vcpkg guide</a>.</p>
+<h2 id="ide-integration">IDE integration</h2>
+<p><code>stoke build</code> generates:</p>
+<ul>
+<li><code>compile_commands.json</code> — for clangd, VSCode C/C++ extension, etc.</li>
+<li><code>.vscode/c_cpp_properties.json</code> — for Microsoft C/C++ extension</li>
+<li><code>.vscode/settings.json</code> — file exclusions, extension settings</li>
+</ul>
+<p>Open the project in VSCode with the C/C++ extension — IntelliSense works immediately.</p>
+<h2 id="output-structure">Output structure</h2>
+<div class="highlight"><pre><span></span><code>.stoke/
+├── cpp/
+│   └── myapp/
+│       ├── debug/
+│       │   ├── objects/       # .o files
+│       │   ├── myapp.d.*      # header dep files
+│       │   └── myapp.exe
+│       └── release/
+│           ├── objects/
+│           └── myapp.exe
+</code></pre></div>
+<h2 id="related">Related</h2>
+<ul>
+<li><a href="../../commands/build/"><code>stoke build</code></a></li>
+<li><a href="../../configuration/profiles/">Profiles</a></li>
+<li><a href="../../advanced/vcpkg/">vcpkg</a></li>
+</ul>
+    </article>
+  </main>
+  <div class="doc-toc-col"><nav class="page-toc"><div class="page-toc-title">On this page</div><ul>
+<li class=""><a href="#example-stoketoml">Example stoke.toml</a></li>
+<li class=""><a href="#target-fields">Target fields</a></li>
+<li class=""><a href="#compiler-detection">Compiler detection</a></li>
+<li class=""><a href="#header-dependencies">Header dependencies</a></li>
+<li class=""><a href="#include-paths">Include paths</a></li>
+<li class=""><a href="#include-convention">Include convention</a></li>
+<li class=""><a href="#parallel-compilation">Parallel compilation</a></li>
+<li class=""><a href="#build-profiles">Build profiles</a></li>
+<li class=""><a href="#dependencies-vcpkg">Dependencies (vcpkg)</a></li>
+<li class=""><a href="#ide-integration">IDE integration</a></li>
+<li class=""><a href="#output-structure">Output structure</a></li>
+<li class=""><a href="#related">Related</a></li>
+</ul></nav></div>
+</div>
+<footer class="footer doc-footer">
+  <div class="wrap">
+    <span>© stoke — MIT License</span>
+    <div class="footer-links">
+      <a href="../../getting-started/installation/">Docs</a>
+      <a href="https://github.com/dvdsvds/stoke">GitHub</a>
+      <a href="../../faq/">FAQ</a>
+    </div>
+  </div>
+</footer>
+<script src="../../assets/site.js" defer></script>
+</body>
+</html>

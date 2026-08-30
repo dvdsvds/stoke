@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IDE Integration — stoke</title>
+<link rel="icon" href="../../assets/favicon-src.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/home.css">
+<link rel="stylesheet" href="../../assets/docs.css">
+</head>
+<body data-root="../../" data-lang="en">
+<nav class="nav">
+  <div class="wrap">
+    <a class="nav-brand" href="../../"><img src="../../assets/logo-mark.png" alt="stoke">stoke</a>
+    <div class="nav-search">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input type="search" id="site-search" placeholder="Search docs..." autocomplete="off" spellcheck="false">
+        <div id="search-results" class="search-results" hidden></div>
+      </div>
+    <div class="nav-links">
+      <div class="lang-switch"><a class="active" href=".">영어</a><span class="sep">|</span><a href="../../ko/advanced/ide-integration/">한국어</a></div>
+      <a class="nav-gh" href="https://github.com/dvdsvds/stoke"><svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>dvdsvds/stoke</a>
+    </div>
+  </div>
+</nav>
+<div class="doc-layout">
+  <div class="doc-sidebar-col"><nav class="side-nav">
+<div class="side-group">
+<button class="side-group-toggle" type="button">Getting Started<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../getting-started/installation/">Installation</a></li>
+<li><a class="" href="../../getting-started/quick-start/">Quick Start</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">Commands<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../commands/overview/">Overview</a></li>
+<li><a class="" href="../../commands/build/">build</a></li>
+<li><a class="" href="../../commands/run/">run</a></li>
+<li><a class="" href="../../commands/watch/">watch</a></li>
+<li><a class="" href="../../commands/hot-reload/">hot-reload</a></li>
+<li><a class="" href="../../commands/clean/">clean</a></li>
+<li><a class="" href="../../commands/init/">init</a></li>
+<li><a class="" href="../../commands/ide-sync/">ide-sync</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">Languages<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../languages/python/">Python</a></li>
+<li><a class="" href="../../languages/java/">Java</a></li>
+<li><a class="" href="../../languages/cpp/">C/C++</a></li>
+<li><a class="" href="../../languages/go/">Go</a></li>
+<li><a class="" href="../../languages/rust/">Rust</a></li>
+<li><a class="" href="../../languages/kotlin/">Kotlin</a></li>
+<li><a class="" href="../../languages/csharp/">C#</a></li>
+<li><a class="" href="../../languages/ruby/">Ruby</a></li>
+<li><a class="" href="../../languages/php/">PHP</a></li>
+<li><a class="" href="../../languages/javascript/">JavaScript</a></li>
+<li><a class="" href="../../languages/typescript/">TypeScript</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">Configuration<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../configuration/stoke-toml/">stoke.toml</a></li>
+<li><a class="" href="../../configuration/profiles/">Profiles</a></li>
+<li><a class="" href="../../configuration/lock-file/">Lock file</a></li>
+</ul></div>
+<div class="side-group expanded">
+<button class="side-group-toggle" type="button">Advanced<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../advanced/vcpkg/">vcpkg</a></li>
+<li><a class="active" href="../../advanced/ide-integration/">IDE Integration</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">Frameworks<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../frameworks/overview/">Overview</a></li>
+<li><a class="" href="../../frameworks/spring-boot/">Spring Boot</a></li>
+<li><a class="" href="../../frameworks/fastapi/">FastAPI</a></li>
+<li><a class="" href="../../frameworks/flask/">Flask</a></li>
+<li><a class="" href="../../frameworks/django/">Django</a></li>
+<li><a class="" href="../../frameworks/gin/">Gin</a></li>
+<li><a class="" href="../../frameworks/echo/">Echo</a></li>
+<li><a class="" href="../../frameworks/fiber/">Fiber</a></li>
+<li><a class="" href="../../frameworks/chi/">Chi</a></li>
+<li><a class="" href="../../frameworks/express/">Express</a></li>
+<li><a class="" href="../../frameworks/fastify/">Fastify</a></li>
+<li><a class="" href="../../frameworks/nextjs/">Next.js</a></li>
+<li><a class="" href="../../frameworks/nestjs/">NestJS</a></li>
+<li><a class="" href="../../frameworks/vite/">Vite</a></li>
+<li><a class="" href="../../frameworks/nuxt/">Nuxt</a></li>
+<li><a class="" href="../../frameworks/sveltekit/">SvelteKit</a></li>
+<li><a class="" href="../../frameworks/hono/">Hono</a></li>
+<li><a class="" href="../../frameworks/actix-web/">Actix-web</a></li>
+<li><a class="" href="../../frameworks/axum/">Axum</a></li>
+<li><a class="" href="../../frameworks/rocket/">Rocket</a></li>
+<li><a class="" href="../../frameworks/ktor/">Ktor</a></li>
+<li><a class="" href="../../frameworks/spring-boot-kotlin/">Spring Boot (Kotlin)</a></li>
+<li><a class="" href="../../frameworks/aspnet-core/">ASP.NET Core</a></li>
+<li><a class="" href="../../frameworks/sinatra/">Sinatra</a></li>
+<li><a class="" href="../../frameworks/slim/">Slim</a></li>
+</ul></div>
+<div class="side-group"><a class="side-top" href="../../troubleshooting/">Troubleshooting</a></div>
+<div class="side-group"><a class="side-top" href="../../faq/">FAQ</a></div>
+</nav></div>
+  <main class="doc-content">
+    <article>
+<h1 id="ide-integration">IDE Integration</h1>
+<p>stoke generates IDE configuration files automatically during <code>stoke build</code>. Open your project in the IDE — everything just works.</p>
+<h2 id="supported-ides">Supported IDEs</h2>
+<table>
+<thead>
+<tr>
+<th>IDE</th>
+<th>Python</th>
+<th>Java</th>
+<th>C/C++</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>VSCode</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Eclipse</td>
+<td></td>
+<td>✓</td>
+<td></td>
+</tr>
+<tr>
+<td>IntelliJ / JetBrains</td>
+<td></td>
+<td>✓ (via Maven)</td>
+<td></td>
+</tr>
+<tr>
+<td>clangd-based</td>
+<td></td>
+<td></td>
+<td>✓</td>
+</tr>
+</tbody>
+</table>
+<h2 id="vscode">VSCode</h2>
+<h3 id="files-generated">Files generated</h3>
+<p>Per-project (in project root):</p>
+<ul>
+<li><code>.vscode/settings.json</code></li>
+</ul>
+<p>For C/C++:
+- <code>.vscode/c_cpp_properties.json</code> (Microsoft C/C++ extension)
+- <code>compile_commands.json</code> (clangd, Native Debug)</p>
+<p>For Java:
+- <code>.classpath</code> (Eclipse format, used by VSCode Java extension)
+- <code>.project</code> (Eclipse format)
+- <code>pom.xml</code> (Maven format)</p>
+<h3 id="settings">Settings</h3>
+<p><code>settings.json</code> includes:</p>
+<ul>
+<li><strong>Python</strong>: interpreter path, extra paths, exclusions</li>
+<li><strong>Java</strong>: source paths, referenced JARs</li>
+<li><strong>C/C++</strong>: include paths, defines, compiler path</li>
+</ul>
+<p>Also excludes <code>.stoke/</code> from file watching to reduce editor lag.</p>
+<h3 id="extensions">Extensions</h3>
+<p>Recommended VSCode extensions:</p>
+<ul>
+<li><strong>Python</strong> — Microsoft Python extension</li>
+<li><strong>Java</strong> — Extension Pack for Java</li>
+<li><strong>C/C++</strong> — Microsoft C/C++ extension OR clangd</li>
+</ul>
+<h2 id="eclipse-java">Eclipse (Java)</h2>
+<p>Import as an existing Eclipse project:</p>
+<ol>
+<li>File → Import → General → Existing Projects into Workspace</li>
+<li>Select the project folder</li>
+</ol>
+<p>Eclipse reads <code>.classpath</code> and <code>.project</code>.</p>
+<h2 id="intellij-jetbrains-java">IntelliJ / JetBrains (Java)</h2>
+<p>Import as a Maven project:</p>
+<ol>
+<li>File → Open → select the project folder or <code>pom.xml</code></li>
+<li>IntelliJ reads <code>pom.xml</code></li>
+</ol>
+<h2 id="clangd-cc">clangd (C/C++)</h2>
+<p><code>compile_commands.json</code> at the project root is the standard for clangd-based tools:</p>
+<ul>
+<li>clangd LSP server</li>
+<li>CLion (via clangd)</li>
+<li>Neovim + clangd</li>
+<li>Emacs + clangd</li>
+<li>Any editor with clangd support</li>
+</ul>
+<p>No extra config needed. Just open the project.</p>
+<h2 id="multi-project-workspaces">Multi-project workspaces</h2>
+<p>For a repository with multiple stoke projects:</p>
+<div class="highlight"><pre><span></span><code>myworkspace/
+├── frontend/         # python
+│   └── stoke.toml
+├── backend/          # java
+│   └── stoke.toml
+└── engine/           # cpp
+    └── stoke.toml
+</code></pre></div>
+<p>Run in the root:</p>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>ide-sync
+</code></pre></div>
+
+<p>Generates:</p>
+<ul>
+<li><code>.vscode/settings.json</code> — workspace-level settings</li>
+<li><code>myworkspace.code-workspace</code> — multi-root VSCode workspace</li>
+</ul>
+<p>Open the <code>.code-workspace</code> file to work on all projects together.</p>
+<p>See <a href="../../commands/ide-sync/"><code>stoke ide-sync</code></a> for details.</p>
+<h2 id="regenerating-ide-files">Regenerating IDE files</h2>
+<p>IDE files are regenerated on every <code>stoke build</code>. If they get out of sync (e.g. after changing dependencies), just rebuild:</p>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>build
+</code></pre></div>
+
+<p>Or force it:</p>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>build<span class="w"> </span>--force
+</code></pre></div>
+
+<h2 id="not-modifying-manually">Not modifying manually</h2>
+<p>Since IDE files are regenerated, manual edits are overwritten on the next build. Configure via <code>stoke.toml</code> instead.</p>
+<p>Add extra include paths in <code>stoke.toml</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[targets.myapp]</span>
+<span class="n">include_dirs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"third_party/include"</span><span class="p">]</span>
+</code></pre></div>
+
+<h2 id="related">Related</h2>
+<ul>
+<li><a href="../../commands/ide-sync/"><code>stoke ide-sync</code></a></li>
+<li><a href="../../commands/build/"><code>stoke build</code></a></li>
+</ul>
+    </article>
+  </main>
+  <div class="doc-toc-col"><nav class="page-toc"><div class="page-toc-title">On this page</div><ul>
+<li class=""><a href="#supported-ides">Supported IDEs</a></li>
+<li class=""><a href="#vscode">VSCode</a></li>
+<li class="sub"><a href="#files-generated">Files generated</a></li>
+<li class="sub"><a href="#settings">Settings</a></li>
+<li class="sub"><a href="#extensions">Extensions</a></li>
+<li class=""><a href="#eclipse-java">Eclipse (Java)</a></li>
+<li class=""><a href="#intellij-jetbrains-java">IntelliJ / JetBrains (Java)</a></li>
+<li class=""><a href="#clangd-cc">clangd (C/C++)</a></li>
+<li class=""><a href="#multi-project-workspaces">Multi-project workspaces</a></li>
+<li class=""><a href="#regenerating-ide-files">Regenerating IDE files</a></li>
+<li class=""><a href="#not-modifying-manually">Not modifying manually</a></li>
+<li class=""><a href="#related">Related</a></li>
+</ul></nav></div>
+</div>
+<footer class="footer doc-footer">
+  <div class="wrap">
+    <span>© stoke — MIT License</span>
+    <div class="footer-links">
+      <a href="../../getting-started/installation/">Docs</a>
+      <a href="https://github.com/dvdsvds/stoke">GitHub</a>
+      <a href="../../faq/">FAQ</a>
+    </div>
+  </div>
+</footer>
+<script src="../../assets/site.js" defer></script>
+</body>
+</html>

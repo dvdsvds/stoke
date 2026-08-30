@@ -1,0 +1,29 @@
+{
+  "language": "go",
+  "updated": "2026-07-22",
+  "note": "Go programming language",
+  "versions": [
+    {
+      "version": "1.26.5",
+      "released": "2026-07-01",
+      "description": "Latest stable",
+      "downloads": {
+        "windows-amd64": "https://go.dev/dl/go1.26.5.windows-amd64.zip",
+        "macos-amd64": "https://go.dev/dl/go1.26.5.darwin-amd64.tar.gz",
+        "macos-arm64": "https://go.dev/dl/go1.26.5.darwin-arm64.tar.gz",
+        "linux-amd64": "https://go.dev/dl/go1.26.5.linux-amd64.tar.gz"
+      }
+    },
+    {
+      "version": "1.25.0",
+      "released": "2025-08-01",
+      "description": "Previous stable",
+      "downloads": {
+        "windows-amd64": "https://go.dev/dl/go1.25.0.windows-amd64.zip",
+        "macos-amd64": "https://go.dev/dl/go1.25.0.darwin-amd64.tar.gz",
+        "macos-arm64": "https://go.dev/dl/go1.25.0.darwin-arm64.tar.gz",
+        "linux-amd64": "https://go.dev/dl/go1.25.0.linux-amd64.tar.gz"
+      }
+    }
+  ]
+}
