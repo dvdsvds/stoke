@@ -10,6 +10,11 @@ from stoke.install_versions import fetch_versions, find_version, get_platform_ke
 from stoke.http_utils import basic_auth_headers
 from stoke.config import find_config_file
 
+SUPPORTED_LANGUAGES = (
+    "python", "java", "c", "cpp", "conda", "go", "nodejs",
+    "rust", "kotlin", "csharp", "ruby", "php",
+)
+
 def _toolchains_dir(project_root: Path) -> Path:
     """언어 툴체인 설치 폴더 반환. 프로젝트 로컬(.stoke/toolchains) — 전역 캐시 없음.
     프로젝트를 지우면 같이 지워지고, PC에 언어별 잔여 캐시가 남지 않음."""
@@ -38,9 +43,9 @@ def cmd_install_language(language: str, version: str, base_url: str | None = Non
     사내 서버를 가리키기 위함.
     """
     # 지원 언어 및 환경 확인
-    if language not in ("python", "java", "c", "cpp", "conda", "go", "nodejs", "rust", "kotlin", "csharp", "ruby", "php"):
+    if language not in SUPPORTED_LANGUAGES:
         print(f"Error: unsupported language '{language}'", file=sys.stderr)
-        print(f"Supported: python, java, c, cpp, conda, go, nodejs, rust, kotlin, csharp, ruby, php", file=sys.stderr)
+        print(f"Supported: {', '.join(SUPPORTED_LANGUAGES)}", file=sys.stderr)
         sys.exit(1)
 
     project_root = _find_project_root()
@@ -355,7 +360,7 @@ def _install_macos(installer_path: Path):
 
 def cmd_list_language_versions(language: str, base_url: str | None = None):
     """stoke install --language=X --list [--base-url=<url>]"""
-    if language not in ("python", "java", "c", "cpp", "conda", "go", "nodejs", "rust", "kotlin", "csharp", "ruby", "php"):
+    if language not in SUPPORTED_LANGUAGES:
         print(f"Error: unsupported language '{language}'", file=sys.stderr)
         sys.exit(1)
 
@@ -377,7 +382,7 @@ def cmd_list_language_versions(language: str, base_url: str | None = None):
 
 def cmd_uninstall_language(language: str, version: str = None):
     """stoke uninstall --language=X --version=Y"""
-    if language not in ("python", "java", "c", "cpp", "conda", "go", "nodejs", "rust", "kotlin", "csharp", "ruby", "php"):
+    if language not in SUPPORTED_LANGUAGES:
         print(f"Error: unsupported language '{language}'", file=sys.stderr)
         sys.exit(1)
 

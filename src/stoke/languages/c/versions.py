@@ -186,18 +186,19 @@ def _detect_compiler(kind: str, compiler_family: str = "gcc") -> CompilerInstall
         family=compiler_family,
     )
 
-def _detect_local(kind: str, project_root: Path) -> CompilerInstall | None:
-    """프로젝트의 .stoke/toolchains/gcc-*/ 에서 stoke install로 받은 gcc/g++ 감지.
+def _detect_local_all(kind: str, project_root: Path) -> list[CompilerInstall]:
+    """프로젝트의 .stoke/toolchains/gcc-*/ 에서 stoke install로 받은 gcc/g++ 전부 감지.
     mingw-builds 7z는 안에 mingw64/ 폴더가 한 겹 더 있음."""
     toolchains = project_root / ".stoke" / "toolchains"
     if not toolchains.is_dir():
-        return None
+        return []
 
     if sys.platform == "win32":
         exe_name = "gcc.exe" if kind == "c" else "g++.exe"
     else:
         exe_name = "gcc" if kind == "c" else "g++"
 
+    installs = []
     for d in sorted(toolchains.iterdir()):
         if not d.is_dir() or not d.name.startswith("gcc-"):
             continue
@@ -207,19 +208,29 @@ def _detect_local(kind: str, project_root: Path) -> CompilerInstall | None:
                 version = _get_compiler_version(str(exe))
                 if version is None:
                     continue
-                return CompilerInstall(
+                installs.append(CompilerInstall(
                     kind=kind,
                     version=version,
                     major_version=_parse_major_version(version),
                     executable=exe,
                     is_default=False,
                     family="gcc",
-                )
-    return None
+                ))
+                break
+    return installs
 
-def detect_all() -> list[CompilerInstall]:
-    """설치된 C/C++ 컴파일러 감지. C, C++ 각각 (gcc/clang) + MSVC."""
+def _detect_local(kind: str, project_root: Path) -> CompilerInstall | None:
+    """프로젝트 로컬 gcc/g++ 중 첫 번째(가장 먼저 설치된 버전 디렉토리) 반환. find_compiler에서 씀."""
+    installs = _detect_local_all(kind, project_root)
+    return installs[0] if installs else None
+
+def detect_all(project_root: Path | None = None) -> list[CompilerInstall]:
+    """설치된 C/C++ 컴파일러 감지. C, C++ 각각 (gcc/clang) + MSVC.
+    project_root가 주어지면 stoke install로 받은 프로젝트 로컬 설치(.stoke/toolchains)도 포함."""
     installs = []
+    if project_root is not None:
+        for kind in ["c", "cpp"]:
+            installs.extend(_detect_local_all(kind, project_root))
     for kind in ["c", "cpp"]:
         install = _detect_compiler(kind)
         if install is not None:

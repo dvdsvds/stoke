@@ -26,8 +26,8 @@ class Target:
     pre_build: list[str] = field(default_factory=list)
     post_build: list[str] = field(default_factory=list)
     depends_on: list[str] = field(default_factory=list)
-    build_system: str | None = None  # None (stoke 자체 빌드) 또는 "cmake". c/cpp만 사용.
-    source_dir: str = "."  # build_system="cmake"일 때 CMakeLists.txt가 있는 폴더 (프로젝트 루트 기준)
+    build_system: str | None = None  # None (stoke 자체 빌드), "cmake" 또는 "meson". c/cpp만 사용.
+    source_dir: str = "."  # build_system="cmake"/"meson"일 때 CMakeLists.txt/meson.build가 있는 폴더 (프로젝트 루트 기준)
 
 @dataclass
 class Profile:
@@ -109,14 +109,14 @@ def load_config(config_path: Path | None = None) -> Config:
             )
 
         build_system = target_config.get("build_system")
-        if build_system is not None and build_system != "cmake":
+        if build_system is not None and build_system not in ("cmake", "meson"):
             raise ValueError(
                 f"Invalid build_system '{build_system}' for target '{target_name}'. "
-                f"Must be 'cmake'."
+                f"Must be 'cmake' or 'meson'."
             )
-        if build_system == "cmake" and target_config["language"] not in ("c", "cpp"):
+        if build_system in ("cmake", "meson") and target_config["language"] not in ("c", "cpp"):
             raise ValueError(
-                f"build_system = 'cmake' is only valid for language 'c' or 'cpp' "
+                f"build_system = '{build_system}' is only valid for language 'c' or 'cpp' "
                 f"(target '{target_name}' is '{target_config['language']}')"
             )
 

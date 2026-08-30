@@ -25,6 +25,9 @@ def make_adapter(
     if target.language in ("c", "cpp") and target.build_system == "cmake":
         from stoke.languages.cmake_adapter import CMakeAdapter
         return CMakeAdapter(target, project, project_root, profile=profile, verbose=verbose)
+    if target.language in ("c", "cpp") and target.build_system == "meson":
+        from stoke.languages.meson_adapter import MesonAdapter
+        return MesonAdapter(target, project, project_root, profile=profile, verbose=verbose)
     if target.language == "c":
         from stoke.languages.c.adapter import CAdapter
         return CAdapter(target, project, project_root, profile=profile, verbose=verbose)

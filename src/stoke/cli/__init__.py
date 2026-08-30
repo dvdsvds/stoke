@@ -20,6 +20,7 @@ from stoke.cli.install_lang import (
     cmd_install_language,
     cmd_list_language_versions,
     cmd_uninstall_language,
+    SUPPORTED_LANGUAGES,
 )
 from stoke.cli.ide import cmd_ide_sync
 from stoke.init import cmd_init, cmd_init_noninteractive, cmd_remove_target_noninteractive
@@ -120,18 +121,18 @@ def _build_parser():
     cpp_sub = cpp_parser.add_subparsers(dest="cpp_command", required=True)
     cpp_sub.add_parser("list", help=_("cpp.list.help"))
 
-    # stoke install <tool> | --language=X --version=Y
+    # stoke install <vcpkg|language> | --language=X --version=Y (--language kept for backwards compatibility)
     install_parser = subparsers.add_parser("install", help=_("install.help"))
-    install_parser.add_argument("tool", nargs="?", choices=["vcpkg"], help=_("install.tool"))
-    install_parser.add_argument("--language", help="Language to install (python, java, c, cpp)")
+    install_parser.add_argument("tool", nargs="?", choices=["vcpkg"] + list(SUPPORTED_LANGUAGES), help=_("install.tool"))
+    install_parser.add_argument("--language", help="Language to install (deprecated, use the positional argument instead, e.g. 'stoke install python')")
     install_parser.add_argument("--version", default="latest", help="Version (default: latest)")
     install_parser.add_argument("--list", action="store_true", help="List available versions")
     install_parser.add_argument("--base-url", help="Override the version metadata base URL (default: STOKE_VERSION_API_BASE env var, or stoke's own endpoint). For mirroring on a locked-down network.")
 
-    # stoke uninstall <tool> | --language=X --version=Y
+    # stoke uninstall <vcpkg|language> | --language=X --version=Y (--language kept for backwards compatibility)
     uninstall_parser = subparsers.add_parser("uninstall", help=_("uninstall.help"))
-    uninstall_parser.add_argument("tool", nargs="?", choices=["vcpkg"], help=_("uninstall.tool"))
-    uninstall_parser.add_argument("--language", help="Language to uninstall (python, java, c, cpp, conda, go)")
+    uninstall_parser.add_argument("tool", nargs="?", choices=["vcpkg"] + list(SUPPORTED_LANGUAGES), help=_("uninstall.tool"))
+    uninstall_parser.add_argument("--language", help="Language to uninstall (deprecated, use the positional argument instead, e.g. 'stoke uninstall python')")
     uninstall_parser.add_argument("--version", help="Version to uninstall (optional)")
 
     # stoke vcpkg <subcommand>
@@ -226,24 +227,26 @@ def _dispatch(args):
         if args.cpp_command == "list":
             cmd_cpp_list()
     elif args.command == "install":
-        if args.language:
+        language = args.language or (args.tool if args.tool != "vcpkg" else None)
+        if language:
             if args.list:
                 from stoke.cli.install_lang import cmd_list_language_versions
-                cmd_list_language_versions(args.language, base_url=args.base_url)
+                cmd_list_language_versions(language, base_url=args.base_url)
             else:
-                cmd_install_language(args.language, args.version, base_url=args.base_url)
+                cmd_install_language(language, args.version, base_url=args.base_url)
         elif args.tool == "vcpkg":
             cmd_install_vcpkg()
         else:
-            print("Error: specify a tool or --language", file=sys.stderr)
+            print(f"Error: specify a language ({', '.join(SUPPORTED_LANGUAGES)}) or 'vcpkg', e.g. 'stoke install python'", file=sys.stderr)
             sys.exit(1)
     elif args.command == "uninstall":
-        if args.language:
-            cmd_uninstall_language(args.language, args.version)
+        language = args.language or (args.tool if args.tool != "vcpkg" else None)
+        if language:
+            cmd_uninstall_language(language, args.version)
         elif args.tool == "vcpkg":
             cmd_uninstall_vcpkg()
         else:
-            print("Error: specify tool or --language", file=sys.stderr)
+            print(f"Error: specify a language ({', '.join(SUPPORTED_LANGUAGES)}) or 'vcpkg', e.g. 'stoke uninstall python'", file=sys.stderr)
             sys.exit(1)
     elif args.command == "vcpkg":
         if args.vcpkg_command == "install":

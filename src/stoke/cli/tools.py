@@ -39,7 +39,7 @@ _COMPILER_LABEL = {"gcc": "gcc", "clang": "clang", "msvc": "cl (MSVC)"}
 
 def cmd_c_list():
     from stoke.languages.c.versions import detect_all as detect_c
-    installs = [i for i in detect_c() if i.kind == "c"]
+    installs = [i for i in detect_c(_current_project_root()) if i.kind == "c"]
     if not installs:
         print("No C compiler detected.")
         print("Install gcc/clang, or Visual Studio Build Tools (MSVC) for cl.exe.")
@@ -54,7 +54,7 @@ def cmd_c_list():
 
 def cmd_cpp_list():
     from stoke.languages.c.versions import detect_all as detect_c
-    installs = [i for i in detect_c() if i.kind == "cpp"]
+    installs = [i for i in detect_c(_current_project_root()) if i.kind == "cpp"]
     if not installs:
         print("No C++ compiler detected.")
         print("Install g++/clang++, or Visual Studio Build Tools (MSVC) for cl.exe.")

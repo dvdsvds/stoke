@@ -27,10 +27,10 @@ MESSAGES = {
         "cpp.list.help": "List installed C++ compilers",
 
         # install/uninstall
-        "install.help": "Install a tool (vcpkg, ...)",
-        "install.tool": "Tool to install",
-        "uninstall.help": "Uninstall a tool (vcpkg, ...)",
-        "uninstall.tool": "Tool to uninstall",
+        "install.help": "Install a language toolchain or vcpkg",
+        "install.tool": "Language to install, or 'vcpkg'",
+        "uninstall.help": "Uninstall a language toolchain or vcpkg",
+        "uninstall.tool": "Language to uninstall, or 'vcpkg'",
 
         # vcpkg
         "vcpkg.help": "vcpkg library management",
@@ -104,10 +104,10 @@ MESSAGES = {
         "cpp.list.help": "설치된 C++ 컴파일러 목록",
 
         # install/uninstall
-        "install.help": "도구 설치 (vcpkg, ...)",
-        "install.tool": "설치할 도구",
-        "uninstall.help": "도구 제거 (vcpkg, ...)",
-        "uninstall.tool": "제거할 도구",
+        "install.help": "언어 툴체인 또는 vcpkg 설치",
+        "install.tool": "설치할 언어, 또는 'vcpkg'",
+        "uninstall.help": "언어 툴체인 또는 vcpkg 제거",
+        "uninstall.tool": "제거할 언어, 또는 'vcpkg'",
 
         # vcpkg
         "vcpkg.help": "vcpkg 라이브러리 관리",

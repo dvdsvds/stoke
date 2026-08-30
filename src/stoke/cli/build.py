@@ -33,7 +33,7 @@ def _find_adhoc_cpp_entry(config, project_root, name: str):
     반환: (해당 파일이 속한 타겟, 그 타겟의 전체 소스 목록, 매칭된 파일) 또는 못 찾으면 None.
     """
     for target in config.targets.values():
-        if target.language not in ("c", "cpp") or target.build_system == "cmake":
+        if target.language not in ("c", "cpp") or target.build_system in ("cmake", "meson"):
             continue
         adapter = make_adapter(target, config.project, project_root)
         source_files = adapter.collect_source_files()

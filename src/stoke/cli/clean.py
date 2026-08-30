@@ -45,17 +45,17 @@ def cmd_clean(target_name: str | None = None, delete_lock: bool = False):
                 shutil.rmtree(lang_target_dir)
                 print(f"Deleted Java target dir: {lang_target_dir}")
                 deleted_count += 1
-        elif target.language == "c" and target.build_system == "cmake":
+        elif target.language in ("c", "cpp") and target.build_system == "cmake":
             lang_target_dir = project_root / ".stoke" / "cmake" / name
             if lang_target_dir.exists():
                 shutil.rmtree(lang_target_dir)
                 print(f"Deleted CMake build dir: {lang_target_dir}")
                 deleted_count += 1
-        elif target.language == "cpp" and target.build_system == "cmake":
-            lang_target_dir = project_root / ".stoke" / "cmake" / name
+        elif target.language in ("c", "cpp") and target.build_system == "meson":
+            lang_target_dir = project_root / ".stoke" / "meson" / name
             if lang_target_dir.exists():
                 shutil.rmtree(lang_target_dir)
-                print(f"Deleted CMake build dir: {lang_target_dir}")
+                print(f"Deleted Meson build dir: {lang_target_dir}")
                 deleted_count += 1
         elif target.language == "c":
             lang_target_dir = project_root / ".stoke" / "c" / name
@@ -96,7 +96,7 @@ def cmd_clean(target_name: str | None = None, delete_lock: bool = False):
                 deleted_count += 1
 
     # 1.5. .stoke/python, .stoke/java 등 언어 폴더가 비었으면 삭제
-    for lang in ["python", "java", "c", "cpp", "go", "rust", "csharp", "cmake"]:
+    for lang in ["python", "java", "c", "cpp", "go", "rust", "csharp", "cmake", "meson"]:
         lang_parent = project_root / ".stoke" / lang
         if lang_parent.exists() and not any(lang_parent.iterdir()):
             lang_parent.rmdir()
