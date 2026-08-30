@@ -48,10 +48,10 @@ a { color: inherit; text-decoration: none; }
 }
 
 .nav .wrap {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
+  position: relative;
+  display: flex;
   align-items: center;
-  gap: 1.5rem;
+  justify-content: space-between;
   height: 64px;
 }
 
@@ -68,7 +68,6 @@ a { color: inherit; text-decoration: none; }
 .nav-links {
   display: flex;
   align-items: center;
-  justify-self: end;
   gap: 1.25rem;
   font-size: 0.92rem;
   color: var(--text-dim);
@@ -93,12 +92,17 @@ a { color: inherit; text-decoration: none; }
 
 .lang-switch .sep { color: var(--text-dimmer); }
 
-/* Search box (replaces the old Docs/Commands/Languages links) */
+/* Search box (replaces the old Docs/Commands/Languages links).
+   Absolutely positioned at the bar's true midpoint — the logo and the
+   lang-switch/GitHub group are different widths, so centering it inside
+   whatever flex/grid space is left between them lands off-center. */
 .nav-search {
-  position: relative;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   display: flex;
   align-items: center;
-  justify-self: center;
   width: 100%;
   max-width: 420px;
 }
