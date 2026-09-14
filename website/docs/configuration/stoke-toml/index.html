@@ -227,11 +227,6 @@ stoke<span class="w"> </span>run<span class="w"> </span>worker
 <td>Shell commands to run after the build, in order</td>
 </tr>
 <tr>
-<td><code>depends_on</code></td>
-<td>No</td>
-<td>List of target names this target depends on; built first, in order</td>
-</tr>
-<tr>
 <td><code>build_system</code></td>
 <td>No</td>
 <td>C/C++ only. Set to <code>"cmake"</code> to delegate to CMake instead of stoke's own build model</td>
@@ -350,17 +345,10 @@ stoke<span class="w"> </span>run<span class="w"> </span>worker
 <span class="n">post_build</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"cp dist/myapp ./release/myapp"</span><span class="p">]</span>
 </code></pre></div>
 
-<p>Runs through the shell, in declared order, for <code>stoke build</code>, <code>stoke build --all</code>, <code>stoke watch</code>, and <code>stoke hot-reload</code> alike. A non-zero <code>pre_build</code> command skips the build entirely; a failing <code>post_build</code> command fails the build.</p>
+<p>Runs through the shell, in declared order, for <code>stoke build</code>, <code>stoke watch</code>, and <code>stoke hot-reload</code> alike. A non-zero <code>pre_build</code> command skips the build entirely; a failing <code>post_build</code> command fails the build.</p>
 <blockquote>
 <p><strong>Security note</strong>: these commands are whatever string is in <code>stoke.toml</code>, executed verbatim through the shell with your user's permissions. Don't run <code>stoke build</code> on a <code>stoke.toml</code> you haven't read from a repository you don't trust.</p>
 </blockquote>
-<h2 id="target-dependencies">Target dependencies</h2>
-<div class="highlight"><pre><span></span><code><span class="k">[targets.backend]</span>
-<span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"python"</span>
-<span class="n">depends_on</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"shared_lib"</span><span class="p">]</span>
-</code></pre></div>
-
-<p><code>stoke build backend</code> builds <code>shared_lib</code> first automatically. <code>stoke build --all</code> builds targets with no unmet dependencies in parallel, waits for a target's <code>depends_on</code> to finish before starting it, and skips (rather than attempts) a target whose dependency failed. Unknown target references and dependency cycles are rejected when <code>stoke.toml</code> loads, before any build starts.</p>
 <h2 id="cmake-for-cc">CMake for C/C++</h2>
 <p>For a C/C++ target that already has its own <code>CMakeLists.txt</code>, delegate to CMake instead of stoke's own compile model:</p>
 <div class="highlight"><pre><span></span><code><span class="k">[targets.engine]</span>
@@ -371,26 +359,13 @@ stoke<span class="w"> </span>run<span class="w"> </span>worker
 
 <p><code>stoke build</code>/<code>run</code>/<code>watch</code>/<code>hot-reload</code>/<code>clean</code> all work the same way as with stoke's own C/C++ model, but internally run <code>cmake -S &lt;source_dir&gt; -B &lt;build_dir&gt;</code> then <code>cmake --build &lt;build_dir&gt;</code>, and locate the produced executable automatically. <code>c_standard</code>/<code>cpp_standard</code>, <code>[profiles.*].compile_flags</code>/<code>defines</code>/<code>compiler</code>, and <code>includes</code> are ignored on this path — <code>CMakeLists.txt</code> owns those; only the profile name maps to <code>CMAKE_BUILD_TYPE</code> (<code>debug</code> → <code>Debug</code>, <code>release</code> → <code>Release</code>).</p>
 <h2 id="full-example">Full example</h2>
-<p>Multi-target project:</p>
 <div class="highlight"><pre><span></span><code><span class="k">[project]</span>
-<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"myservice"</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"engine"</span>
 <span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"1.0.0"</span>
 
-<span class="c1"># Python backend</span>
-<span class="k">[targets.backend]</span>
-<span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"python"</span>
-<span class="n">python_version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"3.12"</span>
-<span class="n">entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"backend/main.py"</span>
-<span class="n">sources</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"backend/**/*.py"</span><span class="p">]</span>
-
-<span class="k">[targets.backend.deps]</span>
-<span class="n">fastapi</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"*"</span>
-<span class="n">uvicorn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"*"</span>
-
-<span class="c1"># C++ engine</span>
 <span class="k">[targets.engine]</span>
 <span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"cpp"</span>
-<span class="n">sources</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"engine/src/**/*.cpp"</span><span class="p">]</span>
+<span class="n">sources</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"**/*.cpp"</span><span class="p">]</span>
 <span class="n">cpp_standard</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"c++20"</span>
 <span class="n">include_dirs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"engine/include"</span><span class="p">]</span>
 <span class="n">jobs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">8</span>
@@ -404,9 +379,7 @@ stoke<span class="w"> </span>run<span class="w"> </span>worker
 <span class="n">compile_flags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"-O3"</span><span class="p">,</span><span class="w"> </span><span class="s2">"-march=native"</span><span class="p">]</span>
 </code></pre></div>
 
-<p>Build individual targets:</p>
-<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>build<span class="w"> </span>backend
-stoke<span class="w"> </span>build<span class="w"> </span>engine<span class="w"> </span>--profile<span class="o">=</span>native
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>build<span class="w"> </span>--profile<span class="o">=</span>native
 </code></pre></div>
 
 <h2 id="related">Related</h2>
@@ -433,7 +406,6 @@ stoke<span class="w"> </span>build<span class="w"> </span>engine<span class="w">
 <li class="sub"><a href="#c-c-vcpkg">C / C++ (vcpkg)</a></li>
 <li class=""><a href="#profilesname">[profiles.&lt;name&gt;]</a></li>
 <li class=""><a href="#build-hooks">Build hooks</a></li>
-<li class=""><a href="#target-dependencies">Target dependencies</a></li>
 <li class=""><a href="#cmake-for-cc">CMake for C/C++</a></li>
 <li class=""><a href="#full-example">Full example</a></li>
 <li class=""><a href="#related">Related</a></li>

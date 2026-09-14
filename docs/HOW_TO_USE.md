@@ -11,7 +11,7 @@ stoke build     # compile/prepare
 stoke run       # run it
 ```
 
-One `stoke.toml` per project. One CLI for build/run/watch/scaffold across 12 languages. `stoke.toml` is meant to be managed entirely through the CLI — you're not expected to hand-edit it (`stoke init`, run again inside an existing project, adds targets to it instead of asking you to edit TOML yourself).
+One `stoke.toml` per project, one target per project (see §8 if you need more than one build target). One CLI for build/run/watch/scaffold across 12 languages. `stoke init` writes the initial file for you; settings beyond what it prompts for (`include_dirs`, `pre_build`/`post_build`, custom `[profiles.*]`, etc.) are edited by hand.
 
 ---
 
@@ -19,13 +19,13 @@ One `stoke.toml` per project. One CLI for build/run/watch/scaffold across 12 lan
 
 **Good fit:**
 - A small-to-medium project or a team of roughly 10–30 people.
-- A single service, or a handful of related services/targets in one repo (a Python API + a Go worker + a small CLI tool, say) where you'd like one consistent `build`/`run`/`watch` command regardless of which target you're touching.
+- A single service or app in any of the 12 supported languages, where you'd like one consistent `build`/`run`/`watch` command instead of learning each language's own tool.
 - Teams onboarding new members often and wanting a single `stoke init --language=... --yes` line to replace a wiki page of manual setup steps.
 - Projects that want reproducible builds (a committed lock file) without adopting a heavier tool (Bazel, Nx, Turborepo) and its learning curve.
 - Environments where you already use a specific toolchain per language (Cargo, Gradle, `dotnet`, Bundler, Composer, npm, Maven Central) — stoke delegates to them rather than reinventing dependency resolution, so you keep using `Cargo.toml`/`build.gradle.kts`/etc. as normal.
 
-**Not a good fit (see §9 for the full list):**
-- Large C/C++ codebases needing a generated build graph beyond CMake/Meson (both are supported via `build_system = "cmake"`/`"meson"` — see §9 below).
+**Not a good fit (see §8 for the full list):**
+- Large C/C++ codebases needing a generated build graph beyond CMake/Meson (both are supported via `build_system = "cmake"`/`"meson"` — see §8 below).
 - Windows-native C++ shops that need MSVC (stoke only drives gcc/clang).
 - Teams that need a plugin system to add a company-internal language/framework without patching stoke's own source.
 
@@ -78,101 +78,7 @@ stoke init fastapi        # or: flask, django, spring-boot, gin, echo, fiber, ch
 
 ---
 
-## 4. Growing into multiple targets
-
-If `stoke.toml` already exists and you run `stoke init` again, it offers **"Add a new target to this project"** instead of forcing you to overwrite. This is the intended way to grow a project — never hand-edit `[targets.*]` blocks into `stoke.toml` yourself.
-
-```
-$ stoke init
-stoke.toml already exists at ./stoke.toml
-
-What would you like to do?
-  1. Add a new target to this project (default)
-  2. Overwrite (start over with a new stoke.toml)
-Select [1-2, default 1]: 1
-
-Target name: worker
-Language:
-  1. Python (default)  2. Java  3. C  4. C++  5. Go  6. Rust
-  7. Kotlin  8. C#  9. Ruby  10. PHP  11. JavaScript  12. TypeScript
-Select [1-12, default 1]: 5
-
-Added target 'worker' (go) to ./stoke.toml
-Source files created under: ./worker
-```
-
-The result is one `stoke.toml` with multiple `[targets.*]` blocks — e.g. a Python API and a Go worker side by side:
-
-```toml
-[project]
-name = "myapp"
-version = "0.1.0"
-lock_mode = "commit"
-
-[targets.api]
-language = "python"
-sources = ["api/src/main.py"]
-entry = "api/src/main.py"
-python_version = "3.12"
-
-[targets.worker]
-language = "go"
-```
-
-Build/run either one independently, or all of them at once:
-
-```bash
-stoke build api
-stoke build worker
-stoke build --all      # builds every target in parallel
-stoke run api
-stoke run worker
-```
-
-**How each language keeps a second target independently buildable:**
-
-| Language group | How isolation works |
-| --- | --- |
-| Python, Java, C, C++, Ruby, PHP, JavaScript, TypeScript | `target.sources`/`target.entry` in `stoke.toml` scope the build to specific files under `<target_name>/`. |
-| Go | Each target is its own package under `<target_name>/`, sharing one root `go.mod` (Go's own `cmd/api/`, `cmd/worker/` convention). `stoke` builds `./<target_name>` instead of the whole module. |
-| Rust | Each target after the first becomes a Cargo **workspace member** (`<target_name>/Cargo.toml`); the root stays a normal package. `stoke` passes `--manifest-path` explicitly. |
-| Kotlin | Each target after the first becomes a Gradle **subproject** (`<target_name>/build.gradle.kts`, registered via `include()` in `settings.gradle.kts`). `stoke` always uses colon-qualified task paths (`:worker:build`) so building one target never triggers the others. |
-| C# | Each target gets its own `.csproj` under `<target_name>/`. `stoke` passes that `.csproj` path explicitly to `dotnet build`, and patches the root `.csproj` to exclude the new target's folder from its own compile globbing (SDK-style `.csproj` recurses by default, which is what this exclusion works around). |
-
-All four of the above (Go/Rust/Kotlin/C#) were fixed to support this in the same session that produced this doc — if you're on an older stoke build, a second Go/Rust/Kotlin/C# target may not build independently; upgrade first.
-
-**Removing a target:** run `stoke init` again and pick **"Remove a target from this project"** instead. It undoes whatever the add-target flow registered for that target's language — a Rust workspace member, a Kotlin `settings.gradle.kts` `include()`, a C#'s root `.csproj` exclude rule — and then asks separately whether to also delete the target's `<target_name>/` source directory (default: no, so you don't lose files by accident).
-
-```
-$ stoke init
-stoke.toml already exists at ./stoke.toml
-
-What would you like to do?
-  1. Add a new target to this project (default)
-  2. Remove a target from this project
-  3. Overwrite (start over with a new stoke.toml)
-Select [1-3, default 1]: 2
-
-Select a target to remove:
-  1. api (default)
-  2. worker
-Select [1-2, default 1]: 2
-Remove target 'worker' (go)? [y/N]: y
-
-Removed target 'worker' from ./stoke.toml
-Also delete the 'worker/' source directory? [y/N]: y
-Deleted: ./worker
-```
-
-For scripts/CI, there's a non-interactive form too — it always leaves the source directory in place (never deletes files without a human in the loop):
-
-```bash
-stoke init --remove-target=worker --yes
-```
-
----
-
-## 5. Language cheat sheet
+## 4. Language cheat sheet
 
 | Language | `stoke init --language=` | Build tool underneath | Version pin | Deps |
 | --- | --- | --- | --- | --- |
@@ -208,7 +114,7 @@ stoke vcpkg remove fmt --target=myapp
 
 ---
 
-## 6. Everyday commands
+## 5. Everyday commands
 
 ```bash
 stoke build [target] [--force]        # --force ignores the cache, recompiles everything
@@ -233,9 +139,9 @@ stoke build --profile=asan   # custom profile, if you defined [profiles.asan] in
 
 ---
 
-## 7. Making it work for a team
+## 6. Making it work for a team
 
-### 7.1 One-line onboarding
+### 6.1 One-line onboarding
 
 Put this in your README or a setup script instead of a page of manual instructions:
 
@@ -245,7 +151,7 @@ stoke init --language=java --name=payments --version=21 --lock-mode=commit --yes
 
 Every flag maps 1:1 to what the interactive wizard would have asked. Fails loudly (non-zero exit) instead of silently clobbering an existing `stoke.toml` unless `--yes` is passed.
 
-### 7.2 Pin toolchain versions so "works on my machine" doesn't happen
+### 6.2 Pin toolchain versions so "works on my machine" doesn't happen
 
 | Language | File | Who reads it |
 | --- | --- | --- |
@@ -259,11 +165,11 @@ Every flag maps 1:1 to what the interactive wizard would have asked. Fails loudl
 
 Go/JavaScript/TypeScript have no pinning mechanism yet — rely on `go.mod`'s `go` directive / `engines` in `package.json` plus your own CI checks if you need this.
 
-### 7.3 Reproducible builds
+### 6.3 Reproducible builds
 
 Set `lock_mode = "commit"` (the default from `stoke init`) so the lock file lives at the project root and gets committed to git — every teammate and CI runner resolves the exact same dependency versions. `lock_mode = "local"` keeps it gitignored under `.stoke/` instead, for per-developer flexibility.
 
-### 7.4 Speed up builds — cache and parallelism
+### 6.4 Speed up builds — cache and parallelism
 
 **Local cache** is automatic and content-hash based (a file with identical content skips recompilation even if its mtime changed — e.g. after a fresh `git checkout`).
 
@@ -276,26 +182,9 @@ stoke build
 
 One machine compiling something populates the shared cache; every other machine/CI runner with the same source and the same env var set gets a cache hit instead of recompiling. No cache-server to run — it's just a directory. Fails open: an unreachable or misconfigured directory silently falls back to normal local compilation, never breaks a build.
 
-**Parallel multi-target builds:**
+**Parallel file compilation** (C/C++ only): multiple source files in one target compile in parallel automatically, capped by `project.jobs` in `stoke.toml` if set, otherwise CPU count.
 
-```bash
-stoke build --all              # every target in stoke.toml, in parallel
-stoke build --all --force      # same, ignoring cache
-```
-
-Capped by `project.jobs` in `stoke.toml` if set, otherwise CPU count. Output is grouped per-target (`=== name [OK|FAILED] ===`), printed in `stoke.toml` declaration order so logs stay reproducible across runs. One target failing doesn't stop the others — you get a full report and a non-zero exit if anything failed, except its own dependents, which are skipped rather than attempted (see below).
-
-**Target dependencies:**
-
-```toml
-[targets.backend]
-language = "python"
-depends_on = ["shared_lib"]
-```
-
-`stoke build backend` builds `shared_lib` first automatically; `stoke build --all` builds independent targets in parallel but waits for each target's `depends_on` to finish before starting it. Unknown targets and dependency cycles are rejected when `stoke.toml` loads, before any build starts.
-
-### 7.5 Locked-down / air-gapped networks
+### 6.5 Locked-down / air-gapped networks
 
 Point every network call stoke makes at an internal mirror instead of the public internet:
 
@@ -318,34 +207,34 @@ Verified against a real Sonatype Nexus setup, both anonymous and authenticated. 
 
 ---
 
-## 8. Recommended setups by scenario
+## 7. Recommended setups by scenario
 
 **Solo project / prototype:** `stoke init`, default `lock_mode=commit`, don't bother with any of the mirroring/cache env vars. Just `stoke build && stoke run`, `stoke watch` while iterating.
 
 **Small team, single language:** same as above, plus put the `stoke init --language=... --yes` one-liner in your onboarding doc, and pin the language version so everyone's toolchain matches.
 
-**Polyglot monorepo (a few services, different languages):** use the add-target flow (§4) to keep everything in one `stoke.toml`. Use `stoke build --all` in CI to build every service in one pass. If any of the services are Go/Rust/Kotlin/C#, make sure you're on a stoke version with the per-target scoping fix (§4) before relying on independent builds.
+**Polyglot monorepo (a few services, different languages):** give each service its own `stoke.toml` in its own directory rather than trying to combine them into one project — stoke is a single-target-per-project tool.
 
-**CI pipeline:** non-interactive init isn't relevant here (the repo already has `stoke.toml`) but `stoke build --all --force` in CI (force to avoid trusting a stale cache from a previous run's checkout) combined with `STOKE_REMOTE_CACHE_DIR` pointed at a persistent cache volume gives you cross-run caching without any CI-specific cache configuration — same mechanism as the team's shared cache.
+**CI pipeline:** non-interactive init isn't relevant here (the repo already has `stoke.toml`) but `stoke build --force` in CI (force to avoid trusting a stale cache from a previous run's checkout) combined with `STOKE_REMOTE_CACHE_DIR` pointed at a persistent cache volume gives you cross-run caching without any CI-specific cache configuration — same mechanism as the team's shared cache.
 
 **Locked-down enterprise network:** set `STOKE_VERSION_API_BASE`/`STOKE_MAVEN_REPO_URL` (and the `_USER`/`_PASSWORD` auth pair if your mirror needs it) once in your CI environment and in a team-wide shell profile/onboarding doc. Combine with `lock_mode=commit` so dependency resolution never needs to reach out to the internet at all after the first `stoke build`.
 
 ---
 
-## 9. When NOT to reach for stoke
+## 8. When NOT to reach for stoke
 
 - Large/complex C or C++ builds needing code generation or a non-trivial build graph beyond what CMake/Meson delegation covers — stoke's own C/C++ model is intentionally simple (direct gcc/clang invocation + its own header tracking). If you already have a `CMakeLists.txt` or `meson.build`, set `build_system = "cmake"` or `build_system = "meson"` on that target instead: stoke delegates `build`/`run`/`watch`/`hot-reload`/`clean` to `cmake configure`/`--build` or `meson setup`/`compile` rather than driving the compiler itself.
 - Windows C++ shops that specifically need MSVC — only gcc/clang (via MSYS2/MinGW) are supported.
 - You need a plugin system to add a company-internal language or framework template without touching stoke's own source — doesn't exist yet.
 - You're deep into Rust/Kotlin/C#/Ruby/PHP already at large scale — these five are the newest additions and are less battle-tested against large real-world codebases than the original seven languages.
+- You need multiple build targets (e.g. a backend + a worker) managed from one `stoke.toml` — stoke is single-target-per-project; give each one its own `stoke.toml` in its own directory instead.
 
 ---
 
-## 10. Troubleshooting
+## 9. Troubleshooting
 
 - **Gradle (Kotlin) fails to even start**, with a cryptic error naming a JDK version: your system's default JDK may be too new/old for the Gradle version in use (e.g. Gradle 8.10 doesn't run on JDK 25). Point `JAVA_HOME` at a supported JDK just to run the `gradle`/`gradlew` CLI itself — this is separate from `java_version` in `stoke.toml`, which controls the JDK your *project* compiles against.
 - **A print statement crashes with `UnicodeEncodeError` on Windows**: the Windows console's default codepage is locale-dependent (e.g. `cp949` on Korean-locale systems) and narrower than UTF-8 — non-ASCII characters (em-dashes, curly quotes, etc.) in any tool's console output can crash on some machines and not others. If you're extending stoke yourself, stick to ASCII in `print()` calls, or set `PYTHONIOENCODING=utf-8` / run `chcp 65001` first as a workaround.
-- **A second Go/Rust/Kotlin/C# target isn't independently buildable**: you're likely on a stoke version older than the per-target scoping fix described in §4 — upgrade.
 - **A remote/shared cache directory isn't helping**: confirm `STOKE_REMOTE_CACHE_DIR` is actually reachable from every machine with the exact same path (or equivalently mapped), and that the source content is byte-identical — the cache key is content-hash based, so even a whitespace difference is a miss, by design.
 - **`stoke install`/`stoke build` (Java) fails with 401** against an internal mirror: set the matching `_USER`/`_PASSWORD` env var pair (`STOKE_VERSION_API_USER`/`PASSWORD` or `STOKE_MAVEN_USER`/`PASSWORD`) — the error message names which one is needed.
 

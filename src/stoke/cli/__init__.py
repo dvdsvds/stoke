@@ -6,7 +6,7 @@ from stoke import __version__
 from stoke.cli.messages import get_message as _
 
 from stoke.cli.utils import resolve_profile_from_args, add_debug_release_profile_args
-from stoke.cli.build import cmd_build, cmd_build_all, cmd_run, cmd_watch, cmd_hot_reload, cmd_test
+from stoke.cli.build import cmd_build, cmd_run, cmd_watch, cmd_hot_reload, cmd_test
 from stoke.cli.clean import cmd_clean
 from stoke.cli.tools import cmd_python_list, cmd_java_list, cmd_c_list, cmd_cpp_list
 from stoke.cli.vcpkg import (
@@ -25,7 +25,7 @@ from stoke.cli.install_lang import (
 )
 from stoke.cli.ide import cmd_ide_sync
 from stoke.cli.deps import cmd_add_dep, cmd_remove_dep
-from stoke.init import cmd_init, cmd_init_noninteractive, cmd_remove_target_noninteractive
+from stoke.init import cmd_init, cmd_init_noninteractive
 
 from stoke.languages.python.frameworks.fastapi import cmd_init_fastapi
 from stoke.languages.python.frameworks.flask import cmd_init_flask
@@ -105,7 +105,6 @@ def _build_parser():
     build_parser = subparsers.add_parser("build", help=_("build.help"))
     build_parser.add_argument("target", nargs="?", help=_("build.target"))
     build_parser.add_argument("--force", action="store_true", help=_("build.force"))
-    build_parser.add_argument("--all", action="store_true", help="Build every target in stoke.toml in parallel")
     add_debug_release_profile_args(build_parser, "build")
 
     # stoke python list
@@ -175,8 +174,7 @@ def _build_parser():
     init_parser.add_argument("--env-type", choices=["venv", "conda"], help="Python environment type (non-interactive mode; default venv)")
     init_parser.add_argument("--lock-mode", choices=["commit", "local"], default="commit", help="Lock file mode (non-interactive mode; default commit)")
     init_parser.add_argument("--vcpkg", action="store_true", help="Install vcpkg for C/C++ if not already installed (non-interactive mode)")
-    init_parser.add_argument("--yes", action="store_true", help="Overwrite an existing stoke.toml without prompting, or confirm --remove-target (non-interactive mode)")
-    init_parser.add_argument("--remove-target", help="Remove a target from an existing stoke.toml (non-interactive mode; requires --yes)")
+    init_parser.add_argument("--yes", action="store_true", help="Overwrite an existing stoke.toml without prompting (non-interactive mode)")
 
     # stoke watch
     watch_parser = subparsers.add_parser("watch", help=_("watch.help"))
@@ -227,13 +225,7 @@ def main():
 def _dispatch(args):
     if args.command == "build":
         profile_name = resolve_profile_from_args(args)
-        if args.all and args.target:
-            print("Error: cannot specify a target together with --all", file=sys.stderr)
-            sys.exit(1)
-        elif args.all:
-            cmd_build_all(force=args.force, profile=profile_name, verbose=args.verbose)
-        else:
-            cmd_build(args.target, force=args.force, profile=profile_name, verbose=args.verbose)
+        cmd_build(args.target, force=args.force, profile=profile_name, verbose=args.verbose)
     elif args.command == "clean":
         cmd_clean(target_name=args.target, delete_lock=args.all)
     elif args.command == "python":
@@ -284,8 +276,6 @@ def _dispatch(args):
         handler = _INIT_FRAMEWORK_HANDLERS.get(args.type) or get_framework_plugin(args.type)
         if handler:
             handler()
-        elif args.remove_target:
-            cmd_remove_target_noninteractive(args.remove_target, yes=args.yes)
         elif args.language:
             cmd_init_noninteractive(
                 language=args.language,

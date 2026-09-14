@@ -149,39 +149,7 @@
 <p>macOS/Linux: 압축을 푼 <code>stoke</code> 폴더를 삭제하고 <code>PATH</code>에서 제거하세요.</p>
 <h2 id="_6">설정</h2>
 <h3 id="_7">한 프로젝트에 여러 타깃을 둘 수 있나요?</h3>
-<p>네. <code>[targets.&lt;name&gt;]</code> 섹션을 원하는 만큼:</p>
-<div class="highlight"><pre><span></span><code><span class="k">[targets.server]</span>
-<span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"python"</span>
-<span class="n">entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"server/main.py"</span>
-
-<span class="k">[targets.client]</span>
-<span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"cpp"</span>
-<span class="n">sources</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"client/**/*.cpp"</span><span class="p">]</span>
-</code></pre></div>
-
-<p>전체 빌드: <code>stoke build</code>
-하나만 빌드: <code>stoke build server</code></p>
-<h3 id="_8">타깃마다 다른 언어를 쓸 수 있나요?</h3>
-<p>네. 각 타깃이 자기만의 <code>language</code>를 가집니다.</p>
-<h3 id="_9">한 타깃이 다른 타깃에 의존할 수 있나요?</h3>
-<p>네, <code>depends_on</code>으로:</p>
-<div class="highlight"><pre><span></span><code><span class="k">[targets.backend]</span>
-<span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"python"</span>
-<span class="n">depends_on</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"shared_lib"</span><span class="p">]</span>
-</code></pre></div>
-
-<p><code>stoke build backend</code>는 <code>shared_lib</code>을 먼저 빌드합니다. <code>stoke build --all</code>은 독립적인 타깃들을 병렬로 빌드하지만 각 타깃의 의존성이 먼저 끝날 때까지 기다리고, 의존 대상이 실패하면 그 타깃은 건너뜁니다. 순환 참조와 알 수 없는 타깃 참조는 <code>stoke.toml</code>을 불러올 때 거부됩니다.</p>
-<h3 id="_10">타깃 간에 코드를 공유할 수 있나요?</h3>
-<p>네. <code>sources</code> glob 패턴을 조정해서 공유 코드를 포함시키세요:</p>
-<div class="highlight"><pre><span></span><code><span class="k">[targets.server]</span>
-<span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"python"</span>
-<span class="n">sources</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"server/**/*.py"</span><span class="p">,</span><span class="w"> </span><span class="s2">"shared/**/*.py"</span><span class="p">]</span>
-
-<span class="k">[targets.worker]</span>
-<span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"python"</span>
-<span class="n">sources</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"worker/**/*.py"</span><span class="p">,</span><span class="w"> </span><span class="s2">"shared/**/*.py"</span><span class="p">]</span>
-</code></pre></div>
-
+<p>아니요 — <code>stoke.toml</code>은 <code>[targets.&lt;name&gt;]</code> 섹션을 정확히 하나만 지원합니다. 서로 관련된 서비스 몇 개(예: Python API와 C++ 엔진)가 있다면, 각각 자기 디렉토리에 자기만의 <code>stoke.toml</code>을 두세요.</p>
 <h3 id="_11">빌드 결과물은 어디에 있나요?</h3>
 <p><code>.stoke/{language}/{target}/{profile}/</code>. <a href="../../ko/commands/build/#output-structure"><code>stoke build</code></a> 참고.</p>
 <h3 id="_12">커스텀 빌드 단계를 추가할 수 있나요?</h3>
@@ -271,9 +239,6 @@
 <li class="sub"><a href="#stoke_3">stoke는 어떻게 제거하나요?</a></li>
 <li class=""><a href="#_6">설정</a></li>
 <li class="sub"><a href="#_7">한 프로젝트에 여러 타깃을 둘 수 있나요?</a></li>
-<li class="sub"><a href="#_8">타깃마다 다른 언어를 쓸 수 있나요?</a></li>
-<li class="sub"><a href="#_9">한 타깃이 다른 타깃에 의존할 수 있나요?</a></li>
-<li class="sub"><a href="#_10">타깃 간에 코드를 공유할 수 있나요?</a></li>
 <li class="sub"><a href="#_11">빌드 결과물은 어디에 있나요?</a></li>
 <li class="sub"><a href="#_12">커스텀 빌드 단계를 추가할 수 있나요?</a></li>
 <li class=""><a href="#_13">언어별</a></li>

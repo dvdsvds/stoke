@@ -149,39 +149,7 @@
 <p>macOS/Linux: delete the extracted <code>stoke</code> folder and remove it from your <code>PATH</code>.</p>
 <h2 id="configuration">Configuration</h2>
 <h3 id="can-i-have-multiple-targets-in-one-project">Can I have multiple targets in one project?</h3>
-<p>Yes. Any number of <code>[targets.&lt;name&gt;]</code> sections:</p>
-<div class="highlight"><pre><span></span><code><span class="k">[targets.server]</span>
-<span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"python"</span>
-<span class="n">entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"server/main.py"</span>
-
-<span class="k">[targets.client]</span>
-<span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"cpp"</span>
-<span class="n">sources</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"client/**/*.cpp"</span><span class="p">]</span>
-</code></pre></div>
-
-<p>Build all: <code>stoke build</code><br />
-Build one: <code>stoke build server</code></p>
-<h3 id="can-targets-use-different-languages">Can targets use different languages?</h3>
-<p>Yes. Each target has its own <code>language</code>.</p>
-<h3 id="can-one-target-depend-on-another">Can one target depend on another?</h3>
-<p>Yes, with <code>depends_on</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="k">[targets.backend]</span>
-<span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"python"</span>
-<span class="n">depends_on</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"shared_lib"</span><span class="p">]</span>
-</code></pre></div>
-
-<p><code>stoke build backend</code> builds <code>shared_lib</code> first. <code>stoke build --all</code> builds independent targets in parallel but waits for each target's dependencies to finish first, and skips a target if its dependency failed. Cycles and references to unknown targets are rejected when <code>stoke.toml</code> loads.</p>
-<h3 id="can-i-share-code-between-targets">Can I share code between targets?</h3>
-<p>Yes. Adjust <code>sources</code> glob patterns to include shared code:</p>
-<div class="highlight"><pre><span></span><code><span class="k">[targets.server]</span>
-<span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"python"</span>
-<span class="n">sources</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"server/**/*.py"</span><span class="p">,</span><span class="w"> </span><span class="s2">"shared/**/*.py"</span><span class="p">]</span>
-
-<span class="k">[targets.worker]</span>
-<span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"python"</span>
-<span class="n">sources</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"worker/**/*.py"</span><span class="p">,</span><span class="w"> </span><span class="s2">"shared/**/*.py"</span><span class="p">]</span>
-</code></pre></div>
-
+<p>No — <code>stoke.toml</code> supports exactly one <code>[targets.&lt;name&gt;]</code> section. For a few related services (a Python API and a C++ engine, say), give each its own directory with its own <code>stoke.toml</code>.</p>
 <h3 id="wheres-my-build-output">Where's my build output?</h3>
 <p><code>.stoke/{language}/{target}/{profile}/</code>. See <a href="../commands/build/#output-structure"><code>stoke build</code></a>.</p>
 <h3 id="can-i-add-custom-build-steps">Can I add custom build steps?</h3>
@@ -271,9 +239,6 @@ Build one: <code>stoke build server</code></p>
 <li class="sub"><a href="#how-do-i-uninstall-stoke">How do I uninstall stoke?</a></li>
 <li class=""><a href="#configuration">Configuration</a></li>
 <li class="sub"><a href="#can-i-have-multiple-targets-in-one-project">Can I have multiple targets in one project?</a></li>
-<li class="sub"><a href="#can-targets-use-different-languages">Can targets use different languages?</a></li>
-<li class="sub"><a href="#can-one-target-depend-on-another">Can one target depend on another?</a></li>
-<li class="sub"><a href="#can-i-share-code-between-targets">Can I share code between targets?</a></li>
 <li class="sub"><a href="#wheres-my-build-output">Where's my build output?</a></li>
 <li class="sub"><a href="#can-i-add-custom-build-steps">Can I add custom build steps?</a></li>
 <li class=""><a href="#language-specific">Language-specific</a></li>

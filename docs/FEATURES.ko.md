@@ -9,10 +9,8 @@
 - **버전 pinning** — 각 언어의 pin 방식(문서의 [버전 pin](./README_ko.md#팀-일관성을-위한-버전-pin) 섹션 참고)이 언어당 최소 한 프로젝트에서 검증됨.
 - **사설 레지스트리/미러 지원** — Sonatype Nexus(버전 JSON용 `raw` hosted repo, Java 의존성용 `maven-central` 프록시) 기준으로 Basic Auth 포함 검증됨.
 - **빌드 캐시** — content-hash 무효화가 새 체크아웃(새 mtime, 같은 내용)에서도 캐시를 정확히 재사용함을 검증; 원격 캐시는 디렉토리를 공유하는 두 대의 머신 간에 검증됨.
-- **Pre/post-build 훅** — `stoke build`, `stoke build --all`, `stoke watch`, `stoke hot-reload` 전부에서 모든 언어 기준으로 검증됨.
+- **Pre/post-build 훅** — `stoke build`, `stoke watch`, `stoke hot-reload` 전부에서 모든 언어 기준으로 검증됨.
 - **플러그인 시스템** (`stoke.languages` / `stoke.frameworks` entry point) — 두 entry point 그룹을 모두 등록하는 독립 예제 플러그인 패키지로 검증됨.
-- **멀티 타겟 프로젝트** — 기존 `stoke.toml`에 타겟을 추가/제거하는 것이 언어별 프로젝트 루트 등록(Cargo 워크스페이스 멤버, Gradle `settings.gradle.kts`의 include, C# 루트 `.csproj`의 exclude 등) 전부에 대해 검증됨.
-- **타겟 간 의존성** (`depends_on`) — `stoke build`/`stoke build --all`이 의존성부터 먼저 빌드하고, 서로 독립적인 타겟은 병렬로 돌리고, 순환/존재하지 않는 타겟 참조는 설정 로드 시점에 거부하고, 의존성이 실패한 타겟은 시도조차 하지 않고 스킵함을 검증.
 - **CMake 위임** (`build_system = "cmake"`) — Windows(MSVC/Visual Studio generator)에서 end-to-end 검증: `stoke build`/`run`/`clean`이 `cmake`로 configure+build하고 결과 실행 파일을 찾아내며, `stoke watch`/`hot-reload`의 기존 재빌드-재시작 루프를 코드 수정 없이 그대로 재사용.
 - **Meson 위임** (`build_system = "meson"`) — meson+ninja로 end-to-end 검증: `stoke build`/`run`/`clean`이 `meson setup`/`meson compile`로 configure+compile하고 결과 실행 파일을 찾아내며, CMake 경로와 같은 `stoke watch`/`hot-reload` 루프를 재사용.
 
@@ -22,9 +20,10 @@
 - 플러그인 기반 언어는 대화형 `stoke init` 마법사에 자동으로 항목이 생기지 않음 — `stoke init`을 직접 지원하려면 플러그인 쪽에서 `stoke.frameworks` entry point를 따로 등록해야 함.
 - Rust, Kotlin, C#, Ruby, PHP는 가장 최근에 추가된 언어라 커맨드 생성/템플릿은 검증됐지만 각 생태계의 대형 실전 프로젝트로는 아직 충분히 검증 안 됨.
 - Rails, Laravel 스캐폴딩은 의도적으로 제외 — 둘 다 entry 스크립트를 직접 실행하는 대신 CLI 서브커맨드(`bin/rails server`, `php artisan serve`)로 시작하는 구조라 stoke의 실행 모델과 안 맞음.
+- 프로젝트당 타겟 하나 — `stoke.toml`은 `[targets.*]`를 정확히 하나만 지원하므로, 서비스 여러 개로 이루어진 모노레포(백엔드+워커 등)는 서비스마다 각자의 `stoke.toml`이 필요함.
 
 ## 대규모 조직에 맞는가
 
-stoke는 큰 팀이 보통 필요로 하는 요소들을 갖추고 있음: 재현 가능한 빌드(lock 파일), 12개 언어 전체에 걸친 팀 단위 툴체인 버전 일관성(pinning), CI 체크아웃을 넘나들고 여러 머신 간 공유도 되는 빌드 캐시, 폐쇄망을 위한 사설 레지스트리/미러 지원, 모노레포 스타일 프로젝트를 위한 의존성 순서 기반 멀티 타겟 빌드까지. Pre/post-build 훅과 플러그인 시스템 덕분에 플랫폼 팀이 stoke를 포크하지 않고도 확장할 수 있음.
+stoke는 큰 팀이 보통 필요로 하는 요소들을 갖추고 있음: 재현 가능한 빌드(lock 파일), 12개 언어 전체에 걸친 팀 단위 툴체인 버전 일관성(pinning), CI 체크아웃을 넘나들고 여러 머신 간 공유도 되는 빌드 캐시, 폐쇄망을 위한 사설 레지스트리/미러 지원까지. Pre/post-build 훅과 플러그인 시스템 덕분에 플랫폼 팀이 stoke를 포크하지 않고도 확장할 수 있음.
 
 폭넓게 도입하기 전에 따져볼 부분 하나: 가장 최근에 추가된 5개 언어(Rust, Kotlin, C#, Ruby, PHP)는 코드 경로 자체는 검증됐지만 아직 대형 실전 프로젝트를 거치지 않음. 구조적으로 막는 문제는 아니지만, 현재 시점에 우회가 가장 필요할 가능성이 높은 지점.

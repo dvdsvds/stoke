@@ -19,13 +19,10 @@ Spring Boot, FastAPI, Flask, Django, 그리고 Go/Rust/Kotlin/C#/Ruby/PHP/JavaSc
 - **팀 일관성을 위한 버전 pin** — 이제 모든 언어에 pin 메커니즘 존재 (아래 [버전 pin](#팀-일관성을-위한-버전-pin) 참고)
 - **사설 레지스트리 / 미러 지원** — 툴체인 설치와 Java의 Maven 의존성 다운로드를 사내 미러로 돌릴 수 있음, 선택적 Basic Auth 지원 (아래 [사설 레지스트리와 미러](#사설-레지스트리와-미러) 참고)
 - **빌드 캐시** — content-hash 기반 캐시 무효화(mtime 기반과 달리 머신/CI 간에도 정확히 동작), C/C++·Java용 선택적 공유/원격 캐시 (아래 [빌드 캐시](#빌드-캐시) 참고)
-- **병렬 멀티타겟 빌드** — `stoke build --all`로 `stoke.toml`의 모든 타겟을 동시에 빌드
-- **타겟 간 의존성** — 타겟에 `depends_on = ["다른_타겟"]` 선언 가능. `stoke build`/`stoke build --all`이 의존성부터 순서대로 빌드 (순환·존재하지 않는 타겟 참조는 설정 로드 시점에 바로 에러)
 - **C/C++용 CMake 위임** — 타겟에 `build_system = "cmake"`를 지정하면 stoke 자체 컴파일 모델 대신 `cmake`의 configure/build로 `build`/`run`/`watch`/`hot-reload`/`clean`을 그대로 위임. 이미 `CMakeLists.txt`가 있는 프로젝트용
 - **C/C++용 Meson 위임** — 타겟에 `build_system = "meson"`을 지정하면 stoke 자체 컴파일 모델 대신 `meson setup`/`meson compile`로 `build`/`run`/`watch`/`hot-reload`/`clean`을 그대로 위임. 이미 `meson.build`가 있는 프로젝트용
 - **`stoke test`** — 각 생태계의 표준 도구로 타겟 테스트 실행: pytest/unittest(Python), 번들된 콘솔 런처로 JUnit 5(Java), `go test`, `cargo test`, `dotnet test`, `gradle test`, `npm test`, RSpec/rake, PHPUnit, `build_system = "cmake"/"meson"`이면 `ctest`/`meson test`. 순수 C/C++ 빌드는 `test_sources` + 번들된 헤더 하나짜리 [doctest](https://github.com/doctest/doctest)(현재는 C++만)
 - **`stoke add`/`stoke remove`** — Python/Java(`stoke.toml`이 실제 매니페스트인 두 언어)에서 `stoke.toml`에 의존성 추가/제거. 다른 언어는 그 언어의 네이티브 도구(`cargo add`, `npm install`, `go get` 등)를 쓰라고 안내
-- **멀티타겟 프로젝트** — 기존 프로젝트 안에서 `stoke init`을 다시 실행하면 `stoke.toml`을 직접 고치는 대신 새 타겟을 추가
 - **자동 IDE 통합** — VSCode, IntelliJ, Eclipse 설정 파일 자동 생성
 - **Watch 모드 + Hot-reload** — 파일 변경 감지 후 자동 재빌드, 프로세스 재시작
 - **빌드 프로파일** — C/C++용 debug/release 및 커스텀 프로파일 (컴파일 플래그, defines, 컴파일러 지정)
@@ -81,11 +78,10 @@ C/C++ 의존성 관리는 vcpkg 사용. Python/Java는 stoke 자체 lock 파일(
 
 | 명령어 | 설명 |
 | --- | --- |
-| `stoke init` | 대화형 프로젝트 초기화. 기존 프로젝트 안에서 다시 실행하면 덮어쓰는 대신 타겟 추가/제거 선택 |
+| `stoke init` | 대화형 프로젝트 초기화. 기존 `stoke.toml`이 있으면 덮어쓸지 확인 |
 | `stoke init <framework>` | 프레임워크 프로젝트 바로 생성 ([프레임워크 스캐폴딩](#프레임워크-스캐폴딩) 참고) |
 | `stoke init --language=<lang> [--version] [--name] [--env-type] [--lock-mode] [--vcpkg] [--yes]` | 프롬프트 없는 비대화형 초기화 (CI/온보딩 스크립트용) |
-| `stoke build [target]` | 타겟 빌드 (생략하면 `stoke.toml`의 첫 번째 타겟) |
-| `stoke build --all` | `stoke.toml`의 모든 타겟을 병렬로 빌드 |
+| `stoke build [target]` | 타겟 빌드 |
 | `stoke build --force` | 캐시 무시하고 전체 재빌드 |
 | `stoke build --debug` / `--release` / `--profile=<name>` | 특정 프로파일로 빌드 (C/C++) |
 | `stoke run [target]` | 빌드된 타겟 실행 |
@@ -402,7 +398,7 @@ pre_build = ["echo starting build"]
 post_build = ["cp dist/myapp ./release/myapp"]
 ```
 
-커맨드는 셸을 통해(파이프/환경변수/여러 인자 다 가능) 선언된 순서대로 실행되며, `stoke build`, `stoke build --all`, `stoke watch`, `stoke hot-reload` 전부 동일하게 적용됩니다. `pre_build` 커맨드 중 하나라도 0이 아닌 종료 코드를 내면 언어 빌드 자체를 시작하지 않고 중단하고, `post_build` 커맨드가 실패해도 전체 빌드가 실패로 처리됩니다.
+커맨드는 셸을 통해(파이프/환경변수/여러 인자 다 가능) 선언된 순서대로 실행되며, `stoke build`, `stoke watch`, `stoke hot-reload` 전부 동일하게 적용됩니다. `pre_build` 커맨드 중 하나라도 0이 아닌 종료 코드를 내면 언어 빌드 자체를 시작하지 않고 중단하고, `post_build` 커맨드가 실패해도 전체 빌드가 실패로 처리됩니다.
 
 **보안 주의**: `pre_build`/`post_build`는 `stoke.toml`에 적힌 문자열을 그대로 셸로 실행합니다. `stoke build`(및 `--all`, `watch`, `hot-reload`)를 돌리는 순간 그 프로젝트의 `stoke.toml`에 적힌 임의 커맨드가 사용자 권한으로 실행된다는 뜻이므로, **신뢰하지 않는 저장소를 clone해서 바로 build하지 마세요.** 실행 전에 `stoke.toml`의 `pre_build`/`post_build` 값을 먼저 확인하는 습관을 들이는 걸 권장합니다.
 
@@ -538,6 +534,7 @@ from computer.hardware.cpu import CPU
 - 플러그인 기반 언어는 대화형 `stoke init` 마법사에 자동으로 항목이 생기지 않음 (위 "플러그인 시스템" 참고)
 - Rust, Kotlin, C#, Ruby, PHP는 가장 최근에 추가된 언어라, 커맨드 생성/템플릿은 검증됐지만 각 생태계의 대형 실전 프로젝트로는 아직 충분히 검증 안 됨
 - Rails, Laravel 스캐폴딩은 의도적으로 제외 ([프레임워크 스캐폴딩](#프레임워크-스캐폴딩) 참고)
+- 프로젝트당 타겟 하나만 지원 — 여러 빌드 타겟(백엔드+워커 등)을 하나의 `stoke.toml`로 관리하는 건 안 됨, 각각 자기만의 `stoke.toml`을 두세요
 
 전체 현황(검증된 것/남은 gap/대규모 조직에 맞는지 여부)은 [`FEATURES.ko.md`](./FEATURES.ko.md)를 참고하세요.
 

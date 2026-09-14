@@ -39,13 +39,11 @@ stoke run
 - **Version pinning** — every language now has a pin mechanism, prompted during `stoke init` (e.g. Go's `go.mod` `go`/`toolchain` directives, Node's `.nvmrc` + `package.json` `engines.node`, Rust's `rust-toolchain.toml`) so every teammate and CI runner builds against the same version
 - **Private registry / mirror support** — point toolchain installs and Java's Maven dependency downloads at an internal mirror, with optional Basic Auth
 - **Build cache** — content-hash cache invalidation plus a shared/remote cache for C/C++ and Java
-- **Parallel multi-target builds** — `stoke build --all`, and `stoke init` can add or remove a target from an existing project
-- **Target dependencies** — `depends_on = ["other_target"]` on a target; `stoke build`/`stoke build --all` build dependencies first and respect the order (cycles and unknown targets are rejected at load time)
 - **CMake escape hatch for C/C++** — `build_system = "cmake"` on a C/C++ target delegates `build`/`run`/`watch`/`hot-reload`/`clean` to `cmake configure`/`--build` instead of stoke's own compile model, for projects with an existing `CMakeLists.txt`
 - **Meson escape hatch for C/C++** — `build_system = "meson"` on a C/C++ target delegates `build`/`run`/`watch`/`hot-reload`/`clean` to `meson setup`/`meson compile` instead of stoke's own compile model, for projects with an existing `meson.build`
 - **`stoke test`** — runs the target's tests via each ecosystem's standard tool: pytest/unittest (Python), JUnit 5 via a bundled console launcher (Java), `go test`, `cargo test`, `dotnet test`, `gradle test`, `npm test`, RSpec/rake, PHPUnit, and `ctest`/`meson test` for `build_system = "cmake"/"meson"`. For plain C/C++ builds, `test_sources` + a bundled single-header [doctest](https://github.com/doctest/doctest) (C++ only for now)
 - **`stoke add`/`stoke remove`** — add or remove a dependency in `stoke.toml` for Python/Java (the two languages where `stoke.toml` is the actual manifest); every other language points you at its native tool (`cargo add`, `npm install`, `go get`, etc.) instead
-- **Pre/post-build hooks** — `pre_build`/`post_build` shell commands per target, for every language and every build path (`build`, `build --all`, `watch`, `hot-reload`)
+- **Pre/post-build hooks** — `pre_build`/`post_build` shell commands per target, for every language and every build path (`build`, `watch`, `hot-reload`)
 - **Reproducible builds** via lock files
 - **Auto IDE integration** (VSCode, IntelliJ, Eclipse)
 - **Plugin system** — add a new language or `stoke init` scaffold from an external pip package via entry points, no stoke source changes needed
@@ -61,7 +59,7 @@ pre_build = ["echo starting build"]
 post_build = ["cp dist/myapp ./release/myapp"]
 ```
 
-Commands run through the shell (pipes/env vars/multiple args all work), in declared order, and apply the same way to `stoke build`, `stoke build --all`, `stoke watch`, and `stoke hot-reload`. If any `pre_build` command exits non-zero, the language build itself never starts; a failing `post_build` command fails the whole build too.
+Commands run through the shell (pipes/env vars/multiple args all work), in declared order, and apply the same way to `stoke build`, `stoke watch`, and `stoke hot-reload`. If any `pre_build` command exits non-zero, the language build itself never starts; a failing `post_build` command fails the whole build too.
 
 **Security note**: `pre_build`/`post_build` execute whatever string is in `stoke.toml`, verbatim, through the shell. Running `stoke build` (or `--all`/`watch`/`hot-reload`) on a project means running arbitrary commands from that project's `stoke.toml` with your user's permissions — **don't clone an untrusted repository and build it right away.** Check the `pre_build`/`post_build` values first.
 
