@@ -161,55 +161,57 @@ class JavaAdapter(BaseAdapter):
 
     def _generate_ide_files(self) -> None:
         """
-        Eclipse/VSCode Java 확장용 .classpath, .project 파일 생성.
-        VSCode용 .vscode/settings.json도 생성.
-        IntelliJ 등을 위한 pom.xml도 생성.
+        project.ide 설정에 맞는 IDE 통합 파일만 생성:
+        "eclipse" -> .classpath/.project, "vscode" -> .vscode/settings.json,
+        "intellij" -> pom.xml, "none" -> 아무것도 안 씀.
         빌드 성공 후에만 호출.
         """
-        from stoke.ide.java_eclipse import write_ide_files
-        from stoke.ide.vscode import write_project_settings, make_java_settings
-        from stoke.ide.maven import write_pom
+        ide = self.project.ide
+        if ide == "none":
+            return
 
         source_dirs = self._source_dirs()
         if not source_dirs:
             return
         jar_files = self._existing_jars()
-
-        ## Eclipse 형식 (.classpath, .project)
-        _, _, classpath_changed, project_changed = write_ide_files(
-            project_root=self.project_root,
-            project_name=self.target.name,
-            source_dirs=source_dirs,
-            output_dir=self.classes_dir,
-            jar_files=jar_files,
-        )
-
-        # VSCode 설정 (.vscode/settings.json)
-        java_settings = make_java_settings(jar_files, self.project_root)
-        _, settings_changed = write_project_settings(self.project_root, java_settings)
-
-        # Maven pom.xml (IntelliJ 등)
-        java_version = str(self.target.java_version or "25")
-        _, pom_changed = write_pom(
-            project_root=self.project_root,
-            project_name=self.target.name,
-            project_version=self.project.version or "0.1.0",
-            java_version=java_version,
-            source_dirs=source_dirs,
-            output_dir=self.classes_dir,
-            deps=self.target.deps or {},
-        )
-
-        # 변경된 파일만 알림
         changed_files = []
-        if classpath_changed:
-            changed_files.append(".classpath")
-        if project_changed:
-            changed_files.append(".project")
-        if settings_changed:
-            changed_files.append(".vscode/settings.json")
-        if pom_changed:
-            changed_files.append("pom.xml")
+
+        if ide == "eclipse":
+            from stoke.ide.java_eclipse import write_ide_files
+            _, _, classpath_changed, project_changed = write_ide_files(
+                project_root=self.project_root,
+                project_name=self.target.name,
+                source_dirs=source_dirs,
+                output_dir=self.classes_dir,
+                jar_files=jar_files,
+            )
+            if classpath_changed:
+                changed_files.append(".classpath")
+            if project_changed:
+                changed_files.append(".project")
+
+        elif ide == "vscode":
+            from stoke.ide.vscode import write_project_settings, make_java_settings
+            java_settings = make_java_settings(jar_files, self.project_root)
+            _, settings_changed = write_project_settings(self.project_root, java_settings)
+            if settings_changed:
+                changed_files.append(".vscode/settings.json")
+
+        elif ide == "intellij":
+            from stoke.ide.maven import write_pom
+            java_version = str(self.target.java_version or "25")
+            _, pom_changed = write_pom(
+                project_root=self.project_root,
+                project_name=self.target.name,
+                project_version=self.project.version or "0.1.0",
+                java_version=java_version,
+                source_dirs=source_dirs,
+                output_dir=self.classes_dir,
+                deps=self.target.deps or {},
+            )
+            if pom_changed:
+                changed_files.append("pom.xml")
+
         if changed_files:
             print(f"IDE files updated: {', '.join(changed_files)}")
         
@@ -478,7 +480,7 @@ class JavaAdapter(BaseAdapter):
         save_cache(self.project_root, cache)
         # .gitignore 관리
         self._ensure_gitignore()
-        # IDE 통합 파일 생성
+        # IDE 통합 파일 생성 (project.ide 설정에 따라 결정)
         self._generate_ide_files()
         print(f"\nBuild complete: {self.target.name}")
 

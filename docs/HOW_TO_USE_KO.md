@@ -219,6 +219,8 @@ stoke clean [target] [--all]          # 빌드 산출물 삭제, --all이면 loc
 stoke ide-sync                        # VSCode/Eclipse/IntelliJ 설정 파일 재생성
 ```
 
+`stoke init`에서 Python/Java/C/C++ 프로젝트는 어떤 IDE와 연동할지 물어봅니다 (`vscode`가 기본값이고 `.vscode/settings.json` + C/C++는 `compile_commands.json`/`c_cpp_properties.json`도 씀, `eclipse`는 Java용 `.classpath`/`.project`, `intellij`는 Java용 `pom.xml` 또는 C/C++용 `compile_commands.json`만, `none`은 `stoke build`할 때 아무 파일도 안 씀). `stoke.toml`의 `[project]`에 `ide = "..."`로 저장되고 직접 수정해도 됩니다. 위에서 설명한 `stoke ide-sync`는 이거랑 별개로, 이 설정과 무관하게 찾은 모든 stoke 프로젝트를 묶는 VSCode 멀티루트 워크스페이스 파일을 항상 만듭니다.
+
 **빌드 프로파일 (C/C++ 전용):**
 
 ```bash

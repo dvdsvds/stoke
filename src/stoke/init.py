@@ -1,3 +1,4 @@
+import re
 import shutil
 import sys
 import tempfile
@@ -99,6 +100,36 @@ def _select_lock_mode() -> str:
         default_index=0,
     )
     return "commit" if selected == 0 else "local"
+
+_IDE_CHOICES = ["vscode", "eclipse", "intellij", "none"]
+
+def _select_ide() -> str:
+    """IDE 통합 파일 종류 선택. Python/Java/C/C++ 빌드 시에만 실제로 쓰임."""
+    choices = [
+        "VSCode   - .vscode/settings.json (+ compile_commands.json for C/C++)",
+        "Eclipse  - .classpath/.project (Java only)",
+        "IntelliJ - pom.xml (Java) / compile_commands.json (C/C++)",
+        "None     - don't generate any IDE integration files",
+    ]
+    selected = _prompt_choice("IDE integration:", choices, default_index=0)
+    return _IDE_CHOICES[selected]
+
+def _write_ide_setting(stoke_toml_path: Path, ide: str) -> None:
+    """
+    각 언어별 _write_stoke_toml_* 함수가 이미 써놓은 stoke.toml의 [project] 섹션
+    lock_mode 줄 바로 뒤에 ide 설정을 끼워넣음. "vscode"는 기본값이라 명시적으로
+    안 씀 -- 12개 언어 writer 함수를 전부 손대지 않고 한 곳에서 처리하기 위함.
+    """
+    if ide == "vscode":
+        return
+    text = stoke_toml_path.read_text(encoding="utf-8")
+    text = re.sub(
+        r'(?m)^(lock_mode = ".+")$',
+        rf'\1\nide = "{ide}"',
+        text,
+        count=1,
+    )
+    stoke_toml_path.write_text(text, encoding="utf-8")
 
 def _select_language() -> str:
     choices = [
@@ -513,6 +544,9 @@ def cmd_init() -> None:
     # 4. lock 모드 선택
     lock_mode = _select_lock_mode()
 
+    # IDE 통합 파일 선택 -- 현재 Python/Java/C/C++ 빌드에서만 실제로 쓰임
+    ide = _select_ide() if language in ("python", "java", "c", "cpp") else "vscode"
+
     # 5. 최종 확인
     print("\n=== Summary ===")
     print(f"  Project name:    {project_name}")
@@ -521,6 +555,8 @@ def cmd_init() -> None:
     if language == "python":
         print(f"  Environment:     {env_type}")
     print(f"  Lock mode:       {lock_mode}")
+    if language in ("python", "java", "c", "cpp"):
+        print(f"  IDE:             {ide}")
     print(f"  Config file:     {stoke_toml_path}")
 
     if not _prompt_yes_no("\nCreate stoke.toml?", default=True):
@@ -573,6 +609,7 @@ def cmd_init() -> None:
         _write_stoke_toml_typescript(stoke_toml_path, project_name, lock_mode)
         _write_example_typescript(cwd)
         _pin_node_version(cwd, node_version)
+    _write_ide_setting(stoke_toml_path, ide)
     print(f"\nCreated {stoke_toml_path}")
     print("Next: run 'stoke build' to build your project.")
 

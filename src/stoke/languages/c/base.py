@@ -507,18 +507,19 @@ class CBaseAdapter(BaseAdapter):
 
     def _generate_ide_files(self, compiler: CompilerInstall, source_files: list[Path]) -> None:
         """
-        C/C++ IDE 통합용 compile_commands.json 및 c_cpp_properties.json 생성.
-        settings.json에 .stoke/ 감시 제외 설정 추가.
+        project.ide 설정에 맞는 IDE 통합 파일만 생성.
+        compile_commands.json은 VSCode C/C++ 확장, clangd, CLion(IntelliJ) 등이
+        공통으로 읽는 사실상 표준 포맷이라 "vscode"/"intellij" 둘 다에서 생성.
+        c_cpp_properties.json/settings.json은 VSCode 전용. Eclipse CDT용 생성은
+        아직 구현 안 됨. "none"이면 아무것도 안 씀.
         """
+        ide = self.project.ide
+        if ide not in ("vscode", "intellij"):
+            return
+
         from stoke.ide.c_compile_commands import write_compile_commands
-        from stoke.ide.vscode import (
-            make_cpp_settings,
-            write_cpp_properties,
-            make_project_settings,
-            write_project_settings,
-        )
-        
-        # compile_commands.json
+
+        # compile_commands.json (vscode/intellij 공통)
         _, cc_changed = write_compile_commands(
             project_root=self.project_root,
             compiler_path=compiler.executable,
@@ -528,25 +529,32 @@ class CBaseAdapter(BaseAdapter):
             standard=self._get_standard(),
             standard_flag_prefix="/std:" if compiler.family == "msvc" else self.standard_flag_prefix,
         )
-        # c_cpp_properties.json (VSCode C/C++ 확장이 compile_commands.json 인식하도록)
-        cpp_settings = make_cpp_settings(
-            language=self.compiler_kind,
-            standard=self._get_standard() or "",
-            compiler_path=str(compiler.executable),
-        )
-        _, cpp_changed = write_cpp_properties(self.project_root, cpp_settings)
-        # settings.json에 .stoke/ 감시 제외 (렉 방지)
-        project_settings = make_project_settings()
-        _, settings_changed = write_project_settings(self.project_root, project_settings)
-
-        # 변경된 파일만 알림
         changed_files = []
         if cc_changed:
             changed_files.append("compile_commands.json")
-        if cpp_changed:
-            changed_files.append(".vscode/c_cpp_properties.json")
-        if settings_changed:
-            changed_files.append(".vscode/settings.json")
+
+        if ide == "vscode":
+            from stoke.ide.vscode import (
+                make_cpp_settings,
+                write_cpp_properties,
+                make_project_settings,
+                write_project_settings,
+            )
+            # c_cpp_properties.json (VSCode C/C++ 확장이 compile_commands.json 인식하도록)
+            cpp_settings = make_cpp_settings(
+                language=self.compiler_kind,
+                standard=self._get_standard() or "",
+                compiler_path=str(compiler.executable),
+            )
+            _, cpp_changed = write_cpp_properties(self.project_root, cpp_settings)
+            # settings.json에 .stoke/ 감시 제외 (렉 방지)
+            project_settings = make_project_settings()
+            _, settings_changed = write_project_settings(self.project_root, project_settings)
+            if cpp_changed:
+                changed_files.append(".vscode/c_cpp_properties.json")
+            if settings_changed:
+                changed_files.append(".vscode/settings.json")
+
         if changed_files:
             print(f"IDE files updated: {', '.join(changed_files)}")
 
@@ -772,7 +780,7 @@ class CBaseAdapter(BaseAdapter):
             self._save_lock(compiler)
         # .gitignore 관리
         self._ensure_gitignore()
-        # IDE 통합 파일 생성
+        # IDE 통합 파일 생성 (project.ide 설정에 따라 결정)
         self._generate_ide_files(compiler, source_files)
         print(f"\nBuild complete: {self.target.name}")
 

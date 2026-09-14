@@ -8,6 +8,7 @@ class ProjectInfo:
     version: str
     lock_mode: str = "commit"  # "commit" 또는 "local"
     jobs: int | None = None    # 병렬 컴파일 워커 수 (None이면 자동)
+    ide: str = "vscode"        # "vscode" | "eclipse" | "intellij" | "none" -- stoke build가 자동 생성하는 IDE 통합 파일 종류
 
 @dataclass
 class Target:
@@ -92,7 +93,13 @@ def load_config(config_path: Path | None = None) -> Config:
         version=project_data.get("version", "0.0.0"),
         lock_mode=project_data.get("lock_mode", "commit"),
         jobs=project_data.get("jobs"),
+        ide=project_data.get("ide", "vscode"),
     )
+    if project.ide not in ("vscode", "eclipse", "intellij", "none"):
+        raise ValueError(
+            f"Invalid ide '{project.ide}' in [project]. "
+            f"Must be one of: vscode, eclipse, intellij, none."
+        )
 
     # [targets.*] 섹션들 파싱
     targets = {}

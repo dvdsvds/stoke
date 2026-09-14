@@ -95,10 +95,18 @@ class BaseAdapter(ABC):
             print(f"Updated .gitignore: added {', '.join(added)}")
 
     def _gitignore_entries(self) -> list[str]:
-        """이 어댑터가 .gitignore에 넣고 싶은 항목들. 서브클래스가 오버라이드해서 커스터마이즈"""
+        """이 어댑터가 .gitignore에 넣고 싶은 항목들. 서브클래스가 오버라이드해서 커스터마이즈
+        project.ide에 따라 실제로 생성될 IDE 파일만 무시 목록에 넣음."""
         entries = [".stoke/"]
+        ide = self.project.ide
         if self.target.language == "java":
-            entries.extend([".classpath", ".project", "pom.xml"])
+            if ide == "eclipse":
+                entries.extend([".classpath", ".project"])
+            elif ide == "intellij":
+                entries.append("pom.xml")
         elif self.target.language in ("c", "cpp"):
-            entries.extend(["compile_commands.json", ".vscode/c_cpp_properties.json"])
+            if ide in ("vscode", "intellij"):
+                entries.append("compile_commands.json")
+            if ide == "vscode":
+                entries.append(".vscode/c_cpp_properties.json")
         return entries

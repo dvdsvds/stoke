@@ -219,6 +219,8 @@ stoke clean [target] [--all]          # deletes build artifacts; --all also dele
 stoke ide-sync                        # regenerate VSCode/Eclipse/IntelliJ config files
 ```
 
+`stoke init` asks which IDE to integrate with for Python/Java/C/C++ projects (`vscode`, the default, writes `.vscode/settings.json` plus `compile_commands.json`/`c_cpp_properties.json` for C/C++; `eclipse` writes `.classpath`/`.project` for Java; `intellij` writes `pom.xml` for Java or just `compile_commands.json` for C/C++; `none` writes nothing on every `stoke build`). It's stored as `ide = "..."` under `[project]` in `stoke.toml` — edit it by hand any time. This is separate from `stoke ide-sync` above, which always generates a VSCode multi-root workspace file across every stoke project it finds, regardless of this setting.
+
 **Build profiles (C/C++ only):**
 
 ```bash

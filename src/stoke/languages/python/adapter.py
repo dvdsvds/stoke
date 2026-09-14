@@ -596,10 +596,10 @@ class PythonAdapter(BaseAdapter):
         # .gitignore 관리
         self._ensure_gitignore()
 
-        # VSCode 설정 생성
-        from stoke.ide.vscode import write_project_settings, make_python_settings
+        # VSCode 설정 생성 (Python은 VSCode만 지원)
+        if self.project.ide == "vscode" and self.venv_exists():
+            from stoke.ide.vscode import write_project_settings, make_python_settings
 
-        if self.venv_exists():
             python_settings = make_python_settings(
                 self.venv_python_exe(),
                 self.project_root,
