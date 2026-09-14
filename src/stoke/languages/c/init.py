@@ -52,7 +52,7 @@ lock_mode = "{lock_mode}"
 [targets.{project_name}]
 language = "c"
 c_standard = "{c_standard}"
-sources = ["src/**/*.c"]
+sources = ["**/*.c"]
 '''
     path.write_text(content, encoding="utf-8")
 

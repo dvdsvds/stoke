@@ -29,7 +29,7 @@ lock_mode = "{lock_mode}"
 [targets.{project_name}]
 language = "cpp"
 cpp_standard = "{cpp_standard}"
-sources = ["src/**/*.cpp"]
+sources = ["**/*.cpp"]
 '''
     path.write_text(content, encoding="utf-8")
 
