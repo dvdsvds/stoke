@@ -36,7 +36,7 @@ sources = ["**/*.cpp"]
 def _write_example_cpp(project_root: Path) -> None:
     """C++ 예시 파일 생성."""
     src_dir = project_root / "src"
-    src_dir.mkdir(exist_ok=True)
+    src_dir.mkdir(parents=True, exist_ok=True)
     main_path = src_dir / "main.cpp"
     if not main_path.exists():
         main_path.write_text(

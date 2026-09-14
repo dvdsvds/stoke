@@ -21,7 +21,7 @@ entry = "src/main.ts"
 def _write_example_typescript(project_root: Path) -> None:
     """TypeScript 예시 파일 생성."""
     src = project_root / "src"
-    src.mkdir(exist_ok=True)
+    src.mkdir(parents=True, exist_ok=True)
     main_ts = src / "main.ts"
     if main_ts.exists():
         return

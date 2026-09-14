@@ -21,7 +21,7 @@ entry = "src/main.js"
 def _write_example_javascript(project_root: Path) -> None:
     """JavaScript 예시 파일 생성."""
     src = project_root / "src"
-    src.mkdir(exist_ok=True)
+    src.mkdir(parents=True, exist_ok=True)
     main_js = src / "main.js"
     if main_js.exists():
         return
