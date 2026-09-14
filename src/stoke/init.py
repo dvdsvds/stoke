@@ -108,7 +108,7 @@ def _select_ide() -> str:
     choices = [
         "VSCode   - .vscode/settings.json (+ compile_commands.json for C/C++)",
         "Eclipse  - .classpath/.project (Java only)",
-        "IntelliJ - pom.xml (Java) / compile_commands.json (C/C++)",
+        "IntelliJ/CLion/Vim/clangd - pom.xml (Java) / compile_commands.json (C/C++)",
         "None     - don't generate any IDE integration files",
     ]
     selected = _prompt_choice("IDE integration:", choices, default_index=0)
