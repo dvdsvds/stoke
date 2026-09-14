@@ -545,6 +545,7 @@ class CBaseAdapter(BaseAdapter):
                 language=self.compiler_kind,
                 standard=self._get_standard() or "",
                 compiler_path=str(compiler.executable),
+                compiler_family=compiler.family,
             )
             _, cpp_changed = write_cpp_properties(self.project_root, cpp_settings)
             # settings.json에 .stoke/ 감시 제외 (렉 방지)

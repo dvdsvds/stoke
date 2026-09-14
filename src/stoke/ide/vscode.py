@@ -4,7 +4,9 @@ VSCode .vscode/settings.json 관리.
 """
 
 import json
+import platform
 import re
+import sys
 from pathlib import Path
 from stoke.ide import write_if_changed
 
@@ -177,18 +179,49 @@ EXCLUDED_DIRS = {
     ".vscode",
 }
 
-def make_cpp_settings(language: str, standard: str, compiler_path: str | None = None) -> dict:
+def _intellisense_mode(compiler_family: str | None) -> str:
+    """
+    VSCode C/C++ 확장의 intelliSenseMode는 "<os>-<compiler>-<arch>" 형식
+    (예: linux-gcc-x64, windows-msvc-x64). 예전엔 "windows-gcc-x64"로
+    고정돼 있어서 리눅스/맥에서도 항상 windows로 잘못 설정됐었음.
+    """
+    if sys.platform == "win32":
+        os_name = "windows"
+    elif sys.platform == "darwin":
+        os_name = "macos"
+    else:
+        os_name = "linux"
+
+    if compiler_family == "msvc":
+        compiler_tag = "msvc"
+    elif compiler_family == "clang":
+        compiler_tag = "clang"
+    else:
+        compiler_tag = "gcc"
+
+    machine = platform.machine().lower()
+    arch = "arm64" if machine in ("arm64", "aarch64") else "x64"
+
+    return f"{os_name}-{compiler_tag}-{arch}"
+
+def make_cpp_settings(
+    language: str,
+    standard: str,
+    compiler_path: str | None = None,
+    compiler_family: str | None = None,
+) -> dict:
     """
     VSCode C/C++ 확장용 c_cpp_properties.json 설정.
 
     language: "c" 또는 "cpp"
     standard: "c17", "c++17" 같은 표준
     compiler_path: gcc/g++ 실행 파일 경로 (있으면 명시)
+    compiler_family: "gcc" / "clang" / "msvc" -- intelliSenseMode 계산용
     """
     config = {
         "name": "stoke",
         "compileCommands": "${workspaceFolder}/compile_commands.json",
-        "intelliSenseMode": "windows-gcc-x64",
+        "intelliSenseMode": _intellisense_mode(compiler_family),
     }
     if compiler_path:
         config["compilerPath"] = compiler_path.replace("\\", "/")
