@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>stoke watch — stoke</title>
+<link rel="icon" href="../../../assets/favicon-src.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/home.css">
+<link rel="stylesheet" href="../../../assets/docs.css">
+</head>
+<body data-root="../../../" data-lang="ko">
+<nav class="nav">
+  <div class="wrap">
+    <a class="nav-brand" href="../../../"><img src="../../../assets/logo-mark.png" alt="stoke">stoke</a>
+    <div class="nav-search">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input type="search" id="site-search" placeholder="문서 검색..." autocomplete="off" spellcheck="false">
+        <div id="search-results" class="search-results" hidden></div>
+      </div>
+    <div class="nav-links">
+      <div class="lang-switch"><a href="../../../commands/watch/">영어</a><span class="sep">|</span><a class="active" href=".">한국어</a></div>
+      <a class="nav-gh" href="https://github.com/dvdsvds/stoke"><svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>dvdsvds/stoke</a>
+    </div>
+  </div>
+</nav>
+<div class="doc-layout">
+  <div class="doc-sidebar-col"><nav class="side-nav">
+<div class="side-group">
+<button class="side-group-toggle" type="button">시작하기<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../../ko/getting-started/installation/">설치</a></li>
+<li><a class="" href="../../../ko/getting-started/quick-start/">빠른 시작</a></li>
+</ul></div>
+<div class="side-group expanded">
+<button class="side-group-toggle" type="button">명령어<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../../ko/commands/overview/">개요</a></li>
+<li><a class="" href="../../../ko/commands/build/">build</a></li>
+<li><a class="" href="../../../ko/commands/run/">run</a></li>
+<li><a class="active" href="../../../ko/commands/watch/">watch</a></li>
+<li><a class="" href="../../../ko/commands/hot-reload/">hot-reload</a></li>
+<li><a class="" href="../../../ko/commands/clean/">clean</a></li>
+<li><a class="" href="../../../ko/commands/init/">init</a></li>
+<li><a class="" href="../../../ko/commands/ide-sync/">ide-sync</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">언어<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../../ko/languages/python/">Python</a></li>
+<li><a class="" href="../../../ko/languages/java/">Java</a></li>
+<li><a class="" href="../../../ko/languages/cpp/">C/C++</a></li>
+<li><a class="" href="../../../ko/languages/go/">Go</a></li>
+<li><a class="" href="../../../ko/languages/rust/">Rust</a></li>
+<li><a class="" href="../../../ko/languages/kotlin/">Kotlin</a></li>
+<li><a class="" href="../../../ko/languages/csharp/">C#</a></li>
+<li><a class="" href="../../../ko/languages/ruby/">Ruby</a></li>
+<li><a class="" href="../../../ko/languages/php/">PHP</a></li>
+<li><a class="" href="../../../ko/languages/javascript/">JavaScript</a></li>
+<li><a class="" href="../../../ko/languages/typescript/">TypeScript</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">설정<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../../ko/configuration/stoke-toml/">stoke.toml</a></li>
+<li><a class="" href="../../../ko/configuration/profiles/">프로파일</a></li>
+<li><a class="" href="../../../ko/configuration/lock-file/">락 파일</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">고급<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../../ko/advanced/vcpkg/">vcpkg</a></li>
+<li><a class="" href="../../../ko/advanced/ide-integration/">IDE 연동</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">프레임워크<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../../ko/frameworks/overview/">개요</a></li>
+<li><a class="" href="../../../ko/frameworks/spring-boot/">Spring Boot</a></li>
+<li><a class="" href="../../../ko/frameworks/fastapi/">FastAPI</a></li>
+<li><a class="" href="../../../ko/frameworks/flask/">Flask</a></li>
+<li><a class="" href="../../../ko/frameworks/django/">Django</a></li>
+<li><a class="" href="../../../ko/frameworks/gin/">Gin</a></li>
+<li><a class="" href="../../../ko/frameworks/echo/">Echo</a></li>
+<li><a class="" href="../../../ko/frameworks/fiber/">Fiber</a></li>
+<li><a class="" href="../../../ko/frameworks/chi/">Chi</a></li>
+<li><a class="" href="../../../ko/frameworks/express/">Express</a></li>
+<li><a class="" href="../../../ko/frameworks/fastify/">Fastify</a></li>
+<li><a class="" href="../../../ko/frameworks/nextjs/">Next.js</a></li>
+<li><a class="" href="../../../ko/frameworks/nestjs/">NestJS</a></li>
+<li><a class="" href="../../../ko/frameworks/vite/">Vite</a></li>
+<li><a class="" href="../../../ko/frameworks/nuxt/">Nuxt</a></li>
+<li><a class="" href="../../../ko/frameworks/sveltekit/">SvelteKit</a></li>
+<li><a class="" href="../../../ko/frameworks/hono/">Hono</a></li>
+<li><a class="" href="../../../ko/frameworks/actix-web/">Actix-web</a></li>
+<li><a class="" href="../../../ko/frameworks/axum/">Axum</a></li>
+<li><a class="" href="../../../ko/frameworks/rocket/">Rocket</a></li>
+<li><a class="" href="../../../ko/frameworks/ktor/">Ktor</a></li>
+<li><a class="" href="../../../ko/frameworks/spring-boot-kotlin/">Spring Boot (Kotlin)</a></li>
+<li><a class="" href="../../../ko/frameworks/aspnet-core/">ASP.NET Core</a></li>
+<li><a class="" href="../../../ko/frameworks/sinatra/">Sinatra</a></li>
+<li><a class="" href="../../../ko/frameworks/slim/">Slim</a></li>
+</ul></div>
+<div class="side-group"><a class="side-top" href="../../../ko/troubleshooting/">문제 해결</a></div>
+<div class="side-group"><a class="side-top" href="../../../ko/faq/">자주 묻는 질문</a></div>
+</nav></div>
+  <main class="doc-content">
+    <article>
+<h1 id="stoke-watch">stoke watch</h1>
+<p>파일 변경을 감지해서 자동으로 재빌드합니다.</p>
+<h2 id="_1">사용법</h2>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>watch<span class="w"> </span><span class="o">[</span>target<span class="o">]</span><span class="w"> </span><span class="o">[</span>options<span class="o">]</span>
+</code></pre></div>
+
+<h2 id="_2">옵션</h2>
+<table>
+<thead>
+<tr>
+<th>옵션</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--debug</code></td>
+<td>Debug 빌드 (기본값)</td>
+</tr>
+<tr>
+<td><code>--release</code></td>
+<td>Release 빌드</td>
+</tr>
+<tr>
+<td><code>--profile &lt;name&gt;</code></td>
+<td>커스텀 프로파일</td>
+</tr>
+<tr>
+<td><code>-v</code>, <code>--verbose</code></td>
+<td>자세한 빌드 출력 표시</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">예시</h2>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>watch
+</code></pre></div>
+
+<h1 id="_4">출력:</h1>
+<p>[watch] Rebuilding 'myapp'...
+Using c compiler 15.2.0
+Compiled 1 file(s)
+Build complete: myapp
+[watch] Watching: C:\myproject\src
+[watch] Press Ctrl+C to stop.</p>
+<p>파일을 저장하면 stoke가 자동으로 재빌드합니다:
+[watch] Detected changes in: src\main.c
+==================================================
+[watch] Rebuilding 'myapp'...
+Using c compiler 15.2.0
+Compiled 1 file(s)
+Build complete: myapp</p>
+<p>Ctrl+C로 중지합니다.</p>
+<h2 id="_5">감시 대상</h2>
+<p>stoke는 <code>sources</code> 패턴이 가리키는 디렉토리를 감시합니다. 예를 들어:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[targets.myapp]</span>
+<span class="n">sources</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"src/**/*.c"</span><span class="p">]</span>
+</code></pre></div>
+
+<p>이면 stoke는 <code>src/</code>를 감시합니다.</p>
+<p>언어에 맞는 소스 확장자와 일치하는 파일만 대상이 됩니다:</p>
+<ul>
+<li><strong>Python</strong>: <code>.py</code></li>
+<li><strong>Java</strong>: <code>.java</code></li>
+<li><strong>C</strong>: <code>.c</code>, <code>.h</code></li>
+<li><strong>C++</strong>: <code>.cpp</code>, <code>.hpp</code>, <code>.h</code></li>
+</ul>
+<p>그 외 파일 변경은 무시됩니다.</p>
+<h2 id="_6">디바운싱</h2>
+<p>빠르게 연속된 여러 변경은 디바운싱됩니다. 파일 5개를 연달아 저장해도 stoke는 5번이 아니라 한 번만 재빌드합니다.</p>
+<h2 id="_7">프로파일과 함께 사용</h2>
+<p>watch는 선택한 프로파일을 그대로 따릅니다:</p>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>watch<span class="w"> </span>--release
+</code></pre></div>
+
+<p>변경이 있을 때마다 <code>.stoke/{lang}/{target}/release/</code>에 빌드합니다.</p>
+<h2 id="_8">관련 문서</h2>
+<ul>
+<li><a href="../../../ko/commands/hot-reload/"><code>stoke hot-reload</code></a> — watch + 프로세스 재시작</li>
+<li><a href="../../../ko/commands/build/"><code>stoke build</code></a> — 단일 빌드</li>
+</ul>
+    </article>
+  </main>
+  <div class="doc-toc-col"><nav class="page-toc"><div class="page-toc-title">On this page</div><ul>
+<li class=""><a href="#_1">사용법</a></li>
+<li class=""><a href="#_2">옵션</a></li>
+<li class=""><a href="#_3">예시</a></li>
+<li class=""><a href="#_5">감시 대상</a></li>
+<li class=""><a href="#_6">디바운싱</a></li>
+<li class=""><a href="#_7">프로파일과 함께 사용</a></li>
+<li class=""><a href="#_8">관련 문서</a></li>
+</ul></nav></div>
+</div>
+<footer class="footer doc-footer">
+  <div class="wrap">
+    <span>© stoke — MIT License</span>
+    <div class="footer-links">
+      <a href="../../../ko/getting-started/installation/">문서</a>
+      <a href="https://github.com/dvdsvds/stoke">GitHub</a>
+      <a href="../../../ko/faq/">FAQ</a>
+    </div>
+  </div>
+</footer>
+<script src="../../../assets/site.js" defer></script>
+</body>
+</html>

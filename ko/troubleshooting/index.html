@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>문제 해결 — stoke</title>
+<link rel="icon" href="../../assets/favicon-src.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/home.css">
+<link rel="stylesheet" href="../../assets/docs.css">
+</head>
+<body data-root="../../" data-lang="ko">
+<nav class="nav">
+  <div class="wrap">
+    <a class="nav-brand" href="../../"><img src="../../assets/logo-mark.png" alt="stoke">stoke</a>
+    <div class="nav-search">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input type="search" id="site-search" placeholder="문서 검색..." autocomplete="off" spellcheck="false">
+        <div id="search-results" class="search-results" hidden></div>
+      </div>
+    <div class="nav-links">
+      <div class="lang-switch"><a href="../../troubleshooting/">영어</a><span class="sep">|</span><a class="active" href=".">한국어</a></div>
+      <a class="nav-gh" href="https://github.com/dvdsvds/stoke"><svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>dvdsvds/stoke</a>
+    </div>
+  </div>
+</nav>
+<div class="doc-layout">
+  <div class="doc-sidebar-col"><nav class="side-nav">
+<div class="side-group">
+<button class="side-group-toggle" type="button">시작하기<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../ko/getting-started/installation/">설치</a></li>
+<li><a class="" href="../../ko/getting-started/quick-start/">빠른 시작</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">명령어<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../ko/commands/overview/">개요</a></li>
+<li><a class="" href="../../ko/commands/build/">build</a></li>
+<li><a class="" href="../../ko/commands/run/">run</a></li>
+<li><a class="" href="../../ko/commands/watch/">watch</a></li>
+<li><a class="" href="../../ko/commands/hot-reload/">hot-reload</a></li>
+<li><a class="" href="../../ko/commands/clean/">clean</a></li>
+<li><a class="" href="../../ko/commands/init/">init</a></li>
+<li><a class="" href="../../ko/commands/ide-sync/">ide-sync</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">언어<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../ko/languages/python/">Python</a></li>
+<li><a class="" href="../../ko/languages/java/">Java</a></li>
+<li><a class="" href="../../ko/languages/cpp/">C/C++</a></li>
+<li><a class="" href="../../ko/languages/go/">Go</a></li>
+<li><a class="" href="../../ko/languages/rust/">Rust</a></li>
+<li><a class="" href="../../ko/languages/kotlin/">Kotlin</a></li>
+<li><a class="" href="../../ko/languages/csharp/">C#</a></li>
+<li><a class="" href="../../ko/languages/ruby/">Ruby</a></li>
+<li><a class="" href="../../ko/languages/php/">PHP</a></li>
+<li><a class="" href="../../ko/languages/javascript/">JavaScript</a></li>
+<li><a class="" href="../../ko/languages/typescript/">TypeScript</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">설정<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../ko/configuration/stoke-toml/">stoke.toml</a></li>
+<li><a class="" href="../../ko/configuration/profiles/">프로파일</a></li>
+<li><a class="" href="../../ko/configuration/lock-file/">락 파일</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">고급<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../ko/advanced/vcpkg/">vcpkg</a></li>
+<li><a class="" href="../../ko/advanced/ide-integration/">IDE 연동</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">프레임워크<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../ko/frameworks/overview/">개요</a></li>
+<li><a class="" href="../../ko/frameworks/spring-boot/">Spring Boot</a></li>
+<li><a class="" href="../../ko/frameworks/fastapi/">FastAPI</a></li>
+<li><a class="" href="../../ko/frameworks/flask/">Flask</a></li>
+<li><a class="" href="../../ko/frameworks/django/">Django</a></li>
+<li><a class="" href="../../ko/frameworks/gin/">Gin</a></li>
+<li><a class="" href="../../ko/frameworks/echo/">Echo</a></li>
+<li><a class="" href="../../ko/frameworks/fiber/">Fiber</a></li>
+<li><a class="" href="../../ko/frameworks/chi/">Chi</a></li>
+<li><a class="" href="../../ko/frameworks/express/">Express</a></li>
+<li><a class="" href="../../ko/frameworks/fastify/">Fastify</a></li>
+<li><a class="" href="../../ko/frameworks/nextjs/">Next.js</a></li>
+<li><a class="" href="../../ko/frameworks/nestjs/">NestJS</a></li>
+<li><a class="" href="../../ko/frameworks/vite/">Vite</a></li>
+<li><a class="" href="../../ko/frameworks/nuxt/">Nuxt</a></li>
+<li><a class="" href="../../ko/frameworks/sveltekit/">SvelteKit</a></li>
+<li><a class="" href="../../ko/frameworks/hono/">Hono</a></li>
+<li><a class="" href="../../ko/frameworks/actix-web/">Actix-web</a></li>
+<li><a class="" href="../../ko/frameworks/axum/">Axum</a></li>
+<li><a class="" href="../../ko/frameworks/rocket/">Rocket</a></li>
+<li><a class="" href="../../ko/frameworks/ktor/">Ktor</a></li>
+<li><a class="" href="../../ko/frameworks/spring-boot-kotlin/">Spring Boot (Kotlin)</a></li>
+<li><a class="" href="../../ko/frameworks/aspnet-core/">ASP.NET Core</a></li>
+<li><a class="" href="../../ko/frameworks/sinatra/">Sinatra</a></li>
+<li><a class="" href="../../ko/frameworks/slim/">Slim</a></li>
+</ul></div>
+<div class="side-group"><a class="side-top active" href="../../ko/troubleshooting/">문제 해결</a></div>
+<div class="side-group"><a class="side-top" href="../../ko/faq/">자주 묻는 질문</a></div>
+</nav></div>
+  <main class="doc-content">
+    <article>
+<h1 id="_1">문제 해결</h1>
+<p>자주 발생하는 문제와 해결 방법입니다.</p>
+<h2 id="_2">빌드 에러</h2>
+<h3 id="stoketoml-not-found"><code>stoke.toml not found</code></h3>
+<p><strong>원인</strong>: 프로젝트 디렉토리 밖에서 stoke를 실행했습니다.</p>
+<p><strong>해결</strong>: <code>stoke.toml</code>이 있는 프로젝트 루트로 <code>cd</code> 하세요.</p>
+<h3 id="target-x-not-found-in-stoketoml"><code>target 'X' not found in stoke.toml</code></h3>
+<p><strong>원인</strong>: 지정한 타깃이 존재하지 않습니다.</p>
+<p><strong>해결</strong>: <code>stoke.toml</code>을 열어서 유효한 타깃을 확인하세요. 에러 출력에도 사용 가능한 타깃이 표시됩니다.</p>
+<h3 id="profile-x-not-found"><code>profile 'X' not found</code></h3>
+<p><strong>원인</strong>: 커스텀 프로파일이 <code>stoke.toml</code>에 없습니다.</p>
+<p><strong>해결</strong>: <code>stoke.toml</code>의 <code>[profiles.*]</code> 섹션을 확인하세요. <code>debug</code>, <code>release</code>, 그리고 직접 정의한 커스텀 프로파일만 유효합니다.</p>
+<h3 id="python-xy-not-found"><code>Python X.Y not found</code></h3>
+<p><strong>원인</strong>: <code>python_version</code>과 일치하는 Python이 설치되어 있지 않습니다.</p>
+<p><strong>해결</strong>:</p>
+<ol>
+<li>감지된 Python 확인: <code>stoke python list</code></li>
+<li>필요한 Python 버전 설치, 또는</li>
+<li><code>stoke.toml</code>의 <code>python_version</code>을 가지고 있는 버전으로 변경</li>
+</ol>
+<h3 id="jdk-x-not-found"><code>JDK X not found</code></h3>
+<p><strong>원인</strong>: 필요한 메이저 버전의 JDK가 없습니다.</p>
+<p><strong>해결</strong>:</p>
+<ol>
+<li>감지된 JDK 확인: <code>stoke java list</code></li>
+<li>맞는 JDK 설치 (Adoptium 권장: <a href="https://adoptium.net">adoptium.net</a>)</li>
+<li>필요하다면 <code>JAVA_HOME</code> 설정</li>
+<li>또는 <code>stoke.toml</code>의 <code>java_version</code> 변경</li>
+</ol>
+<h3 id="no-c-compiler-detected"><code>No C compiler detected</code></h3>
+<p><strong>원인</strong>: gcc/clang이 <code>PATH</code>에 없습니다.</p>
+<p><strong>해결</strong>:</p>
+<ul>
+<li><strong>Windows</strong>: MSYS2를 설치하고 <code>pacman -S mingw-w64-ucrt-x86_64-gcc</code> 실행. MSYS2 bin을 <code>PATH</code>에 추가.</li>
+<li><strong>macOS</strong>: Xcode Command Line Tools 설치: <code>xcode-select --install</code></li>
+<li><strong>Linux</strong>: <code>sudo apt install build-essential</code> (Ubuntu/Debian) 또는 해당 배포판 명령어</li>
+</ul>
+<h2 id="_3">런타임 에러</h2>
+<h3 id="stoke-run"><code>stoke run</code>이 조용히 실패함</h3>
+<p><strong>원인</strong>: 타깃이 아직 빌드되지 않았습니다.</p>
+<p><strong>해결</strong>: 먼저 <code>stoke build</code>를 실행하세요.</p>
+<h3 id="python-modulenotfounderror">Python: <code>ModuleNotFoundError</code></h3>
+<p><strong>원인</strong>: import 경로가 올바르게 설정되지 않았습니다.</p>
+<p><strong>해결</strong>:</p>
+<ul>
+<li>각 폴더에 <code>__init__.py</code>가 있는지 확인</li>
+<li><code>src/</code> 기준 전체 경로 사용: <code>from utils.helpers import ...</code></li>
+<li><a href="../../ko/languages/python/#source-layout">Python 소스 레이아웃</a> 확인</li>
+</ul>
+<h3 id="java-could-not-find-or-load-main-class">Java: <code>Could not find or load main class</code></h3>
+<p><strong>원인</strong>: <code>stoke.toml</code>의 <code>main_class</code>가 실제 클래스 이름과 다릅니다.</p>
+<p><strong>해결</strong>: 완전한 형태의 클래스 이름이 일치하는지 확인하세요. 예:</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// src/main/java/com/example/Main.java</span>
+<span class="kn">package</span><span class="w"> </span><span class="nn">com.example</span><span class="p">;</span>
+<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">Main</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="n">main_class</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"com.example.Main"</span><span class="w">    </span><span class="c1"># 완전한 형태</span>
+</code></pre></div>
+
+<h2 id="_4">캐시 / 락 관련 문제</h2>
+<h3 id="_5">외부 변경 후 빌드가 오래된 상태로 남음</h3>
+<p><strong>원인</strong>: <code>sources</code> 밖의 무언가를 변경했고(예: 파일 이동, 환경변수 변경), 캐시가 오래된 상태입니다.</p>
+<p><strong>해결</strong>: 강제 재빌드:</p>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>build<span class="w"> </span>--force
+</code></pre></div>
+
+<h3 id="_6">락 파일 불일치</h3>
+<p><strong>원인</strong>: 락 파일이 더 이상 존재하지 않는 도구/의존성을 참조하고 있습니다.</p>
+<p><strong>해결</strong>: 완전 초기화:</p>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>clean<span class="w"> </span>--all
+stoke<span class="w"> </span>build
+</code></pre></div>
+
+<h2 id="vcpkg">vcpkg 관련 문제</h2>
+<h3 id="_7">라이브러리 설치가 끝나지 않음</h3>
+<p><strong>원인</strong>: vcpkg는 소스에서 빌드합니다. Boost, Qt 같은 일부 라이브러리는 매우 오래 걸립니다.</p>
+<p><strong>해결</strong>: 기다려주세요. 처음 설치만 느리고, 이후 사용은 빠릅니다.</p>
+<h3 id="library-not-found">설치 후에도 <code>Library not found</code></h3>
+<p><strong>원인</strong>: vcpkg는 라이브러리를 설치했지만 stoke의 캐시가 오래된 상태입니다.</p>
+<p><strong>해결</strong>:</p>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>build<span class="w"> </span>--force
+</code></pre></div>
+
+<h3 id="vcpkg_1">vcpkg가 손상됨</h3>
+<p><strong>원인</strong>: 설치가 중단됐거나 시스템 문제.</p>
+<p><strong>해결</strong>:</p>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>uninstall<span class="w"> </span>vcpkg
+stoke<span class="w"> </span>install<span class="w"> </span>vcpkg
+stoke<span class="w"> </span>build<span class="w"> </span>--force
+</code></pre></div>
+
+<h2 id="ide">IDE 관련 문제</h2>
+<h3 id="vscode-python">VSCode가 잘못된 Python 인터프리터를 보여줌</h3>
+<p><strong>원인</strong>: VSCode Python 확장이 venv 대신 전역 Python을 선택했습니다.</p>
+<p><strong>해결</strong>:</p>
+<ol>
+<li><code>.vscode/settings.json</code>을 다시 생성하도록 <code>stoke build</code> 실행</li>
+<li>Ctrl+Shift+P → "Python: Select Interpreter" → <code>.stoke/python/&lt;target&gt;/venv/</code> 선택</li>
+</ol>
+<h3 id="vscode">일부 시스템에서 VSCode가 느려짐</h3>
+<p><strong>원인</strong>: 파일 감시자 또는 확장 프로그램 과부하.</p>
+<p><strong>해결</strong>:</p>
+<ol>
+<li><code>.vscode/settings.json</code>이 <code>.stoke/</code>를 제외하고 있는지 확인</li>
+<li>하드웨어 가속 비활성화: settings.json → <code>"disable-hardware-acceleration": true</code></li>
+<li>사용 안 하는 확장 비활성화</li>
+<li>VSCode 재시작</li>
+</ol>
+<p>관련 이슈: <a href="https://github.com/dvdsvds/stoke/issues">일부 시스템에서 VSCode가 느려짐</a></p>
+<h3 id="c-intellisense">C++ IntelliSense가 동작하지 않음</h3>
+<p><strong>원인</strong>: <code>compile_commands.json</code>이 없거나 IDE가 못 찾고 있습니다.</p>
+<p><strong>해결</strong>:</p>
+<ol>
+<li><code>stoke build</code>를 실행해서 <code>compile_commands.json</code> 생성</li>
+<li>사용하는 확장이 그걸 읽는지 확인 (Microsoft C/C++ 확장은 <code>.vscode/c_cpp_properties.json</code>을 읽고, clangd는 <code>compile_commands.json</code>을 읽음)</li>
+</ol>
+<h2 id="watch-hot-reload">watch / hot-reload 관련 문제</h2>
+<h3 id="_8">변경이 감지되지 않음</h3>
+<p><strong>원인</strong>: 파일이 <code>sources</code> glob 패턴 밖에 있습니다.</p>
+<p><strong>해결</strong>: <code>stoke.toml</code>의 <code>sources</code>가 모든 소스 파일을 포함하는지 확인하세요.</p>
+<h3 id="hot-reload">hot-reload가 재시작되지 않음</h3>
+<p><strong>원인</strong>: 프로세스가 깔끔하게 종료되지 않았거나 출력이 버퍼링되어 있습니다.</p>
+<p><strong>해결</strong>:</p>
+<ul>
+<li>다시 시도 (일시적인 문제일 수 있음)</li>
+<li>Python/Java의 경우, 프로그램이 SIGTERM/SIGINT를 제대로 처리하는지 확인</li>
+</ul>
+<h2 id="_9">그래도 해결이 안 된다면?</h2>
+<ul>
+<li>검색하거나 이슈 등록: <a href="https://github.com/dvdsvds/stoke/issues">github.com/dvdsvds/stoke/issues</a></li>
+<li><a href="../../ko/faq/">FAQ</a> 확인</li>
+</ul>
+    </article>
+  </main>
+  <div class="doc-toc-col"><nav class="page-toc"><div class="page-toc-title">On this page</div><ul>
+<li class=""><a href="#_2">빌드 에러</a></li>
+<li class="sub"><a href="#stoketoml-not-found">stoke.toml not found</a></li>
+<li class="sub"><a href="#target-x-not-found-in-stoketoml">target 'X' not found in stoke.toml</a></li>
+<li class="sub"><a href="#profile-x-not-found">profile 'X' not found</a></li>
+<li class="sub"><a href="#python-xy-not-found">Python X.Y not found</a></li>
+<li class="sub"><a href="#jdk-x-not-found">JDK X not found</a></li>
+<li class="sub"><a href="#no-c-compiler-detected">No C compiler detected</a></li>
+<li class=""><a href="#_3">런타임 에러</a></li>
+<li class="sub"><a href="#stoke-run">stoke run이 조용히 실패함</a></li>
+<li class="sub"><a href="#python-modulenotfounderror">Python: ModuleNotFoundError</a></li>
+<li class="sub"><a href="#java-could-not-find-or-load-main-class">Java: Could not find or load main class</a></li>
+<li class=""><a href="#_4">캐시 / 락 관련 문제</a></li>
+<li class="sub"><a href="#_5">외부 변경 후 빌드가 오래된 상태로 남음</a></li>
+<li class="sub"><a href="#_6">락 파일 불일치</a></li>
+<li class=""><a href="#vcpkg">vcpkg 관련 문제</a></li>
+<li class="sub"><a href="#_7">라이브러리 설치가 끝나지 않음</a></li>
+<li class="sub"><a href="#library-not-found">설치 후에도 Library not found</a></li>
+<li class="sub"><a href="#vcpkg_1">vcpkg가 손상됨</a></li>
+<li class=""><a href="#ide">IDE 관련 문제</a></li>
+<li class="sub"><a href="#vscode-python">VSCode가 잘못된 Python 인터프리터를 보여줌</a></li>
+<li class="sub"><a href="#vscode">일부 시스템에서 VSCode가 느려짐</a></li>
+<li class="sub"><a href="#c-intellisense">C++ IntelliSense가 동작하지 않음</a></li>
+<li class=""><a href="#watch-hot-reload">watch / hot-reload 관련 문제</a></li>
+<li class="sub"><a href="#_8">변경이 감지되지 않음</a></li>
+<li class="sub"><a href="#hot-reload">hot-reload가 재시작되지 않음</a></li>
+<li class=""><a href="#_9">그래도 해결이 안 된다면?</a></li>
+</ul></nav></div>
+</div>
+<footer class="footer doc-footer">
+  <div class="wrap">
+    <span>© stoke — MIT License</span>
+    <div class="footer-links">
+      <a href="../../ko/getting-started/installation/">문서</a>
+      <a href="https://github.com/dvdsvds/stoke">GitHub</a>
+      <a href="../../ko/faq/">FAQ</a>
+    </div>
+  </div>
+</footer>
+<script src="../../assets/site.js" defer></script>
+</body>
+</html>

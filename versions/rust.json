@@ -1,0 +1,21 @@
+{
+  "language": "rust",
+  "updated": "2026-08-29",
+  "note": "rust installs via rustup-init.exe with RUSTUP_HOME/CARGO_HOME redirected into the project's .stoke/toolchains/ folder, not a per-version archive. The download URL below is rustup-init.exe itself; --default-toolchain <version> picks the actual compiler version at install time.",
+  "versions": [
+    {
+      "version": "1.90.0",
+      "released": "2026-08-01",
+      "downloads": {
+        "windows-amd64": "https://static.rust-lang.org/rustup/dist/x86_64-pc-windows-msvc/rustup-init.exe"
+      }
+    },
+    {
+      "version": "1.82.0",
+      "released": "2025-10-17",
+      "downloads": {
+        "windows-amd64": "https://static.rust-lang.org/rustup/dist/x86_64-pc-windows-msvc/rustup-init.exe"
+      }
+    }
+  ]
+}

@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>stoke init — stoke</title>
+<link rel="icon" href="../../assets/favicon-src.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/home.css">
+<link rel="stylesheet" href="../../assets/docs.css">
+</head>
+<body data-root="../../" data-lang="en">
+<nav class="nav">
+  <div class="wrap">
+    <a class="nav-brand" href="../../"><img src="../../assets/logo-mark.png" alt="stoke">stoke</a>
+    <div class="nav-search">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input type="search" id="site-search" placeholder="Search docs..." autocomplete="off" spellcheck="false">
+        <div id="search-results" class="search-results" hidden></div>
+      </div>
+    <div class="nav-links">
+      <div class="lang-switch"><a class="active" href=".">영어</a><span class="sep">|</span><a href="../../ko/commands/init/">한국어</a></div>
+      <a class="nav-gh" href="https://github.com/dvdsvds/stoke"><svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>dvdsvds/stoke</a>
+    </div>
+  </div>
+</nav>
+<div class="doc-layout">
+  <div class="doc-sidebar-col"><nav class="side-nav">
+<div class="side-group">
+<button class="side-group-toggle" type="button">Getting Started<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../getting-started/installation/">Installation</a></li>
+<li><a class="" href="../../getting-started/quick-start/">Quick Start</a></li>
+</ul></div>
+<div class="side-group expanded">
+<button class="side-group-toggle" type="button">Commands<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../commands/overview/">Overview</a></li>
+<li><a class="" href="../../commands/build/">build</a></li>
+<li><a class="" href="../../commands/run/">run</a></li>
+<li><a class="" href="../../commands/watch/">watch</a></li>
+<li><a class="" href="../../commands/hot-reload/">hot-reload</a></li>
+<li><a class="" href="../../commands/clean/">clean</a></li>
+<li><a class="active" href="../../commands/init/">init</a></li>
+<li><a class="" href="../../commands/ide-sync/">ide-sync</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">Languages<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../languages/python/">Python</a></li>
+<li><a class="" href="../../languages/java/">Java</a></li>
+<li><a class="" href="../../languages/cpp/">C/C++</a></li>
+<li><a class="" href="../../languages/go/">Go</a></li>
+<li><a class="" href="../../languages/rust/">Rust</a></li>
+<li><a class="" href="../../languages/kotlin/">Kotlin</a></li>
+<li><a class="" href="../../languages/csharp/">C#</a></li>
+<li><a class="" href="../../languages/ruby/">Ruby</a></li>
+<li><a class="" href="../../languages/php/">PHP</a></li>
+<li><a class="" href="../../languages/javascript/">JavaScript</a></li>
+<li><a class="" href="../../languages/typescript/">TypeScript</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">Configuration<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../configuration/stoke-toml/">stoke.toml</a></li>
+<li><a class="" href="../../configuration/profiles/">Profiles</a></li>
+<li><a class="" href="../../configuration/lock-file/">Lock file</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">Advanced<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../advanced/vcpkg/">vcpkg</a></li>
+<li><a class="" href="../../advanced/ide-integration/">IDE Integration</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">Frameworks<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../frameworks/overview/">Overview</a></li>
+<li><a class="" href="../../frameworks/spring-boot/">Spring Boot</a></li>
+<li><a class="" href="../../frameworks/fastapi/">FastAPI</a></li>
+<li><a class="" href="../../frameworks/flask/">Flask</a></li>
+<li><a class="" href="../../frameworks/django/">Django</a></li>
+<li><a class="" href="../../frameworks/gin/">Gin</a></li>
+<li><a class="" href="../../frameworks/echo/">Echo</a></li>
+<li><a class="" href="../../frameworks/fiber/">Fiber</a></li>
+<li><a class="" href="../../frameworks/chi/">Chi</a></li>
+<li><a class="" href="../../frameworks/express/">Express</a></li>
+<li><a class="" href="../../frameworks/fastify/">Fastify</a></li>
+<li><a class="" href="../../frameworks/nextjs/">Next.js</a></li>
+<li><a class="" href="../../frameworks/nestjs/">NestJS</a></li>
+<li><a class="" href="../../frameworks/vite/">Vite</a></li>
+<li><a class="" href="../../frameworks/nuxt/">Nuxt</a></li>
+<li><a class="" href="../../frameworks/sveltekit/">SvelteKit</a></li>
+<li><a class="" href="../../frameworks/hono/">Hono</a></li>
+<li><a class="" href="../../frameworks/actix-web/">Actix-web</a></li>
+<li><a class="" href="../../frameworks/axum/">Axum</a></li>
+<li><a class="" href="../../frameworks/rocket/">Rocket</a></li>
+<li><a class="" href="../../frameworks/ktor/">Ktor</a></li>
+<li><a class="" href="../../frameworks/spring-boot-kotlin/">Spring Boot (Kotlin)</a></li>
+<li><a class="" href="../../frameworks/aspnet-core/">ASP.NET Core</a></li>
+<li><a class="" href="../../frameworks/sinatra/">Sinatra</a></li>
+<li><a class="" href="../../frameworks/slim/">Slim</a></li>
+</ul></div>
+<div class="side-group"><a class="side-top" href="../../troubleshooting/">Troubleshooting</a></div>
+<div class="side-group"><a class="side-top" href="../../faq/">FAQ</a></div>
+</nav></div>
+  <main class="doc-content">
+    <article>
+<h1 id="stoke-init">stoke init</h1>
+<p>Create a new stoke project interactively.</p>
+<h2 id="usage">Usage</h2>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>init
+</code></pre></div>
+
+<p>Runs an interactive wizard in the current directory.</p>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>init<span class="w"> </span>&lt;framework&gt;
+</code></pre></div>
+
+<p>Skips the wizard and scaffolds a specific framework directly (e.g. <code>stoke init fastapi</code>, <code>stoke init gin</code>). See <a href="../../frameworks/overview/">Framework scaffolding</a> for the full list.</p>
+<h2 id="what-it-does">What it does</h2>
+<p>The wizard asks:</p>
+<ol>
+<li><strong>Project name</strong> — defaults to the current folder name</li>
+<li><strong>Language</strong> — Python, Java, C, C++, Go, Rust, Kotlin, C#, Ruby, PHP, JavaScript, or TypeScript</li>
+<li><strong>Language version</strong> — Python 3.12, Java 25, C11, C++20, etc. (Go/JavaScript/TypeScript have no version prompt at all — they use whatever toolchain is on PATH; Kotlin prompts for a JDK version, reusing the Java detection; Rust/C#/Ruby/PHP prompt for an <em>optional</em> toolchain version pin — see <a href="#non-interactive-mode-ci-team-onboarding">Non-interactive mode</a> and the language pages for what gets generated)</li>
+<li><strong>Entry point / main class</strong> — depending on the language</li>
+<li><strong>Dependencies</strong> — optional</li>
+</ol>
+<p>Then it generates:</p>
+<ul>
+<li><code>stoke.toml</code> — project configuration</li>
+<li><code>src/</code> — source directory</li>
+<li>A hello-world source file</li>
+</ul>
+<h2 id="example-c-project">Example: C++ project</h2>
+<p>$ mkdir myapp &amp;&amp; cd myapp
+$ stoke init
+Project name [myapp]:
+Language [python/java/c/cpp]: cpp
+C++ standard [17/20/23] [20]:
+Executable name [myapp]:
+Install vcpkg for C/C++ library management? [y/N]: n
+Created:
+stoke.toml
+src/main.cpp
+Try:
+stoke build
+stoke run</p>
+<p>Generated <code>stoke.toml</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[project]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"myapp"</span>
+<span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"0.1.0"</span>
+
+<span class="k">[targets.myapp]</span>
+<span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"cpp"</span>
+<span class="n">sources</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"src/**/*.cpp"</span><span class="p">]</span>
+<span class="n">cpp_standard</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"c++20"</span>
+</code></pre></div>
+
+<h2 id="example-python-project">Example: Python project</h2>
+<p>$ mkdir myapp &amp;&amp; cd myapp
+$ stoke init
+Project name [myapp]:
+Language [python/java/c/cpp]: python
+Python version [3.10/3.11/3.12/3.13]: 3.12
+Entry file [src/main.py]:
+Created:
+stoke.toml
+src/main.py</p>
+<p>Generated <code>stoke.toml</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[project]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"myapp"</span>
+<span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"0.1.0"</span>
+
+<span class="k">[targets.myapp]</span>
+<span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"python"</span>
+<span class="n">python_version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"3.12"</span>
+<span class="n">entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"src/main.py"</span>
+<span class="n">sources</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"src/**/*.py"</span><span class="p">]</span>
+</code></pre></div>
+
+<h2 id="example-java-project">Example: Java project</h2>
+<p>$ mkdir myapp &amp;&amp; cd myapp
+$ stoke init
+Project name [myapp]:
+Language [python/java/c/cpp]: java
+Java version [17/21/25]: 25
+Package [com.myapp]:
+Main class [Main]:
+Created:
+stoke.toml
+src/main/java/com/myapp/Main.java</p>
+<p>Generated <code>stoke.toml</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[project]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"myapp"</span>
+<span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"0.1.0"</span>
+
+<span class="k">[targets.myapp]</span>
+<span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"java"</span>
+<span class="n">java_version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"25"</span>
+<span class="n">sources</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"src/main/java/**/*.java"</span><span class="p">]</span>
+<span class="n">main_class</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"com.myapp.Main"</span>
+</code></pre></div>
+
+<h2 id="non-interactive-mode-ci-team-onboarding">Non-interactive mode (CI / team onboarding)</h2>
+<p>For scripts, CI, or scaffolding tools where prompts aren't an option, pass <code>--language</code> and stoke skips the wizard entirely:</p>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>init<span class="w"> </span>--language<span class="o">=</span>rust<span class="w"> </span>--name<span class="o">=</span>myapp<span class="w"> </span>--version<span class="o">=</span><span class="m">1</span>.75.0<span class="w"> </span>--lock-mode<span class="o">=</span>commit<span class="w"> </span>--yes
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--language</code></td>
+<td>Required. One of: <code>python</code>, <code>java</code>, <code>c</code>, <code>cpp</code>, <code>go</code>, <code>rust</code>, <code>kotlin</code>, <code>csharp</code>, <code>ruby</code>, <code>php</code>, <code>javascript</code>, <code>typescript</code></td>
+</tr>
+<tr>
+<td><code>--name</code></td>
+<td>Project name. Defaults to the current folder name</td>
+</tr>
+<tr>
+<td><code>--version</code></td>
+<td>Meaning depends on the language (see table below). Omit to use a sensible default</td>
+</tr>
+<tr>
+<td><code>--env-type</code></td>
+<td><code>venv</code> or <code>conda</code>. Python only, defaults to <code>venv</code></td>
+</tr>
+<tr>
+<td><code>--lock-mode</code></td>
+<td><code>commit</code> or <code>local</code>. Defaults to <code>commit</code></td>
+</tr>
+<tr>
+<td><code>--vcpkg</code></td>
+<td>Install vcpkg if not already present. C/C++ only</td>
+</tr>
+<tr>
+<td><code>--yes</code></td>
+<td>Overwrite an existing <code>stoke.toml</code> without prompting. Without this flag, init fails loudly if <code>stoke.toml</code> already exists — safer for scripts than silently clobbering a teammate's config</td>
+</tr>
+</tbody>
+</table>
+<p><code>--version</code> per language:</p>
+<table>
+<thead>
+<tr>
+<th>Language</th>
+<th><code>--version</code> means</th>
+<th>Default if omitted</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Python</td>
+<td>Python version (e.g. <code>3.12</code>)</td>
+<td>System's default detected install</td>
+</tr>
+<tr>
+<td>Java</td>
+<td>JDK version (e.g. <code>21</code>)</td>
+<td>System's default detected install</td>
+</tr>
+<tr>
+<td>Kotlin</td>
+<td>JDK version, written as <code>java_version</code> in <code>stoke.toml</code></td>
+<td>System's default detected install</td>
+</tr>
+<tr>
+<td>C</td>
+<td>C standard (e.g. <code>c17</code>)</td>
+<td><code>c17</code></td>
+</tr>
+<tr>
+<td>C++</td>
+<td>C++ standard (e.g. <code>c++20</code>)</td>
+<td><code>c++17</code></td>
+</tr>
+<tr>
+<td>Rust</td>
+<td>Optional toolchain pin, written to <code>rust-toolchain.toml</code></td>
+<td>Not written (no pin)</td>
+</tr>
+<tr>
+<td>C#</td>
+<td>Optional SDK pin, written to <code>global.json</code></td>
+<td>Not written (no pin)</td>
+</tr>
+<tr>
+<td>Ruby</td>
+<td>Optional version pin, written to <code>.ruby-version</code></td>
+<td>Not written (no pin)</td>
+</tr>
+<tr>
+<td>PHP</td>
+<td>Optional version constraint, written into <code>composer.json</code>'s <code>require.php</code></td>
+<td>Not written (no pin)</td>
+</tr>
+<tr>
+<td>Go, JavaScript, TypeScript</td>
+<td>Not used</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p>Exit codes are meaningful (<code>0</code> success, non-zero failure), so this composes cleanly in onboarding scripts:</p>
+<div class="highlight"><pre><span></span><code><span class="ch">#!/usr/bin/env bash</span>
+<span class="nb">set</span><span class="w"> </span>-e
+mkdir<span class="w"> </span>myapp<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>myapp
+stoke<span class="w"> </span>init<span class="w"> </span>--language<span class="o">=</span>python<span class="w"> </span>--version<span class="o">=</span><span class="m">3</span>.12<span class="w"> </span>--lock-mode<span class="o">=</span>commit<span class="w"> </span>--yes
+stoke<span class="w"> </span>build
+</code></pre></div>
+
+<h2 id="version-pinning-for-team-consistency">Version pinning for team consistency</h2>
+<p>Rust, C#, Ruby, and PHP don't have their own version-manager concept the way Python/Java do in stoke, so <code>stoke init</code> can optionally write the ecosystem's own standard pin file — committed to git, it makes every teammate's <code>stoke build</code> use (or fail loudly without) the same toolchain version:</p>
+<ul>
+<li><strong>Rust</strong> → <code>rust-toolchain.toml</code> (read automatically by <code>rustup</code>)</li>
+<li><strong>C#</strong> → <code>global.json</code> (read automatically by the <code>dotnet</code> CLI)</li>
+<li><strong>Ruby</strong> → <code>.ruby-version</code> (read automatically by rbenv/rvm/asdf/chruby)</li>
+<li><strong>PHP</strong> → <code>composer.json</code>'s <code>require.php</code> constraint (enforced by <code>composer install</code>, which runs as part of <code>stoke build</code> once <code>composer.json</code> exists)</li>
+<li><strong>Kotlin</strong> → the existing <code>java_version</code> field in <code>stoke.toml</code> is enforced by stoke itself: <code>stoke build</code>/<code>stoke run</code> resolve a matching JDK and pass it to Gradle via <code>-Dorg.gradle.java.home</code>, failing with a clear error if no matching JDK is installed</li>
+</ul>
+<p>These prompts are optional in the interactive wizard (leave blank to skip) and only apply when <code>--version</code> is passed in non-interactive mode.</p>
+<h2 id="after-init">After init</h2>
+<p>Build and run:</p>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>build
+stoke<span class="w"> </span>run
+</code></pre></div>
+
+<h2 id="related">Related</h2>
+<ul>
+<li><a href="../../getting-started/quick-start/">Quick Start</a></li>
+<li><a href="../../configuration/stoke-toml/"><code>stoke.toml</code> reference</a></li>
+</ul>
+    </article>
+  </main>
+  <div class="doc-toc-col"><nav class="page-toc"><div class="page-toc-title">On this page</div><ul>
+<li class=""><a href="#usage">Usage</a></li>
+<li class=""><a href="#what-it-does">What it does</a></li>
+<li class=""><a href="#example-c-project">Example: C++ project</a></li>
+<li class=""><a href="#example-python-project">Example: Python project</a></li>
+<li class=""><a href="#example-java-project">Example: Java project</a></li>
+<li class=""><a href="#non-interactive-mode-ci-team-onboarding">Non-interactive mode (CI / team onboarding)</a></li>
+<li class=""><a href="#version-pinning-for-team-consistency">Version pinning for team consistency</a></li>
+<li class=""><a href="#after-init">After init</a></li>
+<li class=""><a href="#related">Related</a></li>
+</ul></nav></div>
+</div>
+<footer class="footer doc-footer">
+  <div class="wrap">
+    <span>© stoke — MIT License</span>
+    <div class="footer-links">
+      <a href="../../getting-started/installation/">Docs</a>
+      <a href="https://github.com/dvdsvds/stoke">GitHub</a>
+      <a href="../../faq/">FAQ</a>
+    </div>
+  </div>
+</footer>
+<script src="../../assets/site.js" defer></script>
+</body>
+</html>

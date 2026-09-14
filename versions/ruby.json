@@ -1,0 +1,27 @@
+{
+  "language": "ruby",
+  "updated": "2026-08-29",
+  "versions": [
+    {
+      "version": "3.4.10",
+      "released": "2026-07-02",
+      "downloads": {
+        "windows-amd64": "https://github.com/oneclick/rubyinstaller2/releases/download/RubyInstaller-3.4.10-1/rubyinstaller-3.4.10-1-x64.7z"
+      }
+    },
+    {
+      "version": "3.3.12",
+      "released": "2026-07-21",
+      "downloads": {
+        "windows-amd64": "https://github.com/oneclick/rubyinstaller2/releases/download/RubyInstaller-3.3.12-1/rubyinstaller-3.3.12-1-x64.7z"
+      }
+    },
+    {
+      "version": "3.2.11",
+      "released": "2026-03-27",
+      "downloads": {
+        "windows-amd64": "https://github.com/oneclick/rubyinstaller2/releases/download/RubyInstaller-3.2.11-1/rubyinstaller-3.2.11-1-x64.7z"
+      }
+    }
+  ]
+}

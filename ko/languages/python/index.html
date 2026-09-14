@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Python — stoke</title>
+<link rel="icon" href="../../../assets/favicon-src.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/home.css">
+<link rel="stylesheet" href="../../../assets/docs.css">
+</head>
+<body data-root="../../../" data-lang="ko">
+<nav class="nav">
+  <div class="wrap">
+    <a class="nav-brand" href="../../../"><img src="../../../assets/logo-mark.png" alt="stoke">stoke</a>
+    <div class="nav-search">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input type="search" id="site-search" placeholder="문서 검색..." autocomplete="off" spellcheck="false">
+        <div id="search-results" class="search-results" hidden></div>
+      </div>
+    <div class="nav-links">
+      <div class="lang-switch"><a href="../../../languages/python/">영어</a><span class="sep">|</span><a class="active" href=".">한국어</a></div>
+      <a class="nav-gh" href="https://github.com/dvdsvds/stoke"><svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>dvdsvds/stoke</a>
+    </div>
+  </div>
+</nav>
+<div class="doc-layout">
+  <div class="doc-sidebar-col"><nav class="side-nav">
+<div class="side-group">
+<button class="side-group-toggle" type="button">시작하기<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../../ko/getting-started/installation/">설치</a></li>
+<li><a class="" href="../../../ko/getting-started/quick-start/">빠른 시작</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">명령어<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../../ko/commands/overview/">개요</a></li>
+<li><a class="" href="../../../ko/commands/build/">build</a></li>
+<li><a class="" href="../../../ko/commands/run/">run</a></li>
+<li><a class="" href="../../../ko/commands/watch/">watch</a></li>
+<li><a class="" href="../../../ko/commands/hot-reload/">hot-reload</a></li>
+<li><a class="" href="../../../ko/commands/clean/">clean</a></li>
+<li><a class="" href="../../../ko/commands/init/">init</a></li>
+<li><a class="" href="../../../ko/commands/ide-sync/">ide-sync</a></li>
+</ul></div>
+<div class="side-group expanded">
+<button class="side-group-toggle" type="button">언어<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="active" href="../../../ko/languages/python/">Python</a></li>
+<li><a class="" href="../../../ko/languages/java/">Java</a></li>
+<li><a class="" href="../../../ko/languages/cpp/">C/C++</a></li>
+<li><a class="" href="../../../ko/languages/go/">Go</a></li>
+<li><a class="" href="../../../ko/languages/rust/">Rust</a></li>
+<li><a class="" href="../../../ko/languages/kotlin/">Kotlin</a></li>
+<li><a class="" href="../../../ko/languages/csharp/">C#</a></li>
+<li><a class="" href="../../../ko/languages/ruby/">Ruby</a></li>
+<li><a class="" href="../../../ko/languages/php/">PHP</a></li>
+<li><a class="" href="../../../ko/languages/javascript/">JavaScript</a></li>
+<li><a class="" href="../../../ko/languages/typescript/">TypeScript</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">설정<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../../ko/configuration/stoke-toml/">stoke.toml</a></li>
+<li><a class="" href="../../../ko/configuration/profiles/">프로파일</a></li>
+<li><a class="" href="../../../ko/configuration/lock-file/">락 파일</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">고급<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../../ko/advanced/vcpkg/">vcpkg</a></li>
+<li><a class="" href="../../../ko/advanced/ide-integration/">IDE 연동</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">프레임워크<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../../ko/frameworks/overview/">개요</a></li>
+<li><a class="" href="../../../ko/frameworks/spring-boot/">Spring Boot</a></li>
+<li><a class="" href="../../../ko/frameworks/fastapi/">FastAPI</a></li>
+<li><a class="" href="../../../ko/frameworks/flask/">Flask</a></li>
+<li><a class="" href="../../../ko/frameworks/django/">Django</a></li>
+<li><a class="" href="../../../ko/frameworks/gin/">Gin</a></li>
+<li><a class="" href="../../../ko/frameworks/echo/">Echo</a></li>
+<li><a class="" href="../../../ko/frameworks/fiber/">Fiber</a></li>
+<li><a class="" href="../../../ko/frameworks/chi/">Chi</a></li>
+<li><a class="" href="../../../ko/frameworks/express/">Express</a></li>
+<li><a class="" href="../../../ko/frameworks/fastify/">Fastify</a></li>
+<li><a class="" href="../../../ko/frameworks/nextjs/">Next.js</a></li>
+<li><a class="" href="../../../ko/frameworks/nestjs/">NestJS</a></li>
+<li><a class="" href="../../../ko/frameworks/vite/">Vite</a></li>
+<li><a class="" href="../../../ko/frameworks/nuxt/">Nuxt</a></li>
+<li><a class="" href="../../../ko/frameworks/sveltekit/">SvelteKit</a></li>
+<li><a class="" href="../../../ko/frameworks/hono/">Hono</a></li>
+<li><a class="" href="../../../ko/frameworks/actix-web/">Actix-web</a></li>
+<li><a class="" href="../../../ko/frameworks/axum/">Axum</a></li>
+<li><a class="" href="../../../ko/frameworks/rocket/">Rocket</a></li>
+<li><a class="" href="../../../ko/frameworks/ktor/">Ktor</a></li>
+<li><a class="" href="../../../ko/frameworks/spring-boot-kotlin/">Spring Boot (Kotlin)</a></li>
+<li><a class="" href="../../../ko/frameworks/aspnet-core/">ASP.NET Core</a></li>
+<li><a class="" href="../../../ko/frameworks/sinatra/">Sinatra</a></li>
+<li><a class="" href="../../../ko/frameworks/slim/">Slim</a></li>
+</ul></div>
+<div class="side-group"><a class="side-top" href="../../../ko/troubleshooting/">문제 해결</a></div>
+<div class="side-group"><a class="side-top" href="../../../ko/faq/">자주 묻는 질문</a></div>
+</nav></div>
+  <main class="doc-content">
+    <article>
+<h1 id="python">Python</h1>
+<p>stoke는 venv 생성, 의존성 설치, 문법 검사를 통해 Python 프로젝트를 관리합니다.</p>
+<h2 id="stoketoml"><code>stoke.toml</code> 예시</h2>
+<div class="highlight"><pre><span></span><code><span class="k">[project]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"myapp"</span>
+<span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"0.1.0"</span>
+
+<span class="k">[targets.myapp]</span>
+<span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"python"</span>
+<span class="n">python_version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"3.12"</span>
+<span class="n">entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"src/main.py"</span>
+<span class="n">sources</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"src/**/*.py"</span><span class="p">]</span>
+
+<span class="k">[targets.myapp.deps]</span>
+<span class="n">requests</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"*"</span>
+<span class="n">flask</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"&gt;=2.0"</span>
+</code></pre></div>
+
+<h2 id="target">Target 필드</h2>
+<table>
+<thead>
+<tr>
+<th>필드</th>
+<th>필수</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>language</code></td>
+<td>예</td>
+<td><code>"python"</code></td>
+</tr>
+<tr>
+<td><code>python_version</code></td>
+<td>아니오</td>
+<td>필요한 Python 버전 (예: <code>"3.12"</code>)</td>
+</tr>
+<tr>
+<td><code>entry</code></td>
+<td>예</td>
+<td><code>stoke run</code> 실행 스크립트 경로</td>
+</tr>
+<tr>
+<td><code>sources</code></td>
+<td>아니오</td>
+<td>문법 검사할 파일 glob 패턴</td>
+</tr>
+<tr>
+<td><code>deps</code></td>
+<td>아니오</td>
+<td>pip 의존성</td>
+</tr>
+</tbody>
+</table>
+<h2 id="python_1">Python 버전 감지</h2>
+<p>특정 버전을 요구하려면 <code>python_version</code> 설정:</p>
+<div class="highlight"><pre><span></span><code><span class="n">python_version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"3.12"</span><span class="w">        </span><span class="c1"># 3.12.x 요구</span>
+<span class="n">python_version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"3.12.5"</span><span class="w">      </span><span class="c1"># 정확히 3.12.5 요구</span>
+</code></pre></div>
+
+<p>stoke가 Python을 찾는 순서:</p>
+<ol>
+<li><code>PATH</code> (<code>python3.12</code>, <code>python3</code>, <code>python</code>)</li>
+<li><code>py</code> launcher (Windows)</li>
+<li>표준 설치 경로 (<code>%LOCALAPPDATA%\Programs\Python\...</code>, <code>/usr/bin/python3.X</code> 등)</li>
+</ol>
+<p>일치하는 Python이 없으면 stoke는 감지된 Python 목록과 함께 종료합니다.</p>
+<p>사용 가능한 Python 확인:</p>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>python<span class="w"> </span>list
+</code></pre></div>
+
+<h2 id="venv">venv</h2>
+<p>stoke는 프로젝트별 venv를 다음 위치에 생성:</p>
+<div class="highlight"><pre><span></span><code>.stoke/python/{target}/venv/
+</code></pre></div>
+
+<p>venv는 Python 버전별. <code>python_version</code>을 변경하면 재생성됩니다.</p>
+<h2 id="_1">의존성</h2>
+<p><code>[targets.&lt;name&gt;.deps]</code>에 pip 의존성 선언:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[targets.myapp.deps]</span>
+<span class="n">requests</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"*"</span><span class="w">                 </span><span class="c1"># 모든 버전</span>
+<span class="n">flask</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"&gt;=2.0"</span><span class="w">                </span><span class="c1"># 버전 제약</span>
+<span class="n">numpy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"==1.24.3"</span><span class="w">             </span><span class="c1"># 정확한 버전</span>
+<span class="n">mypackage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"git+https://..."</span><span class="w">  </span><span class="c1"># VCS</span>
+</code></pre></div>
+
+<p><code>stoke build</code> 시 stoke가 하는 일:</p>
+<ol>
+<li>venv에 설치된 패키지 확인</li>
+<li>선언된 deps와 lock 파일과 비교</li>
+<li>필요한 경우 설치/업데이트</li>
+<li>잠긴 버전을 <code>.stoke/lock.toml</code>에 기록</li>
+</ol>
+<p>이후 빌드는 venv가 lock 파일과 일치하면 설치 스킵.</p>
+<h2 id="source-layout">소스 레이아웃</h2>
+<p>stoke는 표준 Python 규칙을 사용. 프로젝트 루트에서 import 가능하도록 구성:</p>
+<div class="highlight"><pre><span></span><code>myapp/
+├── stoke.toml
+└── src/
+    ├── main.py
+    ├── utils/
+    │   ├── __init__.py
+    │   └── helpers.py
+    └── models/
+        ├── __init__.py
+        └── user.py
+</code></pre></div>
+
+<p><code>main.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">utils.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">greet</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">models.user</span><span class="w"> </span><span class="kn">import</span> <span class="n">User</span>
+</code></pre></div>
+
+<p><code>src/</code> 기준으로 전체 경로 사용. 각 서브폴더에 <code>__init__.py</code> 필요.</p>
+<p>stoke가 실행 시 <code>PYTHONPATH</code>를 자동 설정.</p>
+<h2 id="_2">문법 검사</h2>
+<p><code>stoke build</code>는 <code>sources</code>에 매칭되는 모든 파일에 <code>py_compile</code>을 실행:</p>
+<div class="highlight"><pre><span></span><code>Building 'myapp' (python)...
+Using Python 3.12.12
+Checked 3 file(s), all passed
+Build complete: myapp
+</code></pre></div>
+
+<p>에러는 파일별로 표시:</p>
+<div class="highlight"><pre><span></span><code>FAIL  src\main.py
+SyntaxError: unexpected EOF while parsing
+</code></pre></div>
+
+<h2 id="_3">실행</h2>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>run
+</code></pre></div>
+
+<p>venv의 Python과 올바른 <code>PYTHONPATH</code>로 <code>entry</code> 실행.</p>
+<h2 id="ide">IDE 통합</h2>
+<p>stoke가 <code>.vscode/settings.json</code> 자동 생성:</p>
+<ul>
+<li>Python 인터프리터를 venv로 설정</li>
+<li>import를 위한 추가 경로</li>
+<li>파일 제외 (<code>.stoke/</code>, <code>__pycache__/</code>)</li>
+</ul>
+<h2 id="_4">관련 문서</h2>
+<ul>
+<li><a href="../../../ko/commands/build/"><code>stoke build</code></a></li>
+<li><a href="../../../ko/commands/run/"><code>stoke run</code></a></li>
+<li><a href="../../../ko/configuration/lock-file/">Lock file</a></li>
+</ul>
+    </article>
+  </main>
+  <div class="doc-toc-col"><nav class="page-toc"><div class="page-toc-title">On this page</div><ul>
+<li class=""><a href="#stoketoml">stoke.toml 예시</a></li>
+<li class=""><a href="#target">Target 필드</a></li>
+<li class=""><a href="#python_1">Python 버전 감지</a></li>
+<li class=""><a href="#venv">venv</a></li>
+<li class=""><a href="#_1">의존성</a></li>
+<li class=""><a href="#source-layout">소스 레이아웃</a></li>
+<li class=""><a href="#_2">문법 검사</a></li>
+<li class=""><a href="#_3">실행</a></li>
+<li class=""><a href="#ide">IDE 통합</a></li>
+<li class=""><a href="#_4">관련 문서</a></li>
+</ul></nav></div>
+</div>
+<footer class="footer doc-footer">
+  <div class="wrap">
+    <span>© stoke — MIT License</span>
+    <div class="footer-links">
+      <a href="../../../ko/getting-started/installation/">문서</a>
+      <a href="https://github.com/dvdsvds/stoke">GitHub</a>
+      <a href="../../../ko/faq/">FAQ</a>
+    </div>
+  </div>
+</footer>
+<script src="../../../assets/site.js" defer></script>
+</body>
+</html>

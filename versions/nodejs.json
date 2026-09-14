@@ -1,0 +1,29 @@
+{
+  "language": "nodejs",
+  "updated": "2026-07-23",
+  "note": "Node.js JavaScript runtime",
+  "versions": [
+    {
+      "version": "26.5.0",
+      "released": "2026-07-15",
+      "description": "Latest",
+      "downloads": {
+        "windows-amd64": "https://nodejs.org/dist/v26.5.0/node-v26.5.0-win-x64.zip",
+        "macos-amd64": "https://nodejs.org/dist/v26.5.0/node-v26.5.0-darwin-x64.tar.gz",
+        "macos-arm64": "https://nodejs.org/dist/v26.5.0/node-v26.5.0-darwin-arm64.tar.gz",
+        "linux-amd64": "https://nodejs.org/dist/v26.5.0/node-v26.5.0-linux-x64.tar.gz"
+      }
+    },
+    {
+      "version": "26.4.0",
+      "released": "2026-06-15",
+      "description": "Previous",
+      "downloads": {
+        "windows-amd64": "https://nodejs.org/dist/v26.4.0/node-v26.4.0-win-x64.zip",
+        "macos-amd64": "https://nodejs.org/dist/v26.4.0/node-v26.4.0-darwin-x64.tar.gz",
+        "macos-arm64": "https://nodejs.org/dist/v26.4.0/node-v26.4.0-darwin-arm64.tar.gz",
+        "linux-amd64": "https://nodejs.org/dist/v26.4.0/node-v26.4.0-linux-x64.tar.gz"
+      }
+    }
+  ]
+}

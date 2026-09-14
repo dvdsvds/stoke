@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>프레임워크 스캐폴딩 — stoke</title>
+<link rel="icon" href="../../../assets/favicon-src.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/home.css">
+<link rel="stylesheet" href="../../../assets/docs.css">
+</head>
+<body data-root="../../../" data-lang="ko">
+<nav class="nav">
+  <div class="wrap">
+    <a class="nav-brand" href="../../../"><img src="../../../assets/logo-mark.png" alt="stoke">stoke</a>
+    <div class="nav-search">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input type="search" id="site-search" placeholder="문서 검색..." autocomplete="off" spellcheck="false">
+        <div id="search-results" class="search-results" hidden></div>
+      </div>
+    <div class="nav-links">
+      <div class="lang-switch"><a href="../../../frameworks/overview/">영어</a><span class="sep">|</span><a class="active" href=".">한국어</a></div>
+      <a class="nav-gh" href="https://github.com/dvdsvds/stoke"><svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>dvdsvds/stoke</a>
+    </div>
+  </div>
+</nav>
+<div class="doc-layout">
+  <div class="doc-sidebar-col"><nav class="side-nav">
+<div class="side-group">
+<button class="side-group-toggle" type="button">시작하기<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../../ko/getting-started/installation/">설치</a></li>
+<li><a class="" href="../../../ko/getting-started/quick-start/">빠른 시작</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">명령어<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../../ko/commands/overview/">개요</a></li>
+<li><a class="" href="../../../ko/commands/build/">build</a></li>
+<li><a class="" href="../../../ko/commands/run/">run</a></li>
+<li><a class="" href="../../../ko/commands/watch/">watch</a></li>
+<li><a class="" href="../../../ko/commands/hot-reload/">hot-reload</a></li>
+<li><a class="" href="../../../ko/commands/clean/">clean</a></li>
+<li><a class="" href="../../../ko/commands/init/">init</a></li>
+<li><a class="" href="../../../ko/commands/ide-sync/">ide-sync</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">언어<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../../ko/languages/python/">Python</a></li>
+<li><a class="" href="../../../ko/languages/java/">Java</a></li>
+<li><a class="" href="../../../ko/languages/cpp/">C/C++</a></li>
+<li><a class="" href="../../../ko/languages/go/">Go</a></li>
+<li><a class="" href="../../../ko/languages/rust/">Rust</a></li>
+<li><a class="" href="../../../ko/languages/kotlin/">Kotlin</a></li>
+<li><a class="" href="../../../ko/languages/csharp/">C#</a></li>
+<li><a class="" href="../../../ko/languages/ruby/">Ruby</a></li>
+<li><a class="" href="../../../ko/languages/php/">PHP</a></li>
+<li><a class="" href="../../../ko/languages/javascript/">JavaScript</a></li>
+<li><a class="" href="../../../ko/languages/typescript/">TypeScript</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">설정<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../../ko/configuration/stoke-toml/">stoke.toml</a></li>
+<li><a class="" href="../../../ko/configuration/profiles/">프로파일</a></li>
+<li><a class="" href="../../../ko/configuration/lock-file/">락 파일</a></li>
+</ul></div>
+<div class="side-group">
+<button class="side-group-toggle" type="button">고급<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="" href="../../../ko/advanced/vcpkg/">vcpkg</a></li>
+<li><a class="" href="../../../ko/advanced/ide-integration/">IDE 연동</a></li>
+</ul></div>
+<div class="side-group expanded">
+<button class="side-group-toggle" type="button">프레임워크<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+<ul class="side-group-list">
+<li><a class="active" href="../../../ko/frameworks/overview/">개요</a></li>
+<li><a class="" href="../../../ko/frameworks/spring-boot/">Spring Boot</a></li>
+<li><a class="" href="../../../ko/frameworks/fastapi/">FastAPI</a></li>
+<li><a class="" href="../../../ko/frameworks/flask/">Flask</a></li>
+<li><a class="" href="../../../ko/frameworks/django/">Django</a></li>
+<li><a class="" href="../../../ko/frameworks/gin/">Gin</a></li>
+<li><a class="" href="../../../ko/frameworks/echo/">Echo</a></li>
+<li><a class="" href="../../../ko/frameworks/fiber/">Fiber</a></li>
+<li><a class="" href="../../../ko/frameworks/chi/">Chi</a></li>
+<li><a class="" href="../../../ko/frameworks/express/">Express</a></li>
+<li><a class="" href="../../../ko/frameworks/fastify/">Fastify</a></li>
+<li><a class="" href="../../../ko/frameworks/nextjs/">Next.js</a></li>
+<li><a class="" href="../../../ko/frameworks/nestjs/">NestJS</a></li>
+<li><a class="" href="../../../ko/frameworks/vite/">Vite</a></li>
+<li><a class="" href="../../../ko/frameworks/nuxt/">Nuxt</a></li>
+<li><a class="" href="../../../ko/frameworks/sveltekit/">SvelteKit</a></li>
+<li><a class="" href="../../../ko/frameworks/hono/">Hono</a></li>
+<li><a class="" href="../../../ko/frameworks/actix-web/">Actix-web</a></li>
+<li><a class="" href="../../../ko/frameworks/axum/">Axum</a></li>
+<li><a class="" href="../../../ko/frameworks/rocket/">Rocket</a></li>
+<li><a class="" href="../../../ko/frameworks/ktor/">Ktor</a></li>
+<li><a class="" href="../../../ko/frameworks/spring-boot-kotlin/">Spring Boot (Kotlin)</a></li>
+<li><a class="" href="../../../ko/frameworks/aspnet-core/">ASP.NET Core</a></li>
+<li><a class="" href="../../../ko/frameworks/sinatra/">Sinatra</a></li>
+<li><a class="" href="../../../ko/frameworks/slim/">Slim</a></li>
+</ul></div>
+<div class="side-group"><a class="side-top" href="../../../ko/troubleshooting/">문제 해결</a></div>
+<div class="side-group"><a class="side-top" href="../../../ko/faq/">자주 묻는 질문</a></div>
+</nav></div>
+  <main class="doc-content">
+    <article>
+<h1 id="_1">프레임워크 스캐폴딩</h1>
+<p>stoke는 인기 프레임워크의 실행 가능한 프로젝트를 명령어 하나로 생성합니다:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Java</span>
+stoke<span class="w"> </span>init<span class="w"> </span>spring-boot
+
+<span class="c1"># Python</span>
+stoke<span class="w"> </span>init<span class="w"> </span>fastapi
+stoke<span class="w"> </span>init<span class="w"> </span>flask
+stoke<span class="w"> </span>init<span class="w"> </span>django
+
+<span class="c1"># Go</span>
+stoke<span class="w"> </span>init<span class="w"> </span>gin
+stoke<span class="w"> </span>init<span class="w"> </span><span class="nb">echo</span>
+stoke<span class="w"> </span>init<span class="w"> </span>fiber
+stoke<span class="w"> </span>init<span class="w"> </span>chi
+
+<span class="c1"># JavaScript</span>
+stoke<span class="w"> </span>init<span class="w"> </span>express
+stoke<span class="w"> </span>init<span class="w"> </span>fastify
+
+<span class="c1"># TypeScript</span>
+stoke<span class="w"> </span>init<span class="w"> </span>nextjs
+stoke<span class="w"> </span>init<span class="w"> </span>nestjs
+stoke<span class="w"> </span>init<span class="w"> </span>vite
+stoke<span class="w"> </span>init<span class="w"> </span>nuxt
+stoke<span class="w"> </span>init<span class="w"> </span>sveltekit
+stoke<span class="w"> </span>init<span class="w"> </span>hono
+
+<span class="c1"># Rust</span>
+stoke<span class="w"> </span>init<span class="w"> </span>actix-web
+stoke<span class="w"> </span>init<span class="w"> </span>axum
+stoke<span class="w"> </span>init<span class="w"> </span>rocket
+
+<span class="c1"># Kotlin</span>
+stoke<span class="w"> </span>init<span class="w"> </span>ktor
+stoke<span class="w"> </span>init<span class="w"> </span>spring-boot-kotlin
+
+<span class="c1"># C#</span>
+stoke<span class="w"> </span>init<span class="w"> </span>aspnet-core
+
+<span class="c1"># Ruby</span>
+stoke<span class="w"> </span>init<span class="w"> </span>sinatra
+
+<span class="c1"># PHP</span>
+stoke<span class="w"> </span>init<span class="w"> </span>slim
+</code></pre></div>
+
+<p>각 명령어는 기본 설정을 대화형으로 받고 샘플 코드와 함께 프로젝트 구조를 생성합니다.</p>
+<h2 id="_2">지원 프레임워크</h2>
+<h3 id="java">Java</h3>
+<table>
+<thead>
+<tr>
+<th>명령어</th>
+<th>프레임워크</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>stoke init spring-boot</code></td>
+<td>Spring Boot (Spring Initializr 사용)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="python">Python</h3>
+<table>
+<thead>
+<tr>
+<th>명령어</th>
+<th>프레임워크</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>stoke init fastapi</code></td>
+<td>FastAPI + uvicorn</td>
+</tr>
+<tr>
+<td><code>stoke init flask</code></td>
+<td>Flask + Jinja2 템플릿</td>
+</tr>
+<tr>
+<td><code>stoke init django</code></td>
+<td>Django (프로젝트 + 앱 전체 구조)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="go">Go</h3>
+<table>
+<thead>
+<tr>
+<th>명령어</th>
+<th>프레임워크</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>stoke init gin</code></td>
+<td>Gin — 인기 있는 고성능 HTTP 프레임워크</td>
+</tr>
+<tr>
+<td><code>stoke init echo</code></td>
+<td>Echo — 미니멀, 고성능</td>
+</tr>
+<tr>
+<td><code>stoke init fiber</code></td>
+<td>Fiber — Express 스타일 API</td>
+</tr>
+<tr>
+<td><code>stoke init chi</code></td>
+<td>Chi — 표준 라이브러리 기반 경량 라우터</td>
+</tr>
+</tbody>
+</table>
+<h3 id="javascript">JavaScript</h3>
+<table>
+<thead>
+<tr>
+<th>명령어</th>
+<th>프레임워크</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>stoke init express</code></td>
+<td>Express — 클래식 Node.js 웹 프레임워크</td>
+</tr>
+<tr>
+<td><code>stoke init fastify</code></td>
+<td>Fastify — 빠르고 오버헤드 적음</td>
+</tr>
+</tbody>
+</table>
+<h3 id="typescript">TypeScript</h3>
+<table>
+<thead>
+<tr>
+<th>명령어</th>
+<th>프레임워크</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>stoke init nextjs</code></td>
+<td>Next.js — React 풀스택</td>
+</tr>
+<tr>
+<td><code>stoke init nestjs</code></td>
+<td>NestJS — Angular 스타일 백엔드</td>
+</tr>
+<tr>
+<td><code>stoke init vite</code></td>
+<td>Vite — 빠른 프론트엔드 빌드 도구</td>
+</tr>
+<tr>
+<td><code>stoke init nuxt</code></td>
+<td>Nuxt — Vue 풀스택</td>
+</tr>
+<tr>
+<td><code>stoke init sveltekit</code></td>
+<td>SvelteKit — Svelte 풀스택</td>
+</tr>
+<tr>
+<td><code>stoke init hono</code></td>
+<td>Hono — 엣지 컴퓨팅 프레임워크</td>
+</tr>
+</tbody>
+</table>
+<h3 id="rust">Rust</h3>
+<table>
+<thead>
+<tr>
+<th>명령어</th>
+<th>프레임워크</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>stoke init actix-web</code></td>
+<td>Actix-web — 성숙하고 고성능인 프레임워크</td>
+</tr>
+<tr>
+<td><code>stoke init axum</code></td>
+<td>Axum — Tokio 팀이 만든 Tokio 기반 프레임워크</td>
+</tr>
+<tr>
+<td><code>stoke init rocket</code></td>
+<td>Rocket — 사용 편의성 중심 프레임워크</td>
+</tr>
+</tbody>
+</table>
+<h3 id="kotlin">Kotlin</h3>
+<table>
+<thead>
+<tr>
+<th>명령어</th>
+<th>프레임워크</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>stoke init ktor</code></td>
+<td>Ktor — 경량, 코루틴 기반 프레임워크</td>
+</tr>
+<tr>
+<td><code>stoke init spring-boot-kotlin</code></td>
+<td>Kotlin DSL + kotlin-spring 플러그인 사용 Spring Boot</td>
+</tr>
+</tbody>
+</table>
+<h3 id="c">C</h3>
+<table>
+<thead>
+<tr>
+<th>명령어</th>
+<th>프레임워크</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>stoke init aspnet-core</code></td>
+<td>ASP.NET Core — minimal API 템플릿</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ruby">Ruby</h3>
+<table>
+<thead>
+<tr>
+<th>명령어</th>
+<th>프레임워크</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>stoke init sinatra</code></td>
+<td>Sinatra — 경량 웹 앱 DSL</td>
+</tr>
+</tbody>
+</table>
+<h3 id="php">PHP</h3>
+<table>
+<thead>
+<tr>
+<th>명령어</th>
+<th>프레임워크</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>stoke init slim</code></td>
+<td>Slim Framework — 경량 PSR-7 마이크로 프레임워크</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">생성되는 것</h2>
+<p>각 프레임워크별 페이지에서 확인:</p>
+<p><strong>Java:</strong>
+- <a href="../../../ko/frameworks/spring-boot/">Spring Boot</a></p>
+<p><strong>Python:</strong>
+- <a href="../../../ko/frameworks/fastapi/">FastAPI</a>
+- <a href="../../../ko/frameworks/flask/">Flask</a>
+- <a href="../../../ko/frameworks/django/">Django</a></p>
+<p><strong>Go:</strong>
+- <a href="../../../ko/frameworks/gin/">Gin</a>
+- <a href="../../../ko/frameworks/echo/">Echo</a>
+- <a href="../../../ko/frameworks/fiber/">Fiber</a>
+- <a href="../../../ko/frameworks/chi/">Chi</a></p>
+<p><strong>JavaScript:</strong>
+- <a href="../../../ko/frameworks/express/">Express</a>
+- <a href="../../../ko/frameworks/fastify/">Fastify</a></p>
+<p><strong>TypeScript:</strong>
+- <a href="../../../ko/frameworks/nextjs/">Next.js</a>
+- <a href="../../../ko/frameworks/nestjs/">NestJS</a>
+- <a href="../../../ko/frameworks/vite/">Vite</a>
+- <a href="../../../ko/frameworks/nuxt/">Nuxt</a>
+- <a href="../../../ko/frameworks/sveltekit/">SvelteKit</a>
+- <a href="../../../ko/frameworks/hono/">Hono</a></p>
+<p><strong>Rust:</strong>
+- <a href="../../../ko/frameworks/actix-web/">Actix-web</a>
+- <a href="../../../ko/frameworks/axum/">Axum</a>
+- <a href="../../../ko/frameworks/rocket/">Rocket</a></p>
+<p><strong>Kotlin:</strong>
+- <a href="../../../ko/frameworks/ktor/">Ktor</a>
+- <a href="../../../ko/frameworks/spring-boot-kotlin/">Spring Boot (Kotlin)</a></p>
+<p><strong>C#:</strong>
+- <a href="../../../ko/frameworks/aspnet-core/">ASP.NET Core</a></p>
+<p><strong>Ruby:</strong>
+- <a href="../../../ko/frameworks/sinatra/">Sinatra</a></p>
+<p><strong>PHP:</strong>
+- <a href="../../../ko/frameworks/slim/">Slim Framework</a></p>
+<h2 id="_4">스캐폴딩 후</h2>
+<p><strong>Python, Go, JavaScript 프레임워크 (Express, Fastify), Rust, Ruby (Sinatra)</strong>는 동일한 워크플로우:</p>
+<div class="highlight"><pre><span></span><code>stoke<span class="w"> </span>build
+stoke<span class="w"> </span>run
+</code></pre></div>
+
+<p><strong>Spring Boot (Java 또는 Kotlin)</strong>는 Maven 또는 Gradle 사용:</p>
+<div class="highlight"><pre><span></span><code>mvnw<span class="w"> </span>spring-boot:run<span class="w">       </span><span class="c1"># Linux/macOS (Java, Maven)</span>
+mvnw.cmd<span class="w"> </span>spring-boot:run<span class="w">   </span><span class="c1"># Windows (Java, Maven)</span>
+gradlew<span class="w"> </span>bootRun<span class="w">            </span><span class="c1"># Linux/macOS (Kotlin, 또는 Java+Gradle)</span>
+gradlew.bat<span class="w"> </span>bootRun<span class="w">        </span><span class="c1"># Windows</span>
+</code></pre></div>
+
+<p><strong>Kotlin (Ktor)</strong>과 <strong>C# (ASP.NET Core)</strong>는 위 컴파일 언어들과 동일하게 <code>stoke build</code> / <code>stoke run</code> 그대로 사용.</p>
+<p><strong>PHP (Slim)</strong>은 <code>stoke build</code> 이후 PHP 내장 개발 서버가 필요 — <a href="../../../ko/frameworks/slim/">Slim 프레임워크 페이지</a> 참조.</p>
+<p><strong>TypeScript 프레임워크 (Next.js, NestJS, Vite, Nuxt, SvelteKit, Hono)</strong>는 각 프레임워크 명령어 사용:</p>
+<div class="highlight"><pre><span></span><code>npm<span class="w"> </span>run<span class="w"> </span>dev<span class="w">     </span><span class="c1"># 개발</span>
+npm<span class="w"> </span>run<span class="w"> </span>build<span class="w">   </span><span class="c1"># 프로덕션</span>
+</code></pre></div>
+
+<p>stoke는 공식 스캐폴딩 도구 (<code>create-next-app</code>, <code>@nestjs/cli</code>, <code>nuxi</code>, <code>sv create</code> 등)를 호출하므로 최신 프로젝트 템플릿을 얻습니다.</p>
+    </article>
+  </main>
+  <div class="doc-toc-col"><nav class="page-toc"><div class="page-toc-title">On this page</div><ul>
+<li class=""><a href="#_2">지원 프레임워크</a></li>
+<li class="sub"><a href="#java">Java</a></li>
+<li class="sub"><a href="#python">Python</a></li>
+<li class="sub"><a href="#go">Go</a></li>
+<li class="sub"><a href="#javascript">JavaScript</a></li>
+<li class="sub"><a href="#typescript">TypeScript</a></li>
+<li class="sub"><a href="#rust">Rust</a></li>
+<li class="sub"><a href="#kotlin">Kotlin</a></li>
+<li class="sub"><a href="#c">C</a></li>
+<li class="sub"><a href="#ruby">Ruby</a></li>
+<li class="sub"><a href="#php">PHP</a></li>
+<li class=""><a href="#_3">생성되는 것</a></li>
+<li class=""><a href="#_4">스캐폴딩 후</a></li>
+</ul></nav></div>
+</div>
+<footer class="footer doc-footer">
+  <div class="wrap">
+    <span>© stoke — MIT License</span>
+    <div class="footer-links">
+      <a href="../../../ko/getting-started/installation/">문서</a>
+      <a href="https://github.com/dvdsvds/stoke">GitHub</a>
+      <a href="../../../ko/faq/">FAQ</a>
+    </div>
+  </div>
+</footer>
+<script src="../../../assets/site.js" defer></script>
+</body>
+</html>
