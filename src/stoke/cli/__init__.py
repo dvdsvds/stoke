@@ -2,6 +2,7 @@
 import argparse
 import sys
 
+from stoke import __version__
 from stoke.cli.messages import get_message as _
 
 from stoke.cli.utils import resolve_profile_from_args, add_debug_release_profile_args
@@ -92,6 +93,11 @@ def _build_parser():
     parser = argparse.ArgumentParser(
         prog="stoke",
         description=_("prog.description")
+    )
+    parser.add_argument(
+        "-V", "--version",
+        action="version",
+        version=f"stoke {__version__}",
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
