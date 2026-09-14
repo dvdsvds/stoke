@@ -1,9 +1,27 @@
 """Kotlin 프로젝트 초기화 로직."""
+import json
 import subprocess
 import shutil
+import urllib.error
+import urllib.request
 from pathlib import Path
 
 from stoke.languages.java.init import _select_java_version as _select_kotlin_jdk
+
+def _current_gradle_version() -> str | None:
+    """
+    Gradle 공식 API로 현재 안정 버전 조회.
+    Debian/Ubuntu의 apt gradle 패키지가 아주 오래된 버전(예: 4.4.1)인 경우가 흔해서,
+    시스템 gradle로 그냥 `gradle wrapper`를 돌리면 그 오래된 버전 그대로 wrapper가
+    찍혀 최신 JDK와 호환이 깨짐. 항상 최신 안정 버전을 명시적으로 지정해서 우회.
+    네트워크 실패 시 None 반환 (호출 쪽에서 시스템 gradle 버전으로 폴백).
+    """
+    try:
+        req = urllib.request.Request("https://services.gradle.org/versions/current")
+        with urllib.request.urlopen(req, timeout=10) as response:
+            return json.loads(response.read().decode("utf-8"))["version"]
+    except (urllib.error.URLError, TimeoutError, KeyError, json.JSONDecodeError):
+        return None
 
 def _write_stoke_toml_kotlin(
     path: Path,
@@ -40,8 +58,12 @@ def _write_example_kotlin(project_root: Path, project_name: str) -> None:
 
     gradle_exe = shutil.which("gradle")
     if gradle_exe:
+        wrapper_cmd = [gradle_exe, "wrapper"]
+        gradle_version = _current_gradle_version()
+        if gradle_version:
+            wrapper_cmd += ["--gradle-version", gradle_version]
         subprocess.run(
-            [gradle_exe, "wrapper"],
+            wrapper_cmd,
             cwd=str(project_root),
             capture_output=True,
         )

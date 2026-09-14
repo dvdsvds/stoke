@@ -1,5 +1,8 @@
 import subprocess
 import sys
+import tempfile
+import urllib.error
+import urllib.request
 from pathlib import Path
 from dataclasses import dataclass
 
@@ -19,6 +22,43 @@ from stoke.languages.python.versions import (
     find_matching,
     _get_version,
 )
+
+
+def _is_missing_ensurepip(result: subprocess.CompletedProcess) -> bool:
+    """Debian/Ubuntu의 `python -m venv` 실패 메시지("ensurepip is not available")를 감지."""
+    # venv의 실제 에러 메시지는 79컬럼에서 줄바꿈되어 있어서
+    # ("ensurepip is not\navailable") 공백 정규화 후 비교해야 함.
+    combined = " ".join(f"{result.stdout} {result.stderr}".lower().split())
+    return "ensurepip is not available" in combined
+
+
+def _bootstrap_pip_via_get_pip(venv_python: Path) -> None:
+    """pip 없이 만들어진 venv에 bootstrap.pypa.io/get-pip.py로 pip을 직접 설치."""
+    with tempfile.NamedTemporaryFile(suffix="_get-pip.py", delete=False) as f:
+        get_pip_path = Path(f.name)
+    try:
+        with urllib.request.urlopen("https://bootstrap.pypa.io/get-pip.py", timeout=30) as response:
+            get_pip_path.write_bytes(response.read())
+        result = subprocess.run(
+            [str(venv_python), str(get_pip_path), "--no-warn-script-location"],
+            capture_output=True,
+            text=True,
+            errors="replace",
+        )
+        if result.returncode != 0:
+            raise RuntimeError(
+                f"Failed to bootstrap pip via get-pip.py:\n"
+                f"stdout: {result.stdout}\n"
+                f"stderr: {result.stderr}"
+            )
+    except urllib.error.URLError as e:
+        raise RuntimeError(
+            f"Could not download get-pip.py to bootstrap pip (needs network access): {e}\n"
+            f"Install the matching python3-venv apt package instead, or run offline "
+            f"with a Python distribution that already includes ensurepip."
+        )
+    finally:
+        get_pip_path.unlink(missing_ok=True)
 
 @dataclass
 class SyntaxCheckResult:
@@ -354,11 +394,36 @@ class PythonAdapter(BaseAdapter):
             text=True,
             errors="replace",
         )
+        if result.returncode != 0 and not is_embeddable and _is_missing_ensurepip(result):
+            # Debian/Ubuntu는 ensurepip을 python3-venv라는 별도 apt 패키지로 쪼개놔서,
+            # 그게 없으면 pip이 빠진 venv가 아니라 `-m venv` 자체가 실패함
+            # (Windows/macOS 공식 배포판은 ensurepip이 항상 같이 들어있어 이 경로를 안 탐).
+            # venv를 pip 없이 만들고 get-pip.py로 직접 부트스트랩해서 우회.
+            print(
+                "  System Python is missing ensurepip (Debian/Ubuntu split it into "
+                "python3-venv); creating venv without pip and bootstrapping via get-pip.py"
+            )
+            result = subprocess.run(
+                [str(python.executable), "-m", "venv", "--without-pip", str(self.venv_dir)],
+                capture_output=True,
+                text=True,
+                errors="replace",
+            )
+            if result.returncode != 0:
+                raise RuntimeError(
+                    f"venv creation failed even without pip:\n"
+                    f"stdout: {result.stdout}\n"
+                    f"stderr: {result.stderr}"
+                )
+            _bootstrap_pip_via_get_pip(self.venv_python_exe())
+            return
         if result.returncode != 0:
             raise RuntimeError(
                 f"venv creation failed:\n"
                 f"stdout: {result.stdout}\n"
-                f"stderr: {result.stderr}"
+                f"stderr: {result.stderr}\n"
+                f"On Debian/Ubuntu this usually means the matching python3-venv package "
+                f"isn't installed (e.g. `sudo apt install python3.{python.version.split('.')[1]}-venv`)."
             )
 
         # 2. pip이 설치 안 됐으면 ensurepip으로 강제 설치

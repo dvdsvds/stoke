@@ -59,13 +59,18 @@ def fetch_versions(language: str, base_url: str | None = None) -> dict:
         raise RuntimeError(f"Invalid JSON from {url}: {e}")
 
 def get_platform_key() -> str:
-    """현재 플랫폼의 다운로드 키 반환."""
+    """
+    현재 플랫폼의 다운로드 키 반환.
+    go/java/nodejs의 versions JSON은 리눅스 빌드를 "linux-amd64" 키로 올려두는데
+    (arm64 리눅스는 아직 호스팅 안 됨), 예전엔 여기서 그냥 "linux"를 반환해서
+    실제로 존재하는 리눅스 다운로드를 못 찾는 버그가 있었음.
+    """
     if sys.platform == "win32":
         return "windows-amd64"
     elif sys.platform == "darwin":
         return "macos"
     else:
-        return "linux"
+        return "linux-amd64"
 
 
 def find_version(versions_data: dict, requested: str) -> dict | None:

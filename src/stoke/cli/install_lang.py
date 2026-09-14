@@ -4,6 +4,7 @@ import subprocess
 import urllib.request
 import tempfile
 import zipfile
+import tarfile
 import shutil
 from pathlib import Path
 from stoke.install_versions import fetch_versions, find_version, get_platform_key
@@ -112,8 +113,7 @@ def cmd_install_language(language: str, version: str, base_url: str | None = Non
     elif sys.platform == "darwin":
         _install_macos(installer_path)
     else:
-        print("Error: Linux installation not supported yet", file=sys.stderr)
-        sys.exit(1)
+        _install_linux(installer_path, api_language, version_info["version"], project_root)
 
 
 def _download(url: str) -> Path:
@@ -373,6 +373,42 @@ def _install_macos(installer_path: Path):
     print("Please follow the installer wizard.")
     subprocess.run(["open", str(installer_path)], check=False)
     print("After installation, run 'stoke python list' to verify.")
+
+def _install_linux(installer_path: Path, language: str = None, version: str = None, project_root: Path = None):
+    """
+    Linux 다운로드 설치. go/java/nodejs 등은 .tar.gz/.tar.xz 하나로 xcopy하듯
+    풀기만 하면 되는 배포판이라 Windows의 zip 경로와 동일하게 프로젝트의
+    .stoke/toolchains/ 안에 풀고 PATH는 건드리지 않음 —
+    stoke build/run이 stoke.toml에 pin된 버전을 보고 이 경로를 직접 찾아 씀.
+    """
+    dest = _toolchains_dir(project_root) / f"{language}-{version}"
+    name = installer_path.name.lower()
+
+    if language == "rust":
+        _install_rust(installer_path, dest, version)
+        print(f"\n{language} {version} installed to: {dest}")
+        _print_local_hint(dest)
+        return
+
+    if name.endswith((".tar.gz", ".tgz", ".tar.xz", ".tar.bz2", ".tar")):
+        _extract_tar(installer_path, dest)
+        print(f"\n{language} {version} installed to: {dest}")
+        _print_local_hint(dest)
+    else:
+        print(f"Error: unsupported installer format: {installer_path.suffix}", file=sys.stderr)
+        sys.exit(1)
+
+def _extract_tar(tar_path: Path, dest: Path) -> None:
+    """.tar.gz/.tar.xz/.tar.bz2 파일을 dest에 압축 해제 (실행 권한 비트 유지)."""
+    print(f"Extracting to {dest}...")
+    dest.mkdir(parents=True, exist_ok=True)
+
+    try:
+        with tarfile.open(tar_path) as tf:
+            tf.extractall(dest)
+    except tarfile.TarError as e:
+        print(f"Error: invalid tar archive: {e}", file=sys.stderr)
+        sys.exit(1)
 
 def cmd_list_language_versions(language: str, base_url: str | None = None):
     """stoke install --language=X --list [--base-url=<url>]"""
