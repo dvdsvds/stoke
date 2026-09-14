@@ -119,6 +119,69 @@ def remove_dep(toml_path: Path, target_name: str, lib_name: str) -> bool:
     return True
 
 
+def add_source_exclude(toml_path: Path, target_name: str, exclude_pattern: str) -> None:
+    """
+    stoke.toml의 [targets.<target_name>]에 있는 sources 배열에 exclude_pattern
+    (예: "!client/**")을 추가. 이미 있으면 아무것도 안 함, sources 필드가 아예
+    없으면(언어가 sources 개념이 없는 경우 등) 아무것도 안 함.
+    """
+    content = toml_path.read_text(encoding="utf-8")
+    section_match = re.search(
+        r"^\[targets\." + re.escape(target_name) + r"\]\s*$",
+        content,
+        re.MULTILINE,
+    )
+    if section_match is None:
+        return
+
+    section_start = section_match.end()
+    next_section_match = re.search(r"^\[", content[section_start:], re.MULTILINE)
+    section_end = section_start + next_section_match.start() if next_section_match else len(content)
+    section_body = content[section_start:section_end]
+
+    sources_pattern = re.compile(r"^sources\s*=\s*\[(.*)\][ \t]*$", re.MULTILINE)
+    match = sources_pattern.search(section_body)
+    if match is None or f'"{exclude_pattern}"' in match.group(1):
+        return
+
+    inner = match.group(1).rstrip()
+    if inner:
+        new_inner = f'{inner}, "{exclude_pattern}"'
+    else:
+        new_inner = f'"{exclude_pattern}"'
+    new_section_body = sources_pattern.sub(f"sources = [{new_inner}]", section_body, count=1)
+
+    content = content[:section_start] + new_section_body + content[section_end:]
+    toml_path.write_text(content, encoding="utf-8")
+
+def remove_source_exclude(toml_path: Path, target_name: str, exclude_pattern: str) -> None:
+    """add_source_exclude()로 추가한 exclude_pattern을 sources 배열에서 제거."""
+    content = toml_path.read_text(encoding="utf-8")
+    section_match = re.search(
+        r"^\[targets\." + re.escape(target_name) + r"\]\s*$",
+        content,
+        re.MULTILINE,
+    )
+    if section_match is None:
+        return
+
+    section_start = section_match.end()
+    next_section_match = re.search(r"^\[", content[section_start:], re.MULTILINE)
+    section_end = section_start + next_section_match.start() if next_section_match else len(content)
+    section_body = content[section_start:section_end]
+
+    sources_pattern = re.compile(r"^sources\s*=\s*\[(.*)\][ \t]*$", re.MULTILINE)
+    match = sources_pattern.search(section_body)
+    if match is None or f'"{exclude_pattern}"' not in match.group(1):
+        return
+
+    items = [item.strip() for item in match.group(1).split(",") if item.strip()]
+    items = [item for item in items if item != f'"{exclude_pattern}"']
+    new_section_body = sources_pattern.sub(f"sources = [{', '.join(items)}]", section_body, count=1)
+
+    content = content[:section_start] + new_section_body + content[section_end:]
+    toml_path.write_text(content, encoding="utf-8")
+
 def remove_target(toml_path: Path, target_name: str) -> bool:
     """
     stoke.toml에서 [targets.<target_name>] 테이블과 그 하위 테이블

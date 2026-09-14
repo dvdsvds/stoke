@@ -139,11 +139,22 @@ class CBaseAdapter(BaseAdapter):
         return None
 
     def collect_source_files(self) -> list[Path]:
-        """sources 패턴에서 소스 파일 목록 수집."""
+        """
+        sources 패턴에서 소스 파일 목록 수집.
+        "!"로 시작하는 패턴은 제외 규칙 (예: "!client/**") -- 멀티 타겟 프로젝트에서
+        sources가 프로젝트 전체를 보는 타겟이 다른 타겟의 서브디렉토리를 같이
+        컴파일해버리는 걸 막기 위해 stoke init이 자동으로 추가함.
+        """
+        include_patterns = [p for p in self.target.sources if not p.startswith("!")]
+        exclude_patterns = [p[1:] for p in self.target.sources if p.startswith("!")]
+        excluded_paths = set()
+        for pattern in exclude_patterns:
+            excluded_paths.update(p.resolve() for p in self.project_root.glob(pattern))
+
         collected = []
         seen = set()
 
-        for pattern in self.target.sources:
+        for pattern in include_patterns:
             matched = list(self.project_root.glob(pattern))
             for path in matched:
                 if not path.is_file():
@@ -158,7 +169,7 @@ class CBaseAdapter(BaseAdapter):
                     pass
 
                 real = path.resolve()
-                if real in seen:
+                if real in seen or real in excluded_paths:
                     continue
                 seen.add(real)
                 collected.append(path)

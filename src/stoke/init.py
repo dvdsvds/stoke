@@ -7,7 +7,7 @@ from pathlib import Path
 
 from stoke.languages.python.versions import detect_all, PythonInstall
 from stoke.prompts import _prompt, _prompt_choice, _prompt_yes_no
-from stoke.toml_editor import remove_target
+from stoke.toml_editor import remove_target, add_source_exclude, remove_source_exclude
 from stoke.languages.python.init import (
     _select_python_version,
     _select_env_type,
@@ -225,6 +225,31 @@ def _prefix_target_paths(table: dict, prefix: str) -> dict:
                 result[field] = f"{prefix}/{value}"
     return result
 
+def _exclude_new_target_from_sibling_c_cpp(stoke_toml_path: Path, target_name: str) -> None:
+    """
+    C/C++ 타겟을 새로 추가할 때, 이미 있는 다른 c/cpp 타겟의 sources가 프로젝트
+    전체를 보는 패턴(stoke init 기본값 "**/*.c(pp)")이면 새 타겟의 서브디렉토리를
+    자기 컴파일 대상으로 끌어들여버림 -- "multiple definition of main" 링크
+    에러로 실제 재현된 문제. 새 타겟 디렉토리를 제외하도록 기존 타겟들을 패치.
+    """
+    with open(stoke_toml_path, "rb") as f:
+        data = tomllib.load(f)
+    exclude_pattern = f"!{target_name}/**"
+    for name, table in data.get("targets", {}).items():
+        if name == target_name or table.get("language") not in ("c", "cpp"):
+            continue
+        add_source_exclude(stoke_toml_path, name, exclude_pattern)
+
+def _remove_target_exclude_from_sibling_c_cpp(stoke_toml_path: Path, target_name: str) -> None:
+    """_exclude_new_target_from_sibling_c_cpp()의 반대: 타겟 제거 시 남은 exclude 규칙 정리."""
+    with open(stoke_toml_path, "rb") as f:
+        data = tomllib.load(f)
+    exclude_pattern = f"!{target_name}/**"
+    for name, table in data.get("targets", {}).items():
+        if table.get("language") not in ("c", "cpp"):
+            continue
+        remove_source_exclude(stoke_toml_path, name, exclude_pattern)
+
 def _add_target_flow(cwd: Path, stoke_toml_path: Path) -> None:
     """
     기존 stoke.toml에 새 타겟을 추가.
@@ -328,6 +353,9 @@ def _add_target_flow(cwd: Path, stoke_toml_path: Path) -> None:
             _write_example_javascript(target_root)
         elif language == "typescript":
             _write_example_typescript(target_root)
+
+        if language in ("c", "cpp"):
+            _exclude_new_target_from_sibling_c_cpp(stoke_toml_path, target_name)
     elif language == "go":
         # sources/entry 필드가 없어서 경로 접두어는 필요 없음 -- GoAdapter가
         # <target_name>/ 서브디렉토리를 알아서 찾아 빌드함 (go.mod는 프로젝트
@@ -382,6 +410,8 @@ def _unregister_target_from_root_files(cwd: Path, target_name: str, language: st
         _remove_gradle_module(cwd / "settings.gradle.kts", target_name)
     elif language == "csharp":
         _remove_csproj_exclude(cwd, target_name)
+    elif language in ("c", "cpp"):
+        _remove_target_exclude_from_sibling_c_cpp(cwd / "stoke.toml", target_name)
 
 def _remove_target_flow(cwd: Path, stoke_toml_path: Path) -> None:
     """
