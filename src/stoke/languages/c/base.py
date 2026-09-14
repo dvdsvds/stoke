@@ -189,11 +189,13 @@ class CBaseAdapter(BaseAdapter):
     def _include_dirs(self, compiler: CompilerInstall | None = None) -> list[Path]:
         """
         Include 경로 자동 수집.
+        - 프로젝트 루트 (루트 기준 경로로 어디서든 include 가능: "include_test/foo.hpp" 등.
+          파일명만 flat하게 쓰는 건 여전히 안 됨 -- 이름 충돌 위험 때문에 의도적으로 안 함)
         - 소스 폴더 (헤더 함께 있는 경우 대비)
         - 프로젝트 루트의 include/ 폴더
         - stoke.toml의 includes 필드에 명시된 것
         """
-        includes = []
+        includes = [self.project_root]
 
         # 소스 폴더
         for src_dir in self._source_dirs():
