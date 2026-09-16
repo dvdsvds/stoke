@@ -5,6 +5,7 @@ import tempfile
 import tomllib
 from pathlib import Path
 
+from stoke import __version__
 from stoke.languages.python.versions import detect_all, PythonInstall
 from stoke.prompts import _prompt, _prompt_choice, _prompt_yes_no
 from stoke.languages.python.init import (
@@ -143,6 +144,19 @@ def _select_language() -> str:
     )
     return languages[selected]
 
+_BANNER = r"""
+            __            __
+    _____  / /_  ____    / /__  ___
+   / ___/ / __/ / __ \  / //_/ / _ \
+  (__  ) / /_  / /_/ / / ,<   /  __/
+ /____/  \__/  \____/ /_/|_|  \___/
+"""
+
+def _print_banner() -> None:
+    print(f"\033[1;38;5;208m{_BANNER}\033[0m")
+    print(f"\033[2m v{__version__} — Build, run, and scaffold projects in multiple languages")
+    print(f" https://dvdsvds.github.io/stoke/\033[0m\n")
+
 def cmd_init() -> None:
     """대화형 프로젝트 초기화."""
     cwd = Path.cwd()
@@ -155,7 +169,7 @@ def cmd_init() -> None:
             print("Aborted.")
             return
 
-    print("\n=== stoke project setup ===\n")
+    _print_banner()
 
     # 1. 프로젝트 이름
     default_name = cwd.name

@@ -3,7 +3,7 @@ import sys
 from pathlib import Path
 
 from stoke.languages.python.versions import PythonInstall
-from stoke.prompts import _prompt, _prompt_choice
+from stoke.prompts import _prompt_choice
 
 def _select_python_version(installs: list[PythonInstall]) -> str:
     """감지된 파이썬 중 하나 선택. 선택된 버전의 'major.minor' 문자열 반환."""
@@ -28,14 +28,12 @@ def _select_python_version(installs: list[PythonInstall]) -> str:
 
 def _select_env_type() -> str:
     """venv 또는 conda 선택."""
-    print()
-    print("Python environment type:")
-    print("  1. venv (default) - standard Python virtual environment")
-    print("  2. conda - use conda environments (requires conda installed)")
-    choice = _prompt("Select (1-2)", "1")
-    if choice.strip() == "2":
-        return "conda"
-    return "venv"
+    choices = [
+        "venv   - standard Python virtual environment",
+        "conda  - use conda environments (requires conda installed)",
+    ]
+    selected = _prompt_choice("Python environment type:", choices, default_index=0)
+    return "conda" if selected == 1 else "venv"
 
 def _write_stoke_toml_python(
     path: Path,
