@@ -18,7 +18,7 @@ def _select_python_version(installs: list[PythonInstall]) -> str:
         if install.is_default:
             default_index = i
     selected_index = _prompt_choice(
-        "Select Python version:",
+        "Select Python version",
         choices,
         default_index=default_index,
     )
@@ -32,7 +32,7 @@ def _select_env_type() -> str:
         "venv   - standard Python virtual environment",
         "conda  - use conda environments (requires conda installed)",
     ]
-    selected = _prompt_choice("Python environment type:", choices, default_index=0)
+    selected = _prompt_choice("Python environment type", choices, default_index=0)
     return "conda" if selected == 1 else "venv"
 
 def _write_stoke_toml_python(

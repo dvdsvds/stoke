@@ -16,7 +16,7 @@ def _select_java_version() -> str:
     for install in installs:
         choices.append(f"Java {install.version} ({install.java_home})")
     selected = _prompt_choice(
-        "JDK:",
+        "JDK",
         choices,
         default_index=0,
     )

@@ -8,7 +8,7 @@ def _select_cpp_standard() -> str:
     choices = ["c++17", "c++20", "c++23", "c++14", "c++11"]
     standards = ["c++17", "c++20", "c++23", "c++14", "c++11"]
     selected = _prompt_choice(
-        "C++ standard:",
+        "C++ standard",
         choices,
         default_index=0,
     )

@@ -4,8 +4,18 @@
 실제 터미널이 아니거나(파이프/리다이렉트, CI) questionary를 쓸 수 없으면
 기존의 번호 입력 방식으로 자동 폴백한다.
 """
+import re
 import sys
 from pathlib import Path
+
+def _short_choice_label(choice: str) -> str:
+    """선택지 문자열에서 설명 부분을 뺀 짧은 이름만 뽑아낸다.
+
+    "commit  - Lock file ..." -> "commit", "C++         (.cpp)" -> "C++"
+    """
+    if " - " in choice:
+        return choice.split(" - ", 1)[0].rstrip()
+    return re.split(r"\s{2,}", choice, maxsplit=1)[0].rstrip()
 
 try:
     import questionary
@@ -17,6 +27,7 @@ try:
     from prompt_toolkit.styles import Style as PTStyle
     from prompt_toolkit.widgets import Label, TextArea
     from prompt_toolkit.widgets.base import Border as _PTBorder
+    from questionary.prompts import common as _questionary_common
     from questionary.prompts.common import InquirerControl as _InquirerControl
 
     # questionary의 선택 목록은 현재 커서가 있는 항목에 "[SetCursorPosition]"
@@ -47,6 +58,26 @@ try:
 
     _InquirerControl._is_selected = _is_selected_checked_only
 
+    # select()에서 선택을 마치면 목록이 사라지고 "? 질문 답변" 한 줄만 남는데,
+    # 이때 questionary는 답변으로 목록에 보여줬던 설명 포함 전체 문구를 그대로
+    # 쓴다. 목록에서는 설명까지 다 보이게 두고, 답변 줄에는 짧은 이름만 남도록
+    # 그 한 줄을 만드는 함수를 감싸서 마지막 answer 토큰만 교체한다.
+    _original_create_inquirer_layout = _questionary_common.create_inquirer_layout
+
+    def _create_inquirer_layout_short_answer(ic, get_prompt_tokens, **kwargs):
+        def _get_prompt_tokens_short_answer():
+            tokens = get_prompt_tokens()
+            if tokens and tokens[-1][0] == "class:answer":
+                style, text = tokens[-1]
+                tokens[-1] = (style, _short_choice_label(text))
+            return tokens
+
+        return _original_create_inquirer_layout(
+            ic, _get_prompt_tokens_short_answer, **kwargs
+        )
+
+    _questionary_common.create_inquirer_layout = _create_inquirer_layout_short_answer
+
     # 기본 각진 모서리(┌┐└┘) 대신 둥근 모서리(╭╮╰╯) 사용 -- gum 스타일
     _PTBorder.TOP_LEFT = "╭"
     _PTBorder.TOP_RIGHT = "╮"
@@ -62,6 +93,7 @@ try:
         ("question", "bold"),
         ("highlighted", "bg:#ff8710 fg:#000000 bold noreverse"),
         ("selected", "bg:#ff8710 fg:#000000 bold noreverse"),
+        ("answer", "fg:#ff8710 bold"),
     ])
     _POINTER = None
     # 텍스트 입력용 테두리 박스 스타일 (로고 오렌지색과 통일)
@@ -203,6 +235,7 @@ def _prompt_choice(question: str, choices: list[str], default_index: int = 0) ->
                     default=choices[default_index],
                     style=_QUESTIONARY_STYLE,
                     pointer=_POINTER,
+                    instruction=" ",
                 ).ask()
             )
         finally:

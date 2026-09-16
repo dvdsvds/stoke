@@ -8,7 +8,7 @@ def _select_c_standard() -> str:
     choices = ["c17", "c11", "c99", "c89"]
     standards = ["c17", "c11", "c99", "c89"]
     selected = _prompt_choice(
-        "C standard:",
+        "C standard",
         choices,
         default_index=0,
     )

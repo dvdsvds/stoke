@@ -85,7 +85,7 @@ def _select_lock_mode() -> str:
         "local   - Lock file inside .stoke/ (gitignored), each developer has their own",
     ]
     selected = _prompt_choice(
-        "Lock file mode:",
+        "Lock file mode",
         choices,
         default_index=0,
     )
@@ -101,7 +101,7 @@ def _select_ide() -> str:
         "IntelliJ/CLion/Vim/clangd - pom.xml (Java) / compile_commands.json (C/C++)",
         "None     - don't generate any IDE integration files",
     ]
-    selected = _prompt_choice("IDE integration:", choices, default_index=0)
+    selected = _prompt_choice("IDE integration", choices, default_index=0)
     return _IDE_CHOICES[selected]
 
 def _write_ide_setting(stoke_toml_path: Path, ide: str) -> None:
@@ -138,7 +138,7 @@ def _select_language() -> str:
     ]
     languages = ["python", "java", "c", "cpp", "go", "rust", "kotlin", "csharp", "ruby", "php", "javascript", "typescript"]
     selected = _prompt_choice(
-        "Language:",
+        "Language",
         choices,
         default_index=0,
     )
@@ -191,42 +191,30 @@ def cmd_init() -> None:
         installs = detect_all()
         python_version = _select_python_version(installs)
         env_type = _select_env_type()
-        version_info = f"Python version:  {python_version}"
     elif language == "java":
         java_version = _select_java_version()
-        version_info = f"Java version:    {java_version}"
     elif language == "c":
         c_standard = _select_c_standard()
-        version_info = f"C standard:      {c_standard}"
         _prompt_vcpkg_install()
     elif language == "cpp":
         cpp_standard = _select_cpp_standard()
-        version_info = f"C++ standard:    {cpp_standard}"
         _prompt_vcpkg_install()
     elif language == "go":
         go_version = _select_go_version()
-        version_info = f"Toolchain pin:   {go_version or '(none)'}"
     elif language == "rust":
         rust_version = _select_rust_version()
-        version_info = f"Toolchain pin:   {rust_version or '(none)'}"
     elif language == "kotlin":
         kotlin_jdk_version = _select_kotlin_jdk()
-        version_info = f"JDK version:     {kotlin_jdk_version}"
     elif language == "csharp":
         csharp_version = _select_csharp_version()
-        version_info = f"SDK pin:         {csharp_version or '(none)'}"
     elif language == "ruby":
         ruby_version = _select_ruby_version()
-        version_info = f"Version pin:     {ruby_version or '(none)'}"
     elif language == "php":
         php_version = _select_php_version()
-        version_info = f"Version pin:     {php_version or '(none)'}"
     elif language == "javascript":
         node_version = _select_node_version()
-        version_info = f"Node pin:        {node_version or '(none)'}"
     elif language == "typescript":
         node_version = _select_node_version()
-        version_info = f"Node pin:        {node_version or '(none)'}"
 
     # 4. lock 모드 선택
     lock_mode = _select_lock_mode()
@@ -234,23 +222,9 @@ def cmd_init() -> None:
     # IDE 통합 파일 선택 -- 현재 Python/Java/C/C++ 빌드에서만 실제로 쓰임
     ide = _select_ide() if language in ("python", "java", "c", "cpp") else "vscode"
 
-    # 5. 최종 확인
-    print("\n=== Summary ===")
-    print(f"  Project name:    {project_name}")
-    print(f"  Language:        {language}")
-    print(f"  {version_info}")
-    if language == "python":
-        print(f"  Environment:     {env_type}")
-    print(f"  Lock mode:       {lock_mode}")
-    if language in ("python", "java", "c", "cpp"):
-        print(f"  IDE:             {ide}")
-    print(f"  Config file:     {stoke_toml_path}")
+    print(f"\nCreate stoke.toml: {stoke_toml_path}")
 
-    if not _prompt_yes_no("\nCreate stoke.toml?", default=True):
-        print("Aborted.")
-        return
-
-    # 6. 언어별 stoke.toml 생성 + 예시 파일 생성
+    # 5. 언어별 stoke.toml 생성 + 예시 파일 생성
     if language == "python":
         _write_stoke_toml_python(stoke_toml_path, project_name, python_version, lock_mode, env_type)
         _write_example_python(cwd)
