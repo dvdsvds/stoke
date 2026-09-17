@@ -5,6 +5,7 @@ import shutil
 from pathlib import Path
 
 from stoke.prompts import _prompt, resolve_project_dir
+from stoke.languages.kotlin.init import DEFAULT_KOTLIN_VERSION
 
 def cmd_init_ktor():
     """stoke init ktor 명령어."""
@@ -61,23 +62,23 @@ def _write_settings_gradle(path: Path, project_name: str) -> None:
     path.write_text(content, encoding="utf-8")
 
 def _write_build_gradle(path: Path) -> None:
-    content = '''plugins {
-    kotlin("jvm") version "1.9.24"
+    content = f'''plugins {{
+    kotlin("jvm") version "{DEFAULT_KOTLIN_VERSION}"
     application
-}
+}}
 
-repositories {
+repositories {{
     mavenCentral()
-}
+}}
 
-dependencies {
+dependencies {{
     implementation("io.ktor:ktor-server-core-jvm:2.3.12")
     implementation("io.ktor:ktor-server-netty-jvm:2.3.12")
-}
+}}
 
-application {
+application {{
     mainClass.set("MainKt")
-}
+}}
 '''
     path.write_text(content, encoding="utf-8")
 

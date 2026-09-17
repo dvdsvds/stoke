@@ -192,11 +192,50 @@ def _prompt(question: str, default: str | None = None) -> str:
         return default
     return answer
 
+_VALID_PROJECT_NAME = re.compile(r"^[A-Za-z][A-Za-z0-9_-]*$")
+
+def _sanitize_project_name(name: str, fallback: str = "myapp") -> str:
+    """
+    프로젝트 이름을 안전한 charset(영문자로 시작, 이후 영숫자/-/_)으로 강제 변환.
+
+    이 이름은 이후 [targets.{name}] TOML 헤더, 파일시스템 경로(cwd / name),
+    Go import 경로, Kotlin/Java 패키지명 등 여러 군데에 검증 없이 그대로
+    꽂혀 들어가므로 -- 공백/점/따옴표/슬래시가 있으면 stoke.toml 파싱이
+    깨지거나(TOML bare key 규칙 위반) 생성된 소스가 컴파일 안 되거나,
+    "/"나 ".."가 있으면 의도치 않은 경로로 디렉토리가 생길 수 있음.
+    여기서 한 번에 막아서 모든 프레임워크 스캐폴더를 개별로 안 고쳐도 되게 함.
+    """
+    if _VALID_PROJECT_NAME.match(name):
+        return name[:64]
+    sanitized = re.sub(r"[^A-Za-z0-9_-]+", "-", name).strip("-_")
+    if not sanitized or not sanitized[0].isalpha():
+        sanitized = "app-" + sanitized if sanitized else fallback
+    return sanitized[:64] or fallback
+
+_VALID_GO_MODULE = re.compile(r"^[A-Za-z0-9_./-]+$")
+
+def sanitize_go_module_name(name: str, fallback: str) -> str:
+    """
+    Go 모듈 경로(예: github.com/user/myapp)는 슬래시/점을 정상적으로 쓰므로
+    _sanitize_project_name처럼 좁게 제한할 수 없음. 다만 이 값이 생성된
+    main.go의 import 문자열 리터럴에 그대로 꽂혀 들어가므로(f'"{module_name}/handlers"'),
+    따옴표/백슬래시/개행처럼 문자열 리터럴을 깨는 문자만 걸러냄.
+    """
+    stripped = name.strip()
+    if stripped and _VALID_GO_MODULE.match(stripped):
+        return stripped
+    sanitized = re.sub(r"[^A-Za-z0-9_./-]+", "-", stripped).strip("-/")
+    return sanitized or fallback
+
 def resolve_project_name(default_name: str = "myapp") -> tuple[str, bool]:
     """프로젝트 이름 프롬프트. 반환: (project_name, cwd가 비어있었는지)"""
     cwd = Path.cwd()
     is_empty = not any(cwd.iterdir())
-    project_name = _prompt("Project name", cwd.name if is_empty else default_name)
+    default = _sanitize_project_name(cwd.name if is_empty else default_name, default_name)
+    raw_name = _prompt("Project name", default)
+    project_name = _sanitize_project_name(raw_name, default_name)
+    if project_name != raw_name:
+        print(f"Note: project name sanitized to '{project_name}' (letters/digits/-/_ only, must start with a letter)")
     return project_name, is_empty
 
 def resolve_project_dir(default_name: str = "myapp") -> tuple[str, Path, bool]:

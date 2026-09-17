@@ -9,6 +9,11 @@ from pathlib import Path
 
 from stoke.languages.java.init import _select_java_version as _select_kotlin_jdk
 
+# 생성되는 build.gradle.kts에 박히는 Kotlin 컴파일러 플러그인 버전.
+# Gradle 버전과 달리 라이브 조회 소스가 없어서 하드코딩 -- ktor.py/spring_boot.py가
+# 각자 따로 들고 있지 않고 여기서 import해서 씀 (한 곳만 갱신하면 됨).
+DEFAULT_KOTLIN_VERSION = "2.1.0"
+
 def _current_gradle_version() -> str | None:
     """
     Gradle 공식 API로 현재 안정 버전 조회.
@@ -78,18 +83,18 @@ def _write_settings_gradle(path: Path, project_name: str) -> None:
     path.write_text(content, encoding="utf-8")
 
 def _write_build_gradle(path: Path) -> None:
-    content = '''plugins {
-    kotlin("jvm") version "1.9.24"
+    content = f'''plugins {{
+    kotlin("jvm") version "{DEFAULT_KOTLIN_VERSION}"
     application
-}
+}}
 
-repositories {
+repositories {{
     mavenCentral()
-}
+}}
 
-application {
+application {{
     mainClass.set("MainKt")
-}
+}}
 '''
     path.write_text(content, encoding="utf-8")
 

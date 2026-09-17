@@ -62,7 +62,7 @@ entry = "src/main.js"
 
 def _write_package_json(project_path: Path, project_name: str) -> None:
     pkg = {
-        "name": project_name,
+        "name": project_name.lower(),
         "version": "1.0.0",
         "main": "src/main.js",
         "scripts": {

@@ -5,6 +5,7 @@ import shutil
 from pathlib import Path
 
 from stoke.prompts import _prompt, resolve_project_dir
+from stoke.languages.kotlin.init import DEFAULT_KOTLIN_VERSION
 
 def cmd_init_spring_boot_kotlin():
     """stoke init spring-boot-kotlin 명령어."""
@@ -62,21 +63,21 @@ def _write_settings_gradle(path: Path, project_name: str) -> None:
     path.write_text(content, encoding="utf-8")
 
 def _write_build_gradle(path: Path) -> None:
-    content = '''plugins {
-    id("org.springframework.boot") version "3.3.4"
+    content = f'''plugins {{
+    id("org.springframework.boot") version "3.3.5"
     id("io.spring.dependency-management") version "1.1.6"
-    kotlin("jvm") version "1.9.24"
-    kotlin("plugin.spring") version "1.9.24"
-}
+    kotlin("jvm") version "{DEFAULT_KOTLIN_VERSION}"
+    kotlin("plugin.spring") version "{DEFAULT_KOTLIN_VERSION}"
+}}
 
-repositories {
+repositories {{
     mavenCentral()
-}
+}}
 
-dependencies {
+dependencies {{
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-}
+}}
 '''
     path.write_text(content, encoding="utf-8")
 

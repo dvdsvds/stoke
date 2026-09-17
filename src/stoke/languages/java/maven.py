@@ -184,6 +184,10 @@ def download_jar(
             else:
                 raise
 
-    # 저장
-    dest_path.write_bytes(jar_data)
+    # 저장 (같은 JAR을 동시에 받는 다른 stoke build 프로세스가 아직 다 안 쓰인
+    # 파일을 dest_path.exists() 체크로 잡아가지 않도록, 임시 파일에 먼저 쓰고
+    # 원자적으로 rename)
+    tmp_path = dest_path.with_name(dest_path.name + f".tmp{os.getpid()}")
+    tmp_path.write_bytes(jar_data)
+    os.replace(tmp_path, dest_path)
     return dest_path

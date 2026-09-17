@@ -59,7 +59,7 @@ entry = "public/index.php"
 
 def _write_composer_json(path: Path, project_name: str) -> None:
     data = {
-        "name": f"stoke/{project_name}",
+        "name": f"stoke/{project_name.lower()}",
         "require": {
             "slim/slim": "^4.0",
             "slim/psr7": "^1.6",

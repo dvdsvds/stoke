@@ -58,7 +58,8 @@ def _write_example_csharp(project_root: Path, project_name: str) -> None:
         if result.returncode != 0:
             print("Warning: dotnet new console failed:", file=sys.stderr)
             print(result.stderr, file=sys.stderr)
-    else:
+
+    if not any(project_root.glob("*.csproj")):
         _write_csproj(project_root / f"{project_name}.csproj")
 
     program_cs = project_root / "Program.cs"
@@ -72,7 +73,7 @@ def _write_csproj(path: Path) -> None:
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>

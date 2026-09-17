@@ -34,6 +34,8 @@ def cmd_init_fastify():
         if result.returncode != 0:
             print("\nWarning: npm install failed:", file=sys.stderr)
             print(result.stderr, file=sys.stderr)
+    else:
+        print("\nWarning: npm not found. Install manually.", file=sys.stderr)
 
     print(f"\nFastify project created at: {project_path}")
     print()
@@ -60,7 +62,7 @@ entry = "src/main.js"
 
 def _write_package_json(project_path: Path, project_name: str) -> None:
     pkg = {
-        "name": project_name,
+        "name": project_name.lower(),
         "version": "1.0.0",
         "main": "src/main.js",
         "type": "module",

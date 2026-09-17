@@ -67,7 +67,9 @@ def cmd_init_spring_boot():
     else:
         # API 조회 실패 시 수동 입력
         print("Could not fetch versions. Enter manually.")
-        boot_version = _prompt("Spring Boot version", "4.1.0.RELEASE")
+        # Spring Boot 2.1부터 버전 문자열에 ".RELEASE" 접미사가 안 붙음(라이브 조회 결과와
+        # 동일한 포맷을 유지해야 start.spring.io의 bootVersion 파라미터로 그대로 씀).
+        boot_version = _prompt("Spring Boot version", "3.3.5")
 
     print(f"Using Spring Boot: {boot_version}\n")
     java_choices = ["17", "21", "25"]
@@ -137,9 +139,16 @@ def cmd_init_spring_boot():
 
     try:
         with zipfile.ZipFile(io.BytesIO(zip_data)) as zf:
+            for member in zf.namelist():
+                member_path = (dest_dir / member).resolve()
+                if not member_path.is_relative_to(dest_dir.resolve()):
+                    raise RuntimeError(f"Refusing to extract unsafe zip entry: {member}")
             zf.extractall(dest_dir)
     except zipfile.BadZipFile:
         print("Error: invalid zip file received", file=sys.stderr)
+        sys.exit(1)
+    except RuntimeError as e:
+        print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
 
     print(f"\nSpring Boot project created at: {project_path}")

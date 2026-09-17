@@ -4,7 +4,7 @@ import subprocess
 import shutil
 from pathlib import Path
 
-from stoke.prompts import _prompt, resolve_project_dir
+from stoke.prompts import _prompt, resolve_project_dir, sanitize_go_module_name
 
 def cmd_init_echo():
     """stoke init echo 명령어."""
@@ -12,7 +12,9 @@ def cmd_init_echo():
 
     project_name, project_path, is_empty = resolve_project_dir("myapp")
 
-    module_name = _prompt("Go module name (e.g. github.com/user/myapp)", project_name)
+    module_name = sanitize_go_module_name(
+        _prompt("Go module name (e.g. github.com/user/myapp)", project_name), project_name
+    )
 
     (project_path / "handlers").mkdir()
 
@@ -43,7 +45,11 @@ def cmd_init_echo():
             print("Warning: go get github.com/labstack/echo/v4 failed:", file=sys.stderr)
             print(result.stderr, file=sys.stderr)
     else:
-        print("\nWarning: 'go' not found.", file=sys.stderr)
+        print("\nWarning: 'go' not found. Run these manually:", file=sys.stderr)
+        if not is_empty:
+            print(f"  cd {project_name}", file=sys.stderr)
+        print(f"  go mod init {module_name}", file=sys.stderr)
+        print(f"  go get github.com/labstack/echo/v4", file=sys.stderr)
 
     print(f"\nEcho project created at: {project_path}")
     print()

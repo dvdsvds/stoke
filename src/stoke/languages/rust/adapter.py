@@ -59,8 +59,9 @@ class RustAdapter(BaseAdapter):
         toolchains = self.project_root / ".stoke" / "toolchains"
         if not toolchains.is_dir():
             return None
+        exe_name = "cargo.exe" if self._is_windows() else "cargo"
         for d in sorted(toolchains.iterdir(), reverse=True):
-            if d.is_dir() and d.name.startswith("rust-") and (d / "cargo" / "bin" / "cargo.exe").exists():
+            if d.is_dir() and d.name.startswith("rust-") and (d / "cargo" / "bin" / exe_name).exists():
                 return d
         return None
 
@@ -74,10 +75,11 @@ class RustAdapter(BaseAdapter):
         import os
         local_dir = self._find_local_rust_dir()
         if local_dir is not None:
+            exe_name = "cargo.exe" if self._is_windows() else "cargo"
             env = dict(os.environ)
             env["RUSTUP_HOME"] = str(local_dir / "rustup")
             env["CARGO_HOME"] = str(local_dir / "cargo")
-            return str(local_dir / "cargo" / "bin" / "cargo.exe"), env
+            return str(local_dir / "cargo" / "bin" / exe_name), env
 
         cargo_exe = shutil.which("cargo")
         if cargo_exe is None:

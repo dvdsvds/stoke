@@ -27,6 +27,10 @@ def cmd_init_aspnet_core():
             print(result.stderr, file=sys.stderr)
     else:
         print("\nWarning: 'dotnet' not found. Install .NET SDK from https://dotnet.microsoft.com/download", file=sys.stderr)
+
+    # dotnet이 없거나 'dotnet new web'이 실패한 경우 .csproj가 없는 채로 남으므로
+    # (Program.cs만 있고 빌드 불가능한 상태), 없으면 최소 .csproj를 직접 만들어둠.
+    if not any(project_path.glob("*.csproj")):
         _write_csproj(project_path / f"{project_name}.csproj")
 
     _write_program_cs(project_path / "Program.cs")
@@ -56,7 +60,7 @@ def _write_csproj(path: Path) -> None:
     content = '''<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>

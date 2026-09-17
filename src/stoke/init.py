@@ -7,7 +7,7 @@ from pathlib import Path
 
 from stoke import __version__
 from stoke.languages.python.versions import detect_all, PythonInstall
-from stoke.prompts import _prompt, _prompt_choice, _prompt_yes_no
+from stoke.prompts import _prompt, _prompt_choice, _prompt_yes_no, _sanitize_project_name
 from stoke.languages.python.init import (
     _select_python_version,
     _select_env_type,
@@ -172,16 +172,11 @@ def cmd_init() -> None:
     _print_banner()
 
     # 1. 프로젝트 이름
-    default_name = cwd.name
-    project_name = _prompt("Project name", default=default_name)
-
-    # 프로젝트 이름 검증
-    if not project_name.replace("_", "").replace("-", "").isalnum():
-        print(
-            f"Error: project name '{project_name}' contains invalid characters",
-            file=sys.stderr,
-        )
-        sys.exit(1)
+    default_name = _sanitize_project_name(cwd.name, "myapp")
+    raw_name = _prompt("Project name", default=default_name)
+    project_name = _sanitize_project_name(raw_name, "myapp")
+    if project_name != raw_name:
+        print(f"Note: project name sanitized to '{project_name}' (letters/digits/-/_ only, must start with a letter)")
 
     # 2. 언어 선택
     language = _select_language()
@@ -318,9 +313,11 @@ def cmd_init_noninteractive(
         sys.exit(1)
 
     project_name = project_name or cwd.name
-    if not project_name.replace("_", "").replace("-", "").isalnum():
+    sanitized = _sanitize_project_name(project_name, "myapp")
+    if sanitized != project_name:
         print(
-            f"Error: project name '{project_name}' contains invalid characters",
+            f"Error: project name '{project_name}' contains invalid characters "
+            f"(letters/digits/-/_ only, must start with a letter). Try: --name={sanitized}",
             file=sys.stderr,
         )
         sys.exit(1)

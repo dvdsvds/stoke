@@ -4,7 +4,7 @@ import subprocess
 import shutil
 from pathlib import Path
 
-from stoke.prompts import _prompt, resolve_project_dir
+from stoke.prompts import _prompt, resolve_project_dir, sanitize_go_module_name
 
 def cmd_init_gin():
     """stoke init gin 명령어."""
@@ -12,7 +12,9 @@ def cmd_init_gin():
 
     project_name, project_path, is_empty = resolve_project_dir("myapp")
 
-    module_name = _prompt("Go module name (e.g. github.com/user/myapp)", project_name)
+    module_name = sanitize_go_module_name(
+        _prompt("Go module name (e.g. github.com/user/myapp)", project_name), project_name
+    )
 
     (project_path / "handlers").mkdir()
 
