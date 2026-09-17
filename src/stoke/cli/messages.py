@@ -5,7 +5,7 @@ import os
 MESSAGES = {
     "en": {
         # stoke
-        "prog.description": "A build tool for multiple languages",
+        "prog.description": "Build, scaffold, and manage toolchains/dependencies for multi-language projects",
 
         # build
         "build.help": "Build a target",
@@ -99,7 +99,7 @@ MESSAGES = {
     },
     "ko": {
         # stoke
-        "prog.description": "다중 언어 빌드 툴",
+        "prog.description": "다중 언어 프로젝트 빌드·스캐폴딩·툴체인/의존성 관리 툴",
 
         # build
         "build.help": "타겟 빌드",

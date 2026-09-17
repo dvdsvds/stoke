@@ -22,7 +22,7 @@ Spring Boot, FastAPI, Flask, Django, 그리고 Go/Rust/Kotlin/C#/Ruby/PHP/JavaSc
 - **C/C++용 CMake 위임** — 타겟에 `build_system = "cmake"`를 지정하면 stoke 자체 컴파일 모델 대신 `cmake`의 configure/build로 `build`/`run`/`watch`/`hot-reload`/`clean`을 그대로 위임. 이미 `CMakeLists.txt`가 있는 프로젝트용
 - **C/C++용 Meson 위임** — 타겟에 `build_system = "meson"`을 지정하면 stoke 자체 컴파일 모델 대신 `meson setup`/`meson compile`로 `build`/`run`/`watch`/`hot-reload`/`clean`을 그대로 위임. 이미 `meson.build`가 있는 프로젝트용
 - **`stoke test`** — 각 생태계의 표준 도구로 타겟 테스트 실행: pytest/unittest(Python), 번들된 콘솔 런처로 JUnit 5(Java), `go test`, `cargo test`, `dotnet test`, `gradle test`, `npm test`, RSpec/rake, PHPUnit, `build_system = "cmake"/"meson"`이면 `ctest`/`meson test`. 순수 C/C++ 빌드는 `test_sources` + 번들된 헤더 하나짜리 [doctest](https://github.com/doctest/doctest)(현재는 C++만)
-- **`stoke add`/`stoke remove`** — Python/Java(`stoke.toml`이 실제 매니페스트인 두 언어)에서 `stoke.toml`에 의존성 추가/제거. 다른 언어는 그 언어의 네이티브 도구(`cargo add`, `npm install`, `go get` 등)를 쓰라고 안내
+- **`stoke add`/`stoke remove`** — 한 번에 여러 패키지 추가/제거 가능. Python/Java(`stoke.toml`이 실제 매니페스트인 두 언어)는 `stoke.toml`을 고치고 재설치, JavaScript/TypeScript는 `stoke.toml`을 안 건드리고 `npm install`/`npm uninstall`을 직접 실행(알려진 npm 버그를 우회하면서) — `package.json`이 진짜 매니페스트라서. 다른 언어는 그 언어의 네이티브 도구(`cargo add`, `go get` 등)를 쓰라고 안내
 - **자동 IDE 통합** — VSCode, IntelliJ, Eclipse 설정 파일 자동 생성
 - **Watch 모드 + Hot-reload** — 파일 변경 감지 후 자동 재빌드, 프로세스 재시작
 - **빌드 프로파일** — C/C++용 debug/release 및 커스텀 프로파일 (컴파일 플래그, defines, 컴파일러 지정)
