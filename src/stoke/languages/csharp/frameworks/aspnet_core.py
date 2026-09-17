@@ -17,10 +17,14 @@ def cmd_init_aspnet_core():
     dotnet_exe = shutil.which("dotnet")
     if dotnet_exe:
         print("\nScaffolding with 'dotnet new web'...")
-        subprocess.run(
+        result = subprocess.run(
             [dotnet_exe, "new", "web", "--name", project_name, "--output", str(project_path), "--force"],
             capture_output=True,
+            text=True,
         )
+        if result.returncode != 0:
+            print("\nWarning: dotnet new web failed:", file=sys.stderr)
+            print(result.stderr, file=sys.stderr)
     else:
         print("\nWarning: 'dotnet' not found. Install .NET SDK from https://dotnet.microsoft.com/download", file=sys.stderr)
         _write_csproj(project_path / f"{project_name}.csproj")

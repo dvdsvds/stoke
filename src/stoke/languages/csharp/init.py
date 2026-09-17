@@ -2,6 +2,7 @@
 import json
 import subprocess
 import shutil
+import sys
 from pathlib import Path
 
 from stoke.prompts import _prompt
@@ -48,11 +49,15 @@ def _write_example_csharp(project_root: Path, project_name: str) -> None:
     """C# 예시 파일 생성 + .csproj 초기화."""
     dotnet_exe = shutil.which("dotnet")
     if dotnet_exe:
-        subprocess.run(
+        result = subprocess.run(
             [dotnet_exe, "new", "console", "--name", project_name, "--output", str(project_root), "--force"],
             cwd=str(project_root),
             capture_output=True,
+            text=True,
         )
+        if result.returncode != 0:
+            print("Warning: dotnet new console failed:", file=sys.stderr)
+            print(result.stderr, file=sys.stderr)
     else:
         _write_csproj(project_root / f"{project_name}.csproj")
 

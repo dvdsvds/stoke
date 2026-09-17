@@ -21,11 +21,15 @@ def cmd_init_slim():
     composer_exe = shutil.which("composer")
     if composer_exe:
         print("Running composer install...")
-        subprocess.run(
+        result = subprocess.run(
             [composer_exe, "install"],
             cwd=str(project_path),
             capture_output=True,
+            text=True,
         )
+        if result.returncode != 0:
+            print("Warning: composer install failed:", file=sys.stderr)
+            print(result.stderr, file=sys.stderr)
     else:
         print("Warning: 'composer' not found. Install from https://getcomposer.org/download/", file=sys.stderr)
 

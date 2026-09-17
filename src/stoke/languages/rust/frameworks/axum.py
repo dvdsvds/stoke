@@ -20,11 +20,15 @@ def cmd_init_axum():
     cargo_exe = shutil.which("cargo")
     if cargo_exe:
         print("\nFetching dependencies (cargo check)...")
-        subprocess.run(
+        result = subprocess.run(
             [cargo_exe, "check"],
             cwd=str(project_path),
             capture_output=True,
+            text=True,
         )
+        if result.returncode != 0:
+            print("\nWarning: cargo check failed:", file=sys.stderr)
+            print(result.stderr, file=sys.stderr)
     else:
         print("\nWarning: 'cargo' not found. Install Rust from https://rustup.rs", file=sys.stderr)
 

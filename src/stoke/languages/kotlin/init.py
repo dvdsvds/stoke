@@ -2,6 +2,7 @@
 import json
 import subprocess
 import shutil
+import sys
 import urllib.error
 import urllib.request
 from pathlib import Path
@@ -62,11 +63,15 @@ def _write_example_kotlin(project_root: Path, project_name: str) -> None:
         gradle_version = _current_gradle_version()
         if gradle_version:
             wrapper_cmd += ["--gradle-version", gradle_version]
-        subprocess.run(
+        result = subprocess.run(
             wrapper_cmd,
             cwd=str(project_root),
             capture_output=True,
+            text=True,
         )
+        if result.returncode != 0:
+            print("Warning: gradle wrapper failed:", file=sys.stderr)
+            print(result.stderr, file=sys.stderr)
 
 def _write_settings_gradle(path: Path, project_name: str) -> None:
     content = f'rootProject.name = "{project_name}"\n'

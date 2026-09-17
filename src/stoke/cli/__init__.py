@@ -1,6 +1,8 @@
 """stoke CLI 진입점."""
 import argparse
 import os
+import re
+import shutil
 import sys
 from pathlib import Path
 
@@ -90,86 +92,115 @@ _INIT_FRAMEWORK_HANDLERS = {
     "hono": cmd_init_hono,
 }
 
+def _help_formatter(prog):
+    """기본 HelpFormatter보다 넓게(터미널 폭까지) + 설명 칸을 더 띄워서
+    {build,python,java,...} 같은 선택지 나열과 help 텍스트가 다닥다닥 붙어
+    읽기 힘든 걸 완화함."""
+    width = min(shutil.get_terminal_size(fallback=(100, 24)).columns - 2, 100)
+    return argparse.HelpFormatter(prog, max_help_position=32, width=width)
+
+_INVALID_CHOICE_RE = re.compile(
+    r"^argument ([^:]+): invalid choice: '([^']+)' \(choose from (.+)\)$"
+)
+
+class _StokeArgumentParser(argparse.ArgumentParser):
+    """invalid-choice 에러를 콤마로 다닥다닥 붙은 한 줄 대신, 후보를 한 줄에
+    하나씩 보여주도록 재포맷함 -- `choose from build, python, java, c, cpp,
+    install, ...` 같은 줄은 선택지가 많을수록 읽기 힘들어짐."""
+
+    def error(self, message):
+        match = _INVALID_CHOICE_RE.match(message)
+        if match:
+            arg, choice, options = match.groups()
+            option_list = [o.strip().strip("'\"") for o in options.split(",")]
+            self.print_usage(sys.stderr)
+            print(f"{self.prog}: error: '{choice}' isn't a valid {arg}. Choose from:", file=sys.stderr)
+            for opt in option_list:
+                print(f"  {opt}", file=sys.stderr)
+            self.exit(2)
+        super().error(message)
+
 def _build_parser():
     """argparse 파서 구성."""
-    parser = argparse.ArgumentParser(
+    parser = _StokeArgumentParser(
         prog="stoke",
-        description=_("prog.description")
+        description=_("prog.description"),
+        formatter_class=_help_formatter,
     )
     parser.add_argument(
         "-V", "--version",
         action="version",
         version=f"stoke {__version__}",
     )
-    subparsers = parser.add_subparsers(dest="command", required=True)
+    subparsers = parser.add_subparsers(dest="command", required=True, metavar="<command>", parser_class=_StokeArgumentParser)
 
     # stoke build
-    build_parser = subparsers.add_parser("build", help=_("build.help"))
+    build_parser = subparsers.add_parser("build", help=_("build.help"), formatter_class=_help_formatter)
     build_parser.add_argument("target", nargs="?", help=_("build.target"))
     build_parser.add_argument("--force", action="store_true", help=_("build.force"))
     add_debug_release_profile_args(build_parser, "build")
 
     # stoke python list
-    python_parser = subparsers.add_parser("python", help=_("python.help"))
+    python_parser = subparsers.add_parser("python", help=_("python.help"), formatter_class=_help_formatter)
     python_sub = python_parser.add_subparsers(dest="python_command", required=True)
-    python_sub.add_parser("list", help=_("python.list.help"))
+    python_sub.add_parser("list", help=_("python.list.help"), formatter_class=_help_formatter)
 
     # stoke java list
-    java_parser = subparsers.add_parser("java", help=_("java.help"))
+    java_parser = subparsers.add_parser("java", help=_("java.help"), formatter_class=_help_formatter)
     java_sub = java_parser.add_subparsers(dest="java_command", required=True)
-    java_sub.add_parser("list", help=_("java.list.help"))
+    java_sub.add_parser("list", help=_("java.list.help"), formatter_class=_help_formatter)
 
     # stoke c list
-    c_parser = subparsers.add_parser("c", help=_("c.help"))
+    c_parser = subparsers.add_parser("c", help=_("c.help"), formatter_class=_help_formatter)
     c_sub = c_parser.add_subparsers(dest="c_command", required=True)
-    c_sub.add_parser("list", help=_("c.list.help"))
+    c_sub.add_parser("list", help=_("c.list.help"), formatter_class=_help_formatter)
 
     # stoke cpp list
-    cpp_parser = subparsers.add_parser("cpp", help=_("cpp.help"))
+    cpp_parser = subparsers.add_parser("cpp", help=_("cpp.help"), formatter_class=_help_formatter)
     cpp_sub = cpp_parser.add_subparsers(dest="cpp_command", required=True)
-    cpp_sub.add_parser("list", help=_("cpp.list.help"))
+    cpp_sub.add_parser("list", help=_("cpp.list.help"), formatter_class=_help_formatter)
 
     # stoke install <vcpkg|language> | --language=X --version=Y (--language kept for backwards compatibility)
-    install_parser = subparsers.add_parser("install", help=_("install.help"))
-    install_parser.add_argument("tool", nargs="?", choices=["vcpkg"] + list(SUPPORTED_LANGUAGES), help=_("install.tool"))
+    install_parser = subparsers.add_parser("install", help=_("install.help"), formatter_class=_help_formatter)
+    install_parser.add_argument("tool", nargs="?", choices=["vcpkg"] + list(SUPPORTED_LANGUAGES), metavar="<tool>", help=_("install.tool"))
     install_parser.add_argument("--language", help="Language to install (deprecated, use the positional argument instead, e.g. 'stoke install python')")
     install_parser.add_argument("--version", default="latest", help="Version (default: latest)")
     install_parser.add_argument("--list", action="store_true", help="List available versions")
     install_parser.add_argument("--base-url", help="Override the version metadata base URL (default: STOKE_VERSION_API_BASE env var, or stoke's own endpoint). For mirroring on a locked-down network.")
 
     # stoke uninstall <vcpkg|language> | --language=X --version=Y (--language kept for backwards compatibility)
-    uninstall_parser = subparsers.add_parser("uninstall", help=_("uninstall.help"))
-    uninstall_parser.add_argument("tool", nargs="?", choices=["vcpkg"] + list(SUPPORTED_LANGUAGES), help=_("uninstall.tool"))
+    uninstall_parser = subparsers.add_parser("uninstall", help=_("uninstall.help"), formatter_class=_help_formatter)
+    uninstall_parser.add_argument("tool", nargs="?", choices=["vcpkg"] + list(SUPPORTED_LANGUAGES), metavar="<tool>", help=_("uninstall.tool"))
     uninstall_parser.add_argument("--language", help="Language to uninstall (deprecated, use the positional argument instead, e.g. 'stoke uninstall python')")
     uninstall_parser.add_argument("--version", help="Version to uninstall (optional)")
 
     # stoke vcpkg <subcommand>
-    vcpkg_parser = subparsers.add_parser("vcpkg", help=_("vcpkg.help"))
-    vcpkg_sub = vcpkg_parser.add_subparsers(dest="vcpkg_command", required=True)
+    vcpkg_parser = subparsers.add_parser("vcpkg", help=_("vcpkg.help"), formatter_class=_help_formatter)
+    vcpkg_sub = vcpkg_parser.add_subparsers(dest="vcpkg_command", required=True, metavar="<command>")
 
-    vcpkg_install_parser = vcpkg_sub.add_parser("install", help=_("vcpkg.install.help"))
+    vcpkg_install_parser = vcpkg_sub.add_parser("install", help=_("vcpkg.install.help"), formatter_class=_help_formatter)
     vcpkg_install_parser.add_argument("library", help=_("vcpkg.install.library"))
     vcpkg_install_parser.add_argument("--version", help=_("vcpkg.install.version"))
     vcpkg_install_parser.add_argument("--target", help=_("vcpkg.install.target"))
 
-    vcpkg_remove_parser = vcpkg_sub.add_parser("remove", help=_("vcpkg.remove.help"))
+    vcpkg_remove_parser = vcpkg_sub.add_parser("remove", help=_("vcpkg.remove.help"), formatter_class=_help_formatter)
     vcpkg_remove_parser.add_argument("library", help=_("vcpkg.remove.library"))
     vcpkg_remove_parser.add_argument("--target", help=_("vcpkg.remove.target"))
 
-    vcpkg_list_parser = vcpkg_sub.add_parser("list", help=_("vcpkg.list.help"))
+    vcpkg_list_parser = vcpkg_sub.add_parser("list", help=_("vcpkg.list.help"), formatter_class=_help_formatter)
     vcpkg_list_parser.add_argument("--target", help=_("vcpkg.list.target"))
 
-    vcpkg_sub.add_parser("version", help=_("vcpkg.version.help"))
+    vcpkg_sub.add_parser("version", help=_("vcpkg.version.help"), formatter_class=_help_formatter)
 
     # stoke clean
-    clean_parser = subparsers.add_parser("clean", help=_("clean.help"))
+    clean_parser = subparsers.add_parser("clean", help=_("clean.help"), formatter_class=_help_formatter)
     clean_parser.add_argument("--all", action="store_true", help=_("clean.all"))
     clean_parser.add_argument("target", nargs="?", help=_("clean.target"))
 
     # stoke init [type]
-    init_parser = subparsers.add_parser("init", help=_("init.help"))
+    init_parser = subparsers.add_parser("init", help=_("init.help"), formatter_class=_help_formatter)
     from stoke.plugins import all_framework_plugin_names
-    init_parser.add_argument("type", nargs="?", choices=list(_INIT_FRAMEWORK_HANDLERS) + all_framework_plugin_names(), help="Project type (optional)")
+    init_parser.add_argument("type", nargs="?", choices=list(_INIT_FRAMEWORK_HANDLERS) + all_framework_plugin_names(), metavar="<type>", help="Project type (optional, e.g. fastapi, express, spring-boot -- run with no type for an interactive picker)")
     init_parser.add_argument("path", nargs="?", help="Directory to create the project in (created if it doesn't exist; defaults to current directory)")
     init_parser.add_argument("--language", help="Language (non-interactive mode, e.g. --language=python)")
     init_parser.add_argument("--name", help="Project name (non-interactive mode; defaults to current folder name)")
@@ -180,35 +211,35 @@ def _build_parser():
     init_parser.add_argument("--yes", action="store_true", help="Overwrite an existing stoke.toml without prompting (non-interactive mode)")
 
     # stoke watch
-    watch_parser = subparsers.add_parser("watch", help=_("watch.help"))
+    watch_parser = subparsers.add_parser("watch", help=_("watch.help"), formatter_class=_help_formatter)
     watch_parser.add_argument("target", nargs="?", help=_("watch.target"))
     add_debug_release_profile_args(watch_parser, "watch")
 
     # stoke run
-    run_parser = subparsers.add_parser("run", help=_("run.help"))
+    run_parser = subparsers.add_parser("run", help=_("run.help"), formatter_class=_help_formatter)
     run_parser.add_argument("target", nargs="?", help=_("run.target"))
     run_parser.add_argument("entry_file", nargs="?", help=_("run.entry_file"))
     add_debug_release_profile_args(run_parser, "run", include_verbose=False)
 
     # stoke test
-    test_parser = subparsers.add_parser("test", help=_("test.help"))
+    test_parser = subparsers.add_parser("test", help=_("test.help"), formatter_class=_help_formatter)
     test_parser.add_argument("target", nargs="?", help=_("test.target"))
     add_debug_release_profile_args(test_parser, "test")
 
     # stoke add / remove (python/java dependency management)
-    add_parser = subparsers.add_parser("add", help=_("add.help"))
+    add_parser = subparsers.add_parser("add", help=_("add.help"), formatter_class=_help_formatter)
     add_parser.add_argument("packages", nargs="+", help=_("add.package"))
     add_parser.add_argument("--target", help=_("add.target"))
 
-    remove_parser = subparsers.add_parser("remove", help=_("remove.help"))
+    remove_parser = subparsers.add_parser("remove", help=_("remove.help"), formatter_class=_help_formatter)
     remove_parser.add_argument("packages", nargs="+", help=_("remove.package"))
     remove_parser.add_argument("--target", help=_("remove.target"))
 
     # stoke ide-sync
-    subparsers.add_parser("ide-sync", help=_("ide-sync.help"))
+    subparsers.add_parser("ide-sync", help=_("ide-sync.help"), formatter_class=_help_formatter)
 
     # stoke hot-reload
-    hotreload_parser = subparsers.add_parser("hot-reload", help=_("hot-reload.help"))
+    hotreload_parser = subparsers.add_parser("hot-reload", help=_("hot-reload.help"), formatter_class=_help_formatter)
     hotreload_parser.add_argument("target", nargs="?", help=_("hot-reload.target"))
     add_debug_release_profile_args(hotreload_parser, "hot-reload")
 
@@ -216,6 +247,11 @@ def _build_parser():
 
 def main():
     parser = _build_parser()
+
+    if sys.argv[1:2] == ["help"]:
+        parser.parse_args(sys.argv[2:3] + ["--help"] if sys.argv[2:3] else ["--help"])
+        return
+
     args = parser.parse_args()
 
     try:

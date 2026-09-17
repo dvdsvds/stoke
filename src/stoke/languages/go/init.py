@@ -1,6 +1,7 @@
 """Go 프로젝트 초기화 로직."""
 import subprocess
 import shutil
+import sys
 from pathlib import Path
 import re
 
@@ -52,11 +53,15 @@ def _write_example_go(project_root: Path, project_name: str) -> None:
     """Go 예시 파일 생성 + go.mod 초기화."""
     go_exe = shutil.which("go")
     if go_exe:
-        subprocess.run(
+        result = subprocess.run(
             [go_exe, "mod", "init", project_name],
             cwd=str(project_root),
             capture_output=True,
+            text=True,
         )
+        if result.returncode != 0:
+            print("Warning: go mod init failed:", file=sys.stderr)
+            print(result.stderr, file=sys.stderr)
     main_go = project_root / "main.go"
     content = '''package main
 

@@ -23,11 +23,15 @@ def cmd_init_ktor():
     gradle_exe = shutil.which("gradle")
     if gradle_exe:
         print("\nGenerating Gradle wrapper...")
-        subprocess.run(
+        result = subprocess.run(
             [gradle_exe, "wrapper"],
             cwd=str(project_path),
             capture_output=True,
+            text=True,
         )
+        if result.returncode != 0:
+            print("\nWarning: gradle wrapper failed:", file=sys.stderr)
+            print(result.stderr, file=sys.stderr)
     else:
         print("\nWarning: 'gradle' not found. Install Gradle from https://gradle.org/install", file=sys.stderr)
 

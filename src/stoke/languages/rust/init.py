@@ -1,6 +1,7 @@
 """Rust 프로젝트 초기화 로직"""
 import subprocess
 import shutil
+import sys
 from pathlib import Path
 
 from stoke.prompts import _prompt
@@ -47,11 +48,15 @@ def _write_example_rust(project_root: Path, project_name: str) -> None:
     """Rust 예시 파일 생성 + Cargo.toml 초기화"""
     cargo_exe = shutil.which("cargo")
     if cargo_exe:
-        subprocess.run(
+        result = subprocess.run(
             [cargo_exe, "init", "--name", project_name, "--vcs", "none"],
             cwd=str(project_root),
             capture_output=True,
+            text=True,
         )
+        if result.returncode != 0:
+            print("Warning: cargo init failed:", file=sys.stderr)
+            print(result.stderr, file=sys.stderr)
     else:
         cargo_toml = project_root / "Cargo.toml"
         cargo_toml.write_text(

@@ -20,11 +20,15 @@ def cmd_init_sinatra():
     bundle_exe = shutil.which("bundle")
     if bundle_exe:
         print("Running bundle install...")
-        subprocess.run(
+        result = subprocess.run(
             [bundle_exe, "install"],
             cwd=str(project_path),
             capture_output=True,
+            text=True,
         )
+        if result.returncode != 0:
+            print("Warning: bundle install failed:", file=sys.stderr)
+            print(result.stderr, file=sys.stderr)
     else:
         print("Warning: 'bundle' not found. Install Ruby + bundler (gem install bundler)", file=sys.stderr)
 

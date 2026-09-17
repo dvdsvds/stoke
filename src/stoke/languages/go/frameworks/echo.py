@@ -23,17 +23,25 @@ def cmd_init_echo():
     go_exe = shutil.which("go")
     if go_exe:
         print(f"\nInitializing go.mod (module: {module_name})...")
-        subprocess.run(
+        result = subprocess.run(
             [go_exe, "mod", "init", module_name],
             cwd=str(project_path),
             capture_output=True,
+            text=True,
         )
+        if result.returncode != 0:
+            print("Warning: go mod init failed:", file=sys.stderr)
+            print(result.stderr, file=sys.stderr)
         print("Downloading Echo dependency...")
-        subprocess.run(
+        result = subprocess.run(
             [go_exe, "get", "github.com/labstack/echo/v4"],
             cwd=str(project_path),
             capture_output=True,
+            text=True,
         )
+        if result.returncode != 0:
+            print("Warning: go get github.com/labstack/echo/v4 failed:", file=sys.stderr)
+            print(result.stderr, file=sys.stderr)
     else:
         print("\nWarning: 'go' not found.", file=sys.stderr)
 
