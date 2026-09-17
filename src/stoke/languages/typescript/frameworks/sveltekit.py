@@ -5,7 +5,7 @@ import shutil
 from pathlib import Path
 
 from stoke.prompts import resolve_project_name
-from stoke.npm_check import check_npm_health
+from stoke.npm_check import warn_npm_health
 
 def cmd_init_sveltekit():
     """stoke init sveltekit 명령어."""
@@ -25,7 +25,7 @@ def cmd_init_sveltekit():
         print("Error: npx not found in PATH.", file=sys.stderr)
         sys.exit(1)
 
-    check_npm_health(npm_exe)
+    warn_npm_health(npm_exe)
     print(f"\nRunning: npx sv create {project_name}\n")
 
     try:

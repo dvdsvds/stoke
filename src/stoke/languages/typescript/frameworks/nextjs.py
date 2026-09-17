@@ -5,7 +5,7 @@ import shutil
 from pathlib import Path
 
 from stoke.prompts import resolve_project_name
-from stoke.npm_check import check_npm_health
+from stoke.npm_check import warn_npm_health
 
 def cmd_init_nextjs():
     """stoke init nextjs 명령어."""
@@ -22,7 +22,9 @@ def cmd_init_nextjs():
 
     npm_exe = shutil.which("npm")
     if npm_exe:
-        check_npm_health(npm_exe)
+        # create-next-app이 내부적으로 system npm을 호출해 의존성을 설치하므로
+        # 경고만 띄워준다 (커맨드 자체는 npx_exe로 그대로 진행).
+        warn_npm_health(npm_exe)
 
     print(f"\nRunning: npx create-next-app@latest\n")
 

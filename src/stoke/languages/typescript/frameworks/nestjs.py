@@ -5,7 +5,7 @@ import shutil
 from pathlib import Path
 
 from stoke.prompts import resolve_project_name
-from stoke.npm_check import check_npm_health
+from stoke.npm_check import warn_npm_health
 
 def cmd_init_nestjs():
     """stoke init nestjs 명령어."""
@@ -22,7 +22,7 @@ def cmd_init_nestjs():
 
     npm_exe = shutil.which("npm")
     if npm_exe:
-        check_npm_health(npm_exe)
+        warn_npm_health(npm_exe)
 
     print(f"\nRunning: npx @nestjs/cli new {project_name}\n")
 
