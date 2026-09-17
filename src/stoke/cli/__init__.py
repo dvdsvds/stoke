@@ -1,6 +1,8 @@
 """stoke CLI 진입점."""
 import argparse
+import os
 import sys
+from pathlib import Path
 
 from stoke import __version__
 from stoke.cli.messages import get_message as _
@@ -168,6 +170,7 @@ def _build_parser():
     init_parser = subparsers.add_parser("init", help=_("init.help"))
     from stoke.plugins import all_framework_plugin_names
     init_parser.add_argument("type", nargs="?", choices=list(_INIT_FRAMEWORK_HANDLERS) + all_framework_plugin_names(), help="Project type (optional)")
+    init_parser.add_argument("path", nargs="?", help="Directory to create the project in (created if it doesn't exist; defaults to current directory)")
     init_parser.add_argument("--language", help="Language (non-interactive mode, e.g. --language=python)")
     init_parser.add_argument("--name", help="Project name (non-interactive mode; defaults to current folder name)")
     init_parser.add_argument("--version", help="Language version/standard/toolchain pin (non-interactive mode; meaning depends on language)")
@@ -273,6 +276,10 @@ def _dispatch(args):
             cmd_vcpkg_version()
     elif args.command == "init":
         from stoke.plugins import get_framework_plugin
+        if args.path:
+            target_dir = Path(args.path)
+            target_dir.mkdir(parents=True, exist_ok=True)
+            os.chdir(target_dir)
         handler = _INIT_FRAMEWORK_HANDLERS.get(args.type) or get_framework_plugin(args.type)
         if handler:
             handler()

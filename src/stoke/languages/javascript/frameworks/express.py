@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 from stoke.prompts import _prompt, resolve_project_dir
+from stoke.npm_check import check_npm_health
 
 def cmd_init_express():
     """stoke init express 명령어."""
@@ -24,13 +25,17 @@ def cmd_init_express():
     # npm install
     npm_exe = shutil.which("npm")
     if npm_exe:
+        check_npm_health(npm_exe)
         print("\nRunning npm install...")
-        subprocess.run(
+        result = subprocess.run(
             [npm_exe, "install"],
             cwd=str(project_path),
             capture_output=True,
-            shell=True,
+            text=True,
         )
+        if result.returncode != 0:
+            print("\nWarning: npm install failed:", file=sys.stderr)
+            print(result.stderr, file=sys.stderr)
     else:
         print("\nWarning: npm not found. Install manually.", file=sys.stderr)
 

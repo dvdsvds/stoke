@@ -5,6 +5,7 @@ import shutil
 from pathlib import Path
 
 from stoke.prompts import resolve_project_name
+from stoke.npm_check import check_npm_health
 
 def cmd_init_vite():
     """stoke init vite 명령어."""
@@ -19,6 +20,7 @@ def cmd_init_vite():
         print("Install Node.js first.", file=sys.stderr)
         sys.exit(1)
 
+    check_npm_health(npm_exe)
     print(f"\nRunning: npm create vite@latest {project_name}\n")
     print("Follow the prompts from Vite.\n")
 
@@ -27,14 +29,12 @@ def cmd_init_vite():
             result = subprocess.run(
                 [npm_exe, "create", "vite@latest", "."],
                 cwd=str(cwd),
-                shell=True,
             )
             project_path = cwd
         else:
             result = subprocess.run(
                 [npm_exe, "create", "vite@latest", project_name],
                 cwd=str(cwd),
-                shell=True,
             )
             project_path = cwd / project_name
     except KeyboardInterrupt:

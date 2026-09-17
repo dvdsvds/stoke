@@ -5,6 +5,7 @@ import shutil
 from pathlib import Path
 
 from stoke.prompts import resolve_project_name
+from stoke.npm_check import check_npm_health
 
 def cmd_init_nuxt():
     """stoke init nuxt 명령어."""
@@ -19,6 +20,10 @@ def cmd_init_nuxt():
         print("Install Node.js first.", file=sys.stderr)
         sys.exit(1)
 
+    npm_exe = shutil.which("npm")
+    if npm_exe:
+        check_npm_health(npm_exe)
+
     print(f"\nRunning: npx nuxi@latest init {project_name}\n")
 
     try:
@@ -26,14 +31,12 @@ def cmd_init_nuxt():
             result = subprocess.run(
                 [npx_exe, "nuxi@latest", "init", "."],
                 cwd=str(cwd),
-                shell=True,
             )
             project_path = cwd
         else:
             result = subprocess.run(
                 [npx_exe, "nuxi@latest", "init", project_name],
                 cwd=str(cwd),
-                shell=True,
             )
             project_path = cwd / project_name
     except KeyboardInterrupt:

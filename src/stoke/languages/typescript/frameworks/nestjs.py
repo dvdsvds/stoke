@@ -5,6 +5,7 @@ import shutil
 from pathlib import Path
 
 from stoke.prompts import resolve_project_name
+from stoke.npm_check import check_npm_health
 
 def cmd_init_nestjs():
     """stoke init nestjs 명령어."""
@@ -19,6 +20,10 @@ def cmd_init_nestjs():
         print("Install Node.js first.", file=sys.stderr)
         sys.exit(1)
 
+    npm_exe = shutil.which("npm")
+    if npm_exe:
+        check_npm_health(npm_exe)
+
     print(f"\nRunning: npx @nestjs/cli new {project_name}\n")
 
     try:
@@ -27,14 +32,12 @@ def cmd_init_nestjs():
             result = subprocess.run(
                 [npx_exe, "@nestjs/cli", "new", project_name, "--directory", ".", "--skip-git"],
                 cwd=str(cwd),
-                shell=True,
             )
             project_path = cwd
         else:
             result = subprocess.run(
                 [npx_exe, "@nestjs/cli", "new", project_name, "--skip-git"],
                 cwd=str(cwd),
-                shell=True,
             )
             project_path = cwd / project_name
     except KeyboardInterrupt:

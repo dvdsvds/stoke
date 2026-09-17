@@ -5,6 +5,7 @@ import shutil
 from pathlib import Path
 
 from stoke.prompts import resolve_project_name
+from stoke.npm_check import check_npm_health
 
 def cmd_init_hono():
     """stoke init hono 명령어."""
@@ -19,6 +20,7 @@ def cmd_init_hono():
         print("Install Node.js first.", file=sys.stderr)
         sys.exit(1)
 
+    check_npm_health(npm_exe)
     print(f"\nRunning: npm create hono@latest {project_name}\n")
 
     try:
@@ -26,14 +28,12 @@ def cmd_init_hono():
             result = subprocess.run(
                 [npm_exe, "create", "hono@latest", "."],
                 cwd=str(cwd),
-                shell=True,
             )
             project_path = cwd
         else:
             result = subprocess.run(
                 [npm_exe, "create", "hono@latest", project_name],
                 cwd=str(cwd),
-                shell=True,
             )
             project_path = cwd / project_name
     except KeyboardInterrupt:
