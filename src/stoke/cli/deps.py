@@ -97,11 +97,33 @@ def cmd_add_dep(packages: list[str], target_name: str | None):
     from stoke.cli.build import cmd_build
     cmd_build(target_name)
 
-def cmd_remove_dep(package: str, target_name: str | None):
-    """stoke remove <package> [--target=X]"""
+def _npm_remove(config, packages: list[str]) -> None:
+    """javascript/typescript: stoke.toml 대신 실제 npm uninstall을 실행 (npm 버그 우회 포함)."""
+    from stoke.npm_check import resolve_npm_command
+
+    npm_exe = shutil.which("npm")
+    if npm_exe is None:
+        print("Error: npm not found in PATH.", file=sys.stderr)
+        sys.exit(1)
+
+    print(f"Running: npm uninstall {' '.join(packages)}\n")
+    result = subprocess.run(
+        resolve_npm_command(npm_exe) + ["uninstall", *packages],
+        cwd=str(config.config_path.parent),
+    )
+    if result.returncode != 0:
+        print(f"Error: npm uninstall {' '.join(packages)} failed", file=sys.stderr)
+        sys.exit(1)
+
+def cmd_remove_dep(packages: list[str], target_name: str | None):
+    """stoke remove <package> [package2 ...] [--target=X]"""
     config = load_config_or_exit()
     target_name = resolve_target_or_exit(config, target_name, verb="removing from")
     target = config.targets[target_name]
+
+    if target.language in _NPM_LANGUAGES:
+        _npm_remove(config, packages)
+        return
 
     if target.language not in _MANAGED_LANGUAGES:
         hint = _NATIVE_HINT.get(target.language)
@@ -110,16 +132,18 @@ def cmd_remove_dep(package: str, target_name: str | None):
             print(f"  stoke.toml isn't the dependency manifest here — use: {hint}", file=sys.stderr)
         sys.exit(1)
 
-    try:
-        removed = remove_dep(config.config_path, target_name, package)
-    except OSError as e:
-        print(f"Error updating stoke.toml: {e}", file=sys.stderr)
-        sys.exit(1)
+    for package in packages:
+        try:
+            removed = remove_dep(config.config_path, target_name, package)
+        except OSError as e:
+            print(f"Error updating stoke.toml: {e}", file=sys.stderr)
+            sys.exit(1)
 
-    if not removed:
-        print(f"Warning: '{package}' not found in stoke.toml deps for target '{target_name}'", file=sys.stderr)
-        sys.exit(1)
+        if not removed:
+            print(f"Warning: '{package}' not found in stoke.toml deps for target '{target_name}'", file=sys.stderr)
+            sys.exit(1)
 
-    print(f"Removed from stoke.toml: {package} (target '{target_name}')")
+        print(f"Removed from stoke.toml: {package} (target '{target_name}')")
+
     print("This only stops it from being installed on future builds.")
     print("Run 'stoke clean && stoke build' if you want it removed from the environment too.")

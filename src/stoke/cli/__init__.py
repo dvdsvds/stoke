@@ -201,7 +201,7 @@ def _build_parser():
     add_parser.add_argument("--target", help=_("add.target"))
 
     remove_parser = subparsers.add_parser("remove", help=_("remove.help"))
-    remove_parser.add_argument("package", help=_("remove.package"))
+    remove_parser.add_argument("packages", nargs="+", help=_("remove.package"))
     remove_parser.add_argument("--target", help=_("remove.target"))
 
     # stoke ide-sync
@@ -309,6 +309,6 @@ def _dispatch(args):
     elif args.command == "add":
         cmd_add_dep(args.packages, args.target)
     elif args.command == "remove":
-        cmd_remove_dep(args.package, args.target)
+        cmd_remove_dep(args.packages, args.target)
     elif args.command == "ide-sync":
         cmd_ide_sync()
