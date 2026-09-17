@@ -197,8 +197,7 @@ def _build_parser():
 
     # stoke add / remove (python/java dependency management)
     add_parser = subparsers.add_parser("add", help=_("add.help"))
-    add_parser.add_argument("package", help=_("add.package"))
-    add_parser.add_argument("version", nargs="?", help=_("add.version"))
+    add_parser.add_argument("packages", nargs="+", help=_("add.package"))
     add_parser.add_argument("--target", help=_("add.target"))
 
     remove_parser = subparsers.add_parser("remove", help=_("remove.help"))
@@ -308,7 +307,7 @@ def _dispatch(args):
         profile_name = resolve_profile_from_args(args)
         cmd_test(args.target, profile=profile_name, verbose=args.verbose)
     elif args.command == "add":
-        cmd_add_dep(args.package, args.version, args.target)
+        cmd_add_dep(args.packages, args.target)
     elif args.command == "remove":
         cmd_remove_dep(args.package, args.target)
     elif args.command == "ide-sync":

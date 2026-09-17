@@ -31,8 +31,9 @@ _NATIVE_HINT = {
     "cpp": "stoke vcpkg install <library>",
 }
 
-def _npm_add(config, package: str, version: str | None) -> None:
-    """javascript/typescript: stoke.toml 대신 실제 npm install을 실행 (npm 버그 우회 포함)."""
+def _npm_add(config, specs: list[str]) -> None:
+    """javascript/typescript: stoke.toml 대신 실제 npm install을 실행 (npm 버그 우회 포함).
+    여러 패키지를 한 번의 npm install 호출로 같이 넘김 (npm install pkg1 pkg2 ...)."""
     from stoke.npm_check import resolve_npm_command
 
     npm_exe = shutil.which("npm")
@@ -40,24 +41,29 @@ def _npm_add(config, package: str, version: str | None) -> None:
         print("Error: npm not found in PATH.", file=sys.stderr)
         sys.exit(1)
 
-    spec = f"{package}@{version}" if version else package
-    print(f"Running: npm install {spec}\n")
+    print(f"Running: npm install {' '.join(specs)}\n")
     result = subprocess.run(
-        resolve_npm_command(npm_exe) + ["install", spec],
+        resolve_npm_command(npm_exe) + ["install", *specs],
         cwd=str(config.config_path.parent),
     )
     if result.returncode != 0:
-        print(f"Error: npm install {spec} failed", file=sys.stderr)
+        print(f"Error: npm install {' '.join(specs)} failed", file=sys.stderr)
         sys.exit(1)
 
-def cmd_add_dep(package: str, version: str | None, target_name: str | None):
-    """stoke add <package> [version] [--target=X]"""
+def cmd_add_dep(packages: list[str], target_name: str | None):
+    """stoke add <package> [package2 ...] [--target=X]
+
+    python/java: stoke.toml이 매니페스트라 패키지 하나만 지원 -- 두 번째 인자는
+    버전으로 취급 (기존 `stoke add <package> <version>` 문법 유지).
+    javascript/typescript: package.json이 매니페스트이므로 여러 패키지를 그대로
+    npm install에 넘김 (npm install pkg1 pkg2처럼).
+    """
     config = load_config_or_exit()
     target_name = resolve_target_or_exit(config, target_name, verb="adding to")
     target = config.targets[target_name]
 
     if target.language in _NPM_LANGUAGES:
-        _npm_add(config, package, version)
+        _npm_add(config, packages)
         return
 
     if target.language not in _MANAGED_LANGUAGES:
@@ -66,6 +72,13 @@ def cmd_add_dep(package: str, version: str | None, target_name: str | None):
         if hint:
             print(f"  stoke.toml isn't the dependency manifest here — use: {hint}", file=sys.stderr)
         sys.exit(1)
+
+    if len(packages) > 2:
+        print(f"Error: 'stoke add' takes one package (and an optional version) for '{target.language}' targets.", file=sys.stderr)
+        sys.exit(1)
+
+    package = packages[0]
+    version = packages[1] if len(packages) == 2 else None
 
     if target.language == "java" and not version:
         print("Error: Java dependencies need an explicit version.", file=sys.stderr)
