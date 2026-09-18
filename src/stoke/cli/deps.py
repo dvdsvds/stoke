@@ -88,7 +88,7 @@ def cmd_add_dep(packages: list[str], target_name: str | None):
     resolved_version = version or "*"
     try:
         add_dep(config.config_path, target_name, package, resolved_version)
-    except OSError as e:
+    except (OSError, ValueError) as e:
         print(f"Error updating stoke.toml: {e}", file=sys.stderr)
         sys.exit(1)
 

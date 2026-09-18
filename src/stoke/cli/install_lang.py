@@ -257,6 +257,21 @@ def _install_windows(installer_path: Path, language: str = None, version: str = 
         print(f"Error: unsupported installer format: {suffix}", file=sys.stderr)
         sys.exit(1)
 
+def _check_safe_members(names: list[str], dest: Path) -> None:
+    """
+    압축 해제 전에 각 엔트리가 dest 밖으로 안 나가는지 확인 (zip-slip/tar-slip 방어).
+
+    installer 다운로드 URL은 --base-url/STOKE_VERSION_API_BASE로 사용자가
+    바꿀 수 있게 되어 있어서(사내 미러링 용도), 그 미러가 침해되거나
+    설정이 잘못되면 "../../"나 절대경로 엔트리가 든 압축파일을 받아
+    dest 밖 임의 경로에 파일을 쓸 수 있음 -- 여기서 한 번에 막음.
+    """
+    dest_resolved = dest.resolve()
+    for name in names:
+        member_path = (dest / name).resolve()
+        if not member_path.is_relative_to(dest_resolved):
+            raise RuntimeError(f"Refusing to extract unsafe archive entry: {name}")
+
 def _extract_zip(zip_path: Path, dest: Path) -> None:
     """.zip 파일을 dest에 압축 해제."""
     print(f"Extracting to {dest}...")
@@ -264,9 +279,13 @@ def _extract_zip(zip_path: Path, dest: Path) -> None:
 
     try:
         with zipfile.ZipFile(zip_path) as zf:
+            _check_safe_members(zf.namelist(), dest)
             zf.extractall(dest)
     except zipfile.BadZipFile as e:
         print(f"Error: invalid zip file: {e}", file=sys.stderr)
+        sys.exit(1)
+    except RuntimeError as e:
+        print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
 
 def _extract_7z(archive_path: Path, dest: Path) -> None:
@@ -278,9 +297,13 @@ def _extract_7z(archive_path: Path, dest: Path) -> None:
 
     try:
         with py7zr.SevenZipFile(archive_path, mode="r") as archive:
+            _check_safe_members(archive.getnames(), dest)
             archive.extractall(path=dest)
     except py7zr.exceptions.Bad7zFile as e:
         print(f"Error: invalid 7z file: {e}", file=sys.stderr)
+        sys.exit(1)
+    except RuntimeError as e:
+        print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
 
 def _install_rust(rustup_init: Path, dest: Path, version: str) -> None:
@@ -296,6 +319,11 @@ def _install_rust(rustup_init: Path, dest: Path, version: str) -> None:
     dest.mkdir(parents=True, exist_ok=True)
 
     import os
+    if sys.platform != "win32":
+        # 다운로드로 받은 rustup-init은 실행 비트가 안 켜져 있어서(umask에 따라
+        # 보통 644), chmod 없이 그대로 실행하면 PermissionError.
+        rustup_init.chmod(rustup_init.stat().st_mode | 0o111)
+
     env = dict(os.environ)
     env["RUSTUP_HOME"] = str(rustup_home)
     env["CARGO_HOME"] = str(cargo_home)
@@ -405,9 +433,13 @@ def _extract_tar(tar_path: Path, dest: Path) -> None:
 
     try:
         with tarfile.open(tar_path) as tf:
+            _check_safe_members(tf.getnames(), dest)
             tf.extractall(dest)
     except tarfile.TarError as e:
         print(f"Error: invalid tar archive: {e}", file=sys.stderr)
+        sys.exit(1)
+    except RuntimeError as e:
+        print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
 
 def cmd_list_language_versions(language: str, base_url: str | None = None):

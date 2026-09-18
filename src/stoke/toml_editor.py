@@ -6,12 +6,30 @@ tomllib은 읽기 전용이라 정규식으로 섹션을 찾아서 수정.
 import re
 from pathlib import Path
 
+_VALID_TOML_BARE_KEY = re.compile(r"^[A-Za-z0-9_-]+$")
+
+def _escape_toml_string(value: str) -> str:
+    """TOML basic string(큰따옴표) 안에 안전하게 넣을 수 있게 이스케이프."""
+    return (
+        value.replace("\\", "\\\\")
+        .replace('"', '\\"')
+        .replace("\n", "\\n")
+        .replace("\r", "\\r")
+        .replace("\t", "\\t")
+    )
+
 def add_dep(toml_path: Path, target_name: str, lib_name: str, version: str) -> None:
     """
     stoke.toml의 [targets.<target_name>.deps] 섹션에 라이브러리 추가.
     섹션이 없으면 만들어요.
     이미 있으면 버전만 업데이트.
     """
+    if not _VALID_TOML_BARE_KEY.match(lib_name):
+        raise ValueError(
+            f"invalid package name '{lib_name}': only letters, digits, '-' and '_' allowed"
+        )
+    version = _escape_toml_string(version)
+
     content = toml_path.read_text(encoding="utf-8")
     section_header = f"[targets.{target_name}.deps]"
 
