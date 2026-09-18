@@ -10,22 +10,11 @@ from stoke.http_utils import basic_auth_headers
 DEFAULT_MAVEN_REPO_URL = "https://repo1.maven.org/maven2"
 
 def get_maven_repo_url() -> str:
-    """
-    JAR 다운로드에 사용할 Maven 저장소 base URL.
-
-    STOKE_MAVEN_REPO_URL 환경변수로 오버라이드 가능. 외부 인터넷을
-    화이트리스트로만 열어둔 사내망에서 Maven Central에 못 닿을 때,
-    사내 Nexus/Artifactory 같은 미러(Maven Central과 동일한 경로 구조로
-    프록시하는 저장소)를 가리키기 위함.
-    """
+    """JAR 다운로드에 사용할 Maven 저장소 base URL (STOKE_MAVEN_REPO_URL로 사내 미러 오버라이드 가능)."""
     return os.environ.get("STOKE_MAVEN_REPO_URL", DEFAULT_MAVEN_REPO_URL).rstrip("/")
 
 def get_maven_credentials() -> tuple[str | None, str | None]:
-    """
-    사설 Maven 미러가 인증을 요구할 때 쓸 자격증명.
-    STOKE_MAVEN_USER / STOKE_MAVEN_PASSWORD 환경변수로 설정.
-    둘 다 없으면 (None, None) — 익명 요청 (기존 동작과 동일한 하위 호환).
-    """
+    """사설 Maven 미러 인증용 자격증명 (STOKE_MAVEN_USER/PASSWORD, 둘 다 없으면 익명)."""
     return (
         os.environ.get("STOKE_MAVEN_USER"),
         os.environ.get("STOKE_MAVEN_PASSWORD"),
@@ -45,10 +34,7 @@ class MavenCoordinate:
 
     @property
     def url_path(self) -> str:
-        """
-        Maven 저장소 안에서의 상대 경로.
-        예: com/google/code/gson/gson/2.10.1/gson-2.10.1.jar
-        """
+        """Maven 저장소 안에서의 상대 경로."""
         group_path = self.group_id.replace(".", "/")
         return f"{group_path}/{self.artifact_id}/{self.version}/{self.jar_filename}"
 
@@ -65,16 +51,7 @@ class MavenCoordinate:
         return f"{self.group_id}:{self.artifact_id}:{self.version}"
 
 def parse_coordinate(name: str, version: str) -> MavenCoordinate:
-    """
-    stoke.toml의 deps 형식을 MavenCoordinate로 변환.
-
-    입력:
-      name = "com.google.code.gson:gson"
-      version = "2.10.1"
-
-    출력:
-      MavenCoordinate(group_id="com.google.code.gson", artifact_id="gson", version="2.10.1")
-    """
+    """stoke.toml의 deps 형식("group:artifact", version)을 MavenCoordinate로 변환."""
     if ":" not in name:
         raise ValueError(
             f"Invalid Maven coordinate: '{name}'\n"
@@ -102,8 +79,7 @@ def parse_coordinate(name: str, version: str) -> MavenCoordinate:
     )
 
 def _download_bytes(url: str, timeout: int = 30) -> bytes:
-    """URL에서 바이트 다운로드. 실패 시 RuntimeError.
-    STOKE_MAVEN_USER/PASSWORD가 설정돼 있으면 Basic Auth 헤더를 붙임."""
+    """URL에서 바이트 다운로드 (실패 시 RuntimeError, 필요하면 Basic Auth 헤더)."""
     user, password = get_maven_credentials()
     headers = {"User-Agent": "stoke-build"}
     headers.update(basic_auth_headers(user, password))
@@ -135,12 +111,7 @@ def download_jar(
     verify_sha1: bool = True,
     repo_url: str | None = None,
 ) -> Path:
-    """
-    Maven 저장소에서 JAR 다운로드 (기본 Maven Central, STOKE_MAVEN_REPO_URL
-    환경변수나 repo_url 인자로 오버라이드 가능).
-    반환: 저장된 JAR의 로컬 경로.
-    실패 시 RuntimeError.
-    """
+    """Maven 저장소에서 JAR 다운로드. 반환: 저장된 로컬 경로 (실패 시 RuntimeError)."""
     dest_dir.mkdir(parents=True, exist_ok=True)
     dest_path = dest_dir / coord.jar_filename
     jar_url = coord.jar_url(repo_url)

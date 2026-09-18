@@ -36,12 +36,7 @@ def _get_javac_version(javac_path: str) -> str | None:
     return None
 
 def _parse_major_version(version: str) -> int:
-    """
-    버전 문자열에서 메이저 버전 추출.
-    "21.0.1" -> 21
-    "1.8.0_301" -> 8 (Java 8은 1.8로 표기)
-    "17" -> 17
-    """
+    """버전 문자열에서 메이저 버전 추출 (Java 8은 "1.8.0_301" 형태라 특별 처리)."""
     parts = version.split(".")
     if not parts:
         return 0
@@ -153,10 +148,7 @@ def _detect_via_path() -> JavaInstall | None:
     )
 
 def _detect_via_common_paths() -> list[JavaInstall]:
-    """
-    표준 JDK 설치 경로들을 스캔해서 발견된 JDK 목록 반환.
-    Windows/Linux/macOS 모두 대응.
-    """
+    """표준 JDK 설치 경로들을 스캔해서 발견된 JDK 목록 반환 (Windows/Linux/macOS 대응)."""
     import sys
 
     candidate_bases = []
@@ -221,8 +213,7 @@ def _detect_via_common_paths() -> list[JavaInstall]:
     return installs
 
 def _detect_local(project_root: Path) -> list[JavaInstall]:
-    """프로젝트의 .stoke/toolchains/java-*/ 에서 stoke install로 받은 JDK 감지.
-    Adoptium zip은 안에 jdk-<버전>/ 폴더가 한 겹 더 있어서 그 안을 찾는다."""
+    """프로젝트의 .stoke/toolchains/java-*/ 에서 stoke install로 받은 JDK 감지."""
     toolchains = project_root / ".stoke" / "toolchains"
     if not toolchains.is_dir():
         return []
@@ -251,8 +242,7 @@ def _detect_local(project_root: Path) -> list[JavaInstall]:
     return installs
 
 def detect_all(project_root: Path | None = None) -> list[JavaInstall]:
-    """설치된 모든 JDK 감지. project_root가 주어지면 stoke install로 받은
-    프로젝트 로컬 설치(.stoke/toolchains)를 최우선으로 찾는다."""
+    """설치된 모든 JDK 감지 (project_root 주어지면 프로젝트 로컬 설치 최우선)."""
     installs = []
     seen_homes: set[Path] = set()
 
@@ -287,11 +277,7 @@ def detect_all(project_root: Path | None = None) -> list[JavaInstall]:
     return installs
 
 def find_matching(constraint: str, project_root: Path | None = None) -> JavaInstall | None:
-    """
-    버전 제약("21", "17.0.1")에 맞는 JDK 찾기.
-    "21"이면 major 버전 21 매칭.
-    project_root가 주어지면 프로젝트 로컬 설치(.stoke/toolchains)를 우선 매칭.
-    """
+    """버전 제약("21", "17.0.1")에 맞는 JDK 찾기 (project_root 주어지면 로컬 설치 우선)."""
     installs = detect_all(project_root)
 
     # 숫자만 있는 경우 (예: "21") -> 메이저 버전 매칭

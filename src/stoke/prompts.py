@@ -1,18 +1,10 @@
-"""대화형 입력 프롬프트 공통 헬퍼.
-
-가능하면 questionary로 화살표 키 기반 TUI를 보여주고, stdin/stdout이
-실제 터미널이 아니거나(파이프/리다이렉트, CI) questionary를 쓸 수 없으면
-기존의 번호 입력 방식으로 자동 폴백한다.
-"""
+"""대화형 입력 프롬프트 공통 헬퍼. TTY면 questionary TUI, 아니면(CI 등) 번호 입력으로 폴백."""
 import re
 import sys
 from pathlib import Path
 
 def _short_choice_label(choice: str) -> str:
-    """선택지 문자열에서 설명 부분을 뺀 짧은 이름만 뽑아낸다.
-
-    "commit  - Lock file ..." -> "commit", "C++         (.cpp)" -> "C++"
-    """
+    """선택지 문자열에서 설명 부분을 뺀 짧은 이름만 뽑아낸다."""
     if " - " in choice:
         return choice.split(" - ", 1)[0].rstrip()
     return re.split(r"\s{2,}", choice, maxsplit=1)[0].rstrip()
@@ -109,8 +101,7 @@ def _border_fill(char: str, width: int | None = None) -> Window:
     return Window(width=width, height=1, char=char, style="class:frame.border")
 
 def _boxed_container(text_area: TextArea, title: str, width: int) -> HSplit:
-    """제목은 윗 테두리에, 입력은 그 아랫줄에. 입력 커서 시작 위치를 제목의
-    첫 글자(P) 바로 밑에 맞춘다 -- 윗줄 "╭─ P..." 만큼 왼쪽에 패딩을 둠."""
+    """제목은 윗 테두리에, 입력은 그 아랫줄에 (커서를 제목 첫 글자 밑에 정렬)."""
     top = VSplit(
         [
             _border_fill(_PTBorder.TOP_LEFT, width=1),
@@ -195,16 +186,7 @@ def _prompt(question: str, default: str | None = None) -> str:
 _VALID_PROJECT_NAME = re.compile(r"^[A-Za-z][A-Za-z0-9_-]*$")
 
 def _sanitize_project_name(name: str, fallback: str = "myapp") -> str:
-    """
-    프로젝트 이름을 안전한 charset(영문자로 시작, 이후 영숫자/-/_)으로 강제 변환.
-
-    이 이름은 이후 [targets.{name}] TOML 헤더, 파일시스템 경로(cwd / name),
-    Go import 경로, Kotlin/Java 패키지명 등 여러 군데에 검증 없이 그대로
-    꽂혀 들어가므로 -- 공백/점/따옴표/슬래시가 있으면 stoke.toml 파싱이
-    깨지거나(TOML bare key 규칙 위반) 생성된 소스가 컴파일 안 되거나,
-    "/"나 ".."가 있으면 의도치 않은 경로로 디렉토리가 생길 수 있음.
-    여기서 한 번에 막아서 모든 프레임워크 스캐폴더를 개별로 안 고쳐도 되게 함.
-    """
+    """프로젝트 이름을 안전한 charset(영문자로 시작, 이후 영숫자/-/_)으로 강제 변환."""
     if _VALID_PROJECT_NAME.match(name):
         return name[:64]
     sanitized = re.sub(r"[^A-Za-z0-9_-]+", "-", name).strip("-_")
@@ -215,12 +197,7 @@ def _sanitize_project_name(name: str, fallback: str = "myapp") -> str:
 _VALID_GO_MODULE = re.compile(r"^[A-Za-z0-9_./-]+$")
 
 def sanitize_go_module_name(name: str, fallback: str) -> str:
-    """
-    Go 모듈 경로(예: github.com/user/myapp)는 슬래시/점을 정상적으로 쓰므로
-    _sanitize_project_name처럼 좁게 제한할 수 없음. 다만 이 값이 생성된
-    main.go의 import 문자열 리터럴에 그대로 꽂혀 들어가므로(f'"{module_name}/handlers"'),
-    따옴표/백슬래시/개행처럼 문자열 리터럴을 깨는 문자만 걸러냄.
-    """
+    """Go 모듈 경로는 슬래시/점을 정상적으로 쓰므로, 문자열 리터럴을 깨는 문자만 걸러냄."""
     stripped = name.strip()
     if stripped and _VALID_GO_MODULE.match(stripped):
         return stripped
@@ -239,11 +216,7 @@ def resolve_project_name(default_name: str = "myapp") -> tuple[str, bool]:
     return project_name, is_empty
 
 def resolve_project_dir(default_name: str = "myapp") -> tuple[str, Path, bool]:
-    """이름 프롬프트 + 디렉토리 생성. 반환: (project_name, project_path, is_empty)
-
-    is_empty가 True면 project_path는 cwd 자체이고 하위 디렉토리가 생성되지 않았으므로,
-    호출부의 "다음 단계" 안내에서 `cd {project_name}`을 출력하면 안 됨.
-    """
+    """이름 프롬프트 + 디렉토리 생성. 반환: (project_name, project_path, is_empty)."""
     project_name, is_empty = resolve_project_name(default_name)
     cwd = Path.cwd()
     if is_empty:
@@ -256,11 +229,7 @@ def resolve_project_dir(default_name: str = "myapp") -> tuple[str, Path, bool]:
     return project_name, project_path, False
 
 def _prompt_choice(question: str, choices: list[str], default_index: int = 0) -> int:
-    """선택지 중 하나를 고르게 하고 0-indexed로 반환.
-
-    TUI 모드에서는 화살표 키로 이동하는 목록으로, 폴백 모드에서는
-    번호를 타이핑하는 기존 방식으로 보여준다.
-    """
+    """선택지 중 하나를 고르게 하고 0-indexed로 반환 (TUI는 화살표, 폴백은 번호 입력)."""
     if _use_tui():
         # 일부 터미널에서 네이티브 텍스트 커서(깜빡이는 블록)가 첫 항목에
         # 고정되어 보이는 문제를 막기 위해 선택 중엔 커서를 숨긴다.
