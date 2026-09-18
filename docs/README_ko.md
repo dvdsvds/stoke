@@ -13,7 +13,7 @@ Spring Boot, FastAPI, Flask, Django, 그리고 Go/Rust/Kotlin/C#/Ruby/PHP/JavaSc
 
 - **다국어 지원** — Python, Java, C, C++, Go, Rust, Kotlin, C#, Ruby, PHP, JavaScript, TypeScript 통합 관리 (12개 언어, `stoke.toml` 하나로)
 - **언어 설치** — `stoke install`로 Python/JDK/gcc/Go/Node.js/Rust/C#/Ruby/PHP 자동 설치 (Kotlin은 별도 툴체인이 없음 — JDK 위에서 Gradle로 빌드)
-- **프레임워크 스캐폴딩** — Spring Boot, FastAPI, Flask, Django, Gin, Echo, Fiber, Chi, Actix Web, Axum, Rocket, Ktor, Spring Boot(Kotlin), ASP.NET Core, Sinatra, Slim, Express, Fastify, Next.js, NestJS, Vite, Nuxt, SvelteKit, Hono
+- **프레임워크 스캐폴딩** — Spring Boot, FastAPI, Flask, Django, Gin, Echo, Fiber, Chi, Bubble Tea, Actix Web, Axum, Rocket, Ktor, Spring Boot(Kotlin), ASP.NET Core, Sinatra, Slim, Express, Fastify, Next.js, NestJS, Vite, Nuxt, SvelteKit, Hono
 - **Python 환경** — venv 또는 conda 선택 가능
 - **자동 의존성 관리** — stoke가 직접 관리하는 언어는 pip, Maven Central, vcpkg / 나머지는 Cargo, Gradle, NuGet, Bundler, Composer, npm이 각자 처리
 - **팀 일관성을 위한 버전 pin** — 이제 모든 언어에 pin 메커니즘 존재 (아래 [버전 pin](#팀-일관성을-위한-버전-pin) 참고)
@@ -90,6 +90,7 @@ C/C++ 의존성 관리는 vcpkg 사용. Python/Java는 stoke 자체 lock 파일(
 | `stoke clean [target]` | 빌드 산출물 삭제 |
 | `stoke clean --all` | lock 파일 포함 완전 초기화 |
 | `stoke ide-sync` | VSCode/Eclipse/IntelliJ 설정 파일 재생성, 워크스페이스 IDE 파일도 관리 |
+| `stoke exec [--target=X] -- <command>` | 타겟의 프로젝트 로컬 툴체인(`.stoke/toolchains/`)을 PATH에 얹은 채로 임의 명령 실행 (예: `go mod tidy`, `cargo add`) — 아무것도 설치하지 않고, 있는 걸 찾아서 PATH에 얹기만 함 |
 
 ### 언어별 도구
 
@@ -122,7 +123,7 @@ Rust/Kotlin/C#/Ruby/PHP 툴체인은 `PATH`에 있는 걸 그대로 감지합니
 | --- | --- |
 | Python | `fastapi`, `flask`, `django` |
 | Java | `spring-boot` |
-| Go | `gin`, `echo`, `fiber`, `chi` |
+| Go | `gin`, `echo`, `fiber`, `chi`, `bubbletea` |
 | Rust | `actix-web`, `axum`, `rocket` |
 | Kotlin | `ktor`, `spring-boot-kotlin` |
 | C# | `aspnet-core` |

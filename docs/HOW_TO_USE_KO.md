@@ -71,7 +71,7 @@ stoke init --language=python --name=myapp --version=3.12 --lock-mode=commit --ye
 
 ```bash
 stoke init fastapi        # 또는: flask, django, spring-boot, gin, echo, fiber, chi,
-                           # actix-web, axum, rocket, ktor, spring-boot-kotlin,
+                           # bubbletea, actix-web, axum, rocket, ktor, spring-boot-kotlin,
                            # aspnet-core, sinatra, slim, express, fastify,
                            # nextjs, nestjs, vite, nuxt, sveltekit, hono
 ```
@@ -123,6 +123,14 @@ stoke watch [target]                  # 파일 바뀌면 자동 재빌드
 stoke hot-reload [target]             # 재빌드 + 실행 중인 프로세스 자동 재시작
 stoke clean [target] [--all]          # 빌드 산출물 삭제, --all이면 lock 파일도 같이 삭제
 stoke ide-sync                        # VSCode/Eclipse/IntelliJ 설정 파일 재생성
+stoke exec [--target=X] -- <command>  # 타겟의 프로젝트 로컬 툴체인을 PATH에 얹은 채로 명령 실행
+```
+
+**`stoke exec`** — `stoke install`/`stoke init`은 언어 툴체인을 시스템 PATH를 안 건드리고 `.stoke/toolchains/`에만 설치하므로, 그 언어가 시스템에 전혀 없어도 `stoke build`/`run`은 잘 됩니다. 하지만 사용자가 직접 치는 네이티브 도구 명령(`go mod tidy`, `cargo add serde`, `bundle add rails`, `composer require monolog/monolog`, `dotnet add package Newtonsoft.Json`)은 PATH만 보기 때문에, 그 언어가 프로젝트 로컬로만 설치돼 있으면 실패합니다. `stoke exec`는 그 프로젝트 로컬 툴체인의 `bin/`을 PATH 맨 앞에 얹은(Rust는 `RUSTUP_HOME`/`CARGO_HOME`도 같이 설정) 상태로 명령을 대신 실행해줍니다:
+
+```bash
+stoke exec -- go mod tidy
+stoke exec --target=api -- cargo add serde
 ```
 
 `stoke init`에서 Python/Java/C/C++ 프로젝트는 어떤 IDE와 연동할지 물어봅니다 (`vscode`가 기본값이고 `.vscode/settings.json` + C/C++는 `compile_commands.json`/`c_cpp_properties.json`도 씀, `eclipse`는 Java용 `.classpath`/`.project`, `intellij`는 Java용 `pom.xml` 또는 C/C++용 `compile_commands.json`만 (CLion, clangd, clangd 기반 Vim/Neovim/Emacs 설정도 이 파일을 직접 읽음), `none`은 `stoke build`할 때 아무 파일도 안 씀). `stoke.toml`의 `[project]`에 `ide = "..."`로 저장되고 직접 수정해도 됩니다. 위에서 설명한 `stoke ide-sync`는 이거랑 별개로, 이 설정과 무관하게 찾은 모든 stoke 프로젝트를 묶는 VSCode 멀티루트 워크스페이스 파일을 항상 만듭니다.

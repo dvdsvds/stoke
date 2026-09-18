@@ -4,7 +4,7 @@
 
 <h2 align="center">Build, run, and scaffold projects in multiple languages.</h2>
 
-Supports Python, Java, C, C++, Go, Rust, Kotlin, C#, Ruby, PHP, JavaScript, and TypeScript (12 languages) with a single `stoke.toml`. Includes project scaffolding for Spring Boot, FastAPI, Flask, Django, and 20 other web framework templates across Go, Rust, Kotlin, C#, Ruby, PHP, JavaScript, and TypeScript (Gin, Echo, Fiber, Chi, Actix Web, Axum, Rocket, Ktor, ASP.NET Core, Sinatra, Slim, Express, Fastify, Next.js, NestJS, Vite, Nuxt, SvelteKit, Hono).
+Supports Python, Java, C, C++, Go, Rust, Kotlin, C#, Ruby, PHP, JavaScript, and TypeScript (12 languages) with a single `stoke.toml`. Includes project scaffolding for Spring Boot, FastAPI, Flask, Django, and 21 other framework templates across Go, Rust, Kotlin, C#, Ruby, PHP, JavaScript, and TypeScript (Gin, Echo, Fiber, Chi, Bubble Tea, Actix Web, Axum, Rocket, Ktor, ASP.NET Core, Sinatra, Slim, Express, Fastify, Next.js, NestJS, Vite, Nuxt, SvelteKit, Hono).
 
 ## Installation
 
@@ -32,7 +32,7 @@ stoke run
 ## Features
 - **Multi-language** — Python, Java, C, C++, Go, Rust, Kotlin, C#, Ruby, PHP, JavaScript, TypeScript with a single stoke.toml
 - **Language installation** — install Python/JDK/gcc/Go/Node.js/Rust/C#/Ruby/PHP via `stoke install` (Kotlin has no separate toolchain — it builds through Gradle on top of a JDK)
-- **Project scaffolding** — `stoke init <type>` for Spring Boot, FastAPI, Flask, Django, Gin, Echo, Fiber, Chi, Actix Web, Axum, Rocket, Ktor, ASP.NET Core, Sinatra, Slim, Express, Fastify, Next.js, NestJS, Vite, Nuxt, SvelteKit, Hono
+- **Project scaffolding** — `stoke init <type>` for Spring Boot, FastAPI, Flask, Django, Gin, Echo, Fiber, Chi, Bubble Tea, Actix Web, Axum, Rocket, Ktor, ASP.NET Core, Sinatra, Slim, Express, Fastify, Next.js, NestJS, Vite, Nuxt, SvelteKit, Hono
 - **Python environments** — venv or conda
 - **Watch mode and hot-reload** for all languages
 - **Build profiles** — debug/release and custom compile profiles for C/C++, including MSVC (`compiler = "msvc"`) alongside gcc/clang on Windows
@@ -43,6 +43,7 @@ stoke run
 - **Meson escape hatch for C/C++** — `build_system = "meson"` on a C/C++ target delegates `build`/`run`/`watch`/`hot-reload`/`clean` to `meson setup`/`meson compile` instead of stoke's own compile model, for projects with an existing `meson.build`
 - **`stoke test`** — runs the target's tests via each ecosystem's standard tool: pytest/unittest (Python), JUnit 5 via a bundled console launcher (Java), `go test`, `cargo test`, `dotnet test`, `gradle test`, `npm test`, RSpec/rake, PHPUnit, and `ctest`/`meson test` for `build_system = "cmake"/"meson"`. For plain C/C++ builds, `test_sources` + a bundled single-header [doctest](https://github.com/doctest/doctest) (C++ only for now)
 - **`stoke add`/`stoke remove`** — add or remove one or more dependencies at once. For Python/Java (where `stoke.toml` is the actual manifest) it edits `stoke.toml` and reinstalls; for JavaScript/TypeScript it runs `npm install`/`npm uninstall` directly (bypassing a known npm bug where it's needed) without touching `stoke.toml`, since `package.json` is the real manifest there; every other language points you at its native tool (`cargo add`, `go get`, etc.) instead
+- **`stoke exec [--target=X] -- <command>`** — run a native tool command (`go mod tidy`, `cargo add`, `bundle add`, `composer require`, `dotnet add package`, ...) with the target's project-local toolchain on `PATH`, for when that language only lives in `.stoke/toolchains/` and isn't installed system-wide. Doesn't install anything — just finds what's already there and puts it on `PATH` for that one subprocess
 - **Pre/post-build hooks** — `pre_build`/`post_build` shell commands per target, for every language and every build path (`build`, `watch`, `hot-reload`)
 - **Reproducible builds** via lock files
 - **Auto IDE integration** (VSCode, IntelliJ, Eclipse)

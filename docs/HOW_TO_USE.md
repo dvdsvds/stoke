@@ -71,7 +71,7 @@ stoke init --language=python --name=myapp --version=3.12 --lock-mode=commit --ye
 
 ```bash
 stoke init fastapi        # or: flask, django, spring-boot, gin, echo, fiber, chi,
-                           # actix-web, axum, rocket, ktor, spring-boot-kotlin,
+                           # bubbletea, actix-web, axum, rocket, ktor, spring-boot-kotlin,
                            # aspnet-core, sinatra, slim, express, fastify,
                            # nextjs, nestjs, vite, nuxt, sveltekit, hono
 ```
@@ -123,6 +123,14 @@ stoke watch [target]                  # rebuilds on file changes
 stoke hot-reload [target]             # rebuild + restart the running process
 stoke clean [target] [--all]          # deletes build artifacts; --all also deletes the lock file
 stoke ide-sync                        # regenerate VSCode/Eclipse/IntelliJ config files
+stoke exec [--target=X] -- <command>  # run a command with the target's project-local toolchain on PATH
+```
+
+**`stoke exec`** — `stoke install`/`stoke init` install language toolchains into `.stoke/toolchains/` without touching your system PATH, so `stoke build`/`run` work even if the language isn't installed system-wide, but a native tool command you type yourself (`go mod tidy`, `cargo add serde`, `bundle add rails`, `composer require monolog/monolog`, `dotnet add package Newtonsoft.Json`) only looks at PATH and fails if that's the only place the language lives. `stoke exec` runs the given command with that project-local toolchain's `bin/` prepended to PATH (and, for Rust, `RUSTUP_HOME`/`CARGO_HOME` set) instead:
+
+```bash
+stoke exec -- go mod tidy
+stoke exec --target=api -- cargo add serde
 ```
 
 `stoke init` asks which IDE to integrate with for Python/Java/C/C++ projects (`vscode`, the default, writes `.vscode/settings.json` plus `compile_commands.json`/`c_cpp_properties.json` for C/C++; `eclipse` writes `.classpath`/`.project` for Java; `intellij` writes `pom.xml` for Java, or just `compile_commands.json` for C/C++ (also what CLion, clangd, and clangd-based Vim/Neovim/Emacs setups read directly); `none` writes nothing on every `stoke build`). It's stored as `ide = "..."` under `[project]` in `stoke.toml` — edit it by hand any time. This is separate from `stoke ide-sync` above, which always generates a VSCode multi-root workspace file across every stoke project it finds, regardless of this setting.
