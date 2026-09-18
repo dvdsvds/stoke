@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 
 from stoke.prompts import _prompt
+from stoke.tool_install import ensure_tool
 
 def _select_csharp_version() -> str:
     """
@@ -47,7 +48,7 @@ language = "csharp"
 
 def _write_example_csharp(project_root: Path, project_name: str) -> None:
     """C# 예시 파일 생성 + .csproj 초기화."""
-    dotnet_exe = shutil.which("dotnet")
+    dotnet_exe = ensure_tool("csharp", ("dotnet", "dotnet.exe"), project_root, display_name=".NET SDK")
     if dotnet_exe:
         result = subprocess.run(
             [dotnet_exe, "new", "console", "--name", project_name, "--output", str(project_root), "--force"],

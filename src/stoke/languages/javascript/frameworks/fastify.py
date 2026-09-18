@@ -7,6 +7,7 @@ from pathlib import Path
 
 from stoke.prompts import _prompt, resolve_project_dir
 from stoke.npm_check import resolve_npm_command
+from stoke.tool_install import ensure_tool
 
 def cmd_init_fastify():
     """stoke init fastify 명령어."""
@@ -22,7 +23,7 @@ def cmd_init_fastify():
     _write_main(project_path / "src" / "main.js")
     _write_hello_route(project_path / "src" / "routes" / "hello.js")
 
-    npm_exe = shutil.which("npm")
+    npm_exe = ensure_tool("nodejs", ("npm", "npm.cmd"), project_path, display_name="Node.js")
     if npm_exe:
         print("\nRunning npm install...")
         result = subprocess.run(

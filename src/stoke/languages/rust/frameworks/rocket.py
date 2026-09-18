@@ -5,6 +5,7 @@ import shutil
 from pathlib import Path
 
 from stoke.prompts import _prompt, resolve_project_dir
+from stoke.tool_install import ensure_cargo
 
 def cmd_init_rocket():
     """stoke init rocket 명령어."""
@@ -17,14 +18,16 @@ def cmd_init_rocket():
     _write_cargo_toml(project_path / "Cargo.toml", project_name)
     _write_main_rs(project_path / "src" / "main.rs")
 
-    cargo_exe = shutil.which("cargo")
-    if cargo_exe:
+    cargo = ensure_cargo(project_path)
+    if cargo:
+        cargo_exe, cargo_env = cargo
         print("\nFetching dependencies (cargo check)...")
         result = subprocess.run(
             [cargo_exe, "check"],
             cwd=str(project_path),
             capture_output=True,
             text=True,
+            env=cargo_env,
         )
         if result.returncode != 0:
             print("\nWarning: cargo check failed:", file=sys.stderr)

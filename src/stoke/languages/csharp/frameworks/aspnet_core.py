@@ -5,6 +5,7 @@ import shutil
 from pathlib import Path
 
 from stoke.prompts import _prompt, resolve_project_dir
+from stoke.tool_install import ensure_tool
 
 def cmd_init_aspnet_core():
     """stoke init aspnet-core 명령어."""
@@ -14,7 +15,7 @@ def cmd_init_aspnet_core():
 
     _write_stoke_toml(project_path, project_name)
 
-    dotnet_exe = shutil.which("dotnet")
+    dotnet_exe = ensure_tool("csharp", ("dotnet", "dotnet.exe"), project_path, display_name=".NET SDK")
     if dotnet_exe:
         print("\nScaffolding with 'dotnet new web'...")
         result = subprocess.run(

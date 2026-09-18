@@ -5,6 +5,7 @@ import shutil
 from pathlib import Path
 
 from stoke.prompts import resolve_project_dir
+from stoke.tool_install import ensure_bundle
 
 def cmd_init_sinatra():
     """stoke init sinatra 명령어."""
@@ -17,7 +18,7 @@ def cmd_init_sinatra():
     (project_path / "src").mkdir(exist_ok=True)
     _write_main_rb(project_path / "src" / "main.rb")
 
-    bundle_exe = shutil.which("bundle")
+    bundle_exe = ensure_bundle(project_path)
     if bundle_exe:
         print("Running bundle install...")
         result = subprocess.run(

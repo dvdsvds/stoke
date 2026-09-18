@@ -6,6 +6,7 @@ from pathlib import Path
 import re
 
 from stoke.prompts import _prompt
+from stoke.tool_install import ensure_tool
 
 def _select_go_version() -> str:
     """
@@ -51,7 +52,7 @@ language = "go"
 
 def _write_example_go(project_root: Path, project_name: str) -> None:
     """Go 예시 파일 생성 + go.mod 초기화."""
-    go_exe = shutil.which("go")
+    go_exe = ensure_tool("go", ("go", "go.exe"), project_root, display_name="Go")
     if go_exe:
         result = subprocess.run(
             [go_exe, "mod", "init", project_name],
@@ -62,6 +63,8 @@ def _write_example_go(project_root: Path, project_name: str) -> None:
         if result.returncode != 0:
             print("Warning: go mod init failed:", file=sys.stderr)
             print(result.stderr, file=sys.stderr)
+    else:
+        print(f"Warning: 'go' not found. Run manually: go mod init {project_name}", file=sys.stderr)
     main_go = project_root / "main.go"
     content = '''package main
 

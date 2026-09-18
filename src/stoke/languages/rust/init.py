@@ -5,6 +5,7 @@ import sys
 from pathlib import Path
 
 from stoke.prompts import _prompt
+from stoke.tool_install import ensure_cargo
 
 def _select_rust_version() -> str:
     """
@@ -46,13 +47,15 @@ language = "rust"
 
 def _write_example_rust(project_root: Path, project_name: str) -> None:
     """Rust 예시 파일 생성 + Cargo.toml 초기화"""
-    cargo_exe = shutil.which("cargo")
-    if cargo_exe:
+    cargo = ensure_cargo(project_root)
+    if cargo:
+        cargo_exe, cargo_env = cargo
         result = subprocess.run(
             [cargo_exe, "init", "--name", project_name, "--vcs", "none"],
             cwd=str(project_root),
             capture_output=True,
             text=True,
+            env=cargo_env,
         )
         if result.returncode != 0:
             print("Warning: cargo init failed:", file=sys.stderr)

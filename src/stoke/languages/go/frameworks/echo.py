@@ -5,6 +5,7 @@ import shutil
 from pathlib import Path
 
 from stoke.prompts import _prompt, resolve_project_dir, sanitize_go_module_name
+from stoke.tool_install import ensure_tool
 
 def cmd_init_echo():
     """stoke init echo 명령어."""
@@ -22,7 +23,7 @@ def cmd_init_echo():
     _write_main_go(project_path / "main.go", module_name)
     _write_handlers_hello(project_path / "handlers" / "hello.go")
 
-    go_exe = shutil.which("go")
+    go_exe = ensure_tool("go", ("go", "go.exe"), project_path, display_name="Go")
     if go_exe:
         print(f"\nInitializing go.mod (module: {module_name})...")
         result = subprocess.run(
