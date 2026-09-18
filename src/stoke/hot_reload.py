@@ -16,16 +16,10 @@ GRACEFUL_TIMEOUT_SECONDS = 5
 
 
 class ProcessManager:
-    """
-    빌드된 타겟을 서브프로세스로 실행하고 재시작을 관리.
-    실행 명령은 어댑터의 get_run_command()에서 얻음.
-    """
+    """빌드된 타겟을 서브프로세스로 실행하고 재시작을 관리."""
 
     def __init__(self, project_root: Path, get_command):
-        """
-        project_root: 프로젝트 루트 (subprocess의 cwd)
-        get_command: 실행할 명령어 리스트를 반환하는 콜러블 (매 시작마다 새로 호출)
-        """
+        """get_command: 실행할 명령어 리스트를 반환하는 콜러블 (매 시작마다 새로 호출)."""
         self.project_root = project_root
         self._get_command = get_command
         self._process: subprocess.Popen | None = None
@@ -57,10 +51,7 @@ class ProcessManager:
                 self._process = None
 
     def stop(self):
-        """
-        graceful 종료: SIGTERM → 5초 대기 → SIGKILL.
-        이미 종료된 프로세스는 즉시 반환.
-        """
+        """graceful 종료: SIGTERM → 5초 대기 → SIGKILL (이미 종료된 프로세스는 즉시 반환)."""
         with self._lock:
             if self._process is None:
                 return

@@ -112,14 +112,7 @@ def _hash_bytes(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 def get_file_stat(path: Path) -> FileStat:
-    """
-    파일의 현재 mtime, size, 콘텐츠 해시(SHA-256) 반환.
-
-    mtime/size는 참고용으로만 저장함 — 실제 캐시 무효화 판단(is_unchanged)은
-    content_hash로 함. 다른 머신에서 같은 git 커밋을 체크아웃하면 파일 내용은
-    같아도 mtime은 거의 항상 달라지기 때문에, 캐시를 로컬 밖(다른 개발자 PC,
-    CI 러너, 나중에 공유 캐시)과 공유하려면 mtime 기반 비교로는 의미가 없음.
-    """
+    """파일의 현재 mtime/size/콘텐츠 해시(SHA-256) 반환 (무효화 판단은 content_hash로만)."""
     st = path.stat()
     return FileStat(
         mtime=st.st_mtime,
@@ -128,9 +121,5 @@ def get_file_stat(path: Path) -> FileStat:
     )
 
 def is_unchanged(current: FileStat, cached: FileStat) -> bool:
-    """
-    캐시된 상태와 현재 상태가 같은지. content_hash로만 판단.
-    (mtime/size는 다른 머신에서 체크아웃했을 때 내용이 같아도 달라질 수 있어서
-    신뢰할 수 없음 — 무효화 판단에는 안 씀.)
-    """
+    """캐시된 상태와 현재 상태가 같은지 (content_hash로만 판단, mtime/size는 안 믿음)."""
     return current.content_hash == cached.content_hash

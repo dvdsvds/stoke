@@ -1,7 +1,4 @@
-"""
-IntelliJ IDEA 등 자바 IDE용 pom.xml 자동 생성.
-Maven 설치 없이도 IDE가 이 파일을 읽어서 프로젝트 구조를 파악함.
-"""
+"""IntelliJ IDEA 등 자바 IDE용 pom.xml 자동 생성 (Maven 설치 없이도 IDE가 인식)."""
 
 from pathlib import Path
 from xml.sax.saxutils import escape
@@ -23,16 +20,7 @@ def generate_pom(
     deps: dict[str, str],
     project_root: Path,
 ) -> str:
-    """
-    pom.xml 내용 생성.
-
-    project_name: stoke 프로젝트 이름 (Maven artifactId로 사용)
-    project_version: 프로젝트 버전 (예: "0.1.0")
-    java_version: 자바 메이저 버전 (예: "25")
-    source_dirs: 소스 폴더 목록
-    output_dir: 컴파일 결과 폴더 (Maven target 대체)
-    deps: {"groupId:artifactId": "version"}
-    """
+    """pom.xml 내용 생성."""
     lines = ['<?xml version="1.0" encoding="UTF-8"?>']
     lines.append(
         '<project xmlns="http://maven.apache.org/POM/4.0.0" '
@@ -97,10 +85,7 @@ def write_pom(
     output_dir: Path,
     deps: dict[str, str],
 ) -> tuple[Path, bool]:
-    """
-    pom.xml을 프로젝트 루트에 저장.
-    반환: (파일 경로, 실제 변경 여부)
-    """
+    """pom.xml을 프로젝트 루트에 저장. 반환: (파일 경로, 변경 여부)."""
     pom_content = generate_pom(
         project_name=project_name,
         project_version=project_version,

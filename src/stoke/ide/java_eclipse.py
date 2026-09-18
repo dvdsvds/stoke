@@ -1,16 +1,11 @@
-"""
-Eclipse/VSCode Java 확장용 .classpath, .project 파일 생성.
-"""
+"""Eclipse/VSCode Java 확장용 .classpath, .project 파일 생성."""
 
 from pathlib import Path
 from xml.sax.saxutils import escape
 from stoke.ide import write_if_changed
 
 def _relative_or_abs(path: Path, project_root: Path) -> str:
-    """
-    project_root 기준 상대 경로로 표현 시도. 실패하면 절대 경로.
-    Eclipse는 상대 경로를 선호함.
-    """
+    """project_root 기준 상대 경로로 표현 시도, 실패하면 절대 경로."""
     try:
         return str(path.relative_to(project_root)).replace("\\", "/")
     except ValueError:
@@ -22,13 +17,7 @@ def generate_classpath(
     output_dir: Path,
     jar_files: list[Path],
 ) -> str:
-    """
-    .classpath 파일 내용 생성.
-    
-    source_dirs: 소스 폴더 목록 (예: [src, tests])
-    output_dir: 컴파일 결과 폴더 (.stoke/java/{target}/classes)
-    jar_files: 외부 JAR 파일 목록 (.stoke/java/{target}/deps/*.jar)
-    """
+    """.classpath 파일 내용 생성."""
     lines = ['<?xml version="1.0" encoding="UTF-8"?>', '<classpath>']
 
     # 소스 폴더들
@@ -56,9 +45,7 @@ def generate_classpath(
 
 
 def generate_project(project_name: str) -> str:
-    """
-    .project 파일 내용 생성.
-    """
+    """.project 파일 내용 생성."""
     return f"""<?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
     <name>{escape(project_name)}</name>
@@ -85,10 +72,7 @@ def write_ide_files(
     output_dir: Path,
     jar_files: list[Path],
 ) -> tuple[Path, Path, bool, bool]:
-    """
-    .classpath와 .project를 프로젝트 루트에 저장.
-    반환: (classpath_path, project_path, classpath_changed, project_changed)
-    """
+    """.classpath와 .project를 프로젝트 루트에 저장."""
     classpath_content = generate_classpath(
         project_root, source_dirs, output_dir, jar_files
     )

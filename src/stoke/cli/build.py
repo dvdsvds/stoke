@@ -22,11 +22,7 @@ def _has_main(path: Path) -> bool:
     return bool(_CPP_MAIN_RE.search(text))
 
 def _find_adhoc_cpp_entry(config, project_root, name: str):
-    """
-    stoke.toml에 target으로 선언 안 된 이름으로 'stoke run <이름>'이 들어왔을 때,
-    C/C++ 타겟들의 sources 중 파일명(확장자 제외)이 일치하는 파일을 찾아준다.
-    반환: (해당 파일이 속한 타겟, 그 타겟의 전체 소스 목록, 매칭된 파일) 또는 못 찾으면 None.
-    """
+    """target으로 선언 안 된 이름으로 'stoke run'이 들어왔을 때 C/C++ sources에서 파일명 매칭."""
     for target in config.targets.values():
         if target.language not in ("c", "cpp") or target.build_system in ("cmake", "meson"):
             continue
@@ -38,11 +34,7 @@ def _find_adhoc_cpp_entry(config, project_root, name: str):
     return None
 
 def _run_adhoc_cpp_entry(config, project_root, target_name: str, owner_target, source_files, entry_source, profile: str) -> None:
-    """
-    target으로 선언 안 된 소스 파일(예: src/sim.cpp)을 그 자리에서 빌드해서 실행.
-    같은 타겟의 다른 소스 중 main()이 없는 파일들(공용 코드)은 같이 컴파일하고,
-    main()이 있는 다른 파일(다른 진입점)은 빼서 다중 정의 링크 에러를 피한다.
-    """
+    """target 미선언 소스 파일을 그 자리에서 빌드/실행 (다른 main() 파일은 링크에서 제외)."""
     if not _has_main(entry_source):
         rel = entry_source.relative_to(project_root)
         print(f"Error: '{rel}' has no main() function, nothing to run", file=sys.stderr)

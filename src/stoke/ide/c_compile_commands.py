@@ -1,7 +1,4 @@
-"""
-C/C++ IDE 통합용 compile_commands.json 자동 생성.
-VSCode C/C++ 확장, clangd, CLion 등 대부분 C/C++ IDE가 이 파일을 인식함.
-"""
+"""C/C++ IDE 통합용 compile_commands.json 자동 생성 (VSCode/clangd/CLion 공통 포맷)."""
 
 import json
 from pathlib import Path
@@ -16,10 +13,7 @@ def generate_compile_commands(
     standard: str | None = None,
     standard_flag_prefix: str = "-std=",
 ) -> list[dict]:
-    """
-    compile_commands.json 데이터 생성.
-    반환: JSON 배열이 될 dict 리스트.
-    """
+    """compile_commands.json 데이터 생성. 반환: JSON 배열이 될 dict 리스트."""
     commands = []
 
     for source in source_files:
@@ -64,10 +58,7 @@ def write_compile_commands(
     standard: str | None = None,
     standard_flag_prefix: str = "-std=",
 ) -> tuple[Path, bool]:
-    """
-    프로젝트 루트에 compile_commands.json 저장.
-    반환: (파일 경로, 실제 변경 여부)
-    """
+    """프로젝트 루트에 compile_commands.json 저장. 반환: (파일 경로, 변경 여부)."""
     commands = generate_compile_commands(
         compiler_path=compiler_path,
         source_files=source_files,

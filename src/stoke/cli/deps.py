@@ -1,14 +1,4 @@
-"""stoke add/remove — python/java 의존성 추가·제거.
-
-stoke.toml의 [targets.X.deps]가 실제 의존성 매니페스트인 언어(python/java)에서만 의미가 있음.
-다른 언어는 이미 자기 생태계 도구(cargo add, npm install, go get 등)가 있고 stoke.toml이
-그 매니페스트를 대체하지 않으므로 대상이 아님 — C/C++은 vcpkg 라이브러리에 한해
-`stoke vcpkg install/remove`가 이미 같은 역할을 함.
-
-javascript/typescript는 stoke.toml을 안 건드리지만, npm이 알려진 버그(edgesOut,
-npm/cli#9787)가 있는 버전이면 그냥 npm을 그대로 실행해서 죽는 것보다 stoke가
-대신 install 명령을 실행해주는 게 낫다고 판단해 npm_check로 우회 실행함.
-"""
+"""stoke add/remove -- python/java는 stoke.toml이 매니페스트, JS/TS는 npm 우회 실행, 나머진 힌트만."""
 import subprocess
 import sys
 from stoke.cli.utils import load_config_or_exit, resolve_target_or_exit
@@ -32,8 +22,7 @@ _NATIVE_HINT = {
 }
 
 def _npm_add(config, specs: list[str]) -> None:
-    """javascript/typescript: stoke.toml 대신 실제 npm install을 실행 (npm 버그 우회 포함).
-    여러 패키지를 한 번의 npm install 호출로 같이 넘김 (npm install pkg1 pkg2 ...)."""
+    """JS/TS: stoke.toml 대신 실제 npm install 실행 (npm 버그 우회, 여러 패키지 한 번에)."""
     from stoke.npm_check import resolve_npm_command
 
     try:
@@ -52,13 +41,7 @@ def _npm_add(config, specs: list[str]) -> None:
         sys.exit(1)
 
 def cmd_add_dep(packages: list[str], target_name: str | None):
-    """stoke add <package> [package2 ...] [--target=X]
-
-    python/java: stoke.toml이 매니페스트라 패키지 하나만 지원 -- 두 번째 인자는
-    버전으로 취급 (기존 `stoke add <package> <version>` 문법 유지).
-    javascript/typescript: package.json이 매니페스트이므로 여러 패키지를 그대로
-    npm install에 넘김 (npm install pkg1 pkg2처럼).
-    """
+    """stoke add <package> [package2 ...] [--target=X] (python/java는 패키지 하나 + 버전만)."""
     config = load_config_or_exit()
     target_name = resolve_target_or_exit(config, target_name, verb="adding to")
     target = config.targets[target_name]

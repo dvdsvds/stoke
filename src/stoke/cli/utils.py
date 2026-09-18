@@ -4,10 +4,7 @@ from stoke.config import load_config, Config
 from stoke.cli.messages import get_message as _
 
 def resolve_profile_from_args(args) -> str:
-    """
-    --debug / --release / --profile 옵션에서 프로파일 이름 결정.
-    충돌 시 SystemExit.
-    """
+    """--debug/--release/--profile 옵션에서 프로파일 이름 결정 (충돌 시 SystemExit)."""
     if args.debug and args.release:
         print("Error: cannot use both --debug and --release", file=sys.stderr)
         sys.exit(1)
@@ -45,11 +42,7 @@ def resolve_target_or_exit(
     verb: str = "using",
     verbose: bool = False,
 ) -> str:
-    """
-    타겟 이름 결정. 없으면 첫 번째 타겟 사용.
-    존재하지 않으면 에러 종료.
-    verb: "using", "running", "watching", "hot-reloading" 등
-    """
+    """타겟 이름 결정 (없으면 첫 번째 타겟, 존재하지 않으면 에러 종료)."""
     if target_name is None:
         target_name = next(iter(config.targets))
         if verbose:
