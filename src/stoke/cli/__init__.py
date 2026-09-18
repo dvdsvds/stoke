@@ -96,9 +96,7 @@ _INIT_FRAMEWORK_HANDLERS = {
 }
 
 def _help_formatter(prog):
-    """기본 HelpFormatter보다 넓게(터미널 폭까지) + 설명 칸을 더 띄워서
-    {build,python,java,...} 같은 선택지 나열과 help 텍스트가 다닥다닥 붙어
-    읽기 힘든 걸 완화함."""
+    """기본 HelpFormatter보다 넓게(터미널 폭까지) + 설명 칸을 더 띄움."""
     width = min(shutil.get_terminal_size(fallback=(100, 24)).columns - 2, 100)
     return argparse.HelpFormatter(prog, max_help_position=32, width=width)
 
@@ -107,9 +105,7 @@ _INVALID_CHOICE_RE = re.compile(
 )
 
 class _StokeArgumentParser(argparse.ArgumentParser):
-    """invalid-choice 에러를 콤마로 다닥다닥 붙은 한 줄 대신, 후보를 한 줄에
-    하나씩 보여주도록 재포맷함 -- `choose from build, python, java, c, cpp,
-    install, ...` 같은 줄은 선택지가 많을수록 읽기 힘들어짐."""
+    """invalid-choice 에러를 한 줄 콤마 나열 대신 후보를 한 줄에 하나씩 보여주도록 재포맷."""
 
     def error(self, message):
         match = _INVALID_CHOICE_RE.match(message)

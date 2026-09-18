@@ -106,11 +106,7 @@ def _select_ide() -> str:
     return _IDE_CHOICES[selected]
 
 def _write_ide_setting(stoke_toml_path: Path, ide: str) -> None:
-    """
-    각 언어별 _write_stoke_toml_* 함수가 이미 써놓은 stoke.toml의 [project] 섹션
-    lock_mode 줄 바로 뒤에 ide 설정을 끼워넣음. "vscode"는 기본값이라 명시적으로
-    안 씀 -- 12개 언어 writer 함수를 전부 손대지 않고 한 곳에서 처리하기 위함.
-    """
+    """stoke.toml의 lock_mode 줄 뒤에 ide 설정을 끼워넣음 ("vscode"는 기본값이라 안 씀)."""
     if ide == "vscode":
         return
     text = stoke_toml_path.read_text(encoding="utf-8")
@@ -285,18 +281,7 @@ def cmd_init_noninteractive(
     vcpkg: bool = False,
     yes: bool = False,
 ) -> None:
-    """
-    비대화형 프로젝트 초기화. CI나 팀 온보딩 스크립트에서 사용:
-
-        stoke init --language=<lang> [--version=<v>] [--name=<name>]
-                   [--env-type=venv|conda] [--lock-mode=commit|local]
-                   [--vcpkg] [--yes]
-
-    --version 의미는 언어마다 다름:
-      python/java/kotlin: 버전 (없으면 시스템 기본 설치 사용)
-      c/cpp: 표준 (c17/c++17 등, 없으면 기본값)
-      rust/go/csharp/ruby/php/javascript/typescript: 선택적 toolchain pin (없으면 pin 안 함)
-    """
+    """비대화형 프로젝트 초기화 (CI/온보딩 스크립트용, --version 의미는 언어마다 다름)."""
     if language not in _NONINTERACTIVE_LANGUAGES:
         print(f"Error: unsupported language '{language}'", file=sys.stderr)
         print(f"Supported: {', '.join(_NONINTERACTIVE_LANGUAGES)}", file=sys.stderr)

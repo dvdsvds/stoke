@@ -15,11 +15,7 @@ def _select_c_standard() -> str:
     return standards[selected]
 
 def _prompt_vcpkg_install() -> None:
-    """
-    C/C++ 프로젝트 생성 시 vcpkg 설치 여부 프롬프트.
-    이미 설치돼있으면 스킵.
-    사용자가 거절하면 그냥 진행 (deps 필요할 때 다시 안내).
-    """
+    """C/C++ 프로젝트 생성 시 vcpkg 설치 여부 프롬프트 (이미 설치됐으면 스킵)."""
     from stoke.vcpkg import is_vcpkg_installed, install_vcpkg
 
     if is_vcpkg_installed():

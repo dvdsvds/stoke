@@ -3,14 +3,7 @@ import json
 from pathlib import Path
 
 def parse_dep_file(dep_path: Path) -> list[Path]:
-    """
-    gcc가 생성한 .d 파일 파싱해서 헤더 파일 목록 반환.
-    .d 파일 형식:
-        target.o: source.c \
-         header1.h \
-         header2.h
-    소스 파일은 제외하고 헤더만 반환.
-    """
+    """gcc가 생성한 .d 파일 파싱해서 헤더 파일 목록 반환 (소스 파일은 제외)."""
     if not dep_path.exists():
         return []
     try:
@@ -38,10 +31,7 @@ def parse_dep_file(dep_path: Path) -> list[Path]:
     return headers
 
 def parse_msvc_source_deps(json_path: Path) -> list[Path]:
-    """
-    cl.exe의 /sourceDependencies <file>이 만든 JSON 파일 파싱해서 헤더 파일 목록 반환.
-    형식: {"Version": "1.x", "Data": {"Includes": ["C:\\...\\header.h", ...], ...}}
-    """
+    """cl.exe의 /sourceDependencies가 만든 JSON 파일 파싱해서 헤더 파일 목록 반환."""
     if not json_path.exists():
         return []
     try:

@@ -10,12 +10,7 @@ def make_adapter(
     profile: Profile | None = None,
     verbose: bool = False,
 ) -> BaseAdapter:
-    """
-    language에 맞는 어댑터를 생성해서 반환.
-    지원하지 않는 언어면 RuntimeError.
-    profile: C/C++만 사용 (Python/Java는 무시).
-    verbose: 상세 로그 출력 여부.
-    """
+    """language에 맞는 어댑터를 생성해서 반환 (지원 안 하면 RuntimeError)."""
     if target.language == "python":
         from stoke.languages.python.adapter import PythonAdapter
         return PythonAdapter(target, project, project_root, verbose=verbose)

@@ -5,21 +5,13 @@ from pathlib import Path
 from stoke.prompts import _prompt
 
 def _select_node_version() -> str:
-    """
-    선택적 Node 버전 pin. 빈 입력이면 pin 안 함
-    (팀원마다 로컬 node 버전이 달라도 됨).
-    """
+    """선택적 Node 버전 pin (빈 입력이면 pin 안 함)."""
     return _prompt(
         "Pin Node version? (e.g. 20.11.0, blank to skip)", default=""
     ).strip()
 
 def _pin_node_version(project_root: Path, version: str) -> None:
-    """
-    .nvmrc (nvm/fnm이 읽음) + package.json의 engines.node를 씀.
-    Ruby의 .ruby-version과 같은 급의 소프트 pin -- npm install이 버전 안
-    맞으면 경고만 하고 막지는 않음(의도적으로 .npmrc engine-strict는 안 씀).
-    version이 빈 문자열이면 아무것도 안 함.
-    """
+    """.nvmrc + package.json의 engines.node를 씀 (소프트 pin, 빈 문자열이면 아무것도 안 함)."""
     if not version:
         return
 
