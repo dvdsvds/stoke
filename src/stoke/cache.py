@@ -43,32 +43,38 @@ def load_cache(project_root: Path) -> BuildCache:
         # 손상된 캐시는 그냥 무시하고 빈 캐시로
         return BuildCache()
 
-    cache = BuildCache()
-    targets_data = data.get("targets", {})
-    for target_name, target_data in targets_data.items():
-        target_cache = TargetCache()
-        syntax_data = target_data.get("syntax_check", {})
-        for file_path, stat_data in syntax_data.items():
-            target_cache.syntax_check[file_path] = FileStat(
-                mtime=stat_data["mtime"],
-                size=stat_data["size"],
-                # content_hash 없는 예전 캐시 파일과의 하위 호환: 빈 문자열이면
-                # 실제 파일 해시와 절대 안 맞아서 자연히 1회 재빌드로 캐시가 채워짐.
-                content_hash=stat_data.get("content_hash", ""),
-            )
-        # 헤더 의존성 캐시 파싱
-        header_data = target_data.get("header_deps", {})
-        for src_path, headers_data in header_data.items():
-            headers = {}
-            for header_path, stat_data in headers_data.items():
-                headers[header_path] = FileStat(
+    try:
+        cache = BuildCache()
+        targets_data = data.get("targets", {})
+        for target_name, target_data in targets_data.items():
+            target_cache = TargetCache()
+            syntax_data = target_data.get("syntax_check", {})
+            for file_path, stat_data in syntax_data.items():
+                target_cache.syntax_check[file_path] = FileStat(
                     mtime=stat_data["mtime"],
                     size=stat_data["size"],
+                    # content_hash 없는 예전 캐시 파일과의 하위 호환: 빈 문자열이면
+                    # 실제 파일 해시와 절대 안 맞아서 자연히 1회 재빌드로 캐시가 채워짐.
                     content_hash=stat_data.get("content_hash", ""),
                 )
-            target_cache.header_deps[src_path] = headers
-        cache.targets[target_name] = target_cache
-    return cache
+            # 헤더 의존성 캐시 파싱
+            header_data = target_data.get("header_deps", {})
+            for src_path, headers_data in header_data.items():
+                headers = {}
+                for header_path, stat_data in headers_data.items():
+                    headers[header_path] = FileStat(
+                        mtime=stat_data["mtime"],
+                        size=stat_data["size"],
+                        content_hash=stat_data.get("content_hash", ""),
+                    )
+                target_cache.header_deps[src_path] = headers
+            cache.targets[target_name] = target_cache
+        return cache
+    except (KeyError, TypeError, AttributeError):
+        # 손상되거나 필드가 빠진 캐시 항목(수동 편집, 이전 버전과의 호환 문제 등)도
+        # json.JSONDecodeError와 똑같이 "빈 캐시로 폴백"으로 취급 -- 이 함수의
+        # 약속(위 docstring)이 파일 최상위 구조뿐 아니라 항목 단위에도 적용되게 함.
+        return BuildCache()
 
 def save_cache(project_root: Path, cache: BuildCache) -> None:
     """캐시 파일 쓰기."""

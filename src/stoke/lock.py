@@ -189,9 +189,9 @@ def save_lock(
     c_deps: dict[str, CDep] | None = None,
     cpp_deps: dict[str, CppDep] | None = None,
     packages: dict[str, str] | None = None,
-) -> Path:
+) -> tuple[Path, bool]:
     """
-    lock 파일 쓰기. 저장된 경로 반환.
+    lock 파일 쓰기. 반환: (저장된 경로, 실제로 내용이 바뀌어서 썼는지).
     python_* 또는 java_* 중 하나만 사용.
     """
     path = _lock_path(project_root, lock_mode)
