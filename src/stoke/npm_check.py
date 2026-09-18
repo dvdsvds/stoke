@@ -1,10 +1,4 @@
-"""npm 버전 호환성 점검 및 우회.
-
-전역 npm이 알려진 버그를 갖고 있어도, stoke는 시스템 전역 상태를 건드리지
-않는다는 원칙(언어/툴체인을 프로젝트별로 격리)을 따른다. 그래서 전역 npm을
-업그레이드하라고 안내하는 대신, npx로 그 install 한 번만 고쳐진 버전의
-npm을 즉석에서 받아써서 우회한다.
-"""
+"""npm 버전 호환성 점검 및 우회. 전역 npm을 안 건드리고 npx로 고쳐진 버전을 그때만 받아씀."""
 import json
 import re
 import shutil
@@ -97,8 +91,7 @@ def _recommend_npm_version(npm_exe: str, node_version: Version) -> str | None:
 
 
 def _check(npm_exe: str) -> tuple[str, Version | None, Version | None, str | None]:
-    """(버전 문자열, 파싱된 버전, Node 버전, 현재 Node와 호환되는 고쳐진 npm 버전) 반환.
-    npm이 정상이거나 확인할 수 없으면 파싱된 버전이 None이거나 MIN 이상."""
+    """(버전 문자열, 파싱된 버전, Node 버전, 호환되는 고쳐진 npm 버전) 반환."""
     try:
         result = subprocess.run(
             [npm_exe, "--version"], capture_output=True, text=True, timeout=10,
@@ -132,13 +125,7 @@ def _check(npm_exe: str) -> tuple[str, Version | None, Version | None, str | Non
 
 
 def resolve_npm_command(npm_exe: str) -> list[str]:
-    """이번 호출에 쓸 npm 커맨드 프리픽스를 반환한다 (뒤에 "install" 등을 붙여 씀).
-
-    npm이 정상이면 [npm_exe] 그대로. 버그 있는 버전(< 11.6.0)이면, 현재 Node와
-    호환되는 고쳐진 버전을 찾아 `npx -y npm@<version>`으로 그 한 번만 우회 --
-    전역 npm은 건드리지 않는다. 호환되는 고쳐진 버전을 못 찾으면(Node 자체가
-    너무 오래됨) 경고만 띄우고 기존 npm_exe로 진행한다.
-    """
+    """이번 호출에 쓸 npm 커맨드 프리픽스 반환 (버그 버전이면 npx로 그 한 번만 우회)."""
     version_str, version, node_version, recommended_version = _check(npm_exe)
     if version is None or version >= _MIN_NPM_VERSION:
         return [npm_exe]

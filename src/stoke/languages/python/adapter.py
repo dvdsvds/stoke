@@ -84,10 +84,7 @@ class PythonAdapter(BaseAdapter):
             self.venv_dir = self.lang_dir / "venv"
 
     def resolve_python(self) -> tuple[PythonInstall, bool]:
-        """
-        어떤 파이썬을 쓸지 결정.
-        반환: (PythonInstall, lock을 갱신해야 하는지 여부)
-        """
+        """어떤 파이썬을 쓸지 결정. 반환: (PythonInstall, lock 갱신 필요 여부)."""
         lock = load_lock(self.project_root, self.project.lock_mode)
 
         # 1. lock 파일 있으면 우선 사용
@@ -187,14 +184,7 @@ class PythonAdapter(BaseAdapter):
         lock: LockFile | None,
         force: bool = False,
     ) -> tuple[dict[str, str], bool]:
-        """
-        의존성 설치. 반환: (설치된 패키지 dict, 실제로 설치를 수행했는지 여부).
-
-        - force=True면 무조건 재설치
-        - lock 파일에 패키지 정보 있으면 그 정확한 버전으로 설치
-        - 없으면 stoke.toml의 명세로 설치 후 실제 설치된 버전 기록
-        - venv에 이미 설치된 패키지가 lock과 완전히 같으면 skip
-        """
+        """의존성 설치. 반환: (설치된 패키지 dict, 실제로 설치를 수행했는지 여부)."""
         if not self.target.deps:
             if self.verbose:
                 print("No dependencies to install")
@@ -315,12 +305,7 @@ class PythonAdapter(BaseAdapter):
         cache: BuildCache,
         force: bool = False,
     ) -> tuple[list[SyntaxCheckResult], list[Path]]:
-        """
-        각 파일의 문법을 체크.
-        캐시에 있고 mtime/size가 같으면 skip.
-
-        반환: (모든 결과 리스트, skip된 파일 경로 리스트)
-        """
+        """각 파일 문법 체크 (캐시 히트면 skip). 반환: (결과 리스트, skip된 파일 리스트)."""
         results = []
         skipped_files = []
         venv_python = self.venv_python_exe()
@@ -610,10 +595,7 @@ class PythonAdapter(BaseAdapter):
         print(f"\nBuild complete: {self.target.name}")
 
     def run(self) -> int:
-        """
-        컴파일된 venv 파이썬으로 entry 파일 실행.
-        반환: 종료 코드
-        """
+        """venv 파이썬으로 entry 파일 실행. 반환: 종료 코드."""
         if not self.target.entry:
             raise RuntimeError(
                 f"Target '{self.target.name}' has no 'entry' field in stoke.toml.\n"

@@ -115,12 +115,7 @@ def _detect_via_path_scan() -> list[PythonInstall]:
     return installs
 
 def _detect_via_common_paths() -> list[PythonInstall]:
-    """
-    표준 파이썬 설치 경로들을 스캔해서 발견된 파이썬 목록 반환.
-    Windows: %LOCALAPPDATA%\\Programs\\Python\\PythonXY\\python.exe 등
-    Linux: /usr/bin/python3.X 등
-    macOS: /Library/Frameworks/Python.framework/Versions/X.Y/bin/python3
-    """
+    """표준 파이썬 설치 경로들을 스캔해서 발견된 파이썬 목록 반환 (OS별 관례 경로)."""
     import os
     candidate_paths = []
 
@@ -210,8 +205,7 @@ def _detect_local(project_root: Path) -> list[PythonInstall]:
     return installs
 
 def detect_all(project_root: Path | None = None) -> list[PythonInstall]:
-    """설치된 모든 파이썬 감지. project_root가 주어지면 stoke install로 받은
-    프로젝트 로컬 설치(.stoke/toolchains)를 최우선으로 찾는다."""
+    """설치된 모든 파이썬 감지 (project_root 주어지면 프로젝트 로컬 설치 최우선)."""
     raw_installs = []
 
     # 0. 프로젝트 로컬 설치 (stoke install) — 최우선
@@ -315,11 +309,7 @@ def _version_tuple(v: str) -> tuple:
 
 
 def find_matching(constraint: str, project_root: Path | None = None) -> PythonInstall | None:
-    """
-    버전 제약("3.12", "3.12.5" 등)에 맞는 파이썬 찾기.
-    "3.12"면 3.12.x 아무거나 매칭.
-    project_root가 주어지면 프로젝트 로컬 설치(.stoke/toolchains)를 우선 매칭.
-    """
+    """버전 제약("3.12", "3.12.5")에 맞는 파이썬 찾기 (project_root 주어지면 로컬 설치 우선)."""
     installs = detect_all(project_root)
     constraint_tuple = _version_tuple(constraint)
 

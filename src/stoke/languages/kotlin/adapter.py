@@ -23,10 +23,7 @@ class KotlinAdapter(BaseAdapter):
         return sys.platform == "win32"
 
     def _find_gradle(self) -> list[str]:
-        """
-        Gradle 실행 명령어 찾기.
-        프로젝트에 Gradle Wrapper(gradlew)가 있으면 그걸 우선 사용, 없으면 시스템 gradle.
-        """
+        """Gradle 실행 명령어 찾기 (Wrapper gradlew 우선, 없으면 시스템 gradle)."""
         wrapper_name = "gradlew.bat" if self._is_windows() else "gradlew"
         wrapper_path = self.project_root / wrapper_name
         if wrapper_path.exists():
@@ -42,29 +39,14 @@ class KotlinAdapter(BaseAdapter):
         )
 
     def _task_path(self, task: str) -> str:
-        """
-        Gradle 태스크 경로. <target.name>/build.gradle.kts가 있으면 그 서브프로젝트로
-        범위를 좁힘 (":<target.name>:<task>") -- Gradle 멀티 프로젝트 빌드에서
-        여러 모듈을 include()해둔 구조. 없으면 루트 프로젝트 자기 자신으로만 범위를
-        좁힘 (":<task>").
-
-        콜론을 꼭 붙이는 이유: 콜론 없이 그냥 "<task>"만 주면 Gradle이 그 이름의
-        태스크를 가진 *모든* 서브프로젝트에서 전부 실행해버림 (멀티 프로젝트
-        빌드에서의 기본 동작) -- 이러면 stoke build worker가 다른 타겟까지
-        같이 빌드해버려서 진짜 독립적인 타겟이 아니게 됨.
-        """
+        """Gradle 태스크 경로 (콜론 prefix로 서브프로젝트 범위를 좁혀 다른 타겟까지 빌드되는 걸 방지)."""
         subproject_build_gradle = self.project_root / self.target.name / "build.gradle.kts"
         if subproject_build_gradle.is_file():
             return f":{self.target.name}:{task}"
         return f":{task}"
 
     def _resolve_java_home(self) -> Path | None:
-        """
-        stoke.toml의 java_version에 맞는 JDK 찾기.
-        java_version이 없으면 시스템 기본 JDK 정보만 출력하고 None 반환
-        (이 경우 Gradle 자체 툴체인 해석에 맡김).
-        java_version이 있는데 맞는 JDK가 없으면 에러.
-        """
+        """stoke.toml의 java_version에 맞는 JDK 찾기 (없으면 Gradle 자체 해석에 맡김, None 반환)."""
         from stoke.languages.java.versions import detect_all as detect_java, find_matching
 
         if not self.target.java_version:
