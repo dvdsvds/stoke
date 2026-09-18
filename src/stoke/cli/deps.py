@@ -9,10 +9,10 @@ javascript/typescript는 stoke.toml을 안 건드리지만, npm이 알려진 버
 npm/cli#9787)가 있는 버전이면 그냥 npm을 그대로 실행해서 죽는 것보다 stoke가
 대신 install 명령을 실행해주는 게 낫다고 판단해 npm_check로 우회 실행함.
 """
-import shutil
 import subprocess
 import sys
 from stoke.cli.utils import load_config_or_exit, resolve_target_or_exit
+from stoke.languages._node_tools import find_npm
 from stoke.toml_editor import add_dep, remove_dep
 
 _MANAGED_LANGUAGES = {"python", "java"}
@@ -36,9 +36,10 @@ def _npm_add(config, specs: list[str]) -> None:
     여러 패키지를 한 번의 npm install 호출로 같이 넘김 (npm install pkg1 pkg2 ...)."""
     from stoke.npm_check import resolve_npm_command
 
-    npm_exe = shutil.which("npm")
-    if npm_exe is None:
-        print("Error: npm not found in PATH.", file=sys.stderr)
+    try:
+        npm_exe = find_npm(config.config_path.parent)
+    except RuntimeError as e:
+        print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
 
     print(f"Running: npm install {' '.join(specs)}\n")
@@ -101,9 +102,10 @@ def _npm_remove(config, packages: list[str]) -> None:
     """javascript/typescript: stoke.toml 대신 실제 npm uninstall을 실행 (npm 버그 우회 포함)."""
     from stoke.npm_check import resolve_npm_command
 
-    npm_exe = shutil.which("npm")
-    if npm_exe is None:
-        print("Error: npm not found in PATH.", file=sys.stderr)
+    try:
+        npm_exe = find_npm(config.config_path.parent)
+    except RuntimeError as e:
+        print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
 
     print(f"Running: npm uninstall {' '.join(packages)}\n")

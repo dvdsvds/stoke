@@ -32,6 +32,7 @@ from stoke.languages.cpp.init import (
 )
 from stoke.languages.go.init import (
     _select_go_version,
+    _select_go_module_name,
     _pin_go_version,
     _write_stoke_toml_go,
     _write_example_go,
@@ -196,6 +197,7 @@ def cmd_init() -> None:
         _prompt_vcpkg_install()
     elif language == "go":
         go_version = _select_go_version()
+        go_module_name = _select_go_module_name(project_name)
     elif language == "rust":
         rust_version = _select_rust_version()
     elif language == "kotlin":
@@ -236,7 +238,7 @@ def cmd_init() -> None:
         _write_example_cpp(cwd)
     elif language == "go":
         _write_stoke_toml_go(stoke_toml_path, project_name, lock_mode)
-        _write_example_go(cwd, project_name)
+        _write_example_go(cwd, project_name, go_module_name)
         _pin_go_version(cwd, go_version)
     elif language == "rust":
         _write_stoke_toml_rust(stoke_toml_path, project_name, lock_mode)

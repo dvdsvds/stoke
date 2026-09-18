@@ -96,6 +96,11 @@ MESSAGES = {
         "remove.help": "Remove a dependency from a Python/Java target's stoke.toml",
         "remove.package": "Package name",
         "remove.target": "Target name (default: first target)",
+
+        # exec
+        "exec.help": "Run a command with the target's project-local toolchain on PATH (e.g. 'stoke exec -- go mod tidy')",
+        "exec.command": "Command to run (put -- before it to separate from stoke's own flags)",
+        "exec.target": "Target name (default: first target)",
     },
     "ko": {
         # stoke
@@ -190,6 +195,11 @@ MESSAGES = {
         "remove.help": "Python/Java 타겟의 stoke.toml에서 의존성 제거",
         "remove.package": "패키지 이름",
         "remove.target": "타겟 이름 (기본값: 첫 번째 타겟)",
+
+        # exec
+        "exec.help": "타겟의 프로젝트 로컬 툴체인을 PATH에 얹은 채로 명령 실행 (예: 'stoke exec -- go mod tidy')",
+        "exec.command": "실행할 명령 (stoke 자체 플래그와 구분하려면 앞에 -- 를 붙일 것)",
+        "exec.target": "타겟 이름 (기본값: 첫 번째 타겟)",
     },
 }
 

@@ -45,13 +45,19 @@ class GoAdapter(BaseAdapter):
 
     def _package_path(self) -> str:
         """
-        빌드할 Go 패키지 경로.
+        빌드할 Go 패키지 경로. 우선순위: cmd/<target.name>/ -> <target.name>/ -> . (프로젝트 루트)
 
-        <target.name>/ 서브디렉토리에 .go 파일이 있으면 그걸 빌드 (멀티 타겟
-        구조 — go.mod 하나 밑에 cmd/api, cmd/worker처럼 여러 main 패키지를
-        두는 Go의 표준 관례를 그대로 씀). 없으면 프로젝트 루트(.)를 빌드
-        (기존 단일 타겟 프로젝트, 하위 호환).
+        cmd/<target.name>/에 .go 파일이 있으면 그걸 빌드 (go.mod 하나 밑에
+        cmd/api, cmd/worker처럼 여러 main 패키지를 두는 Go 표준 레이아웃).
+        없으면 <target.name>/ 서브디렉토리를 봄 (stoke의 기존 멀티 타겟 관례).
+        둘 다 없으면 프로젝트 루트(.)를 빌드 (기존 단일 타겟 프로젝트, 하위 호환 —
+        gin/echo/fiber/chi/bubbletea 스캐폴딩이 전부 main.go를 루트에 바로 써서
+        여기로 떨어짐).
         """
+        cmd_subdir = self.project_root / "cmd" / self.target.name
+        if cmd_subdir.is_dir() and list(cmd_subdir.glob("*.go")):
+            return f"./cmd/{self.target.name}"
+
         target_subdir = self.project_root / self.target.name
         if target_subdir.is_dir() and list(target_subdir.glob("*.go")):
             return f"./{self.target.name}"

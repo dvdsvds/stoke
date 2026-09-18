@@ -29,6 +29,7 @@ from stoke.cli.install_lang import (
 )
 from stoke.cli.ide import cmd_ide_sync
 from stoke.cli.deps import cmd_add_dep, cmd_remove_dep
+from stoke.cli.exec_cmd import cmd_exec
 from stoke.init import cmd_init, cmd_init_noninteractive
 
 from stoke.languages.python.frameworks.fastapi import cmd_init_fastapi
@@ -41,6 +42,7 @@ from stoke.languages.go.frameworks.gin import cmd_init_gin
 from stoke.languages.go.frameworks.echo import cmd_init_echo
 from stoke.languages.go.frameworks.fiber import cmd_init_fiber
 from stoke.languages.go.frameworks.chi import cmd_init_chi
+from stoke.languages.go.frameworks.bubbletea import cmd_init_bubbletea
 
 from stoke.languages.rust.frameworks.actix_web import cmd_init_actix_web
 from stoke.languages.rust.frameworks.axum import cmd_init_axum
@@ -74,6 +76,7 @@ _INIT_FRAMEWORK_HANDLERS = {
     "echo": cmd_init_echo,
     "fiber": cmd_init_fiber,
     "chi": cmd_init_chi,
+    "bubbletea": cmd_init_bubbletea,
     "actix-web": cmd_init_actix_web,
     "axum": cmd_init_axum,
     "rocket": cmd_init_rocket,
@@ -235,6 +238,11 @@ def _build_parser():
     remove_parser.add_argument("packages", nargs="+", help=_("remove.package"))
     remove_parser.add_argument("--target", help=_("remove.target"))
 
+    # stoke exec [--target=X] -- <command...>
+    exec_parser = subparsers.add_parser("exec", help=_("exec.help"), formatter_class=_help_formatter)
+    exec_parser.add_argument("--target", help=_("exec.target"))
+    exec_parser.add_argument("command_args", nargs=argparse.REMAINDER, help=_("exec.command"), metavar="command")
+
     # stoke ide-sync
     subparsers.add_parser("ide-sync", help=_("ide-sync.help"), formatter_class=_help_formatter)
 
@@ -336,6 +344,8 @@ def _dispatch(args):
     elif args.command == "hot-reload":
         profile_name = resolve_profile_from_args(args)
         cmd_hot_reload(args.target, profile=profile_name, verbose=args.verbose)
+    elif args.command == "exec":
+        cmd_exec(args.command_args, args.target)
     elif args.command == "run":
         profile_name = resolve_profile_from_args(args)
         cmd_run(args.target, entry_file=args.entry_file, profile=profile_name)

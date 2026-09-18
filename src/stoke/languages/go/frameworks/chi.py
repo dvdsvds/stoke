@@ -45,12 +45,22 @@ def cmd_init_chi():
         if result.returncode != 0:
             print("Warning: go get github.com/go-chi/chi/v5 failed:", file=sys.stderr)
             print(result.stderr, file=sys.stderr)
+        result = subprocess.run(
+            [go_exe, "mod", "tidy"],
+            cwd=str(project_path),
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode != 0:
+            print("Warning: go mod tidy failed:", file=sys.stderr)
+            print(result.stderr, file=sys.stderr)
     else:
         print("\nWarning: 'go' not found. Run these manually:", file=sys.stderr)
         if not is_empty:
             print(f"  cd {project_name}", file=sys.stderr)
         print(f"  go mod init {module_name}", file=sys.stderr)
         print(f"  go get github.com/go-chi/chi/v5", file=sys.stderr)
+        print(f"  go mod tidy", file=sys.stderr)
 
     print(f"\nChi project created at: {project_path}")
     print()
