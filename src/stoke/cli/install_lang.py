@@ -1,6 +1,7 @@
 """stoke install --language=X --version=Y 명령어."""
 import sys
 import subprocess
+import urllib.error
 import urllib.request
 import tempfile
 import zipfile
@@ -368,8 +369,13 @@ def _bootstrap_embeddable_python(dest: Path) -> None:
     print("Bootstrapping pip into embeddable Python...")
     get_pip = dest / "get-pip.py"
     req = urllib.request.Request("https://bootstrap.pypa.io/get-pip.py")
-    with urllib.request.urlopen(req, timeout=30) as response:
-        get_pip.write_bytes(response.read())
+    try:
+        with urllib.request.urlopen(req, timeout=30) as response:
+            get_pip.write_bytes(response.read())
+    except (urllib.error.URLError, OSError) as e:
+        print(f"Warning: failed to download get-pip.py ({e}), skipping pip bootstrap.", file=sys.stderr)
+        print(f"  Python is installed at {dest} but has no pip -- bootstrap it manually if needed.", file=sys.stderr)
+        return
 
     result = subprocess.run(
         [str(python_exe), str(get_pip), "--no-warn-script-location"],

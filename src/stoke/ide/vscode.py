@@ -69,7 +69,16 @@ def _strip_jsonc(text: str) -> str:
 
 
 def _load_existing(path: Path) -> dict:
-    """기존 settings.json 로드. 없으면 빈 dict, 파싱 실패해도 최대한 복구."""
+    """
+    기존 settings.json 로드. 없으면 빈 dict, 파싱 실패해도 최대한 복구.
+
+    두 번의 파싱 시도(표준 JSON, 그다음 JSONC 주석/trailing comma 제거)가 모두
+    실패하면, 빈 dict를 반환해서 그대로 진행하되 -- 이후 write_project_settings가
+    이 반환값으로 파일을 덮어쓰면 사용자의 기존 설정이 통째로 사라지므로, 여기서
+    원본을 .bak으로 백업해서 최소한 데이터는 잃지 않게 한다. (빌드를 막는 예외를
+    던지는 대신 경고 후 진행 -- IDE 설정 동기화 실패로 stoke build 자체가 깨지면
+    안 되기 때문.)
+    """
     if not path.exists():
         return {}
     try:
@@ -83,7 +92,16 @@ def _load_existing(path: Path) -> dict:
     try:
         return json.loads(_strip_jsonc(text))
     except json.JSONDecodeError:
-        # 그래도 실패하면 사용자 설정을 잃지 않도록 빈 dict 대신 예외를 알림
+        backup_path = path.with_suffix(path.suffix + ".bak")
+        try:
+            backup_path.write_text(text, encoding="utf-8")
+            print(
+                f"Warning: could not parse {path}, backed up to {backup_path} "
+                f"before regenerating it.",
+                file=sys.stderr,
+            )
+        except OSError as e:
+            print(f"Warning: could not parse {path} and failed to back it up: {e}", file=sys.stderr)
         return {}
 
 
