@@ -55,4 +55,4 @@ PATH="$PWD/.stoke/toolchains/go-1.26.5/bin:$PATH" go mod tidy
 - `--` 뒤에 오는 임의 명령을 그대로 넘겨야 해서 `command_args`는 `argparse.REMAINDER`로 받음. 최상위 서브파서 dispatch가 `dest="command"`를 이미 쓰고 있어서 이름 충돌을 피하려고 `command_args`로 명명(표시상 메타변수는 `command`).
 - CLI 등록: `src/stoke/cli/__init__.py`에 `exec` 서브파서 + dispatch 분기 추가, `src/stoke/cli/messages.py`에 en/ko `exec.*` 메시지 추가.
 - 문서: `README.md`, `docs/README_ko.md`, `docs/HOW_TO_USE.md`, `docs/HOW_TO_USE_KO.md`에 `stoke exec` 사용법 추가.
-- 검증: 가짜 `.stoke/toolchains/go-1.26.5/go/bin/go` 스크립트를 만들어 `stoke exec -- go mod tidy`가 시스템 PATH에 go가 전혀 없어도 그 프로젝트 로컬 실행파일을 정확히 찾아 쓰는 것 확인. `--target` 처리, 명령 누락 시 에러 처리도 확인.
+- 검증: 가짜 `.stoke/toolchains/go-1.26.5/go/bin/go` 스크립트를 만들어 `stoke exec -- go mod tidy`가 시스템 PATH에 go가 전혀 없어도 그 프로젝트 로컬 실행파일을 정확히 찾아 쓰는 것 확인. `--target` 처리, 명령 누락 시 에러 처리도 확인. 이후 시스템에 실제 Go 1.26.0을 설치한 뒤 `stoke exec -- go mod tidy`를 실제 gin 프로젝트에서 실행해서 exit 0으로 정상 동작하는 것도 재확인.

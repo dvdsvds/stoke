@@ -20,7 +20,8 @@ carty 프로젝트에서 `stoke.toml`의 `[targets.carty]`에 경로 지정 필�
 
 ## 검증
 
-임시 디렉토리에 세 가지 레이아웃(`cmd/carty/main.go`, `other_target/main.go`, 아무것도 없음)을 만들어서 `GoAdapter._package_path()`를 직접 호출, 각각 `./cmd/carty`, `./other_target`, `.`로 정확히 갈리는 것 확인. 기존 동작(2번, 3번 케이스)이 안 깨지는 것도 같이 확인.
+1. 임시 디렉토리에 세 가지 레이아웃(`cmd/carty/main.go`, `other_target/main.go`, 아무것도 없음)을 만들어서 `GoAdapter._package_path()`를 직접 호출, 각각 `./cmd/carty`, `./other_target`, `.`로 정확히 갈리는 것 확인. 기존 동작(2번, 3번 케이스)이 안 깨지는 것도 같이 확인.
+2. 실제 Go 1.26.0 설치 후 `cmd/myapp/main.go` 구조로 프로젝트를 만들어 `stoke build`(`go build ./cmd/myapp` 정확히 호출됨) → `stoke run`(정상 출력)까지 end-to-end로 재확인.
 
 ## 참고
 

@@ -28,4 +28,8 @@ require (
 
 `src/stoke/languages/go/frameworks/{gin,chi,echo,fiber}.py`가 전부 Bubble Tea와 똑같은 순서(`main.go` 작성 → `go mod init` → `go get <프레임워크>`)로 되어 있고 `go mod tidy` 호출이 없었음. 네 파일 모두에 `go get` 성공/실패 여부와 무관하게(어차피 go.sum 갱신을 위해) `go mod tidy` 호출을 추가하고, `go` 자체가 없을 때의 수동 안내 문구에도 `go mod tidy` 줄을 추가함. Bubble Tea와 동일한 패턴으로 통일.
 
-실제 Go 툴체인이 로컬 환경에 없어서 `// indirect`가 사라지는지 직접 빌드해서 재현/검증은 못 했음 — Bubble Tea 케이스에서 확인된 것과 동일한 원인이므로 동일한 수정이 유효할 것으로 판단. 다음에 실제 Go 환경에서 `stoke init gin`(등)으로 생성 후 `go.mod`를 확인해서 검증 필요.
+## 검증
+
+시스템에 Go 1.26.0을 설치한 뒤(`apt install golang-go`) `stoke init gin/echo/fiber/chi/bubbletea` 5개 전부 실제로 생성해서 확인함:
+- `go.mod`에서 각 프레임워크 자체(`gin-gonic/gin`, `labstack/echo/v4`, `gofiber/fiber/v2`, `go-chi/chi/v5`, `charmbracelet/bubbletea`)가 `// indirect` 없이 `require`로 정확히 표시됨 (전이 의존성들만 `// indirect`가 붙어 있는 게 정상)
+- 5개 전부 `stoke build` 성공
