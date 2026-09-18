@@ -19,15 +19,7 @@ class CompilerInstall:
     vcvars_bat: Path | None = None  # msvc만 사용 (INCLUDE/LIB 환경변수 설정용)
 
 def _get_compiler_version(executable: str) -> str | None:
-    """
-    gcc --version 또는 g++ --version 실행해서 버전 문자열 추출.
-    
-    출력 예:
-      gcc.exe (Rev8, Built by MSYS2 project) 15.2.0
-      Copyright (C) 2025 Free Software Foundation, Inc.
-    
-    첫 줄에서 마지막 숫자.숫자.숫자 패턴 추출.
-    """
+    """gcc/g++ --version 실행해서 첫 줄의 숫자.숫자.숫자 버전 패턴 추출."""
     try:
         result = subprocess.run(
             [executable, "--version"],
@@ -67,10 +59,7 @@ def _find_vswhere() -> Path | None:
     return Path(found) if found else None
 
 def _find_msvc_install() -> tuple[Path, Path] | None:
-    """
-    설치된 Visual Studio에서 cl.exe와 vcvars64.bat 경로를 찾음.
-    반환: (cl.exe 경로, vcvars64.bat 경로) 또는 못 찾으면 None.
-    """
+    """설치된 Visual Studio에서 cl.exe와 vcvars64.bat 경로를 찾음."""
     vswhere = _find_vswhere()
     if vswhere is None:
         return None
@@ -146,11 +135,7 @@ def _detect_msvc(kind: str) -> CompilerInstall | None:
     )
 
 def _detect_compiler(kind: str, compiler_family: str = "gcc") -> CompilerInstall | None:
-    """
-    kind에 맞는 컴파일러 감지.
-    kind: "c" -> gcc/clang/cl, "cpp" -> g++/clang++/cl
-    compiler_family: "gcc", "clang", 또는 "msvc"
-    """
+    """kind("c"/"cpp")와 compiler_family("gcc"/"clang"/"msvc")에 맞는 컴파일러 감지."""
     if compiler_family == "msvc":
         return _detect_msvc(kind)
 
@@ -187,8 +172,7 @@ def _detect_compiler(kind: str, compiler_family: str = "gcc") -> CompilerInstall
     )
 
 def _detect_local_all(kind: str, project_root: Path) -> list[CompilerInstall]:
-    """프로젝트의 .stoke/toolchains/gcc-*/ 에서 stoke install로 받은 gcc/g++ 전부 감지.
-    mingw-builds 7z는 안에 mingw64/ 폴더가 한 겹 더 있음."""
+    """프로젝트의 .stoke/toolchains/gcc-*/ 에서 stoke install로 받은 gcc/g++ 전부 감지."""
     toolchains = project_root / ".stoke" / "toolchains"
     if not toolchains.is_dir():
         return []
@@ -225,8 +209,7 @@ def _detect_local(kind: str, project_root: Path) -> CompilerInstall | None:
     return installs[0] if installs else None
 
 def detect_all(project_root: Path | None = None) -> list[CompilerInstall]:
-    """설치된 C/C++ 컴파일러 감지. C, C++ 각각 (gcc/clang) + MSVC.
-    project_root가 주어지면 stoke install로 받은 프로젝트 로컬 설치(.stoke/toolchains)도 포함."""
+    """설치된 C/C++ 컴파일러 감지 (gcc/clang + MSVC, project_root 주어지면 로컬 설치도 포함)."""
     installs = []
     if project_root is not None:
         for kind in ["c", "cpp"]:
@@ -254,12 +237,7 @@ def find_compiler(
     compiler_family: str = "gcc",
     project_root: Path | None = None,
 ) -> CompilerInstall | None:
-    """
-    kind와 원하는 버전에 맞는 컴파일러 찾기.
-    requested_version 없으면 시스템 default.
-    compiler_family: "gcc" 또는 "clang"
-    project_root가 주어지면 프로젝트 로컬 설치(.stoke/toolchains)를 시스템보다 우선 확인.
-    """
+    """kind와 원하는 버전에 맞는 컴파일러 찾기 (project_root 주어지면 로컬 설치를 시스템보다 우선)."""
     if project_root is not None and compiler_family == "gcc":
         local = _detect_local(kind, project_root)
         if local is not None and (requested_version is None or _version_matches(local, requested_version)):

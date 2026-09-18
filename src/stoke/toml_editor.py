@@ -1,8 +1,4 @@
-"""
-stoke.toml 파일을 수정하기 위한 유틸리티.
-tomllib은 읽기 전용이라 정규식으로 섹션을 찾아서 수정.
-주석이랑 원본 순서 유지 목표.
-"""
+"""stoke.toml 수정 유틸리티. tomllib은 읽기 전용이라 정규식으로 섹션을 찾아 수정."""
 import re
 from pathlib import Path
 
@@ -19,11 +15,7 @@ def _escape_toml_string(value: str) -> str:
     )
 
 def add_dep(toml_path: Path, target_name: str, lib_name: str, version: str) -> None:
-    """
-    stoke.toml의 [targets.<target_name>.deps] 섹션에 라이브러리 추가.
-    섹션이 없으면 만들어요.
-    이미 있으면 버전만 업데이트.
-    """
+    """[targets.<target_name>.deps] 섹션에 라이브러리 추가 (없으면 생성, 있으면 버전만 갱신)."""
     if not _VALID_TOML_BARE_KEY.match(lib_name):
         raise ValueError(
             f"invalid package name '{lib_name}': only letters, digits, '-' and '_' allowed"
@@ -92,10 +84,7 @@ def add_dep(toml_path: Path, target_name: str, lib_name: str, version: str) -> N
     toml_path.write_text(content, encoding="utf-8")
 
 def remove_dep(toml_path: Path, target_name: str, lib_name: str) -> bool:
-    """
-    stoke.toml의 [targets.<target_name>.deps] 섹션에서 라이브러리 제거.
-    반환: 제거 성공하면 True, 라이브러리 없으면 False.
-    """
+    """[targets.<target_name>.deps] 섹션에서 라이브러리 제거. 반환: 성공하면 True."""
     content = toml_path.read_text(encoding="utf-8")
 
     # 섹션 찾기
@@ -139,10 +128,7 @@ def remove_dep(toml_path: Path, target_name: str, lib_name: str) -> bool:
 
 
 def list_deps(toml_path: Path, target_name: str) -> dict[str, str]:
-    """
-    stoke.toml의 [targets.<target_name>.deps] 섹션의 라이브러리 목록.
-    반환: {이름: 버전} 딕셔너리.
-    """
+    """[targets.<target_name>.deps] 섹션의 라이브러리 목록. 반환: {이름: 버전}."""
     content = toml_path.read_text(encoding="utf-8")
 
     section_match = re.search(

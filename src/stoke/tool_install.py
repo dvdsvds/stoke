@@ -1,14 +1,4 @@
-"""
-스캐폴딩 중 필요한 툴(go, cargo, dotnet, composer 등)이 시스템에 없을 때,
-그냥 "없다"고 경고만 하고 넘어가는 대신 stoke의 기존 프로젝트-로컬 설치
-메커니즘(`stoke install <language>`, 전역 상태 안 건드림)으로 그 자리에서
-설치할지 물어보기 위한 공용 헬퍼.
-
-모든 언어가 대상은 아님 -- stoke가 직접 설치해줄 수 있는 건 SUPPORTED_LANGUAGES에
-있는 것뿐이고(Kotlin은 여기 없음: Kotlin 컴파일러는 Gradle이 직접 관리하고
-stoke는 JDK만 설치해주는 구조라, "gradle이 없다"는 문제 자체를 이 메커니즘으로는
-못 고침 -- kotlin/*.py는 이 헬퍼를 안 씀).
-"""
+"""스캐폴딩 중 툴(go, cargo, dotnet 등)이 없으면 `stoke install`로 그 자리에서 설치할지 물어보는 헬퍼."""
 import os
 import shutil
 import subprocess
@@ -26,8 +16,7 @@ def _find_toolchain_dir(project_path: Path, language: str) -> Path | None:
     return dirs[0] if dirs else None
 
 def _find_toolchain_exe(project_path: Path, language: str, exe_name: str) -> Path | None:
-    """.stoke/toolchains/<language>-*/ 밑에서 exe_name을 재귀적으로 찾음
-    (언어마다 압축 내부 레이아웃이 달라서 정확한 서브패스 대신 이름으로 탐색)."""
+    """.stoke/toolchains/<language>-*/ 밑에서 exe_name을 재귀적으로 찾음."""
     toolchain_dir = _find_toolchain_dir(project_path, language)
     if toolchain_dir is None:
         return None
@@ -37,8 +26,7 @@ def _find_toolchain_exe(project_path: Path, language: str, exe_name: str) -> Pat
     return None
 
 def _prompt_and_install(language: str, project_path: Path, display_name: str, exe_name: str) -> bool:
-    """설치할지 물어보고, 승낙하면 `stoke install <language>`를 이 프로젝트 안에서 실행.
-    설치를 시도했으면(성공/실패 무관) True, 사용자가 거절했으면 False."""
+    """설치할지 물어보고, 승낙하면 `stoke install <language>` 실행. 시도했으면 True, 거절하면 False."""
     if not _prompt_yes_no(f"'{exe_name}' not found. Install {display_name} into this project now?", default=True):
         return False
 
@@ -60,12 +48,7 @@ def ensure_tool(
     project_path: Path,
     display_name: str | None = None,
 ) -> str | None:
-    """
-    exe_names(POSIX 이름, 필요하면 (posix, windows) 튜플)가 PATH나 프로젝트
-    로컬 툴체인에 있으면 그 경로를 반환. 없으면 `stoke install <language>`로
-    지금 설치할지 물어보고, 승낙하면 설치 후 새로 생긴 실행파일 경로를 찾아 반환.
-    거절하거나 설치 실패하면 None (호출부가 기존처럼 수동 안내로 폴백).
-    """
+    """PATH/로컬 툴체인에서 exe_names 찾기, 없으면 설치 제안 후 재탐색 (거절/실패 시 None)."""
     if isinstance(exe_names, tuple):
         posix_name, windows_name = exe_names
     else:
@@ -87,13 +70,7 @@ def ensure_tool(
     return str(local) if local else None
 
 def ensure_cargo(project_path: Path) -> tuple[str, dict] | None:
-    """
-    cargo 전용 버전의 ensure_tool. rustup으로 설치된 cargo는 실제 컴파일러로
-    넘겨주는 얇은 프록시라서 RUSTUP_HOME/CARGO_HOME을 함께 알려줘야 동작함
-    (rust/adapter.py의 _find_cargo()와 동일한 로직) -- 그래서 실행파일 경로만
-    돌려주는 ensure_tool()로는 부족해 별도로 둠.
-    반환: (cargo_exe_path, env) 또는 (설치 안 했으면) None.
-    """
+    """cargo 전용 ensure_tool -- RUSTUP_HOME/CARGO_HOME도 같이 반환해야 해서 별도로 둠."""
     exe_name = "cargo.exe" if sys.platform == "win32" else "cargo"
 
     found = shutil.which("cargo")
@@ -122,11 +99,7 @@ def ensure_cargo(project_path: Path) -> tuple[str, dict] | None:
     return _local_cargo()
 
 def ensure_bundle(project_path: Path) -> str | None:
-    """
-    bundle 전용 버전의 ensure_tool. `stoke install ruby`는 ruby 자체만 설치하고
-    Bundler는 별도 gem이라 보장이 안 됨 -- 그래서 ruby를 먼저 설치/확인한 다음,
-    그 ruby 옆에 bundle이 없으면 그 ruby의 gem으로 `gem install bundler`까지 해줌.
-    """
+    """bundle 전용 ensure_tool -- ruby 먼저 확보한 뒤, 없으면 그 gem으로 bundler 설치."""
     bundle_name = "bundle.bat" if sys.platform == "win32" else "bundle"
     ruby_name = "ruby.exe" if sys.platform == "win32" else "ruby"
     gem_name = "gem.bat" if sys.platform == "win32" else "gem"
