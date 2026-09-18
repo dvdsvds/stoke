@@ -1,19 +1,4 @@
-"""stoke exec — 프로젝트 로컬 툴체인을 PATH(및 필요 시 환경변수)에 얹어서 임의 명령 실행.
-
-`stoke install`/`stoke init`이 언어를 `.stoke/toolchains/`에 프로젝트 전용으로
-설치해도 시스템 PATH는 건드리지 않는다 (의도된 격리). `stoke build`/`run`은
-어댑터가 내부적으로 그 경로를 직접 호출해서 잘 동작하지만, 사용자가 직접
-셸에서 치는 네이티브 도구 명령(`go mod tidy`, `cargo add`, `bundle add`,
-`composer require`, `dotnet add package` 등)은 시스템 PATH만 보다가
-"명령을 찾을 수 없음"으로 실패한다. `stoke exec -- <command>`는 현재 타겟
-언어의 프로젝트 로컬 툴체인 bin을 PATH 맨 앞에 얹은 환경에서 그 명령을
-그대로 실행해서 이 갭을 메운다.
-
-각 언어의 실행파일/환경변수 탐색은 해당 어댑터가 이미 하는 것과 동일한
-로직(`tool_install.py`의 `_find_toolchain_dir`/`_find_toolchain_exe`, Rust는
-`ensure_cargo`와 동일하게 RUSTUP_HOME/CARGO_HOME도 같이 설정, Node.js는
-`_node_tools.find_local_node_dir`)을 재사용한다.
-"""
+"""stoke exec — 프로젝트 로컬 툴체인(.stoke/toolchains)을 PATH에 얹어서 임의 명령 실행."""
 import os
 import subprocess
 import sys
@@ -31,8 +16,7 @@ _EXE_NAME = {
 }
 
 def _toolchain_env(language: str, project_root: Path) -> dict:
-    """language의 프로젝트 로컬 툴체인 bin을 PATH 맨 앞에 얹은 환경변수.
-    못 찾으면 os.environ 그대로 반환 (시스템 PATH만 보는 기존 동작과 동일)."""
+    """language의 프로젝트 로컬 툴체인 bin을 PATH 맨 앞에 얹은 환경변수."""
     env = dict(os.environ)
 
     if language == "rust":

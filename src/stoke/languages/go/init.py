@@ -16,12 +16,7 @@ def _select_go_version() -> str:
     return _prompt("Pin Go version? (e.g. 1.22.3, blank to skip)", default="").strip()
 
 def _select_go_module_name(project_name: str) -> str:
-    """
-    published(GitHub 등)될 프로젝트만 실제 모듈 경로를 물어봄. 로컬 전용
-    프로젝트는 project_name을 그대로 module 이름으로 쓰는 기존 기본값을 유지 --
-    외부에서 import될 일이 없으면 짧은 이름으로 충분하고, gin 등 프레임워크
-    템플릿처럼 매번 물어보면 로컬 스크래치 프로젝트엔 불필요한 마찰이 됨.
-    """
+    """published될 프로젝트만 실제 모듈 경로를 물어봄. 아니면 project_name을 그대로 씀."""
     if not _prompt_yes_no("Will this be published (e.g. on GitHub)?", default=False):
         return project_name
     return sanitize_go_module_name(

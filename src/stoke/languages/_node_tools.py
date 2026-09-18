@@ -1,14 +1,10 @@
-"""JS/TS 어댑터 공용 Node 툴 탐색 믹스인.
-
-탐색 로직 자체는 모듈 레벨 함수(_find_local_node_dir/_find_node/_find_npm)로 둬서
-어댑터 인스턴스(self.project_root) 없이도(e.g. stoke add/remove) 재사용 가능하게 함."""
+"""JS/TS 어댑터 공용 Node 툴 탐색. 모듈 레벨 함수라 어댑터 인스턴스 없이도(stoke add/remove) 재사용 가능."""
 import shutil
 import sys
 from pathlib import Path
 
 def find_local_node_dir(project_root: Path):
-    """프로젝트의 .stoke/toolchains/nodejs-*/ 에서 stoke install로 받은 Node.js 폴더 찾기.
-    압축 풀면 안에 node-vX.Y.Z-<os>-<arch>/ 폴더가 한 겹 더 있음."""
+    """.stoke/toolchains/nodejs-*/ 에서 stoke install로 받은 Node.js 폴더 찾기."""
     toolchains = project_root / ".stoke" / "toolchains"
     if not toolchains.is_dir():
         return None
