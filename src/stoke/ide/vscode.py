@@ -1,7 +1,4 @@
-"""
-VSCode .vscode/settings.json 관리.
-프로젝트별 IDE 설정 자동 생성/병합.
-"""
+"""VSCode .vscode/settings.json 관리 -- 프로젝트별 IDE 설정 자동 생성/병합."""
 
 import json
 import platform
@@ -69,16 +66,7 @@ def _strip_jsonc(text: str) -> str:
 
 
 def _load_existing(path: Path) -> dict:
-    """
-    기존 settings.json 로드. 없으면 빈 dict, 파싱 실패해도 최대한 복구.
-
-    두 번의 파싱 시도(표준 JSON, 그다음 JSONC 주석/trailing comma 제거)가 모두
-    실패하면, 빈 dict를 반환해서 그대로 진행하되 -- 이후 write_project_settings가
-    이 반환값으로 파일을 덮어쓰면 사용자의 기존 설정이 통째로 사라지므로, 여기서
-    원본을 .bak으로 백업해서 최소한 데이터는 잃지 않게 한다. (빌드를 막는 예외를
-    던지는 대신 경고 후 진행 -- IDE 설정 동기화 실패로 stoke build 자체가 깨지면
-    안 되기 때문.)
-    """
+    """기존 settings.json 로드. 파싱 실패 시 원본을 .bak으로 백업하고 빈 dict 반환."""
     if not path.exists():
         return {}
     try:
@@ -106,12 +94,7 @@ def _load_existing(path: Path) -> dict:
 
 
 def _merge_stoke_keys(existing: dict, stoke_config: dict) -> dict:
-    """
-    기존 설정을 유지하면서 stoke 관리 키만 갱신.
-    stoke 관리 키가 stoke_config에 없으면 기존 값 유지.
-    dict 값(files.exclude 등)은 통째로 덮어쓰지 않고 nested key 단위로 병합해서
-    사용자가 직접 추가한 항목(.vscode 숨김 등)이 유지되도록 한다.
-    """
+    """기존 설정을 유지하면서 stoke 관리 키만 갱신 (dict 값은 nested key 단위로 병합)."""
     result = dict(existing)
     for key, value in stoke_config.items():
         if key in _DEEP_MERGE_KEYS and isinstance(value, dict) and isinstance(result.get(key), dict):
@@ -126,10 +109,7 @@ def write_project_settings(
     project_root: Path,
     settings: dict,
 ) -> tuple[Path, bool]:
-    """
-    프로젝트 폴더의 .vscode/settings.json 생성/병합.
-    반환: (저장된 파일 경로, 실제 변경 여부)
-    """
+    """프로젝트 폴더의 .vscode/settings.json 생성/병합. 반환: (파일 경로, 변경 여부)."""
     vscode_dir = project_root / ".vscode"
     vscode_dir.mkdir(exist_ok=True)
     settings_path = vscode_dir / "settings.json"
@@ -149,10 +129,7 @@ def _stoke_vscode_excludes() -> dict:
     }
 
 def make_java_settings(jar_files: list[Path], project_root: Path) -> dict:
-    """
-    자바 프로젝트용 VSCode 설정.
-    referencedLibraries: 외부 JAR 목록을 VSCode Java 확장이 인식하도록.
-    """
+    """자바 프로젝트용 VSCode 설정 (referencedLibraries에 외부 JAR 목록 등록)."""
     lib_paths = []
     for jar in jar_files:
         try:
@@ -167,10 +144,7 @@ def make_java_settings(jar_files: list[Path], project_root: Path) -> dict:
     }
 
 def make_python_settings(venv_python: Path, project_root: Path) -> dict:
-    """
-    파이썬 프로젝트용 VSCode 설정.
-    ${workspaceFolder} 상대 경로로 표현.
-    """
+    """파이썬 프로젝트용 VSCode 설정 (${workspaceFolder} 상대 경로로 표현)."""
     try:
         rel = venv_python.relative_to(project_root)
         interpreter_path = "${workspaceFolder}/" + str(rel).replace("\\", "/")
@@ -198,11 +172,7 @@ EXCLUDED_DIRS = {
 }
 
 def _intellisense_mode(compiler_family: str | None) -> str:
-    """
-    VSCode C/C++ 확장의 intelliSenseMode는 "<os>-<compiler>-<arch>" 형식
-    (예: linux-gcc-x64, windows-msvc-x64). 예전엔 "windows-gcc-x64"로
-    고정돼 있어서 리눅스/맥에서도 항상 windows로 잘못 설정됐었음.
-    """
+    """VSCode C/C++ 확장의 intelliSenseMode: "<os>-<compiler>-<arch>" 형식."""
     if sys.platform == "win32":
         os_name = "windows"
     elif sys.platform == "darwin":
@@ -228,14 +198,7 @@ def make_cpp_settings(
     compiler_path: str | None = None,
     compiler_family: str | None = None,
 ) -> dict:
-    """
-    VSCode C/C++ 확장용 c_cpp_properties.json 설정.
-
-    language: "c" 또는 "cpp"
-    standard: "c17", "c++17" 같은 표준
-    compiler_path: gcc/g++ 실행 파일 경로 (있으면 명시)
-    compiler_family: "gcc" / "clang" / "msvc" -- intelliSenseMode 계산용
-    """
+    """VSCode C/C++ 확장용 c_cpp_properties.json 설정."""
     config = {
         "name": "stoke",
         "compileCommands": "${workspaceFolder}/compile_commands.json",
@@ -269,11 +232,7 @@ def write_cpp_properties(project_root: Path, settings: dict) -> tuple[Path, bool
     return settings_path, changed
 
 def find_stoke_projects(root: Path) -> list[Path]:
-    """
-    root 아래에서 stoke.toml이 있는 폴더들을 재귀 탐색.
-    EXCLUDED_DIRS는 스캔 안 함.
-    반환: stoke.toml이 있는 폴더 경로 리스트.
-    """
+    """root 아래에서 stoke.toml이 있는 폴더들을 재귀 탐색 (EXCLUDED_DIRS는 스캔 안 함)."""
     projects = []
 
     def walk(current: Path):
@@ -301,10 +260,7 @@ def find_stoke_projects(root: Path) -> list[Path]:
 
 
 def make_workspace_settings(projects_by_language: dict) -> dict:
-    """
-    워크스페이스 루트용 VSCode 설정.
-    projects_by_language: {"java": [Path, ...], "python": [Path, ...]}
-    """
+    """워크스페이스 루트용 VSCode 설정."""
     settings = {}
 
     # 자바: rootPaths에 상대 경로 배열
@@ -330,19 +286,11 @@ def make_workspace_settings(projects_by_language: dict) -> dict:
     return settings
 
 def make_project_settings() -> dict:
-    """
-    프로젝트 폴더의 .vscode/settings.json 기본 설정.
-    .stoke/ 폴더를 VSCode 감시에서 제외.
-    """
+    """프로젝트 폴더의 .vscode/settings.json 기본 설정 (.stoke/ 감시 제외)."""
     return _stoke_vscode_excludes()
 
 def make_workspace_file(project_paths: list[Path], workspace_root: Path) -> dict:
-    """
-    VSCode multi-root workspace 파일 (.code-workspace) 내용 생성.
-
-    project_paths: workspace에 포함할 stoke 프로젝트 폴더들
-    workspace_root: workspace 파일이 저장될 폴더 (상대 경로 계산용)
-    """
+    """VSCode multi-root workspace 파일 (.code-workspace) 내용 생성."""
     folders = []
     for project_path in project_paths:
         try:
@@ -365,10 +313,7 @@ def make_workspace_file(project_paths: list[Path], workspace_root: Path) -> dict
 
 
 def write_workspace_file(workspace_root: Path, workspace_content: dict) -> Path:
-    """
-    .code-workspace 파일 저장.
-    파일 이름은 workspace_root의 폴더 이름 사용.
-    """
+    """.code-workspace 파일 저장 (파일 이름은 workspace_root의 폴더 이름 사용)."""
     import json
 
     workspace_name = workspace_root.name

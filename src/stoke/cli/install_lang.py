@@ -31,8 +31,7 @@ _NO_DIRECT_INSTALL = {
 }
 
 def _toolchains_dir(project_root: Path) -> Path:
-    """언어 툴체인 설치 폴더 반환. 프로젝트 로컬(.stoke/toolchains) — 전역 캐시 없음.
-    프로젝트를 지우면 같이 지워지고, PC에 언어별 잔여 캐시가 남지 않음."""
+    """언어 툴체인 설치 폴더 반환 (프로젝트 로컬 .stoke/toolchains, 전역 캐시 없음)."""
     return project_root / ".stoke" / "toolchains"
 
 def _find_project_root() -> Path:
@@ -46,17 +45,7 @@ def _find_project_root() -> Path:
         sys.exit(1)
 
 def cmd_install_language(language: str, version: str, base_url: str | None = None):
-    """
-    stoke install --language=[language name] --version=[version] [--base-url=<url>]
-
-    언어는 현재 프로젝트의 .stoke/toolchains/ 안에 설치됨 (전역 설치 없음, PATH 변경 없음).
-    stoke build/run이 stoke.toml의 버전 지정을 보고 이 경로를 직접 찾아 씀.
-
-    base_url: 버전 메타데이터를 가져올 base URL 오버라이드.
-    안 주면 STOKE_VERSION_API_BASE 환경변수 또는 stoke 기본 엔드포인트 사용.
-    사내망에서 dvdsvds.github.io에 못 닿을 때, 같은 JSON 스키마로 미러링한
-    사내 서버를 가리키기 위함.
-    """
+    """stoke install --language=X --version=Y -- .stoke/toolchains/ 안에 설치, PATH는 안 건드림."""
     # 지원 언어 및 환경 확인
     if language not in SUPPORTED_LANGUAGES:
         print(f"Error: unsupported language '{language}'", file=sys.stderr)
@@ -118,8 +107,7 @@ def cmd_install_language(language: str, version: str, base_url: str | None = Non
 
 
 def _download(url: str) -> Path:
-    """URL에서 파일 다운로드. 임시 파일 경로 반환. (사설 미러가 인증을 요구하면
-    STOKE_VERSION_API_USER/PASSWORD로 Basic Auth 헤더를 붙임.)"""
+    """URL에서 파일 다운로드. 임시 파일 경로 반환 (필요하면 Basic Auth 헤더 붙임)."""
     filename = url.split("/")[-1]
     tmp_dir = Path(tempfile.gettempdir())
     dest = tmp_dir / filename
@@ -177,9 +165,7 @@ def _delete_registry_tree(path: str) -> None:
     winreg.DeleteKey(winreg.HKEY_CURRENT_USER, path)
 
 def _install_windows(installer_path: Path, language: str = None, version: str = None, project_root: Path = None):
-    """Windows installer 실행. .exe / .msi / .zip / .7z 지원.
-    전부 프로젝트의 .stoke/toolchains/ 안으로 설치되고 PATH는 건드리지 않음 —
-    stoke build/run이 stoke.toml에 pin된 버전을 보고 이 경로를 직접 찾아 씀."""
+    """Windows installer 실행 (.exe/.msi/.zip/.7z). .stoke/toolchains/ 안에 설치, PATH는 안 건드림."""
     suffix = installer_path.suffix.lower()
     dest = _toolchains_dir(project_root) / f"{language}-{version}"
 
@@ -259,14 +245,7 @@ def _install_windows(installer_path: Path, language: str = None, version: str = 
         sys.exit(1)
 
 def _check_safe_members(names: list[str], dest: Path) -> None:
-    """
-    압축 해제 전에 각 엔트리가 dest 밖으로 안 나가는지 확인 (zip-slip/tar-slip 방어).
-
-    installer 다운로드 URL은 --base-url/STOKE_VERSION_API_BASE로 사용자가
-    바꿀 수 있게 되어 있어서(사내 미러링 용도), 그 미러가 침해되거나
-    설정이 잘못되면 "../../"나 절대경로 엔트리가 든 압축파일을 받아
-    dest 밖 임의 경로에 파일을 쓸 수 있음 -- 여기서 한 번에 막음.
-    """
+    """압축 해제 전 각 엔트리가 dest 밖으로 안 나가는지 확인 (zip-slip/tar-slip 방어)."""
     dest_resolved = dest.resolve()
     for name in names:
         member_path = (dest / name).resolve()
@@ -308,13 +287,7 @@ def _extract_7z(archive_path: Path, dest: Path) -> None:
         sys.exit(1)
 
 def _install_rust(rustup_init: Path, dest: Path, version: str) -> None:
-    """
-    Rust는 gcc/nodejs처럼 미리 빌드된 xcopy용 zip이 없음 — 공식 배포는 rustc/cargo/std
-    등을 각자 따로 압축한 "컴포넌트" 묶음이라 rustup 없이 직접 조립하기 어려움.
-    대신 rustup-init.exe를 RUSTUP_HOME/CARGO_HOME이 프로젝트의 .stoke/toolchains/ 안을
-    가리키게 해서 돌리면, rustup 자체가 그 안에만 설치되고 전역 ~/.rustup, ~/.cargo,
-    PATH는 전혀 안 건드림.
-    """
+    """rustup-init을 RUSTUP_HOME/CARGO_HOME이 프로젝트 로컬을 가리키게 해서 격리 설치."""
     rustup_home = dest / "rustup"
     cargo_home = dest / "cargo"
     dest.mkdir(parents=True, exist_ok=True)
@@ -341,18 +314,7 @@ def _install_rust(rustup_init: Path, dest: Path, version: str) -> None:
         sys.exit(1)
 
 def _bootstrap_embeddable_python(dest: Path) -> None:
-    """
-    python.org의 embeddable zip 배포판은 pip/venv가 빠져 있음 (기본적으로
-    site-packages도 비활성화). MSI 인스톨러 방식은 같은 버전을 여러 프로젝트가
-    동시에 로컬 설치하려 하면 Windows Installer가 "이미 설치됨"으로 보고 조용히
-    실패하는 문제가 있어서, 순수 파일 복사만으로 끝나는 embeddable을 쓰는 대신
-    직접 pip/virtualenv를 심어준다.
-
-    1. python3XX._pth에 site-packages 활성화
-    2. get-pip.py로 pip 부트스트랩
-    3. venv 모듈이 없으므로 pip으로 virtualenv 패키지 설치
-       (stdlib venv와 달리 ensurepip 없이도 동작하도록 만들어진 패키지라 여기서 씀)
-    """
+    """python.org embeddable zip엔 pip/venv가 없어서, site-packages 활성화 + pip + virtualenv를 직접 심음."""
     python_exe = dest / "python.exe"
     pth_files = list(dest.glob("python3*._pth"))
     if not python_exe.exists() or not pth_files:
@@ -409,12 +371,7 @@ def _install_macos(installer_path: Path):
     print("After installation, run 'stoke python list' to verify.")
 
 def _install_linux(installer_path: Path, language: str = None, version: str = None, project_root: Path = None):
-    """
-    Linux 다운로드 설치. go/java/nodejs 등은 .tar.gz/.tar.xz 하나로 xcopy하듯
-    풀기만 하면 되는 배포판이라 Windows의 zip 경로와 동일하게 프로젝트의
-    .stoke/toolchains/ 안에 풀고 PATH는 건드리지 않음 —
-    stoke build/run이 stoke.toml에 pin된 버전을 보고 이 경로를 직접 찾아 씀.
-    """
+    """Linux 다운로드 설치 (.tar.gz/.tar.xz를 .stoke/toolchains/ 안에 풀고 PATH는 안 건드림)."""
     dest = _toolchains_dir(project_root) / f"{language}-{version}"
     name = installer_path.name.lower()
 

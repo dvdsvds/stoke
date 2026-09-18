@@ -40,10 +40,7 @@ class JavaAdapter(BaseAdapter):
         self.deps_dir = self.lang_dir / "deps"
 
     def resolve_jdk(self) -> tuple[JavaInstall, bool]:
-        """
-        어떤 JDK를 쓸지 결정.
-        반환: (JavaInstall, lock을 갱신해야 하는지 여부)
-        """
+        """어떤 JDK를 쓸지 결정. 반환: (JavaInstall, lock 갱신 필요 여부)."""
         lock = load_lock(self.project_root, self.project.lock_mode)
 
         # 1. lock 파일에 자바 정보 있으면 우선 사용
@@ -136,10 +133,7 @@ class JavaAdapter(BaseAdapter):
         return sorted(collected)
 
     def _source_dirs(self) -> list[Path]:
-        """
-        sources 패턴에서 소스 최상위 폴더 추출.
-        예: ["src/**/*.java"] -> [project_root/src]
-        """
+        """sources 패턴에서 소스 최상위 폴더 추출."""
         roots = set()
         for pattern in self.target.sources:
             parts = Path(pattern).parts
@@ -160,12 +154,7 @@ class JavaAdapter(BaseAdapter):
         return sorted(r for r in roots if r.exists())
 
     def _generate_ide_files(self) -> None:
-        """
-        project.ide 설정에 맞는 IDE 통합 파일만 생성:
-        "eclipse" -> .classpath/.project, "vscode" -> .vscode/settings.json,
-        "intellij" -> pom.xml, "none" -> 아무것도 안 씀.
-        빌드 성공 후에만 호출.
-        """
+        """project.ide 설정에 맞는 IDE 통합 파일 생성 (빌드 성공 후에만 호출)."""
         ide = self.project.ide
         if ide == "none":
             return
@@ -216,12 +205,7 @@ class JavaAdapter(BaseAdapter):
             print(f"IDE files updated: {', '.join(changed_files)}")
         
     def _target_fingerprint(self, jdk: JavaInstall, files: list[Path]) -> str:
-        """
-        타겟 전체 소스 세트 기준 원격 캐시 fingerprint.
-        C/C++처럼 파일 하나당 하나가 아니라, javac가 변경분을 한 번에 몰아서
-        컴파일하는 구조에 맞춰 "이 타겟을 이루는 소스 파일 전체의 내용"을
-        통째로 반영함 — 파일 하나라도 내용이 바뀌면 값이 통째로 바뀜.
-        """
+        """타겟 전체 소스 세트 기준 원격 캐시 fingerprint (javac는 파일 단위가 아니라 통째로 컴파일)."""
         parts = []
         for file in sorted(files, key=lambda f: str(f)):
             file_key = str(file.relative_to(self.project_root))
@@ -238,11 +222,7 @@ class JavaAdapter(BaseAdapter):
         cache: BuildCache,
         force: bool = False,
     ) -> tuple[list[CompileResult], list[Path]]:
-        """
-        전체 파일 컴파일.
-        캐시로 skip 판단은 하지만, 실제 javac 호출은 변경된 파일들만 함.
-        반환: (결과 리스트, skip된 파일 리스트)
-        """
+        """전체 파일 컴파일 (변경된 파일만 실제 javac 호출). 반환: (결과 리스트, skip된 파일 리스트)."""
         target_cache = cache.get_target(self.target.name)
         # syntax_check 캐시를 재사용 (자바에선 컴파일 완료 표시 용도)
         # 파이썬이랑 필드 이름 공유해서 구조 유지
@@ -337,10 +317,7 @@ class JavaAdapter(BaseAdapter):
         return results, skipped
 
     def install_deps(self) -> dict[str, dict]:
-        """
-        stoke.toml의 deps를 Maven Central에서 다운로드.
-        반환: {name: {"version": str, "sha1": str, "path": Path}}
-        """
+        """stoke.toml의 deps를 Maven Central에서 다운로드."""
         import hashlib
         from stoke.languages.java.maven import parse_coordinate, download_jar
 
@@ -374,10 +351,7 @@ class JavaAdapter(BaseAdapter):
         return sorted(self.deps_dir.glob("*.jar"))
 
     def _deps_changed(self, lock, installed_deps: dict[str, dict]) -> bool:
-        """
-        현재 설치된 의존성이 lock 파일과 다른지 확인.
-        다르면 True (lock 갱신 필요), 같으면 False (skip).
-        """
+        """현재 설치된 의존성이 lock 파일과 다르면 True (lock 갱신 필요)."""
         if lock is None or not lock.java_deps:
             return bool(installed_deps)
 
@@ -394,11 +368,7 @@ class JavaAdapter(BaseAdapter):
         return False
 
     def _classpath(self) -> str:
-        """
-        컴파일/실행에 사용할 클래스패스.
-        classes_dir + deps_dir 안의 모든 JAR.
-        Windows는 세미콜론, 리눅스/맥은 콜론 구분자.
-        """
+        """컴파일/실행에 사용할 클래스패스 (classes_dir + deps_dir 안의 모든 JAR)."""
         import os
         separator = os.pathsep
         parts = [str(self.classes_dir)]
@@ -485,10 +455,7 @@ class JavaAdapter(BaseAdapter):
         print(f"\nBuild complete: {self.target.name}")
 
     def run(self) -> int:
-        """
-        컴파일된 클래스를 실행.
-        반환: 종료 코드
-        """
+        """컴파일된 클래스를 실행. 반환: 종료 코드."""
         if not self.target.main_class:
             raise RuntimeError(
                 f"Target '{self.target.name}' has no 'main_class' field in stoke.toml.\n"
@@ -574,11 +541,7 @@ class JavaAdapter(BaseAdapter):
         return sorted(collected)
 
     def test(self, verbose: bool = False) -> int:
-        """
-        test_sources를 JUnit 5(JUnit Jupiter)로 컴파일+실행.
-        JUnit Platform Console Standalone jar를 최초 1회 Maven Central에서 받아서 씀
-        (org.junit.jupiter.api.Test 등을 그대로 씀 -- 별도 stoke 전용 assertion 문법 없음).
-        """
+        """test_sources를 JUnit 5로 컴파일+실행 (Console Standalone jar는 최초 1회 Maven에서 받음)."""
         import os
 
         if not self.target.test_sources:

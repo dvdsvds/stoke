@@ -53,13 +53,7 @@ _DOCTEST_MAIN_CPP = (
 )
 
 def _output_encoding(is_msvc: bool) -> str:
-    """
-    cl.exe/link.exe는 콘솔 코드페이지(OS 로케일 -- 한국어 Windows면 cp949)로
-    출력을 냄. UTF-8로 강제 디코딩하면 깨진 문자(U+FFFD)가 나오고, 그걸 다시
-    print()하면 그 코드페이지로 인코딩을 못 해서 죽는 걸 실제로 확인함
-    (VSLANG=1033으로 언어만 영어로 강제해도 바이트 인코딩 자체는 안 바뀜).
-    gcc/clang(MSYS2)은 UTF-8을 내므로 그대로 둠.
-    """
+    """cl.exe/link.exe는 콘솔 코드페이지로 출력함 -- UTF-8로 강제 디코딩하면 재출력 시 깨짐."""
     return locale.getpreferredencoding(False) if is_msvc else "utf-8"
 
 class CBaseAdapter(BaseAdapter):
@@ -98,10 +92,7 @@ class CBaseAdapter(BaseAdapter):
         return None
 
     def resolve_compiler(self) -> CompilerInstall:
-        """
-        어떤 컴파일러를 쓸지 결정.
-        프로파일의 compiler 필드가 있으면 그걸 사용, 없으면 기본값 (gcc).
-        """
+        """어떤 컴파일러를 쓸지 결정 -- 프로파일 지정 있으면 그걸, 없으면 gcc."""
         # 프로파일이 특정 컴파일러 요구하면 그거 사용
         compiler_family = "gcc"
         if self.profile and self.profile.compiler:
@@ -139,12 +130,7 @@ class CBaseAdapter(BaseAdapter):
         return None
 
     def collect_source_files(self) -> list[Path]:
-        """
-        sources 패턴에서 소스 파일 목록 수집.
-        "!"로 시작하는 패턴은 제외 규칙 (예: "!client/**") -- 멀티 타겟 프로젝트에서
-        sources가 프로젝트 전체를 보는 타겟이 다른 타겟의 서브디렉토리를 같이
-        컴파일해버리는 걸 막기 위해 stoke init이 자동으로 추가함.
-        """
+        """sources 패턴에서 소스 파일 목록 수집. "!"로 시작하는 패턴은 제외 규칙."""
         include_patterns = [p for p in self.target.sources if not p.startswith("!")]
         exclude_patterns = [p[1:] for p in self.target.sources if p.startswith("!")]
         excluded_paths = set()
@@ -198,14 +184,7 @@ class CBaseAdapter(BaseAdapter):
         return sorted(r for r in roots if r.exists())
 
     def _include_dirs(self, compiler: CompilerInstall | None = None) -> list[Path]:
-        """
-        Include 경로 자동 수집.
-        - 프로젝트 루트 (루트 기준 경로로 어디서든 include 가능: "include_test/foo.hpp" 등.
-          파일명만 flat하게 쓰는 건 여전히 안 됨 -- 이름 충돌 위험 때문에 의도적으로 안 함)
-        - 소스 폴더 (헤더 함께 있는 경우 대비)
-        - 프로젝트 루트의 include/ 폴더
-        - stoke.toml의 includes 필드에 명시된 것
-        """
+        """Include 경로 자동 수집: 프로젝트 루트, 소스 폴더, include/, stoke.toml의 includes."""
         includes = [self.project_root]
 
         # 소스 폴더
@@ -243,10 +222,7 @@ class CBaseAdapter(BaseAdapter):
         return unique
 
     def _object_path(self, source: Path) -> Path:
-        """
-        소스 파일에 대응하는 .o 파일 경로.
-        src/foo/bar.c -> .stoke/{kind}/{target}/objects/src/foo/bar.o
-        """
+        """소스 파일에 대응하는 .o 파일 경로 (src/foo/bar.c -> objects/src/foo/bar.o)."""
         try:
             rel = source.relative_to(self.project_root)
         except ValueError:
@@ -259,12 +235,7 @@ class CBaseAdapter(BaseAdapter):
         compiler: "CompilerInstall",
         file: Path,
     ) -> tuple[Path, "CompileResult", dict]:
-        """
-        파일 하나 컴파일. 병렬 실행 대상.
-
-        반환: (파일, 결과, 헤더_stats)
-        헤더_stats: 성공 시 {헤더경로: FileStat} 딕셔너리, 실패 시 빈 dict
-        """
+        """파일 하나 컴파일 (병렬 실행 대상). 반환: (파일, 결과, 헤더_stats)."""
         obj_path = self._object_path(file)
         obj_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -358,10 +329,7 @@ class CBaseAdapter(BaseAdapter):
         cache: BuildCache,
         force: bool = False,
     ) -> tuple[list[CompileResult], list[Path]]:
-        """
-        모든 소스 파일을 오브젝트 파일로 컴파일.
-        반환: (결과 리스트, skip된 파일 리스트)
-        """
+        """모든 소스 파일을 오브젝트 파일로 컴파일. 반환: (결과 리스트, skip된 파일 리스트)."""
         target_cache = cache.get_target(self.target.name)
 
         files_to_compile = []
@@ -519,13 +487,7 @@ class CBaseAdapter(BaseAdapter):
                             shutil.copy2(dll, self.output_path.parent / dll.name)
 
     def _generate_ide_files(self, compiler: CompilerInstall, source_files: list[Path]) -> None:
-        """
-        project.ide 설정에 맞는 IDE 통합 파일만 생성.
-        compile_commands.json은 VSCode C/C++ 확장, clangd, CLion(IntelliJ) 등이
-        공통으로 읽는 사실상 표준 포맷이라 "vscode"/"intellij" 둘 다에서 생성.
-        c_cpp_properties.json/settings.json은 VSCode 전용. Eclipse CDT용 생성은
-        아직 구현 안 됨. "none"이면 아무것도 안 씀.
-        """
+        """project.ide 설정에 맞는 IDE 통합 파일 생성 (compile_commands.json은 vscode/intellij 공통)."""
         ide = self.project.ide
         if ide not in ("vscode", "intellij"):
             return
@@ -573,10 +535,7 @@ class CBaseAdapter(BaseAdapter):
             print(f"IDE files updated: {', '.join(changed_files)}")
 
     def _ensure_deps_installed(self, compiler: CompilerInstall) -> None:
-        """
-        stoke.toml의 deps에 있는 라이브러리들이 vcpkg에 설치돼있는지 확인.
-        없으면 자동 설치.
-        """
+        """stoke.toml의 deps 라이브러리가 vcpkg에 설치돼있는지 확인, 없으면 자동 설치."""
         if not self.target.deps:
             return
 
@@ -625,10 +584,7 @@ class CBaseAdapter(BaseAdapter):
                 )
 
     def _lock_changed(self, lock, compiler: CompilerInstall) -> bool:
-        """
-        lock 파일의 컴파일러 정보 또는 라이브러리 정보가 현재랑 다른지 확인.
-        다르면 True (저장 필요), 같으면 False (skip).
-        """
+        """lock 파일의 컴파일러/라이브러리 정보가 현재랑 다르면 True (저장 필요)."""
         if lock is None:
             return True
 
@@ -662,9 +618,7 @@ class CBaseAdapter(BaseAdapter):
         return False
 
     def _save_lock(self, compiler: CompilerInstall) -> None:
-        """
-        lock 파일에 현재 컴파일러 정보와 vcpkg 라이브러리 정보 저장.
-        """
+        """lock 파일에 현재 컴파일러 정보와 vcpkg 라이브러리 정보 저장."""
         standard = self._get_standard() or ""
 
         # vcpkg 라이브러리 정보 수집
@@ -693,10 +647,7 @@ class CBaseAdapter(BaseAdapter):
             print(f"Lock file saved: {lock_path}")
 
     def _collect_deps_for_lock(self, compiler: CompilerInstall) -> dict[str, dict]:
-        """
-        stoke.toml의 deps에 있는 라이브러리들의 실제 vcpkg 정보 수집.
-        반환: {name: {"version": str, "triplet": str}}
-        """
+        """stoke.toml의 deps 라이브러리들의 실제 vcpkg 정보 수집."""
         if not self.target.deps:
             return {}
 
@@ -850,11 +801,7 @@ class CBaseAdapter(BaseAdapter):
         return sorted(collected)
 
     def test(self, verbose: bool = False) -> int:
-        """
-        test_sources를 doctest(https://github.com/doctest/doctest, 헤더 하나, stoke에 번들됨)로
-        컴파일+링크+실행. main()이 없는 나머지 소스(라이브러리 코드)도 같이 링크됨.
-        C++ 전용 -- doctest는 C++ 라이브러리라 plain C 타겟에는 아직 프레임워크가 없음.
-        """
+        """test_sources를 번들 doctest로 컴파일+링크+실행 (C++ 전용)."""
         if self.compiler_kind != "cpp":
             raise RuntimeError(
                 "'stoke test' has no bundled test framework for plain C yet.\n"

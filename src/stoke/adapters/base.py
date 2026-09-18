@@ -4,10 +4,7 @@ from pathlib import Path
 from stoke.config import ProjectInfo, Target
 
 class BaseAdapter(ABC):
-    """
-    모든 언어 어댑터의 공통 인터페이스.
-    각 언어별 구현은 이 클래스를 상속받아 build()를 구현해야 함.
-    """
+    """모든 언어 어댑터의 공통 인터페이스. 서브클래스는 build()를 구현해야 함."""
 
     def __init__(
         self,
@@ -23,46 +20,29 @@ class BaseAdapter(ABC):
 
     @abstractmethod
     def build(self, force: bool = False) -> None:
-        """
-        빌드 실행. 진짜 진입점.
-        force=True면 캐시 무시하고 전체 재빌드.
-        실패 시 RuntimeError 발생.
-        """
+        """빌드 실행 (force=True면 캐시 무시하고 전체 재빌드, 실패 시 RuntimeError)."""
         pass
 
     def run(self) -> int:
-        """
-        빌드된 타겟 실행. 반환: 종료 코드.
-        기본 구현은 지원 안 함 에러. 어댑터가 오버라이드.
-        """
+        """빌드된 타겟 실행. 반환: 종료 코드 (기본 구현은 미지원 에러, 어댑터가 오버라이드)."""
         raise RuntimeError(
             f"'stoke run' is not supported for language '{self.target.language}'"
         )
 
     def get_run_command(self) -> list[str]:
-        """
-        서브프로세스로 실행할 명령어 리스트 반환.
-        hot-reload와 같이 프로세스 관리가 필요한 곳에서 사용.
-        기본 구현은 지원 안 함 에러. 어댑터가 오버라이드.
-        """
+        """서브프로세스로 실행할 명령어 리스트 반환 (hot-reload 등에서 사용, 기본은 미지원 에러)."""
         raise RuntimeError(
             f"Running as subprocess is not supported for language '{self.target.language}'"
         )
 
     def test(self, verbose: bool = False) -> int:
-        """
-        타겟의 테스트 실행. 반환: 종료 코드.
-        기본 구현은 지원 안 함 에러 — 어댑터가 그 언어의 표준 테스트 도구로 오버라이드.
-        """
+        """타겟의 테스트 실행. 반환: 종료 코드 (기본 구현은 미지원 에러)."""
         raise RuntimeError(
             f"'stoke test' is not supported for language '{self.target.language}'"
         )
 
     def _ensure_gitignore(self) -> None:
-        """
-        .stoke/ 를 .gitignore에 자동 추가.
-        모든 언어 공통이라 여기 둠.
-        """
+        """.stoke/ 를 .gitignore에 자동 추가 (모든 언어 공통)."""
         gitignore_path = self.project_root / ".gitignore"
 
         needed_entries = self._gitignore_entries()
@@ -95,8 +75,7 @@ class BaseAdapter(ABC):
             print(f"Updated .gitignore: added {', '.join(added)}")
 
     def _gitignore_entries(self) -> list[str]:
-        """이 어댑터가 .gitignore에 넣고 싶은 항목들. 서브클래스가 오버라이드해서 커스터마이즈
-        project.ide에 따라 실제로 생성될 IDE 파일만 무시 목록에 넣음."""
+        """이 어댑터가 .gitignore에 넣고 싶은 항목들 (서브클래스가 오버라이드)."""
         entries = [".stoke/"]
         ide = self.project.ide
         if self.target.language == "java":

@@ -1,8 +1,4 @@
-"""
-vcpkg 관리 모듈.
-stoke가 vcpkg를 다운로드/설치/관리해요.
-저장 위치: ~/.stoke/tools/vcpkg/
-"""
+"""vcpkg 관리 모듈 -- 다운로드/설치/라이브러리 관리 (저장 위치: ~/.stoke/tools/vcpkg/)."""
 
 import platform
 import re
@@ -35,10 +31,7 @@ def is_vcpkg_installed() -> bool:
 
 
 def get_vcpkg_version() -> str | None:
-    """
-    설치된 vcpkg 버전 반환.
-    미설치 또는 실행 실패 시 None.
-    """
+    """설치된 vcpkg 버전 반환 (미설치/실패 시 None)."""
     if not is_vcpkg_installed():
         return None
 
@@ -64,10 +57,7 @@ def get_vcpkg_version() -> str | None:
         return None
 
 def install_vcpkg() -> None:
-    """
-    vcpkg 다운로드 + bootstrap 실행.
-    실패 시 RuntimeError.
-    """
+    """vcpkg 다운로드 + bootstrap 실행 (실패 시 RuntimeError)."""
     # git 확인
     if not check_git_installed():
         raise RuntimeError(
@@ -149,13 +139,7 @@ def uninstall_vcpkg() -> None:
     print("vcpkg removed successfully")
 
 def install_library(name: str, version: str | None = None, triplet: str | None = None) -> None:
-    """
-    vcpkg로 라이브러리 설치.
-    name: 라이브러리 이름 (예: "fmt")
-    version: 특정 버전 (없으면 최신)
-    triplet: vcpkg triplet (없으면 자동 감지, gcc 기준)
-    실패 시 RuntimeError.
-    """
+    """vcpkg로 라이브러리 설치 (triplet 없으면 자동 감지, 실패 시 RuntimeError)."""
     if not is_vcpkg_installed():
         raise RuntimeError(
             "vcpkg is not installed.\n"
@@ -186,11 +170,7 @@ def install_library(name: str, version: str | None = None, triplet: str | None =
     print(f"\n{name} installed successfully")
 
 def remove_library(name: str, triplet: str | None = None) -> None:
-    """
-    vcpkg로 라이브러리 제거.
-    triplet: vcpkg triplet (없으면 자동 감지, gcc 기준)
-    실패 시 RuntimeError.
-    """
+    """vcpkg로 라이브러리 제거 (triplet 없으면 자동 감지, 실패 시 RuntimeError)."""
     if not is_vcpkg_installed():
         raise RuntimeError(
             "vcpkg is not installed.\n"
@@ -213,10 +193,7 @@ def remove_library(name: str, triplet: str | None = None) -> None:
     print(f"\n{name} removed successfully")
 
 def list_installed_libraries() -> list[str]:
-    """
-    vcpkg에 설치된 라이브러리 목록 반환.
-    반환: 라이브러리 이름 리스트.
-    """
+    """vcpkg에 설치된 라이브러리 이름 목록 반환."""
     if not is_vcpkg_installed():
         return []
 
@@ -252,15 +229,7 @@ def list_installed_libraries() -> list[str]:
         return []
 
 def get_triplet(compiler_kind: str = "gcc") -> str:
-    """
-    플랫폼 + 컴파일러 종류에 따라 vcpkg triplet 결정.
-
-    compiler_kind:
-      "gcc" / "g++" / "clang": mingw 계열 → x64-mingw-static
-      "msvc" / "cl": MSVC → x64-windows
-
-    사용자가 다른 triplet 원하면 나중에 stoke.toml에서 명시 가능.
-    """
+    """플랫폼 + 컴파일러 종류에 따라 vcpkg triplet 결정."""
     import platform
 
     system = platform.system()
@@ -296,10 +265,7 @@ def get_triplet(compiler_kind: str = "gcc") -> str:
         raise RuntimeError(f"Unsupported platform: {system}")
 
 def get_installed_dir(triplet: str | None = None) -> Path:
-    """
-    vcpkg의 라이브러리 설치 위치.
-    triplet 없으면 자동 감지.
-    """
+    """vcpkg의 라이브러리 설치 위치 (triplet 없으면 자동 감지)."""
     if triplet is None:
         triplet = get_triplet()
     return get_vcpkg_root() / "installed" / triplet
@@ -321,9 +287,7 @@ def get_bin_dir(triplet: str | None = None) -> Path:
 
 
 def is_library_installed(name: str, triplet: str | None = None) -> bool:
-    """
-    특정 라이브러리가 이미 설치돼있는지 확인.
-    """
+    """특정 라이브러리가 이미 설치돼있는지 확인."""
     if not is_vcpkg_installed():
         return False
 
@@ -346,19 +310,7 @@ _LINK_ONLY_RE = re.compile(r"\$<LINK_ONLY:([^>]*)>")
 
 
 def get_transitive_system_libs(name: str, triplet: str | None = None) -> list[str]:
-    """
-    vcpkg 패키지의 CMake export 파일(installed/<triplet>/share/<name>/*.cmake)에서
-    INTERFACE_LINK_LIBRARIES에 적힌 OS 시스템 라이브러리 이름들을 뽑아온다.
-
-    정적 링크(mingw-static 등) 환경에서는 vcpkg 라이브러리 자체를 -l로 링크해도
-    그 라이브러리가 내부적으로 의존하는 시스템 라이브러리(예: SDL2가 쓰는
-    user32/gdi32/winmm 등)는 따로 링크해줘야 undefined reference가 안 남.
-    CMake로 소비하면 find_package()가 이 필드를 읽어 자동으로 전이 링크해주지만,
-    stoke는 raw -l 방식이라 직접 파싱해서 채워줘야 함.
-
-    반환: 발견된 순서대로 중복 제거한 라이브러리 이름 리스트. 패키지가 없거나
-    필드가 없으면 빈 리스트.
-    """
+    """CMake export 파일에서 정적 링크에 필요한 전이 시스템 라이브러리 이름을 파싱."""
     if triplet is None:
         triplet = get_triplet()
 
@@ -392,11 +344,7 @@ def get_transitive_system_libs(name: str, triplet: str | None = None) -> list[st
 
 
 def get_installed_library_version(name: str, triplet: str | None = None) -> str | None:
-    """
-    vcpkg에 설치된 라이브러리의 실제 버전 반환.
-    installed/vcpkg/info/<name>_<version>_<triplet>.list 파일명에서 추출.
-    미설치 시 None.
-    """
+    """설치된 라이브러리의 실제 버전 반환 (info/*.list 파일명에서 추출, 미설치 시 None)."""
     if not is_vcpkg_installed():
         return None
 
