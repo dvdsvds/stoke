@@ -15,13 +15,7 @@ from stoke.languages.java.init import _select_java_version as _select_kotlin_jdk
 DEFAULT_KOTLIN_VERSION = "2.1.0"
 
 def _current_gradle_version() -> str | None:
-    """
-    Gradle 공식 API로 현재 안정 버전 조회.
-    Debian/Ubuntu의 apt gradle 패키지가 아주 오래된 버전(예: 4.4.1)인 경우가 흔해서,
-    시스템 gradle로 그냥 `gradle wrapper`를 돌리면 그 오래된 버전 그대로 wrapper가
-    찍혀 최신 JDK와 호환이 깨짐. 항상 최신 안정 버전을 명시적으로 지정해서 우회.
-    네트워크 실패 시 None 반환 (호출 쪽에서 시스템 gradle 버전으로 폴백).
-    """
+    """Gradle 공식 API로 현재 안정 버전 조회 (오래된 apt gradle 우회, 실패 시 None)."""
     try:
         req = urllib.request.Request("https://services.gradle.org/versions/current")
         with urllib.request.urlopen(req, timeout=10) as response:

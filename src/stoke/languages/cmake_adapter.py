@@ -1,9 +1,4 @@
-"""build_system = "cmake" 어댑터. stoke 자체 컴파일 모델 대신 cmake configure+build로 위임.
-
-c_standard/cpp_standard/profiles의 compile_flags/defines는 CMakeLists.txt가 관리하는
-영역이라 여기서는 안 씀 -- 표준/컴파일 플래그를 바꾸려면 CMakeLists.txt를 고쳐야 함.
-profile은 CMAKE_BUILD_TYPE(Debug/Release) 매핑에만 씀.
-"""
+"""build_system = "cmake" 어댑터. stoke 자체 컴파일 모델 대신 cmake configure+build로 위임."""
 import shutil
 import subprocess
 import sys
@@ -18,8 +13,7 @@ def _executable_name(name: str) -> str:
     return f"{name}.exe" if platform.system() == "Windows" else name
 
 def _safe_print(text: str, **kwargs) -> None:
-    """cmake 출력엔 콘솔 코드페이지로 인코딩 못 하는 문자가 섞일 수 있어서
-    (Windows cp949 콘솔에서 재현됨), 실패하면 대체 문자로 바꿔서 다시 출력."""
+    """cmake 출력에 콘솔 인코딩 못 하는 문자가 있으면 대체 문자로 바꿔서 재출력."""
     try:
         print(text, **kwargs)
     except UnicodeEncodeError:

@@ -152,8 +152,7 @@ def resolve_npm_command(npm_exe: str) -> list[str]:
 
 
 def warn_npm_health(npm_exe: str) -> None:
-    """커맨드를 바꿔치기할 수 없는 경우(써드파티 CLI가 자체적으로 system npm을
-    호출하는 경우 등)에 진단 경고만 출력한다."""
+    """커맨드를 바꿔치기할 수 없는 경우(써드파티 CLI가 자체적으로 npm 호출 등)에 경고만 출력."""
     version_str, version, node_version, recommended_version = _check(npm_exe)
     if version is None or version >= _MIN_NPM_VERSION:
         return

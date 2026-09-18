@@ -190,10 +190,7 @@ def save_lock(
     cpp_deps: dict[str, CppDep] | None = None,
     packages: dict[str, str] | None = None,
 ) -> tuple[Path, bool]:
-    """
-    lock 파일 쓰기. 반환: (저장된 경로, 실제로 내용이 바뀌어서 썼는지).
-    python_* 또는 java_* 중 하나만 사용.
-    """
+    """lock 파일 쓰기. 반환: (저장된 경로, 실제로 내용이 바뀌어서 썼는지)."""
     path = _lock_path(project_root, lock_mode)
     path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -246,11 +243,7 @@ def save_lock(
     return path, True
 
 def is_compatible(lock_version: str, requested: str) -> bool:
-    """
-    lock에 저장된 버전이 stoke.toml의 요청 버전과 호환되는지 확인.
-    예: lock='3.14.0', requested='3.14' -> True
-    예: lock='3.14.0', requested='3.12' -> False
-    """
+    """lock에 저장된 버전이 stoke.toml의 요청 버전과 호환되는지 확인."""
     lock_parts = lock_version.split(".")
     req_parts = requested.split(".")
 

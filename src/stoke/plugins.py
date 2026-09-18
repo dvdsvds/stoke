@@ -1,25 +1,4 @@
-"""
-플러그인 시스템: 언어/프레임워크를 stoke 소스 수정 없이 외부 패키지로 추가.
-
-설치된 패키지가 자기 pyproject.toml에 entry point를 등록하면 stoke가 자동 인식함.
-
-언어 플러그인 (빌드/실행/watch/hot-reload 지원 추가):
-    [project.entry-points."stoke.languages"]
-    mylang = "my_package.stoke_plugin:MYLANG_PLUGIN"
-
-    "my_package.stoke_plugin" 모듈에 다음이 있어야 함:
-    MYLANG_PLUGIN = LanguagePlugin(
-        make_adapter=lambda target, project, project_root, profile=None, verbose=False: MyLangAdapter(...),
-        source_extensions={".mylang"},
-    )
-
-프레임워크 플러그인 (`stoke init <name>` 스캐폴드 추가):
-    [project.entry-points."stoke.frameworks"]
-    my-framework = "my_package.stoke_plugin:cmd_init_my_framework"
-
-    "cmd_init_my_framework"는 인자 없이 호출되는 콜러블이어야 함 (기존
-    cmd_init_fastapi 등과 동일한 계약 -- cwd 기준으로 직접 파일을 씀).
-"""
+"""플러그인 시스템: 외부 패키지가 pyproject.toml entry point로 언어/프레임워크를 등록."""
 from __future__ import annotations
 
 from dataclasses import dataclass

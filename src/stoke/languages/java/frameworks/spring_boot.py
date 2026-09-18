@@ -12,10 +12,7 @@ SPRING_INITIALIZR_URL = "https://start.spring.io/starter.zip"
 SPRING_METADATA_URL = "https://start.spring.io/metadata/client"
 
 def _fetch_boot_versions() -> list[str]:
-    """
-    Spring Initializr에서 사용 가능한 Spring Boot 버전 목록 조회.
-    RELEASE 버전만 필터링.
-    """
+    """Spring Initializr에서 사용 가능한 Spring Boot RELEASE 버전 목록 조회."""
     try:
         with urllib.request.urlopen(SPRING_METADATA_URL, timeout=10) as response:
             import json

@@ -19,8 +19,7 @@ class RubyAdapter(BaseAdapter):
         self.gemfile = project_root / "Gemfile"
 
     def _find_local_ruby_bin(self) -> Path | None:
-        """프로젝트의 .stoke/toolchains/ruby-*/ 에서 stoke install로 받은 RubyInstaller의
-        bin/ 폴더 찾기. RubyInstaller 압축을 풀면 안에 rubyinstaller-X.Y.Z-x64/ 폴더가 있음."""
+        """프로젝트의 .stoke/toolchains/ruby-*/ 에서 stoke install로 받은 RubyInstaller의 bin/ 찾기."""
         toolchains = self.project_root / ".stoke" / "toolchains"
         if not toolchains.is_dir():
             return None

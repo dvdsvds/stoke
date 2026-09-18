@@ -37,12 +37,7 @@ def source_extensions_for(language: str) -> set[str] | None:
     return plugin.source_extensions if plugin is not None else None
 
 class _DebouncedHandler(FileSystemEventHandler):
-    """
-    파일 변경 이벤트를 받아서 디바운싱 후 콜백 실행.
-
-    편집기가 저장 시 여러 이벤트를 순간적으로 발생시키는 걸 방지하려고,
-    마지막 이벤트 후 DEBOUNCE_SECONDS 동안 조용해야 콜백이 호출됨.
-    """
+    """파일 변경 이벤트를 받아서 디바운싱 후 콜백 실행 (에디터 저장 시 다중 이벤트 방지)."""
 
     def __init__(self, callback, source_extensions: set[str]):
         super().__init__()
@@ -106,11 +101,7 @@ class _DebouncedHandler(FileSystemEventHandler):
 
 
 def _watch_roots_from_target(project_root: Path, target: Target) -> list[Path]:
-    """
-    sources 패턴에서 감시할 최상위 디렉토리들 추출.
-    예: ["src/**/*.py"] -> [project_root/src]
-    예: ["src/*.py", "tests/*.py"] -> [project_root/src, project_root/tests]
-    """
+    """sources 패턴에서 감시할 최상위 디렉토리들 추출."""
     roots = set()
     for pattern in target.sources:
         # 패턴의 첫 부분(와일드카드 나오기 전)까지가 감시 루트

@@ -27,15 +27,7 @@ class CSharpAdapter(BaseAdapter):
         return sys.platform == "win32"
 
     def _find_csproj_path(self) -> Path | None:
-        """
-        사용할 .csproj 경로.
-
-        <target.name>/ 서브디렉토리에 .csproj가 있으면 그걸 씀 (멀티 타겟
-        프로젝트 구조 -- 각 타겟이 자기만의 .csproj를 가진 독립된 폴더).
-        없으면 프로젝트 루트에서 찾음 (기존 단일 타겟 프로젝트, 하위 호환).
-        .NET은 .csproj 경로만 명시하면 솔루션(.sln) 없이도 그 프로젝트만
-        정확히 빌드하므로, Go/Rust처럼 별도 등록 파일을 patch할 필요가 없음.
-        """
+        """사용할 .csproj 경로 (<target.name>/ 서브디렉토리 우선, 없으면 프로젝트 루트)."""
         subdir_csproj = list((self.project_root / self.target.name).glob("*.csproj"))
         if subdir_csproj:
             return subdir_csproj[0]

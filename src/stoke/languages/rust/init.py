@@ -8,20 +8,13 @@ from stoke.prompts import _prompt
 from stoke.tool_install import ensure_cargo
 
 def _select_rust_version() -> str:
-    """
-    선택적 Rust 툴체인 버전 pin.
-    빈 입력이면 pin 안 함 (팀원마다 로컬 rustc 버전이 달라도 됨).
-    """
+    """선택적 Rust 툴체인 버전 pin (빈 입력이면 pin 안 함)."""
     return _prompt(
         "Pin Rust toolchain version? (e.g. 1.75.0, blank to skip)", default=""
     ).strip()
 
 def _write_rust_toolchain(project_root: Path, version: str) -> None:
-    """
-    rust-toolchain.toml 생성. rustup이 이 파일을 자동으로 읽어서
-    프로젝트 안에서 cargo/rustc를 실행할 때 지정된 버전을 강제함.
-    version이 빈 문자열이면 아무것도 안 함.
-    """
+    """rust-toolchain.toml 생성 (rustup이 자동으로 읽어서 버전 강제)."""
     if not version:
         return
     content = f'''[toolchain]

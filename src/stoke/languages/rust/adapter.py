@@ -28,16 +28,7 @@ class RustAdapter(BaseAdapter):
         return sys.platform == "win32"
 
     def _resolve_manifest_path(self) -> Path:
-        """
-        사용할 Cargo.toml 경로.
-
-        <target.name>/Cargo.toml이 있으면 그걸 씀 (Cargo 워크스페이스 멤버,
-        멀티 타겟 프로젝트 구조 -- 루트 Cargo.toml의 [workspace] members에
-        이 디렉토리가 등록돼 있다고 가정). 없으면 프로젝트 루트의 Cargo.toml
-        (기존 단일 타겟 프로젝트, 하위 호환). --manifest-path로 명시하면
-        워크스페이스 루트가 아니라 멤버 디렉토리에서 실행해도 그 멤버만
-        정확히 빌드됨 (Cargo.lock/의존성 해석은 여전히 워크스페이스 전체 기준).
-        """
+        """사용할 Cargo.toml 경로 (<target.name>/Cargo.toml 우선, 없으면 프로젝트 루트)."""
         member_manifest = self.project_root / self.target.name / "Cargo.toml"
         if member_manifest.is_file():
             return member_manifest
@@ -66,12 +57,7 @@ class RustAdapter(BaseAdapter):
         return None
 
     def _find_cargo(self) -> tuple[str, dict]:
-        """
-        cargo 실행파일 경로와 그걸 실행할 때 필요한 환경변수 찾기.
-        rustup으로 설치된 cargo는 실제 컴파일러로 넘겨주는 얇은 프록시라서,
-        어느 RUSTUP_HOME/CARGO_HOME을 볼지 환경변수로 알려줘야 함 — 안 그러면
-        로컬 경로의 cargo.exe를 실행해도 기본 전역 ~/.rustup을 보러 감.
-        """
+        """cargo 실행파일 경로 + RUSTUP_HOME/CARGO_HOME 환경변수 (cargo는 rustup 프록시라 필요)."""
         import os
         local_dir = self._find_local_rust_dir()
         if local_dir is not None:

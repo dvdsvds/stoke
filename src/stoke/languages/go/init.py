@@ -9,10 +9,7 @@ from stoke.prompts import _prompt, _prompt_yes_no, sanitize_go_module_name
 from stoke.tool_install import ensure_tool
 
 def _select_go_version() -> str:
-    """
-    선택적 Go 버전 pin.
-    빈 입력이면 pin 안 함 (go.mod가 로컬 go 버전을 그대로 씀).
-    """
+    """선택적 Go 버전 pin (빈 입력이면 pin 안 함)."""
     return _prompt("Pin Go version? (e.g. 1.22.3, blank to skip)", default="").strip()
 
 def _select_go_module_name(project_name: str) -> str:
@@ -24,11 +21,7 @@ def _select_go_module_name(project_name: str) -> str:
     )
 
 def _pin_go_version(project_root: Path, version: str) -> None:
-    """
-    go.mod의 go/toolchain 지시문을 patch. Go 툴체인이 자동으로 읽어서
-    버전이 낮으면 빌드를 실패시키거나(go) 알아서 다운로드함(toolchain).
-    version이 빈 문자열이면 아무것도 안 함.
-    """
+    """go.mod의 go/toolchain 지시문을 patch (빈 문자열이면 아무것도 안 함)."""
     if not version:
         return
     go_mod = project_root / "go.mod"
