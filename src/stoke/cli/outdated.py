@@ -3,6 +3,7 @@ import json
 import shutil
 import subprocess
 import sys
+from concurrent.futures import ThreadPoolExecutor
 
 from stoke.cli._dep_check import emit_raw_json, find_csproj, find_dotnet, json_wrapped_external
 from stoke.cli.utils import load_config_or_exit, resolve_target_or_exit
@@ -15,12 +16,18 @@ _UNSUPPORTED = {
     "cpp": "vcpkg doesn't expose per-library update info stoke can query yet",
 }
 
+_MAX_WORKERS = 8
+
 def _collect_outdated(names_and_versions: dict, latest_lookup) -> dict:
-    outdated = {}
-    for name, current in sorted(names_and_versions.items()):
-        latest = latest_lookup(name)
-        if latest is not None and latest != current:
-            outdated[name] = (current, latest)
+    items = sorted(names_and_versions.items())
+    if not items:
+        return {}
+    with ThreadPoolExecutor(max_workers=min(_MAX_WORKERS, len(items))) as pool:
+        latests = pool.map(lambda item: latest_lookup(item[0]), items)
+        outdated = {}
+        for (name, current), latest in zip(items, latests):
+            if latest is not None and latest != current:
+                outdated[name] = (current, latest)
     return outdated
 
 def _print_outdated(total: int, outdated: dict) -> bool:

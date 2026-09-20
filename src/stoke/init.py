@@ -176,7 +176,7 @@ def _prompt_git_setup(cwd: Path, project_name: str) -> dict:
         return choice
     choice["init_git"] = True
 
-    if not _prompt_yes_no("Create a GitHub remote too?", default=False):
+    if not _prompt_yes_no("Create a GitHub remote?", default=False):
         return choice
 
     if not git_setup.is_gh_available():

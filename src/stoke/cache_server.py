@@ -11,6 +11,8 @@ import ssl
 import sys
 from pathlib import Path
 
+from stoke.remote_cache import stream_to_atomic_tmp
+
 _DEFAULT_MAX_UPLOAD_BYTES = 200 * 1024 * 1024  # 200MB
 
 class _CacheHandler(http.server.BaseHTTPRequestHandler):
@@ -87,10 +89,8 @@ class _CacheHandler(http.server.BaseHTTPRequestHandler):
             self.end_headers()
             return
 
-        data = self.rfile.read(length)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        tmp = path.with_suffix(path.suffix + f".tmp-{id(self)}")
-        tmp.write_bytes(data)
+        # 본문 전체를 메모리에 올리지 않고 청크 단위로 임시 파일에 스트리밍.
+        tmp = stream_to_atomic_tmp(path.parent, path.name, self.rfile, length)
 
         # 두 요청이 같은 키에 동시에 도착하는 경합 대비, rename 직전에 한 번 더 확인.
         if path.exists():

@@ -9,6 +9,7 @@ import json
 import os
 import shutil
 import tarfile
+import threading
 import urllib.error
 import urllib.request
 from pathlib import Path
@@ -143,14 +144,34 @@ def _read_file(path: Path) -> bytes | None:
     except OSError:
         return None
 
+def _atomic_tmp_path(cache_dir: Path, name: str) -> Path:
+    # pid만으로는 같은 프로세스 안의 여러 스레드(예: 스레딩 HTTP 서버)가 충돌할 수 있어 thread id도 섞음.
+    return cache_dir / f"{name}.tmp-{os.getpid()}-{threading.get_ident()}"
+
 def _write_file_atomic(cache_dir: Path, name: str, data: bytes) -> None:
     try:
         cache_dir.mkdir(parents=True, exist_ok=True)
-        tmp = cache_dir / f"{name}.tmp-{os.getpid()}"
+        tmp = _atomic_tmp_path(cache_dir, name)
         tmp.write_bytes(data)
         tmp.replace(cache_dir / name)
     except OSError:
         pass
+
+def stream_to_atomic_tmp(cache_dir: Path, name: str, stream, length: int, chunk_size: int = 1 << 20) -> Path:
+    """stream에서 length바이트를 청크 단위로 읽어 임시 파일에 씀 (본문 전체를 메모리에 올리지 않음).
+    반환된 임시 파일 경로를 최종 이름으로 바꾸는 건 호출자 책임 -- write-once 검사처럼 rename 직전에
+    호출자가 추가로 확인해야 하는 경우가 있어서 여기서 바로 replace하지 않음."""
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    tmp = _atomic_tmp_path(cache_dir, name)
+    remaining = length
+    with open(tmp, "wb") as f:
+        while remaining > 0:
+            chunk = stream.read(min(chunk_size, remaining))
+            if not chunk:
+                break
+            f.write(chunk)
+            remaining -= len(chunk)
+    return tmp
 
 def _dir_fetch_dir(cache_dir: Path, fingerprint: str, output_dir: Path) -> bool:
     cached_dir = cache_dir / fingerprint
