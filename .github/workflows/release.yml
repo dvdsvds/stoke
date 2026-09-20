@@ -7,6 +7,8 @@ on:
 
 permissions:
   contents: write
+  id-token: write      # for actions/attest-build-provenance's OIDC token
+  attestations: write  # for actions/attest-build-provenance to publish the attestation
 
 jobs:
   ensure-release:
@@ -50,6 +52,11 @@ jobs:
         shell: pwsh
         run: |
           & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /DMyAppVersion=${{ steps.version.outputs.version }} installer.iss
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: "installer_output/stoke-setup-${{ steps.version.outputs.version }}.exe"
 
       - name: Upload installer to release
         env:
@@ -96,6 +103,11 @@ jobs:
           mkdir -p installer_output
           tar czf "installer_output/${name}.tar.gz" -C dist stoke
           echo "asset=installer_output/${name}.tar.gz" >> "$GITHUB_OUTPUT"
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: "${{ steps.package.outputs.asset }}"
 
       - name: Upload tarball to release
         env:

@@ -19,6 +19,13 @@ export PATH="$PWD/stoke:$PATH"
 ```
 Not code-signed: on macOS, Gatekeeper will block the first run. Right-click (or Ctrl-click) the `stoke` binary, choose "Open", and confirm once.
 
+### Verifying a download (optional)
+
+Every release asset (the Windows installer and the macOS/Linux tarballs) is built by GitHub Actions and has a [build provenance attestation](https://docs.github.com/en/actions/security-guides/using-artifact-attestations-to-establish-provenance-for-builds) proving it was built from this repo's source by this repo's release workflow, not tampered with in between. Verify a downloaded file with the [GitHub CLI](https://cli.github.com):
+```bash
+gh attestation verify stoke-2.4.0-linux-x86_64.tar.gz --owner dvdsvds
+```
+
 ## Quick Start
 
 ```bash

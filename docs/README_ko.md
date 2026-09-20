@@ -46,6 +46,13 @@ export PATH="$PWD/stoke:$PATH"
 ```
 서명이 안 돼 있어서 macOS는 처음 실행 시 Gatekeeper가 막음 — `stoke` 실행 파일을 우클릭 → "열기"로 한 번만 허용하면 됨.
 
+### 다운로드 검증 (선택)
+
+모든 릴리스 파일(Windows 인스톨러, macOS/Linux tarball)은 GitHub Actions가 빌드하고 [빌드 증명(provenance attestation)](https://docs.github.com/en/actions/security-guides/using-artifact-attestations-to-establish-provenance-for-builds)이 붙어있어서, 이 저장소의 소스코드를 이 저장소의 릴리스 워크플로우가 실제로 빌드한 게 맞는지(중간에 변조 안 됐는지) 확인 가능함. [GitHub CLI](https://cli.github.com)로 검증:
+```bash
+gh attestation verify stoke-2.4.0-linux-x86_64.tar.gz --owner dvdsvds
+```
+
 ## 빠른 시작
 
 ```bash
