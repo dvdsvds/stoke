@@ -213,6 +213,57 @@ export STOKE_MAVEN_PASSWORD=***
 
 Verified against a real Sonatype Nexus setup, both anonymous and authenticated. Every other language's dependency management already respects its own ecosystem's native mirror config transparently (`pip.conf`, `.npmrc`, `NuGet.config`, `.cargo/config.toml`, Bundler/Composer config, vcpkg registries) — nothing stoke-specific needed there.
 
+### 6.6 CI/CD
+
+stoke ships as a standalone binary (Python bundled in), so a CI runner or Docker build stage needs no pre-installed language runtime just to run stoke itself — download the release tarball, put it on `PATH`, and `stoke build`/`stoke test`/`stoke audit` work the same as on your machine.
+
+- [`docs/ci/github-actions.yml`](./ci/github-actions.yml) — installs stoke, restores the shared build cache (section 6.4) across runs via `actions/cache`, then runs build/test/audit.
+- [`docs/ci/Dockerfile`](./ci/Dockerfile) — multi-stage build: stoke + the pinned language toolchain compile the project in the build stage, only the compiled output ships in the runtime image.
+
+`stoke audit` is CI-friendly by design: it exits non-zero when a known CVE is found in a resolved dependency, so wiring it into a required check gates merges on it directly.
+
+### 6.7 Monorepos
+
+A single `stoke.toml` supports only one target per language (its lock file has one version slot per language, not one per target), so two same-language services in one file would clobber each other's lock data. Instead, give each service its own subdirectory with its own independent `stoke.toml`/`stoke.lock`, tied together by a workspace root:
+
+```bash
+mkdir my-company && cd my-company
+stoke init --workspace --name=my-company   # root stoke.toml: no language/target, just a members list
+
+stoke new backend -l python -V 3.12
+stoke new worker  -l python -V 3.11        # different Python version than backend -- no conflict
+stoke new frontend -l typescript
+```
+
+```
+my-company/
+├── stoke.toml           # [workspace] members = ["backend", "worker", "frontend"]
+├── backend/
+│   ├── stoke.toml        # independent config, python_version = "3.12"
+│   └── stoke.lock
+├── worker/
+│   ├── stoke.toml        # python_version = "3.11"
+│   └── stoke.lock
+└── frontend/
+    └── stoke.toml
+```
+
+Each service builds exactly like a standalone project — `cd backend && stoke build`. `stoke new` run inside the workspace root registers the new service into the root's `members` list automatically; run outside one, it just creates the subdirectory with no workspace involved.
+
+From the root, `stoke build --all` and `stoke test --all` build/test every member in sequence -- each in its own subdirectory, with its own `stoke.toml`. A failed member doesn't stop the rest; at the end, stoke prints which members failed and exits non-zero if any did:
+
+```bash
+cd my-company
+stoke build --all
+# === backend ===
+# Build complete: backend
+#
+# === worker ===
+# Build complete: worker
+#
+# All 2 member(s) succeeded.
+```
+
 ---
 
 ## 7. Recommended setups by scenario

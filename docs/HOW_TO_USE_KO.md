@@ -213,6 +213,57 @@ export STOKE_MAVEN_PASSWORD=***
 
 실제 Sonatype Nexus 환경(익명/인증 둘 다)에 대고 검증됨. 다른 모든 언어의 의존성 관리는 이미 각자 생태계 자체의 미러/레지스트리 설정(`pip.conf`, `.npmrc`, `NuGet.config`, `.cargo/config.toml`, Bundler/Composer 설정, vcpkg 레지스트리)을 그대로 따르므로 stoke 쪽에서 따로 해줄 게 없음.
 
+### 6.6 CI/CD
+
+stoke는 Python이 내장된 단일 실행 파일로 배포되므로, CI 러너나 Docker 빌드 스테이지에 stoke 자체를 돌리기 위한 별도 언어 런타임을 미리 깔 필요가 없음 — release 압축 파일을 받아서 `PATH`에 얹기만 하면 `stoke build`/`stoke test`/`stoke audit`가 로컬과 똑같이 동작함.
+
+- [`docs/ci/github-actions.yml`](./ci/github-actions.yml) — stoke 설치 후, `actions/cache`로 공유 빌드 캐시(6.4절)를 런 사이에 복원하고 build/test/audit 실행.
+- [`docs/ci/Dockerfile`](./ci/Dockerfile) — 멀티스테이지 빌드: build 스테이지에서 stoke + pin된 언어 툴체인으로 컴파일하고, 런타임 이미지에는 빌드 결과물만 담음.
+
+`stoke audit`는 태생적으로 CI 친화적 — 확정된 의존성에서 알려진 CVE가 발견되면 non-zero exit을 하므로, 필수 체크로 걸어두면 그 자체로 머지 게이트가 됨.
+
+### 6.7 모노레포
+
+`stoke.toml` 하나는 언어당 타겟 하나만 지원함 (lock 파일이 언어당 버전 슬롯 하나뿐이라 타겟마다 하나가 아님) — 그래서 같은 언어 서비스 2개를 한 파일에 넣으면 서로 lock 정보를 덮어씀. 대신 서비스마다 독립된 `stoke.toml`/`stoke.lock`을 가진 서브디렉토리로 두고, 워크스페이스 루트로 묶음:
+
+```bash
+mkdir my-company && cd my-company
+stoke init --workspace --name=my-company   # 루트 stoke.toml: 언어/타겟 없이 members 목록만
+
+stoke new backend -l python -V 3.12
+stoke new worker  -l python -V 3.11        # backend랑 Python 버전 달라도 충돌 없음
+stoke new frontend -l typescript
+```
+
+```
+my-company/
+├── stoke.toml           # [workspace] members = ["backend", "worker", "frontend"]
+├── backend/
+│   ├── stoke.toml        # 독립 설정, python_version = "3.12"
+│   └── stoke.lock
+├── worker/
+│   ├── stoke.toml        # python_version = "3.11"
+│   └── stoke.lock
+└── frontend/
+    └── stoke.toml
+```
+
+각 서비스는 독립 프로젝트처럼 그대로 빌드 — `cd backend && stoke build`. `stoke new`를 워크스페이스 루트 안에서 실행하면 새 서비스가 루트 `members`에 자동 등록되고, 워크스페이스 밖에서 실행하면 그냥 서브디렉토리만 생성함 (워크스페이스 무관).
+
+루트에서 `stoke build --all`/`stoke test --all`로 멤버 전체를 순차적으로 빌드/테스트 — 각자 자기 서브디렉토리와 자기 `stoke.toml`로 실행됨. 하나가 실패해도 나머지는 계속 진행하고, 끝나면 어떤 멤버가 실패했는지 모아서 보여주고 하나라도 실패했으면 non-zero exit:
+
+```bash
+cd my-company
+stoke build --all
+# === backend ===
+# Build complete: backend
+#
+# === worker ===
+# Build complete: worker
+#
+# All 2 member(s) succeeded.
+```
+
 ---
 
 ## 7. 상황별 추천 세팅

@@ -83,6 +83,40 @@ def add_dep(toml_path: Path, target_name: str, lib_name: str, version: str) -> N
     content = content[:section_start] + new_section_body + content[section_end:]
     toml_path.write_text(content, encoding="utf-8")
 
+def add_workspace_member(toml_path: Path, member_name: str) -> None:
+    """[workspace] 섹션의 members 목록에 이름 추가 (이미 있으면 아무것도 안 함)."""
+    content = toml_path.read_text(encoding="utf-8")
+
+    section_match = re.search(r"^\[workspace\]\s*$", content, re.MULTILINE)
+    if section_match is None:
+        if not content.endswith("\n"):
+            content += "\n"
+        content += f'\n[workspace]\nmembers = ["{member_name}"]\n'
+        toml_path.write_text(content, encoding="utf-8")
+        return
+
+    members_match = re.search(
+        r"^members[ \t]*=[ \t]*\[(.*?)\][ \t]*$", content[section_match.end():], re.MULTILINE | re.DOTALL,
+    )
+    if members_match is None:
+        # 섹션은 있는데 members 키가 없는 드문 케이스 -- 섹션 헤더 바로 뒤에 추가
+        insert_at = section_match.end()
+        content = content[:insert_at] + f'\nmembers = ["{member_name}"]\n' + content[insert_at:]
+        toml_path.write_text(content, encoding="utf-8")
+        return
+
+    existing_raw = members_match.group(1)
+    existing_names = re.findall(r'"([^"]*)"', existing_raw)
+    if member_name in existing_names:
+        return
+
+    existing_names.append(member_name)
+    new_list = ", ".join(f'"{n}"' for n in existing_names)
+    abs_start = section_match.end() + members_match.start()
+    abs_end = section_match.end() + members_match.end()
+    content = content[:abs_start] + f"members = [{new_list}]" + content[abs_end:]
+    toml_path.write_text(content, encoding="utf-8")
+
 def remove_dep(toml_path: Path, target_name: str, lib_name: str) -> bool:
     """[targets.<target_name>.deps] 섹션에서 라이브러리 제거. 반환: 성공하면 True."""
     content = toml_path.read_text(encoding="utf-8")

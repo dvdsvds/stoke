@@ -272,6 +272,37 @@ _NONINTERACTIVE_LANGUAGES = [
     "csharp", "ruby", "php", "javascript", "typescript",
 ]
 
+def cmd_init_workspace(project_name: str | None = None, yes: bool = False) -> None:
+    """워크스페이스 루트 stoke.toml 생성 -- 언어/타겟 없이 [workspace] members만 가짐 (모노레포 루트용, 'stoke new'로 멤버 추가)."""
+    cwd = Path.cwd()
+    stoke_toml_path = cwd / "stoke.toml"
+
+    if stoke_toml_path.exists() and not yes:
+        print(f"Error: stoke.toml already exists at {stoke_toml_path}", file=sys.stderr)
+        print("  Pass --yes to overwrite.", file=sys.stderr)
+        sys.exit(1)
+
+    project_name = project_name or cwd.name
+    sanitized = _sanitize_project_name(project_name, "myworkspace")
+    if sanitized != project_name:
+        print(
+            f"Error: project name '{project_name}' contains invalid characters "
+            f"(letters/digits/-/_ only, must start with a letter). Try: --name={sanitized}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    content = f'''[project]
+name = "{project_name}"
+version = "0.1.0"
+
+[workspace]
+members = []
+'''
+    stoke_toml_path.write_text(content, encoding="utf-8")
+    print(f"Created workspace root {stoke_toml_path}")
+    print(f"Next: run 'stoke new <name> -l <language>' to add a service.")
+
 def cmd_init_noninteractive(
     language: str,
     project_name: str | None = None,

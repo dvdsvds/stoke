@@ -11,6 +11,7 @@ MESSAGES = {
         "build.help": "Build a target",
         "build.target": "Target name",
         "build.force": "Ignore cache and rebuild everything",
+        "build.all": "Build every member of the workspace (run at a workspace root created with 'stoke init --workspace')",
         "build.debug": "Debug build (default): -O0 -g, easy to debug",
         "build.release": "Release build: -O2, optimized for deployment",
         "build.profile": "Custom build profile name (defined in stoke.toml)",
@@ -87,6 +88,7 @@ MESSAGES = {
         "test.release": "Use the release build's test output directory (C/C++ only)",
         "test.profile": "Custom build profile name (C/C++ only)",
         "test.verbose": "Show detailed test output",
+        "test.all": "Test every member of the workspace (run at a workspace root created with 'stoke init --workspace')",
 
         # add/remove
         "add.help": "Add a dependency to a Python/Java target's stoke.toml and install it",
@@ -101,6 +103,36 @@ MESSAGES = {
         "exec.help": "Run a command with the target's project-local toolchain on PATH (e.g. 'stoke exec -- go mod tidy')",
         "exec.command": "Command to run (put -- before it to separate from stoke's own flags)",
         "exec.target": "Target name (default: first target)",
+
+        # audit
+        "audit.help": "Check the target's dependencies for known vulnerabilities (CVEs)",
+        "audit.target": "Target name (default: first target)",
+        "audit.json": "Print machine-readable JSON instead of human-readable text (structured for Python/Java/JS/TS/PHP; wraps the native tool's raw output for the rest)",
+
+        # outdated
+        "outdated.help": "Check the target's dependencies against the latest available version (staleness, not CVEs)",
+        "outdated.target": "Target name (default: first target)",
+        "outdated.json": "Print machine-readable JSON instead of human-readable text (structured for Python/Java/JS/TS/PHP; wraps the native tool's raw output for the rest)",
+
+        # sbom
+        "sbom.help": "Generate a Software Bill of Materials (SBOM) for the target's dependencies",
+        "sbom.target": "Target name (default: first target)",
+        "sbom.format": "SBOM format: 'cyclonedx' (default) or 'spdx'",
+        "sbom.output": "Output file path, or '-' for stdout (default: sbom.cdx.json / sbom.spdx.json in the project root)",
+
+        # doctor
+        "doctor.help": "Diagnose the target's environment (toolchain, lock file, venv) without building anything",
+        "doctor.target": "Target name (default: first target)",
+        "doctor.json": "Print machine-readable JSON instead of human-readable text",
+
+        # new
+        "new.help": "Create a new service as its own subdirectory (for a monorepo -- adds it to the workspace's members if run inside one)",
+        "new.name": "Service name (also the subdirectory name)",
+        "new.language": "Language, e.g. -l python",
+        "new.version": "Language version/standard/toolchain pin (meaning depends on language)",
+        "new.env_type": "Python environment type (default venv)",
+        "new.lock_mode": "Lock file mode (default commit)",
+        "new.vcpkg": "Install vcpkg for C/C++ if not already installed",
     },
     "ko": {
         # stoke
@@ -110,6 +142,7 @@ MESSAGES = {
         "build.help": "타겟 빌드",
         "build.target": "타겟 이름",
         "build.force": "캐시 무시하고 전체 재빌드",
+        "build.all": "워크스페이스의 모든 멤버 빌드 ('stoke init --workspace'로 만든 워크스페이스 루트에서 실행)",
         "build.debug": "Debug 빌드 (기본): -O0 -g, 디버깅 편함",
         "build.release": "Release 빌드: -O2, 배포용 최적화",
         "build.profile": "커스텀 빌드 프로파일 이름 (stoke.toml에서 정의)",
@@ -186,6 +219,7 @@ MESSAGES = {
         "test.release": "Release 빌드의 테스트 출력 디렉토리 사용 (C/C++ 전용)",
         "test.profile": "커스텀 빌드 프로파일 이름 (C/C++ 전용)",
         "test.verbose": "상세 테스트 출력 표시",
+        "test.all": "워크스페이스의 모든 멤버 테스트 ('stoke init --workspace'로 만든 워크스페이스 루트에서 실행)",
 
         # add/remove
         "add.help": "Python/Java 타겟의 stoke.toml에 의존성 추가 후 설치",
@@ -200,6 +234,36 @@ MESSAGES = {
         "exec.help": "타겟의 프로젝트 로컬 툴체인을 PATH에 얹은 채로 명령 실행 (예: 'stoke exec -- go mod tidy')",
         "exec.command": "실행할 명령 (stoke 자체 플래그와 구분하려면 앞에 -- 를 붙일 것)",
         "exec.target": "타겟 이름 (기본값: 첫 번째 타겟)",
+
+        # audit
+        "audit.help": "타겟의 의존성을 알려진 취약점(CVE)과 대조 확인",
+        "audit.target": "타겟 이름 (기본값: 첫 번째 타겟)",
+        "audit.json": "사람이 읽는 텍스트 대신 기계가 읽는 JSON 출력 (Python/Java/JS/TS/PHP는 구조화됨, 나머지는 네이티브 도구의 원본 출력을 감싸서 반환)",
+
+        # outdated
+        "outdated.help": "타겟의 의존성이 최신 버전 대비 얼마나 뒤처졌는지 확인 (CVE와는 별개)",
+        "outdated.target": "타겟 이름 (기본값: 첫 번째 타겟)",
+        "outdated.json": "사람이 읽는 텍스트 대신 기계가 읽는 JSON 출력 (Python/Java/JS/TS/PHP는 구조화됨, 나머지는 네이티브 도구의 원본 출력을 감싸서 반환)",
+
+        # sbom
+        "sbom.help": "타겟 의존성의 SBOM(소프트웨어 부품 명세) 생성",
+        "sbom.target": "타겟 이름 (기본값: 첫 번째 타겟)",
+        "sbom.format": "SBOM 포맷: 'cyclonedx'(기본값) 또는 'spdx'",
+        "sbom.output": "출력 파일 경로, '-'면 표준출력 (기본값: 프로젝트 루트의 sbom.cdx.json / sbom.spdx.json)",
+
+        # doctor
+        "doctor.help": "아무것도 빌드하지 않고 타겟 환경(툴체인, lock 파일, venv) 진단",
+        "doctor.target": "타겟 이름 (기본값: 첫 번째 타겟)",
+        "doctor.json": "사람이 읽는 텍스트 대신 기계가 읽는 JSON 출력",
+
+        # new
+        "new.help": "새 서비스를 독립된 서브디렉토리로 생성 (모노레포용 -- 워크스페이스 안에서 실행하면 members에 자동 추가)",
+        "new.name": "서비스 이름 (서브디렉토리 이름으로도 씀)",
+        "new.language": "언어, 예: -l python",
+        "new.version": "언어 버전/표준/툴체인 pin (의미는 언어마다 다름)",
+        "new.env_type": "Python 환경 타입 (기본값 venv)",
+        "new.lock_mode": "Lock 파일 모드 (기본값 commit)",
+        "new.vcpkg": "C/C++용 vcpkg가 없으면 설치",
     },
 }
 

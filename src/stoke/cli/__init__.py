@@ -9,7 +9,7 @@ from pathlib import Path
 from stoke import __version__
 from stoke.cli.messages import get_message as _
 
-from stoke.cli.utils import resolve_profile_from_args, add_debug_release_profile_args
+from stoke.cli.utils import resolve_profile_from_args, add_debug_release_profile_args, load_config_or_exit
 from stoke.cli.build import cmd_build, cmd_run, cmd_watch, cmd_hot_reload, cmd_test
 from stoke.cli.clean import cmd_clean
 from stoke.cli.tools import cmd_python_list, cmd_java_list, cmd_c_list, cmd_cpp_list
@@ -30,7 +30,13 @@ from stoke.cli.install_lang import (
 from stoke.cli.ide import cmd_ide_sync
 from stoke.cli.deps import cmd_add_dep, cmd_remove_dep
 from stoke.cli.exec_cmd import cmd_exec
-from stoke.init import cmd_init, cmd_init_noninteractive
+from stoke.cli.audit import cmd_audit
+from stoke.cli.outdated import cmd_outdated
+from stoke.cli.sbom import cmd_sbom
+from stoke.cli.doctor import cmd_doctor
+from stoke.cli.new_cmd import cmd_new
+from stoke.cli.workspace import run_across_workspace
+from stoke.init import cmd_init, cmd_init_noninteractive, cmd_init_workspace
 
 from stoke.languages.python.frameworks.fastapi import cmd_init_fastapi
 from stoke.languages.python.frameworks.flask import cmd_init_flask
@@ -137,6 +143,7 @@ def _build_parser():
     build_parser = subparsers.add_parser("build", help=_("build.help"), formatter_class=_help_formatter)
     build_parser.add_argument("target", nargs="?", help=_("build.target"))
     build_parser.add_argument("--force", action="store_true", help=_("build.force"))
+    build_parser.add_argument("--all", action="store_true", help=_("build.all"))
     add_debug_release_profile_args(build_parser, "build")
 
     # stoke python list
@@ -201,13 +208,23 @@ def _build_parser():
     from stoke.plugins import all_framework_plugin_names
     init_parser.add_argument("type", nargs="?", choices=list(_INIT_FRAMEWORK_HANDLERS) + all_framework_plugin_names(), metavar="<type>", help="Project type (optional, e.g. fastapi, express, spring-boot -- run with no type for an interactive picker)")
     init_parser.add_argument("path", nargs="?", help="Directory to create the project in (created if it doesn't exist; defaults to current directory)")
-    init_parser.add_argument("--language", help="Language (non-interactive mode, e.g. --language=python)")
+    init_parser.add_argument("-l", "--language", help="Language (non-interactive mode, e.g. -l python)")
     init_parser.add_argument("--name", help="Project name (non-interactive mode; defaults to current folder name)")
-    init_parser.add_argument("--version", help="Language version/standard/toolchain pin (non-interactive mode; meaning depends on language)")
+    init_parser.add_argument("-V", "--version", help="Language version/standard/toolchain pin (non-interactive mode; meaning depends on language)")
     init_parser.add_argument("--env-type", choices=["venv", "conda"], help="Python environment type (non-interactive mode; default venv)")
     init_parser.add_argument("--lock-mode", choices=["commit", "local"], default="commit", help="Lock file mode (non-interactive mode; default commit)")
     init_parser.add_argument("--vcpkg", action="store_true", help="Install vcpkg for C/C++ if not already installed (non-interactive mode)")
     init_parser.add_argument("--yes", action="store_true", help="Overwrite an existing stoke.toml without prompting (non-interactive mode)")
+    init_parser.add_argument("-w", "--workspace", action="store_true", help="Create a workspace root instead of a single project -- no language/target, just a members list for 'stoke new' to add services to")
+
+    # stoke new <name> -l <language> [-V <version>]  (monorepo: add a service as its own subdirectory)
+    new_parser = subparsers.add_parser("new", help=_("new.help"), formatter_class=_help_formatter)
+    new_parser.add_argument("name", help=_("new.name"))
+    new_parser.add_argument("-l", "--language", help=_("new.language"))
+    new_parser.add_argument("-V", "--version", help=_("new.version"))
+    new_parser.add_argument("--env-type", choices=["venv", "conda"], help=_("new.env_type"))
+    new_parser.add_argument("--lock-mode", choices=["commit", "local"], default="commit", help=_("new.lock_mode"))
+    new_parser.add_argument("--vcpkg", action="store_true", help=_("new.vcpkg"))
 
     # stoke watch
     watch_parser = subparsers.add_parser("watch", help=_("watch.help"), formatter_class=_help_formatter)
@@ -223,6 +240,7 @@ def _build_parser():
     # stoke test
     test_parser = subparsers.add_parser("test", help=_("test.help"), formatter_class=_help_formatter)
     test_parser.add_argument("target", nargs="?", help=_("test.target"))
+    test_parser.add_argument("--all", action="store_true", help=_("test.all"))
     add_debug_release_profile_args(test_parser, "test")
 
     # stoke add / remove (python/java dependency management)
@@ -238,6 +256,27 @@ def _build_parser():
     exec_parser = subparsers.add_parser("exec", help=_("exec.help"), formatter_class=_help_formatter)
     exec_parser.add_argument("--target", help=_("exec.target"))
     exec_parser.add_argument("command_args", nargs=argparse.REMAINDER, help=_("exec.command"), metavar="command")
+
+    # stoke audit [--target=X]
+    audit_parser = subparsers.add_parser("audit", help=_("audit.help"), formatter_class=_help_formatter)
+    audit_parser.add_argument("--target", help=_("audit.target"))
+    audit_parser.add_argument("--json", action="store_true", help=_("audit.json"))
+
+    # stoke outdated [--target=X]
+    outdated_parser = subparsers.add_parser("outdated", help=_("outdated.help"), formatter_class=_help_formatter)
+    outdated_parser.add_argument("--target", help=_("outdated.target"))
+    outdated_parser.add_argument("--json", action="store_true", help=_("outdated.json"))
+
+    # stoke sbom [--target=X] [--format] [--output]
+    sbom_parser = subparsers.add_parser("sbom", help=_("sbom.help"), formatter_class=_help_formatter)
+    sbom_parser.add_argument("--target", help=_("sbom.target"))
+    sbom_parser.add_argument("--format", choices=["cyclonedx", "spdx"], default="cyclonedx", help=_("sbom.format"))
+    sbom_parser.add_argument("--output", help=_("sbom.output"))
+
+    # stoke doctor [--target=X]
+    doctor_parser = subparsers.add_parser("doctor", help=_("doctor.help"), formatter_class=_help_formatter)
+    doctor_parser.add_argument("--target", help=_("doctor.target"))
+    doctor_parser.add_argument("--json", action="store_true", help=_("doctor.json"))
 
     # stoke ide-sync
     subparsers.add_parser("ide-sync", help=_("ide-sync.help"), formatter_class=_help_formatter)
@@ -267,7 +306,11 @@ def main():
 def _dispatch(args):
     if args.command == "build":
         profile_name = resolve_profile_from_args(args)
-        cmd_build(args.target, force=args.force, profile=profile_name, verbose=args.verbose)
+        if args.all:
+            config = load_config_or_exit()
+            run_across_workspace(config, lambda: cmd_build(None, force=args.force, profile=profile_name, verbose=args.verbose))
+        else:
+            cmd_build(args.target, force=args.force, profile=profile_name, verbose=args.verbose)
     elif args.command == "clean":
         cmd_clean(target_name=args.target, delete_lock=args.all)
     elif args.command == "python":
@@ -320,7 +363,9 @@ def _dispatch(args):
             target_dir.mkdir(parents=True, exist_ok=True)
             os.chdir(target_dir)
         handler = _INIT_FRAMEWORK_HANDLERS.get(args.type) or get_framework_plugin(args.type)
-        if handler:
+        if args.workspace:
+            cmd_init_workspace(project_name=args.name, yes=args.yes)
+        elif handler:
             handler()
         elif args.language:
             cmd_init_noninteractive(
@@ -334,6 +379,15 @@ def _dispatch(args):
             )
         else:
             cmd_init()
+    elif args.command == "new":
+        cmd_new(
+            name=args.name,
+            language=args.language,
+            version=args.version,
+            env_type=args.env_type,
+            lock_mode=args.lock_mode,
+            vcpkg=args.vcpkg,
+        )
     elif args.command == "watch":
         profile_name = resolve_profile_from_args(args)
         cmd_watch(args.target, profile=profile_name, verbose=args.verbose)
@@ -342,12 +396,24 @@ def _dispatch(args):
         cmd_hot_reload(args.target, profile=profile_name, verbose=args.verbose)
     elif args.command == "exec":
         cmd_exec(args.command_args, args.target)
+    elif args.command == "audit":
+        cmd_audit(args.target, args.json)
+    elif args.command == "outdated":
+        cmd_outdated(args.target, args.json)
+    elif args.command == "sbom":
+        cmd_sbom(args.target, args.format, args.output)
+    elif args.command == "doctor":
+        cmd_doctor(args.target, args.json)
     elif args.command == "run":
         profile_name = resolve_profile_from_args(args)
         cmd_run(args.target, entry_file=args.entry_file, profile=profile_name)
     elif args.command == "test":
         profile_name = resolve_profile_from_args(args)
-        cmd_test(args.target, profile=profile_name, verbose=args.verbose)
+        if args.all:
+            config = load_config_or_exit()
+            run_across_workspace(config, lambda: cmd_test(None, profile=profile_name, verbose=args.verbose))
+        else:
+            cmd_test(args.target, profile=profile_name, verbose=args.verbose)
     elif args.command == "add":
         cmd_add_dep(args.packages, args.target)
     elif args.command == "remove":

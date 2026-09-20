@@ -7,6 +7,77 @@ from pathlib import Path
 
 from stoke.prompts import _prompt_yes_no
 
+_TOOLCHAIN_EXE_NAME = {
+    "go": "go.exe" if sys.platform == "win32" else "go",
+    "csharp": "dotnet.exe" if sys.platform == "win32" else "dotnet",
+    "ruby": "ruby.exe" if sys.platform == "win32" else "ruby",
+    "php": "php.exe" if sys.platform == "win32" else "php",
+}
+
+def toolchain_env(language: str, project_root: Path) -> dict:
+    """language의 프로젝트 로컬 툴체인 bin을 PATH 맨 앞에 얹은 환경변수 (exec/audit 공용)."""
+    from stoke.languages._node_tools import find_local_node_dir
+
+    env = dict(os.environ)
+
+    if language == "rust":
+        toolchain_dir = _find_toolchain_dir(project_root, "rust")
+        if toolchain_dir is not None:
+            exe_name = "cargo.exe" if sys.platform == "win32" else "cargo"
+            cargo_bin = toolchain_dir / "cargo" / "bin"
+            if (cargo_bin / exe_name).is_file():
+                env["RUSTUP_HOME"] = str(toolchain_dir / "rustup")
+                env["CARGO_HOME"] = str(toolchain_dir / "cargo")
+                env["PATH"] = str(cargo_bin) + os.pathsep + env.get("PATH", "")
+        return env
+
+    if language in ("javascript", "typescript"):
+        local_dir = find_local_node_dir(project_root)
+        if local_dir is not None:
+            bin_dir = local_dir if sys.platform == "win32" else local_dir / "bin"
+            if bin_dir.is_dir():
+                env["PATH"] = str(bin_dir) + os.pathsep + env.get("PATH", "")
+        return env
+
+    exe_name = _TOOLCHAIN_EXE_NAME.get(language)
+    if exe_name is not None:
+        exe_path = _find_toolchain_exe(project_root, language, exe_name)
+        if exe_path is not None:
+            env["PATH"] = str(exe_path.parent) + os.pathsep + env.get("PATH", "")
+    return env
+
+def run_with_toolchain_or_hint(
+    language: str,
+    exe_names: str | tuple[str, str],
+    display_name: str,
+    cmd_builder,
+    install_hint: str,
+    project_root: Path,
+) -> int:
+    """PATH/프로젝트 로컬 툴체인에서 exe 찾아서 cmd_builder(exe)를 실행, 없으면 설치 안내 후 1 반환.
+
+    govulncheck/cargo-audit/bundler-audit처럼 별도 설치가 필요한 스캐너류(audit/outdated) 공용.
+    """
+    env = toolchain_env(language, project_root)
+
+    if isinstance(exe_names, tuple):
+        posix_name, windows_name = exe_names
+    else:
+        posix_name = windows_name = exe_names
+    exe_name = windows_name if sys.platform == "win32" else posix_name
+
+    exe = shutil.which(exe_name, path=env.get("PATH")) or shutil.which(exe_name) or _find_toolchain_exe(project_root, language, exe_name)
+    if exe is None:
+        print(
+            f"Error: {display_name} not found.\n"
+            f"  Install it with: {install_hint}",
+            file=sys.stderr,
+        )
+        return 1
+
+    result = subprocess.run(cmd_builder(str(exe)), cwd=str(project_root), env=env)
+    return result.returncode
+
 def _find_toolchain_dir(project_path: Path, language: str) -> Path | None:
     """.stoke/toolchains/<language>-*/ 중 가장 최근(이름 역순 정렬) 것."""
     toolchains = project_path / ".stoke" / "toolchains"

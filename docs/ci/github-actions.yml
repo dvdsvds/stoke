@@ -1,0 +1,44 @@
+# Example: build/test/audit a stoke project on GitHub Actions.
+# Copy into .github/workflows/ci.yml in *your* project (not stoke itself) and adjust as needed.
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install stoke
+        run: |
+          STOKE_VERSION=2.3.0  # pin a version; see https://github.com/dvdsvds/stoke/releases
+          curl -fsSL -o stoke.tar.gz \
+            "https://github.com/dvdsvds/stoke/releases/download/v${STOKE_VERSION}/stoke-${STOKE_VERSION}-linux-x86_64.tar.gz"
+          tar xzf stoke.tar.gz
+          echo "$PWD/stoke" >> "$GITHUB_PATH"
+
+      # Reuses stoke's own content-hash cache across runs (C/C++ and Java targets).
+      # Any shared directory works here; a GitHub Actions cache is the simplest option in CI.
+      - name: Restore build cache
+        uses: actions/cache@v4
+        with:
+          path: .stoke-cache
+          key: stoke-cache-${{ runner.os }}-${{ hashFiles('stoke.toml', 'stoke.lock') }}
+          restore-keys: stoke-cache-${{ runner.os }}-
+
+      - name: Build
+        env:
+          STOKE_REMOTE_CACHE_DIR: ${{ github.workspace }}/.stoke-cache
+        run: stoke build
+
+      - name: Test
+        run: stoke test
+
+      # Fails the job if a known CVE is found in a resolved dependency.
+      # Drop `continue-on-error: true` below to make this a warning instead of a hard gate.
+      - name: Audit dependencies
+        run: stoke audit
+        # continue-on-error: true

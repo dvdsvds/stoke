@@ -29,6 +29,7 @@ Spring Boot, FastAPI, Flask, Django, 그리고 Go/Rust/Kotlin/C#/Ruby/PHP/JavaSc
 - **재현 가능한 빌드** — lock 파일 기반 팀 재현성
 - **증분 빌드** — content-hash 캐시로 안 바뀐 파일 skip
 - **대화형 + 비대화형 초기화** — 사람은 `stoke init`, CI/온보딩 스크립트는 `stoke init --language=X --yes`
+- **모노레포** — `stoke init --workspace`로 언어/타겟 없는 루트 `stoke.toml`(멤버 목록만) 생성, `stoke new <name> -l <language> [-V <version>]`로 서비스를 독립된 서브디렉토리(자체 `stoke.toml`/`stoke.lock`)로 추가하고 루트 members에 자동 등록 — 같은 언어를 버전만 다르게 쓰는 서비스 여러 개도 안전. 워크스페이스 루트에서 `stoke build --all`/`stoke test --all`로 멤버 전체를 순차 빌드/테스트, 하나 실패해도 나머지는 계속 진행하고 마지막에 실패한 멤버를 모아서 보여줌
 
 ## 설치
 
@@ -80,7 +81,9 @@ C/C++ 의존성 관리는 vcpkg 사용. Python/Java는 stoke 자체 lock 파일(
 | --- | --- |
 | `stoke init` | 대화형 프로젝트 초기화. 기존 `stoke.toml`이 있으면 덮어쓸지 확인 |
 | `stoke init <framework>` | 프레임워크 프로젝트 바로 생성 ([프레임워크 스캐폴딩](#프레임워크-스캐폴딩) 참고) |
-| `stoke init --language=<lang> [--version] [--name] [--env-type] [--lock-mode] [--vcpkg] [--yes]` | 프롬프트 없는 비대화형 초기화 (CI/온보딩 스크립트용) |
+| `stoke init --language=<lang> [--version] [--name] [--env-type] [--lock-mode] [--vcpkg] [--yes]` (`-l`/`-V` 단축형 가능) | 프롬프트 없는 비대화형 초기화 (CI/온보딩 스크립트용) |
+| `stoke init --workspace [--name]` (`-w`) | 언어/타겟 없는 워크스페이스 루트 `stoke.toml` 생성 (모노레포용, members 목록만 가짐) |
+| `stoke new <name> -l <language> [-V <version>] [--env-type] [--lock-mode] [--vcpkg]` | `<name>/` 서브디렉토리에 독립된 프로젝트 생성. 워크스페이스 루트 안에서 실행하면 members에 자동 등록 |
 | `stoke build [target]` | 타겟 빌드 |
 | `stoke build --force` | 캐시 무시하고 전체 재빌드 |
 | `stoke build --debug` / `--release` / `--profile=<name>` | 특정 프로파일로 빌드 (C/C++) |
@@ -91,6 +94,10 @@ C/C++ 의존성 관리는 vcpkg 사용. Python/Java는 stoke 자체 lock 파일(
 | `stoke clean --all` | lock 파일 포함 완전 초기화 |
 | `stoke ide-sync` | VSCode/Eclipse/IntelliJ 설정 파일 재생성, 워크스페이스 IDE 파일도 관리 |
 | `stoke exec [--target=X] -- <command>` | 타겟의 프로젝트 로컬 툴체인(`.stoke/toolchains/`)을 PATH에 얹은 채로 임의 명령 실행 (예: `go mod tidy`, `cargo add`) — 아무것도 설치하지 않고, 있는 걸 찾아서 PATH에 얹기만 함 |
+| `stoke audit [--target=X] [--json]` | 타겟의 의존성을 알려진 CVE와 대조. Python/Java는 `stoke.lock`의 확정 버전으로 [OSV.dev](https://osv.dev)를 직접 조회(별도 설치 불필요), JS/TS·C#·PHP는 각 생태계 내장 스캐너(`npm audit`, `dotnet list package --vulnerable`, `composer audit`) 사용, Go/Rust/Ruby는 `govulncheck`/`cargo-audit`/`bundler-audit`가 설치돼 있으면 위임(없으면 설치 명령 안내). Kotlin/C/C++는 아직 미지원. `--json`은 CI/대시보드용 — Python/Java/JS/TS/PHP는 완전히 구조화, 나머지는 원본 출력을 감싸서 반환 |
+| `stoke outdated [--target=X] [--json]` | 타겟의 의존성이 최신 버전 대비 얼마나 뒤처졌는지 확인 (`stoke audit`의 CVE 체크와는 별개 질문). Python/Java는 PyPI/Maven Central을 직접 조회, 나머지는 각 생태계의 `outdated` 명령 사용 — 언어별 지원 범위와 `--json` 지원은 `stoke audit`와 동일 |
+| `stoke sbom [--target=X] [--format=cyclonedx\|spdx] [--output=path]` | 타겟의 확정 의존성으로 SBOM(소프트웨어 부품 명세) 생성 — [CycloneDX](https://cyclonedx.org)(기본값) 또는 [SPDX](https://spdx.dev) JSON. Python/Java(`stoke.lock` 기준), Go(`go list -m`), Rust(`cargo metadata`), JS/TS(`npm ls`) 지원. 기본은 `sbom.cdx.json`/`sbom.spdx.json` 파일로 저장, `--output=-`면 표준출력 |
+| `stoke doctor [--target=X] [--json]` | 빌드 없이 빠르게 환경만 점검: entry/sources 파일 존재 여부, lock 파일이 stoke.toml과 맞는지, 툴체인이 PATH/프로젝트 로컬에서 찾아지는지, venv에 설치된 패키지가 lock과 일치하는지, `.gitignore`가 커밋해야 할 lock 파일을 실수로 무시하고 있진 않은지. 아무것도 설치/빌드 안 함 — 에러 있으면 non-zero exit |
 
 ### 언어별 도구
 

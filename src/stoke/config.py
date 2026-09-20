@@ -40,11 +40,17 @@ class Profile:
     compiler: str | None = None  # 특정 컴파일러 요구 (예: "clang"). None이면 기본값 사용.
 
 @dataclass
+class Workspace:
+    """[workspace] 섹션 -- 코드 없는 루트 stoke.toml이 하위 서비스 디렉토리 목록만 들고 있음 (모노레포용)."""
+    members: list[str] = field(default_factory=list)
+
+@dataclass
 class Config:
     project: ProjectInfo
     targets: dict[str, Target]
     profiles: dict[str, Profile]  # 프로파일 이름 -> Profile
     config_path: Path  # stoke.toml 파일 위치 (나중에 상대 경로 처리에 필요)
+    workspace: Workspace | None = None  # 있으면 이 stoke.toml은 워크스페이스 루트 (targets 없음)
 
 # stoke.toml 파일 찾기: 현재 → 상위 → 상위 → ... 로 올라감
 def find_config_file(start_dir: Path | None = None) -> Path:
@@ -148,7 +154,10 @@ def load_config(config_path: Path | None = None) -> Config:
             source_dir=target_config.get("source_dir", "."),
             test_sources=target_config.get("test_sources", []),
         )
-    if not targets:
+    workspace = None
+    if "workspace" in data:
+        workspace = Workspace(members=data["workspace"].get("members", []))
+    elif not targets:
         raise ValueError(f"No targets defined in {config_path}")
 
     # [profiles.*] 섹션들 파싱 (선택적)
@@ -181,4 +190,5 @@ def load_config(config_path: Path | None = None) -> Config:
         targets=targets,
         profiles=profiles,
         config_path=config_path,
+        workspace=workspace,
     )

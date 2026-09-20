@@ -44,10 +44,15 @@ stoke run
 - **`stoke test`** — runs the target's tests via each ecosystem's standard tool: pytest/unittest (Python), JUnit 5 via a bundled console launcher (Java), `go test`, `cargo test`, `dotnet test`, `gradle test`, `npm test`, RSpec/rake, PHPUnit, and `ctest`/`meson test` for `build_system = "cmake"/"meson"`. For plain C/C++ builds, `test_sources` + a bundled single-header [doctest](https://github.com/doctest/doctest) (C++ only for now)
 - **`stoke add`/`stoke remove`** — add or remove one or more dependencies at once. For Python/Java (where `stoke.toml` is the actual manifest) it edits `stoke.toml` and reinstalls; for JavaScript/TypeScript it runs `npm install`/`npm uninstall` directly (bypassing a known npm bug where it's needed) without touching `stoke.toml`, since `package.json` is the real manifest there; every other language points you at its native tool (`cargo add`, `go get`, etc.) instead
 - **`stoke exec [--target=X] -- <command>`** — run a native tool command (`go mod tidy`, `cargo add`, `bundle add`, `composer require`, `dotnet add package`, ...) with the target's project-local toolchain on `PATH`, for when that language only lives in `.stoke/toolchains/` and isn't installed system-wide. Doesn't install anything — just finds what's already there and puts it on `PATH` for that one subprocess
+- **`stoke audit [--target=X] [--json]`** — check the target's dependencies against known CVEs. Python and Java are checked directly against [OSV.dev](https://osv.dev) using the resolved versions in `stoke.lock`, no extra install needed. JavaScript/TypeScript, C#, and PHP use each ecosystem's built-in scanner (`npm audit`, `dotnet list package --vulnerable`, `composer audit`). Go, Rust, and Ruby delegate to `govulncheck`/`cargo-audit`/`bundler-audit` if installed (stoke tells you the install command if not). Not yet supported for Kotlin, C, or C++. `--json` prints machine-readable output for CI/dashboards — fully structured for Python/Java/JS/TS/PHP, a raw-output wrapper for the rest
+- **`stoke outdated [--target=X] [--json]`** — check how far behind the latest available version each dependency is (staleness, independent of `stoke audit`'s CVE check). Same language coverage, mechanism, and `--json` support as `stoke audit` (PyPI/Maven Central queried directly for Python/Java, each ecosystem's native `outdated` command for the rest)
+- **`stoke sbom [--target=X] [--format=cyclonedx|spdx] [--output=path]`** — generate a Software Bill of Materials for the target's resolved dependencies, as [CycloneDX](https://cyclonedx.org) (default) or [SPDX](https://spdx.dev) JSON. Supports Python and Java (from `stoke.lock`), Go (`go list -m`), Rust (`cargo metadata`), and JavaScript/TypeScript (`npm ls`). Writes `sbom.cdx.json`/`sbom.spdx.json` by default, or pass `--output=-` for stdout
+- **`stoke doctor [--target=X] [--json]`** — fast, read-only environment diagnostic: entry/source files present, lock file exists and matches `stoke.toml`, toolchain reachable (PATH or project-local), venv installed packages match the lock file, `.gitignore` doesn't accidentally ignore a committed lock file. Doesn't install or build anything — just reports what's wrong, with a non-zero exit on any error
 - **Pre/post-build hooks** — `pre_build`/`post_build` shell commands per target, for every language and every build path (`build`, `watch`, `hot-reload`)
 - **Reproducible builds** via lock files
 - **Auto IDE integration** (VSCode, IntelliJ, Eclipse)
 - **Plugin system** — add a new language or `stoke init` scaffold from an external pip package via entry points, no stoke source changes needed
+- **Monorepos** — `stoke init --workspace` creates a root `stoke.toml` with no language/target, just a members list; `stoke new <name> -l <language> [-V <version>]` adds a service as its own subdirectory with an independent `stoke.toml`/`stoke.lock` (registered into the root's members automatically) — safe even when two services use the same language at different versions. `stoke build --all`/`stoke test --all`, run at the workspace root, build/test every member in sequence, continuing past a failed member and reporting which ones failed at the end
 
 ## Build hooks
 
@@ -72,6 +77,7 @@ Also available in the repo:
 - [How To Use guide](./docs/HOW_TO_USE.md) ([한국어](./docs/HOW_TO_USE_KO.md))
 - [한국어 README](./docs/README_ko.md)
 - [Full feature status](./docs/FEATURES.md) ([한국어](./docs/FEATURES.ko.md)) — what's verified, known gaps, and whether stoke fits a larger org
+- [CI/CD examples](./docs/ci/) — GitHub Actions workflow and Dockerfile for building/testing/auditing a stoke project in CI
 
 ## License
 
