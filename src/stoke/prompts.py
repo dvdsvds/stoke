@@ -266,6 +266,38 @@ def _prompt_choice(question: str, choices: list[str], default_index: int = 0) ->
             return num - 1
         print(f"  Please enter a number between 1 and {len(choices)}")
 
+def _prompt_checkbox(question: str, choices: list[str], checked_by_default: bool = True) -> list[str]:
+    """여러 개 고르게 하고 고른 것들을 리스트로 반환 (TUI는 스페이스바 체크박스, 폴백은 번호 여러 개/'a' 입력)."""
+    if not choices:
+        return []
+    if _use_tui():
+        sys.stdout.write("\033[?25l")
+        sys.stdout.flush()
+        try:
+            answer = _abort_on_cancel(
+                questionary.checkbox(
+                    question,
+                    choices=[questionary.Choice(c, checked=checked_by_default) for c in choices],
+                    style=_QUESTIONARY_STYLE,
+                    pointer=_POINTER,
+                ).ask()
+            )
+        finally:
+            sys.stdout.write("\033[?25h")
+            sys.stdout.flush()
+        return answer
+    print(f"\n{question}")
+    for i, choice in enumerate(choices, start=1):
+        print(f"  {i}. {choice}")
+    while True:
+        answer = input(f"Select numbers separated by spaces, or 'a' for all [a]: ").strip()
+        if not answer or answer.lower() == "a":
+            return list(choices)
+        indices = answer.split()
+        if all(i.isdigit() and 1 <= int(i) <= len(choices) for i in indices):
+            return [choices[int(i) - 1] for i in indices]
+        print(f"  Please enter numbers between 1 and {len(choices)}, space-separated, or 'a' for all")
+
 def _prompt_yes_no(question: str, default: bool = True) -> bool:
     """예/아니오 입력."""
     if _use_tui():

@@ -36,6 +36,7 @@ from stoke.cli.sbom import cmd_sbom
 from stoke.cli.doctor import cmd_doctor
 from stoke.cli.self_update import cmd_self_update
 from stoke.cli.completions import cmd_completions, cmd_complete_targets
+from stoke.cli.git_cmd import cmd_git
 from stoke.cli.new_cmd import cmd_new
 from stoke.cli.workspace import run_across_workspace
 from stoke.init import cmd_init, cmd_init_noninteractive, cmd_init_workspace
@@ -295,6 +296,9 @@ def _build_parser():
     subparsers.add_parser("complete-targets")
     subparsers._choices_actions = [a for a in subparsers._choices_actions if a.dest != "complete-targets"]
 
+    # stoke git -- interactive add/commit/push menu
+    subparsers.add_parser("git", help=_("git.help"), formatter_class=_help_formatter)
+
     # stoke ide-sync
     subparsers.add_parser("ide-sync", help=_("ide-sync.help"), formatter_class=_help_formatter)
 
@@ -427,6 +431,8 @@ def _dispatch(args):
         cmd_completions(args.shell)
     elif args.command == "complete-targets":
         cmd_complete_targets()
+    elif args.command == "git":
+        cmd_git()
     elif args.command == "run":
         profile_name = resolve_profile_from_args(args)
         cmd_run(args.target, entry_file=args.entry_file, profile=profile_name)

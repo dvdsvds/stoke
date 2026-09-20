@@ -134,6 +134,9 @@ MESSAGES = {
         "completions.help": "Print a shell completion script for bash/zsh/fish",
         "completions.shell": "Shell to generate a completion script for",
 
+        # git
+        "git.help": "Interactive menu to add/commit/push (requires an existing git repo)",
+
         # new
         "new.help": "Create a new service as its own subdirectory (for a monorepo -- adds it to the workspace's members if run inside one)",
         "new.name": "Service name (also the subdirectory name)",
@@ -273,6 +276,9 @@ MESSAGES = {
         # completions
         "completions.help": "bash/zsh/fish용 셸 자동완성 스크립트 출력",
         "completions.shell": "자동완성 스크립트를 생성할 셸",
+
+        # git
+        "git.help": "add/commit/push 대화형 메뉴 (기존 git 저장소 필요)",
 
         # new
         "new.help": "새 서비스를 독립된 서브디렉토리로 생성 (모노레포용 -- 워크스페이스 안에서 실행하면 members에 자동 추가)",

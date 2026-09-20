@@ -40,6 +40,8 @@ stoke run
 - **Multi-language** — Python, Java, C, C++, Go, Rust, Kotlin, C#, Ruby, PHP, JavaScript, TypeScript with a single stoke.toml
 - **Language installation** — install Python/JDK/gcc/Go/Node.js/Rust/C#/Ruby/PHP via `stoke install` (Kotlin has no separate toolchain — it builds through Gradle on top of a JDK)
 - **Project scaffolding** — `stoke init <type>` for Spring Boot, FastAPI, Flask, Django, Gin, Echo, Fiber, Chi, Bubble Tea, Actix Web, Axum, Rocket, Ktor, ASP.NET Core, Sinatra, Slim, Express, Fastify, Next.js, NestJS, Vite, Nuxt, SvelteKit, Hono
+- **Git repo + GitHub remote setup** — the interactive `stoke init` wizard asks whether to `git init` (offers to install Git itself if missing, skips silently if you're already inside a repo) and, separately, whether to create a GitHub remote (`gh repo create`, prompts for visibility and which account/org — requires the [GitHub CLI](https://cli.github.com) logged in). If you say yes to git, it adds a `README.md` and makes an initial commit of the scaffolded project
+- **`stoke git`** — an interactive add/commit/push menu (checkbox file picker, a message prompt, a branch picker that creates the remote branch if it doesn't exist yet), for anyone who'd rather not remember `git` flags. Loops back to the menu after each action; requires an existing git repo
 - **Python environments** — venv or conda
 - **Watch mode and hot-reload** for all languages
 - **Build profiles** — debug/release and custom compile profiles for C/C++, including MSVC (`compiler = "msvc"`) alongside gcc/clang on Windows

@@ -6,6 +6,7 @@ import tomllib
 from pathlib import Path
 
 from stoke import __version__
+from stoke import git_setup
 from stoke.languages.python.versions import detect_all, PythonInstall
 from stoke.prompts import _prompt, _prompt_choice, _prompt_yes_no, _sanitize_project_name
 from stoke.languages.python.init import (
@@ -154,6 +155,88 @@ def _print_banner() -> None:
     print(f"\033[2m v{__version__} — Build, run, and scaffold projects in multiple languages")
     print(f" https://dvdsvds.github.io/stoke/\033[0m\n")
 
+def _prompt_git_setup(cwd: Path, project_name: str) -> dict:
+    """git init + GitHub 원격 생성 여부를 미리 물어봄 (실제 실행은 파일 다 쓴 뒤 맨 마지막에, _apply_git_setup)."""
+    choice = {"init_git": False, "owner": None, "repo_name": None, "private": True}
+
+    parent_repo = git_setup.find_parent_git_repo(cwd)
+    if parent_repo is not None:
+        print(f"Already inside a git repository ({parent_repo}) -- skipping git init.")
+        return choice
+
+    if not git_setup.is_git_installed():
+        if _prompt_yes_no("Git isn't installed on this system. Install it now?", default=True):
+            if not git_setup.install_git_globally():
+                print("Git installation failed or was skipped -- continuing without git.")
+                return choice
+        else:
+            return choice
+
+    if not _prompt_yes_no("Initialize a git repo?", default=True):
+        return choice
+    choice["init_git"] = True
+
+    if not _prompt_yes_no("Create a GitHub remote too?", default=False):
+        return choice
+
+    if not git_setup.is_gh_available():
+        print("GitHub CLI ('gh') not installed or not logged in -- skipping remote creation.")
+        print("  Install: https://cli.github.com, then run 'gh auth login'.")
+        return choice
+
+    private = _prompt_choice("Repository visibility", ["Private", "Public"], default_index=0) == 0
+
+    owners = git_setup.list_github_owners()
+    if not owners:
+        print("Warning: couldn't determine your GitHub account/orgs -- skipping remote creation.")
+        return choice
+    owner_index = _prompt_choice("Create under which account/organization?", owners, default_index=0)
+    owner = owners[owner_index]
+
+    repo_name = project_name
+    while git_setup.github_repo_exists(owner, repo_name):
+        print(f"'{owner}/{repo_name}' already exists on GitHub.")
+        repo_name = _prompt("Repository name", default=f"{repo_name}-2")
+
+    choice["owner"] = owner
+    choice["repo_name"] = repo_name
+    choice["private"] = private
+    return choice
+
+def _write_readme(cwd: Path, project_name: str) -> None:
+    readme_path = cwd / "README.md"
+    if readme_path.exists():
+        return
+    readme_path.write_text(
+        f"# {project_name}\n\n"
+        f"Scaffolded with [stoke](https://github.com/dvdsvds/stoke).\n\n"
+        f"## Getting started\n\n"
+        f"```bash\nstoke build\nstoke run\n```\n",
+        encoding="utf-8",
+    )
+
+def _apply_git_setup(cwd: Path, choice: dict, project_name: str) -> None:
+    """프로젝트 파일을 다 쓴 뒤에 호출 -- git init 성공하면 README.md 추가하고 바로 첫 커밋까지 함
+    (lock_mode="local"이라도 상관없음, .gitignore가 이미 뭘 빼야 할지 알아서 처리함)."""
+    if not choice["init_git"]:
+        return
+    if not git_setup.git_init(cwd):
+        print("Warning: 'git init' failed.")
+        return
+    print(f"Initialized git repo in {cwd}")
+
+    _write_readme(cwd, project_name)
+    if git_setup.git_commit_all(cwd, "Initial commit (scaffolded with stoke)"):
+        print("Created initial commit")
+    else:
+        print("Warning: initial commit failed.")
+
+    if choice["owner"] is None:
+        return
+    url = git_setup.create_github_remote(cwd, choice["owner"], choice["repo_name"], choice["private"])
+    if url:
+        print(f"Created GitHub repo and added as 'origin': {url}")
+
 def cmd_init() -> None:
     """대화형 프로젝트 초기화."""
     cwd = Path.cwd()
@@ -174,6 +257,9 @@ def cmd_init() -> None:
     project_name = _sanitize_project_name(raw_name, "myapp")
     if project_name != raw_name:
         print(f"Note: project name sanitized to '{project_name}' (letters/digits/-/_ only, must start with a letter)")
+
+    # 1.5. git 저장소 초기화 + GitHub 원격 생성 여부 (실제 실행은 파일 다 쓴 뒤 마지막에)
+    git_choice = _prompt_git_setup(cwd, project_name)
 
     # 2. 언어 선택
     language = _select_language()
@@ -265,6 +351,7 @@ def cmd_init() -> None:
         _pin_node_version(cwd, node_version)
     _write_ide_setting(stoke_toml_path, ide)
     print(f"\nCreated {stoke_toml_path}")
+    _apply_git_setup(cwd, git_choice, project_name)
     print("Next: run 'stoke build' to build your project.")
 
 _NONINTERACTIVE_LANGUAGES = [

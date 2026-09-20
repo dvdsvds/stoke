@@ -14,6 +14,8 @@ Spring Boot, FastAPI, Flask, Django, 그리고 Go/Rust/Kotlin/C#/Ruby/PHP/JavaSc
 - **다국어 지원** — Python, Java, C, C++, Go, Rust, Kotlin, C#, Ruby, PHP, JavaScript, TypeScript 통합 관리 (12개 언어, `stoke.toml` 하나로)
 - **언어 설치** — `stoke install`로 Python/JDK/gcc/Go/Node.js/Rust/C#/Ruby/PHP 자동 설치 (Kotlin은 별도 툴체인이 없음 — JDK 위에서 Gradle로 빌드)
 - **프레임워크 스캐폴딩** — Spring Boot, FastAPI, Flask, Django, Gin, Echo, Fiber, Chi, Bubble Tea, Actix Web, Axum, Rocket, Ktor, Spring Boot(Kotlin), ASP.NET Core, Sinatra, Slim, Express, Fastify, Next.js, NestJS, Vite, Nuxt, SvelteKit, Hono
+- **git 저장소 + GitHub 원격 세팅** — 대화형 `stoke init` 마법사가 `git init` 여부를 물어보고(git 없으면 설치까지 제안, 이미 저장소 안이면 조용히 스킵), 별도로 GitHub 원격 저장소 생성 여부도 물어봄(`gh repo create`, 공개/비공개와 어느 계정/조직인지 선택 — [GitHub CLI](https://cli.github.com) 로그인 필요). git을 하기로 하면 `README.md`를 추가하고 스캐폴딩된 프로젝트로 첫 커밋까지 함
+- **`stoke git`** — `git` 플래그 외우기 싫은 사람을 위한 add/commit/push 대화형 메뉴 (체크박스로 파일 선택, 메시지 입력창, 브랜치 선택 — 원격에 없는 브랜치면 새로 만들면서 push). 액션 하나 끝나면 다시 메뉴로 돌아옴, 기존 git 저장소 필요
 - **Python 환경** — venv 또는 conda 선택 가능
 - **자동 의존성 관리** — stoke가 직접 관리하는 언어는 pip, Maven Central, vcpkg / 나머지는 Cargo, Gradle, NuGet, Bundler, Composer, npm이 각자 처리
 - **팀 일관성을 위한 버전 pin** — 이제 모든 언어에 pin 메커니즘 존재 (아래 [버전 pin](#팀-일관성을-위한-버전-pin) 참고)
@@ -88,7 +90,7 @@ C/C++ 의존성 관리는 vcpkg 사용. Python/Java는 stoke 자체 lock 파일(
 
 | 명령어 | 설명 |
 | --- | --- |
-| `stoke init` | 대화형 프로젝트 초기화. 기존 `stoke.toml`이 있으면 덮어쓸지 확인 |
+| `stoke init` | 대화형 프로젝트 초기화. 기존 `stoke.toml`이 있으면 덮어쓸지 확인. git init/GitHub 원격 생성 여부도 물어봄 (자동 커밋은 안 함) |
 | `stoke init <framework>` | 프레임워크 프로젝트 바로 생성 ([프레임워크 스캐폴딩](#프레임워크-스캐폴딩) 참고) |
 | `stoke init --language=<lang> [--version] [--name] [--env-type] [--lock-mode] [--vcpkg] [--yes]` (`-l`/`-V` 단축형 가능) | 프롬프트 없는 비대화형 초기화 (CI/온보딩 스크립트용) |
 | `stoke init --workspace [--name]` (`-w`) | 언어/타겟 없는 워크스페이스 루트 `stoke.toml` 생성 (모노레포용, members 목록만 가짐) |
