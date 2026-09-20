@@ -1,6 +1,7 @@
 """Spring Boot 프로젝트 스캐폴딩 (Spring Initializr API 사용)."""
 import sys
 import io
+import ssl
 import zipfile
 import urllib.request
 import urllib.parse
@@ -11,13 +12,34 @@ from stoke.prompts import resolve_project_name
 SPRING_INITIALIZR_URL = "https://start.spring.io/starter.zip"
 SPRING_METADATA_URL = "https://start.spring.io/metadata/client"
 
+def _print_ssl_cert_error(err: ssl.SSLCertVerificationError) -> None:
+    """SSL 인증서 검증 실패 시 원인/해결 방법 안내."""
+    print(f"Error: SSL certificate verification failed: {err}", file=sys.stderr)
+    print(
+        "This usually means either your system's CA bundle is outdated/missing, "
+        "or you're behind a corporate proxy that intercepts HTTPS with its own "
+        "certificate (MITM).",
+        file=sys.stderr,
+    )
+    print(
+        "Fix: install/update your CA certificates, or if on a corporate network, "
+        "get your proxy's root CA cert and point Python at it, e.g.:\n"
+        "  export SSL_CERT_FILE=/path/to/corporate-ca.pem",
+        file=sys.stderr,
+    )
+
 def _fetch_boot_versions() -> list[str]:
     """Spring Initializr에서 사용 가능한 Spring Boot RELEASE 버전 목록 조회."""
     try:
         with urllib.request.urlopen(SPRING_METADATA_URL, timeout=10) as response:
             import json
             data = json.load(response)
-    except (urllib.error.URLError, urllib.error.HTTPError):
+    except urllib.error.URLError as e:
+        if isinstance(e.reason, ssl.SSLCertVerificationError):
+            _print_ssl_cert_error(e.reason)
+        # 조회 실패 시 폴백
+        return []
+    except urllib.error.HTTPError:
         # 조회 실패 시 폴백
         return []
 
@@ -122,7 +144,10 @@ def cmd_init_spring_boot():
             print("Check Spring Boot version and dependencies.", file=sys.stderr)
         sys.exit(1)
     except urllib.error.URLError as e:
-        print(f"Error: network error: {e}", file=sys.stderr)
+        if isinstance(e.reason, ssl.SSLCertVerificationError):
+            _print_ssl_cert_error(e.reason)
+        else:
+            print(f"Error: network error: {e}", file=sys.stderr)
         sys.exit(1)
 
     # 압축 해제
