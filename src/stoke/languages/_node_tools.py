@@ -58,6 +58,23 @@ class NodeToolsMixin:
     def _find_npm(self) -> str:
         return find_npm(self.project_root)
 
+    def _run_npm_script(self, script: str) -> int:
+        """package.json의 scripts.<script>를 npm run <script>로 실행 (dev-server 기반 프레임워크의 `stoke run`)."""
+        import subprocess
+
+        package_json = self.project_root / "package.json"
+        if not package_json.exists():
+            raise RuntimeError("No package.json found, nothing to run.")
+
+        npm_exe = self._find_npm()
+        cmd = [npm_exe, "run", script]
+        print(f"Running: npm run {script}\n")
+        try:
+            result = subprocess.run(cmd, cwd=str(self.project_root), shell=(sys.platform == "win32"))
+            return result.returncode
+        except KeyboardInterrupt:
+            return 130
+
     def _run_npm_test(self, verbose: bool = False) -> int:
         """package.json의 "scripts.test"를 npm test로 실행. JS/TS 어댑터 공용."""
         import json

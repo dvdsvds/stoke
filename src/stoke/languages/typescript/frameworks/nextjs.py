@@ -49,11 +49,25 @@ def cmd_init_nextjs():
         print("Error: create-next-app failed", file=sys.stderr)
         sys.exit(1)
 
+    _write_stoke_toml(project_path, project_name)
+
     print(f"\nNext.js project created at: {project_path}")
     print()
     print("Next steps:")
     if not is_empty:
         print(f"  cd {project_name}")
-    print(f"  npm run dev")
+    print(f"  stoke run")
     print()
     print("After running, open: http://localhost:3000/")
+
+def _write_stoke_toml(project_path: Path, project_name: str) -> None:
+    content = f'''[project]
+name = "{project_name}"
+version = "0.1.0"
+lock_mode = "commit"
+
+[targets.{project_name}]
+language = "typescript"
+run_script = "dev"
+'''
+    (project_path / "stoke.toml").write_text(content, encoding="utf-8")

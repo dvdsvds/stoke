@@ -47,12 +47,26 @@ def cmd_init_nuxt():
         print("Error: nuxi init failed", file=sys.stderr)
         sys.exit(1)
 
+    _write_stoke_toml(project_path, project_name)
+
     print(f"\nNuxt project created at: {project_path}")
     print()
     print("Next steps:")
     if not is_empty:
         print(f"  cd {project_name}")
-    print(f"  npm install")
-    print(f"  npm run dev")
+    print(f"  stoke build")
+    print(f"  stoke run")
     print()
     print("After running, open: http://localhost:3000/")
+
+def _write_stoke_toml(project_path: Path, project_name: str) -> None:
+    content = f'''[project]
+name = "{project_name}"
+version = "0.1.0"
+lock_mode = "commit"
+
+[targets.{project_name}]
+language = "typescript"
+run_script = "dev"
+'''
+    (project_path / "stoke.toml").write_text(content, encoding="utf-8")

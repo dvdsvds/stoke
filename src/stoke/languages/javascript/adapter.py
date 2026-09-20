@@ -56,10 +56,13 @@ class JavaScriptAdapter(BaseAdapter, NodeToolsMixin):
         print(f"Build complete: {self.target.name}")
 
     def run(self) -> int:
-        """node entry.js 실행."""
+        """node entry.js 실행 (또는 run_script가 있으면 npm run <script>)."""
+        if self.target.run_script:
+            return self._run_npm_script(self.target.run_script)
+
         if not self.target.entry:
             raise RuntimeError(
-                f"Target '{self.target.name}' has no 'entry' field in stoke.toml."
+                f"Target '{self.target.name}' has no 'entry' or 'run_script' field in stoke.toml."
             )
 
         entry_path = self.project_root / self.target.entry
@@ -78,6 +81,11 @@ class JavaScriptAdapter(BaseAdapter, NodeToolsMixin):
             return 130
 
     def get_run_command(self) -> list[str]:
+        if self.target.run_script:
+            raise RuntimeError(
+                f"Target '{self.target.name}' uses 'run_script' (dev-server framework); "
+                f"'stoke hot-reload' isn't supported for it. Use 'stoke run' instead."
+            )
         node_exe = self._find_node()
         entry_path = self.project_root / self.target.entry
         return [node_exe, str(entry_path)]

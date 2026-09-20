@@ -16,6 +16,7 @@ class Target:
     language: str
     sources: list[str] = field(default_factory=list)
     entry: str | None = None
+    run_script: str | None = None  # package.json의 scripts.<name>을 `stoke run`이 대신 실행 (dev-server 기반 JS/TS 프레임워크용, entry 대신 사용)
     deps: dict[str, str] = field(default_factory=dict)
     python_version: str | None = None
     java_version: str | None = None
@@ -132,6 +133,7 @@ def load_config(config_path: Path | None = None) -> Config:
             language=target_config["language"],
             sources=target_config.get("sources", []),
             entry=target_config.get("entry"),
+            run_script=target_config.get("run_script"),
             deps=target_config.get("deps", {}),
             python_version=target_config.get("python_version"),
             java_version=target_config.get("java_version"),
