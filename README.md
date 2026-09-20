@@ -13,6 +13,10 @@
 
 Supports Python, Java, C, C++, Go, Rust, Kotlin, C#, Ruby, PHP, JavaScript, and TypeScript (12 languages) with a single `stoke.toml`. Includes project scaffolding for Spring Boot, FastAPI, Flask, Django, and 21 other framework templates across Go, Rust, Kotlin, C#, Ruby, PHP, JavaScript, and TypeScript (Gin, Echo, Fiber, Chi, Bubble Tea, Actix Web, Axum, Rocket, Ktor, ASP.NET Core, Sinatra, Slim, Express, Fastify, Next.js, NestJS, Vite, Nuxt, SvelteKit, Hono).
 
+<p align="center">
+  <img src="docs/images/demo.svg" alt="stoke init, build, and run demo">
+</p>
+
 ## Installation
 
 ### Windows
