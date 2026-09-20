@@ -4,6 +4,13 @@
 
 <h2 align="center">Build, run, and scaffold projects in multiple languages.</h2>
 
+<p align="center">
+  <a href="https://github.com/dvdsvds/stoke/releases/latest"><img src="https://img.shields.io/github/v/release/dvdsvds/stoke" alt="Latest release"></a>
+  <a href="https://github.com/dvdsvds/stoke/actions/workflows/release.yml"><img src="https://img.shields.io/github/actions/workflow/status/dvdsvds/stoke/release.yml?label=build" alt="Build status"></a>
+  <a href="https://github.com/dvdsvds/stoke/blob/main/LICENSE"><img src="https://img.shields.io/github/license/dvdsvds/stoke" alt="License"></a>
+  <a href="https://github.com/dvdsvds/stoke/releases"><img src="https://img.shields.io/github/downloads/dvdsvds/stoke/total" alt="Downloads"></a>
+</p>
+
 Supports Python, Java, C, C++, Go, Rust, Kotlin, C#, Ruby, PHP, JavaScript, and TypeScript (12 languages) with a single `stoke.toml`. Includes project scaffolding for Spring Boot, FastAPI, Flask, Django, and 21 other framework templates across Go, Rust, Kotlin, C#, Ruby, PHP, JavaScript, and TypeScript (Gin, Echo, Fiber, Chi, Bubble Tea, Actix Web, Axum, Rocket, Ktor, ASP.NET Core, Sinatra, Slim, Express, Fastify, Next.js, NestJS, Vite, Nuxt, SvelteKit, Hono).
 
 ## Installation
