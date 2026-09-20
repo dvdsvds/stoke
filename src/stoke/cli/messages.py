@@ -125,6 +125,15 @@ MESSAGES = {
         "doctor.target": "Target name (default: first target)",
         "doctor.json": "Print machine-readable JSON instead of human-readable text",
 
+        # self-update
+        "self-update.help": "Update the standalone stoke binary to the latest release",
+        "self-update.check": "Only check whether a newer version is available, don't install it",
+        "self-update.yes": "Don't prompt for confirmation before updating",
+
+        # completions
+        "completions.help": "Print a shell completion script for bash/zsh/fish",
+        "completions.shell": "Shell to generate a completion script for",
+
         # new
         "new.help": "Create a new service as its own subdirectory (for a monorepo -- adds it to the workspace's members if run inside one)",
         "new.name": "Service name (also the subdirectory name)",
@@ -255,6 +264,15 @@ MESSAGES = {
         "doctor.help": "아무것도 빌드하지 않고 타겟 환경(툴체인, lock 파일, venv) 진단",
         "doctor.target": "타겟 이름 (기본값: 첫 번째 타겟)",
         "doctor.json": "사람이 읽는 텍스트 대신 기계가 읽는 JSON 출력",
+
+        # self-update
+        "self-update.help": "단일 실행 파일 배포판 stoke를 최신 릴리스로 업데이트",
+        "self-update.check": "새 버전이 있는지 확인만 하고 설치는 안 함",
+        "self-update.yes": "업데이트 전 확인 프롬프트 생략",
+
+        # completions
+        "completions.help": "bash/zsh/fish용 셸 자동완성 스크립트 출력",
+        "completions.shell": "자동완성 스크립트를 생성할 셸",
 
         # new
         "new.help": "새 서비스를 독립된 서브디렉토리로 생성 (모노레포용 -- 워크스페이스 안에서 실행하면 members에 자동 추가)",

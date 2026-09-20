@@ -34,6 +34,8 @@ from stoke.cli.audit import cmd_audit
 from stoke.cli.outdated import cmd_outdated
 from stoke.cli.sbom import cmd_sbom
 from stoke.cli.doctor import cmd_doctor
+from stoke.cli.self_update import cmd_self_update
+from stoke.cli.completions import cmd_completions, cmd_complete_targets
 from stoke.cli.new_cmd import cmd_new
 from stoke.cli.workspace import run_across_workspace
 from stoke.init import cmd_init, cmd_init_noninteractive, cmd_init_workspace
@@ -278,6 +280,21 @@ def _build_parser():
     doctor_parser.add_argument("--target", help=_("doctor.target"))
     doctor_parser.add_argument("--json", action="store_true", help=_("doctor.json"))
 
+    # stoke self-update [--check] [--yes]
+    self_update_parser = subparsers.add_parser("self-update", help=_("self-update.help"), formatter_class=_help_formatter)
+    self_update_parser.add_argument("--check", action="store_true", help=_("self-update.check"))
+    self_update_parser.add_argument("--yes", action="store_true", help=_("self-update.yes"))
+
+    # stoke completions <bash|zsh|fish>
+    completions_parser = subparsers.add_parser("completions", help=_("completions.help"), formatter_class=_help_formatter)
+    completions_parser.add_argument("shell", choices=["bash", "zsh", "fish"], help=_("completions.shell"))
+
+    # stoke complete-targets -- hidden, used by the generated shell completion scripts.
+    # help=SUPPRESS doesn't actually drop the row from the subcommand listing, so remove
+    # its pseudo-action from the listing directly (it stays reachable via .choices for parsing).
+    subparsers.add_parser("complete-targets")
+    subparsers._choices_actions = [a for a in subparsers._choices_actions if a.dest != "complete-targets"]
+
     # stoke ide-sync
     subparsers.add_parser("ide-sync", help=_("ide-sync.help"), formatter_class=_help_formatter)
 
@@ -404,6 +421,12 @@ def _dispatch(args):
         cmd_sbom(args.target, args.format, args.output)
     elif args.command == "doctor":
         cmd_doctor(args.target, args.json)
+    elif args.command == "self-update":
+        cmd_self_update(args.check, args.yes)
+    elif args.command == "completions":
+        cmd_completions(args.shell)
+    elif args.command == "complete-targets":
+        cmd_complete_targets()
     elif args.command == "run":
         profile_name = resolve_profile_from_args(args)
         cmd_run(args.target, entry_file=args.entry_file, profile=profile_name)

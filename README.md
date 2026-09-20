@@ -53,6 +53,8 @@ stoke run
 - **Auto IDE integration** (VSCode, IntelliJ, Eclipse)
 - **Plugin system** — add a new language or `stoke init` scaffold from an external pip package via entry points, no stoke source changes needed
 - **Monorepos** — `stoke init --workspace` creates a root `stoke.toml` with no language/target, just a members list; `stoke new <name> -l <language> [-V <version>]` adds a service as its own subdirectory with an independent `stoke.toml`/`stoke.lock` (registered into the root's members automatically) — safe even when two services use the same language at different versions. `stoke build --all`/`stoke test --all`, run at the workspace root, build/test every member in sequence, continuing past a failed member and reporting which ones failed at the end
+- **`stoke self-update [--check] [--yes]`** — update the standalone binary to the latest GitHub release in place. Linux/macOS swap the install directory atomically (with rollback on failure); Windows launches the installer silently in the background. Only works for the standalone binary distribution, not a `pip install -e .` source checkout
+- **`stoke completions <bash|zsh|fish>`** — prints a shell completion script generated from stoke's actual command/flag structure (so it can't drift out of sync). Completes target names dynamically by reading the current directory's `stoke.toml`
 
 ## Build hooks
 

@@ -30,6 +30,8 @@ Spring Boot, FastAPI, Flask, Django, 그리고 Go/Rust/Kotlin/C#/Ruby/PHP/JavaSc
 - **증분 빌드** — content-hash 캐시로 안 바뀐 파일 skip
 - **대화형 + 비대화형 초기화** — 사람은 `stoke init`, CI/온보딩 스크립트는 `stoke init --language=X --yes`
 - **모노레포** — `stoke init --workspace`로 언어/타겟 없는 루트 `stoke.toml`(멤버 목록만) 생성, `stoke new <name> -l <language> [-V <version>]`로 서비스를 독립된 서브디렉토리(자체 `stoke.toml`/`stoke.lock`)로 추가하고 루트 members에 자동 등록 — 같은 언어를 버전만 다르게 쓰는 서비스 여러 개도 안전. 워크스페이스 루트에서 `stoke build --all`/`stoke test --all`로 멤버 전체를 순차 빌드/테스트, 하나 실패해도 나머지는 계속 진행하고 마지막에 실패한 멤버를 모아서 보여줌
+- **`stoke self-update [--check] [--yes]`** — 단일 실행 파일 배포판을 최신 GitHub 릴리스로 그 자리에서 업데이트. Linux/macOS는 설치 디렉토리를 원자적으로 교체(실패 시 롤백), Windows는 설치 프로그램을 백그라운드에서 조용히 실행. `pip install -e .` 소스 실행 중에는 동작 안 함(단일 실행 파일 배포판 전용)
+- **`stoke completions <bash|zsh|fish>`** — stoke의 실제 argparse 명령어/플래그 구조에서 직접 생성한 셸 자동완성 스크립트 출력 (손으로 따로 관리하는 목록이 아니라서 명령어가 추가/변경돼도 어긋날 일이 없음). 현재 디렉토리의 `stoke.toml`을 읽어서 타겟 이름도 동적으로 자동완성
 
 ## 설치
 
