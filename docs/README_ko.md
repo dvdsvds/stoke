@@ -33,6 +33,7 @@ Spring Boot, FastAPI, Flask, Django, 그리고 Go/Rust/Kotlin/C#/Ruby/PHP/JavaSc
 - **대화형 + 비대화형 초기화** — 사람은 `stoke init`, CI/온보딩 스크립트는 `stoke init --language=X --yes`
 - **모노레포** — `stoke init --workspace`로 언어/타겟 없는 루트 `stoke.toml`(멤버 목록만) 생성, `stoke new <name> -l <language> [-V <version>]`로 서비스를 독립된 서브디렉토리(자체 `stoke.toml`/`stoke.lock`)로 추가하고 루트 members에 자동 등록 — 같은 언어를 버전만 다르게 쓰는 서비스 여러 개도 안전. 워크스페이스 루트에서 `stoke build --all`/`stoke test --all`로 멤버 전체를 순차 빌드/테스트, 하나 실패해도 나머지는 계속 진행하고 마지막에 실패한 멤버를 모아서 보여줌
 - **`stoke self-update [--check] [--yes]`** — 어떻게 설치됐든 stoke를 그 자리에서 업데이트. 단일 실행 파일: Linux/macOS는 설치 디렉토리 원자적 교체(실패 시 롤백), Windows는 설치 프로그램 백그라운드 실행. `pip install -e .`(git 체크아웃): `git pull` (워킹트리에 커밋 안 된 변경사항 있으면 거부). 일반 `pip install`: 해당 GitHub 릴리스 태그를 가리켜서 `pip install --upgrade` (PyPI에는 안 올라가 있음)
+- **`stoke cache-server --user X --password Y [--port] [--dir] [--host] [--cert] [--key] [--max-upload-mb]`** — `STOKE_REMOTE_CACHE_URL`용 레퍼런스 서버: 파일 기반 작은 HTTP 키-값 저장소, DB 없음. 기본값이 안전함: 인증 필수(없으면 실행 자체를 거부), 기본 바인딩은 `127.0.0.1`, write-once(이미 있는 키 덮어쓰기 요청은 조용히 무시가 아니라 409로 거부), 업로드 크기 제한, `--cert`/`--key`로 내장 TLS 지원
 - **`stoke completions <bash|zsh|fish>`** — stoke의 실제 argparse 명령어/플래그 구조에서 직접 생성한 셸 자동완성 스크립트 출력 (손으로 따로 관리하는 목록이 아니라서 명령어가 추가/변경돼도 어긋날 일이 없음). 현재 디렉토리의 `stoke.toml`을 읽어서 타겟 이름도 동적으로 자동완성
 
 ## 설치

@@ -199,7 +199,22 @@ export STOKE_REMOTE_CACHE_PASSWORD=***
 stoke build
 ```
 
-Same cache keys, same fail-open behavior (an unreachable/misconfigured server or a failed upload just falls back to local compilation) — this is a drop-in alternative to `STOKE_REMOTE_CACHE_DIR` for teams without a shared filesystem (remote workers, GitHub-hosted CI runners, etc). If both are set, `STOKE_REMOTE_CACHE_URL` wins. The server just needs to answer `GET`/`PUT` on `/objects/<key>` and `/dirs/<key>.tar` with the bytes stoke sends it — stoke doesn't ship a server implementation.
+Same cache keys, same fail-open behavior (an unreachable/misconfigured server or a failed upload just falls back to local compilation) — this is a drop-in alternative to `STOKE_REMOTE_CACHE_DIR` for teams without a shared filesystem (remote workers, GitHub-hosted CI runners, etc). If both are set, `STOKE_REMOTE_CACHE_URL` wins. The server just needs to answer `GET`/`PUT` on `/objects/<key>` and `/dirs/<key>.tar` with the bytes stoke sends it.
+
+stoke ships a reference server for exactly that: `stoke cache-server` — a small file-backed HTTP server (no database, nothing to install beyond stoke itself). It's secure by default:
+
+- `--user`/`--password` are **required** — it refuses to start without them (no anonymous-write mode).
+- Binds to `127.0.0.1` by default — pass `--host 0.0.0.0` explicitly to accept connections from other machines.
+- **Write-once**: a `PUT` to a key that already exists gets `409`, not silently overwritten — a build cache's entries are supposed to be immutable (same fingerprint → same output), so this also blocks someone with valid credentials from later swapping a legitimate cached artifact for a malicious one.
+- Uploads capped at `--max-upload-mb` (default 200) to stop a trivial disk-filling DoS.
+- `--cert`/`--key` serve HTTPS directly, no reverse proxy required. Without them it's plain HTTP — fine on `127.0.0.1` or an already-encrypted internal network, but if you bind to a non-localhost address without `--cert`/`--key` it prints a warning: credentials and cache contents would otherwise travel unencrypted.
+
+Point it at a persistent volume and leave it running:
+
+```bash
+stoke cache-server --port 8080 --dir /data/stoke-cache --user ci --password "$CACHE_PASSWORD" \
+  --host 0.0.0.0 --cert /etc/stoke-cache/cert.pem --key /etc/stoke-cache/key.pem
+```
 
 **Parallel file compilation** (C/C++ only): multiple source files in one target compile in parallel automatically, capped by `project.jobs` in `stoke.toml` if set, otherwise CPU count.
 

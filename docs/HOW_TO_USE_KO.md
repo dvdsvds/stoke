@@ -199,7 +199,22 @@ export STOKE_REMOTE_CACHE_PASSWORD=***
 stoke build
 ```
 
-캐시 키도 동일하고 fail-open 동작도 동일함(서버가 안 되거나 잘못 설정됐거나 업로드가 실패해도 그냥 로컬 컴파일로 넘어감) — 공유 파일시스템이 없는 팀(원격 근무자, GitHub 호스팅 CI 러너 등)을 위한 `STOKE_REMOTE_CACHE_DIR`의 대체제. 둘 다 설정돼 있으면 `STOKE_REMOTE_CACHE_URL`이 우선함. 서버는 stoke가 보내는 바이트를 `/objects/<key>`, `/dirs/<key>.tar`에서 `GET`/`PUT`으로 응답하기만 하면 됨 — stoke 자체는 서버 구현체를 제공하지 않음.
+캐시 키도 동일하고 fail-open 동작도 동일함(서버가 안 되거나 잘못 설정됐거나 업로드가 실패해도 그냥 로컬 컴파일로 넘어감) — 공유 파일시스템이 없는 팀(원격 근무자, GitHub 호스팅 CI 러너 등)을 위한 `STOKE_REMOTE_CACHE_DIR`의 대체제. 둘 다 설정돼 있으면 `STOKE_REMOTE_CACHE_URL`이 우선함. 서버는 stoke가 보내는 바이트를 `/objects/<key>`, `/dirs/<key>.tar`에서 `GET`/`PUT`으로 응답하기만 하면 됨.
+
+이 프로토콜의 레퍼런스 서버도 stoke가 같이 제공함: `stoke cache-server` — DB 없이 파일 기반으로 동작하는 작은 HTTP 서버 (stoke 자체 말고는 아무것도 추가로 설치할 필요 없음). 기본값부터 안전하게 설계함:
+
+- `--user`/`--password`는 **필수** — 없으면 실행 자체를 거부함(익명 쓰기 모드 없음).
+- 기본 바인딩은 `127.0.0.1` — 다른 머신에서 접속받으려면 `--host 0.0.0.0`을 명시적으로 줘야 함.
+- **Write-once**: 이미 있는 키에 `PUT`하면 조용히 덮어써지는 게 아니라 `409` — 빌드 캐시 항목은 원래 불변이어야 하니까(같은 지문 → 같은 결과물), 유효한 인증정보를 가진 누군가가 나중에 정상 캐시 항목을 악성으로 바꿔치기하는 것도 이걸로 막힘.
+- 업로드는 `--max-upload-mb`(기본 200)로 제한 — 디스크 채우는 간단한 DoS 방지.
+- `--cert`/`--key`로 리버스 프록시 없이 바로 HTTPS 서빙 가능. 안 주면 평문 HTTP — `127.0.0.1`이나 이미 암호화된 내부망이면 괜찮지만, `--cert`/`--key` 없이 localhost 아닌 주소로 바인딩하면 경고를 찍음(그렇지 않으면 인증정보와 캐시 내용이 평문으로 오감).
+
+영속 볼륨을 가리키게 하고 계속 띄워두면 됨:
+
+```bash
+stoke cache-server --port 8080 --dir /data/stoke-cache --user ci --password "$CACHE_PASSWORD" \
+  --host 0.0.0.0 --cert /etc/stoke-cache/cert.pem --key /etc/stoke-cache/key.pem
+```
 
 **파일 단위 병렬 컴파일** (C/C++만 해당): 한 타겟 안의 소스 파일 여러 개가 자동으로 병렬 컴파일됨. `stoke.toml`에 `project.jobs`가 설정돼 있으면 그걸로, 아니면 CPU 개수로 병렬 수 제한.
 

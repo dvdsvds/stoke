@@ -76,12 +76,19 @@ def _check_lock_file(config, target) -> list[CheckResult]:
     results = [CheckResult("ok", "lock file found")]
 
     # python/java만 비교: stoke.toml의 버전 문자열이 lock의 실제 버전과 같은 형식(major[.minor])이라
-    # 단순 prefix 비교가 성립함. c/cpp는 target.c_standard가 "c17" 같은 표준 플래그라 lock.c.version
+    # 부분(major[.minor]) 비교가 성립함. c/cpp는 target.c_standard가 "c17" 같은 표준 플래그라 lock.c.version
     # (컴파일러 버전, 예: "15.2.0")과는 아예 다른 축이라 여기서 비교 대상이 아님.
+    #
+    # 점(.) 단위로 쪼개서 비교 -- 문자열 prefix 비교("3.10.4".startswith("3.1"))는 3.1과 3.10을
+    # 같은 버전으로 오인하는 false negative가 생김.
     declared_version = {"python": target.python_version, "java": target.java_version}.get(target.language)
     locked = {"python": lock.python, "java": lock.java}.get(target.language)
 
-    if declared_version and locked is not None and not locked.version.startswith(declared_version):
+    declared_parts = declared_version.split(".") if declared_version else []
+    locked_parts = locked.version.split(".") if locked is not None else []
+    version_matches = declared_parts == locked_parts[:len(declared_parts)]
+
+    if declared_version and locked is not None and not version_matches:
         results.append(CheckResult(
             "warn",
             f"stoke.toml wants {target.language} {declared_version} but lock has {locked.version} "

@@ -85,6 +85,11 @@ def add_dep(toml_path: Path, target_name: str, lib_name: str, version: str) -> N
 
 def add_workspace_member(toml_path: Path, member_name: str) -> None:
     """[workspace] 섹션의 members 목록에 이름 추가 (이미 있으면 아무것도 안 함)."""
+    if not _VALID_TOML_BARE_KEY.match(member_name):
+        raise ValueError(
+            f"invalid member name '{member_name}': only letters, digits, '-' and '_' allowed"
+        )
+
     content = toml_path.read_text(encoding="utf-8")
 
     section_match = re.search(r"^\[workspace\]\s*$", content, re.MULTILINE)

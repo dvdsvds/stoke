@@ -5,6 +5,7 @@ from pathlib import Path
 
 from stoke.config import load_config
 from stoke.init import cmd_init_noninteractive
+from stoke.prompts import _VALID_PROJECT_NAME, _sanitize_project_name
 from stoke.toml_editor import add_workspace_member
 
 def cmd_new(
@@ -18,6 +19,17 @@ def cmd_new(
     """stoke new <name> -l <language> [-V <version>] -- ./<name>/ 밑에 독립된 stoke.toml 생성."""
     if language is None:
         print("Error: 'stoke new' needs a language, e.g. 'stoke new backend -l python'", file=sys.stderr)
+        sys.exit(1)
+
+    # name이 그대로 서브디렉토리 이름이 되니까, 디렉토리 만들기 전에 먼저 검증 --
+    # '/'나 '..'가 들어있으면 상위 디렉토리 밖에 디렉토리가 생길 수 있음.
+    if not _VALID_PROJECT_NAME.match(name):
+        suggestion = _sanitize_project_name(name)
+        print(
+            f"Error: '{name}' isn't a valid service name (letters/digits/-/_ only, must start with a letter).\n"
+            f"  Try: stoke new {suggestion} -l {language}" + (f" -V {version}" if version else ""),
+            file=sys.stderr,
+        )
         sys.exit(1)
 
     parent = Path.cwd()

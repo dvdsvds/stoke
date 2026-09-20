@@ -4,10 +4,10 @@ import shutil
 import subprocess
 import sys
 
+from stoke.cli._dep_check import emit_raw_json, find_csproj, find_dotnet, json_wrapped_external
 from stoke.cli.utils import load_config_or_exit, resolve_target_or_exit
 from stoke.lock import load_lock
 from stoke.outdated import maven_latest, pypi_latest
-from stoke.tool_install import run_with_toolchain_or_hint, toolchain_env
 
 _UNSUPPORTED = {
     "kotlin": "no single standard CLI for this yet",
@@ -40,15 +40,6 @@ def _emit_outdated_json(total: int, outdated: dict) -> None:
             {"package": name, "current": current, "latest": latest}
             for name, (current, latest) in outdated.items()
         ],
-    }, indent=2))
-
-def _emit_raw_json(language: str, returncode: int, stdout: str) -> None:
-    print(json.dumps({
-        "language": language,
-        "structured": False,
-        "note": "stoke doesn't parse this tool's own output yet -- see 'raw_output'",
-        "exit_code": returncode,
-        "raw_output": stdout,
     }, indent=2))
 
 def _outdated_python(config, target, json_output: bool) -> int:
@@ -111,8 +102,7 @@ def _outdated_composer(config, target, json_output: bool) -> int:
 
 def _outdated_dotnet(config, target, json_output: bool) -> int:
     project_root = config.config_path.parent
-    env = toolchain_env("csharp", project_root)
-    dotnet_exe = shutil.which("dotnet", path=env.get("PATH")) or shutil.which("dotnet")
+    dotnet_exe, env = find_dotnet(project_root)
     if dotnet_exe is None:
         msg = "dotnet not found.\n  Install .NET SDK from: https://dotnet.microsoft.com/download"
         if json_output:
@@ -121,10 +111,7 @@ def _outdated_dotnet(config, target, json_output: bool) -> int:
             print(f"Error: {msg}", file=sys.stderr)
         return 1
 
-    subdir_csproj = list((project_root / target.name).glob("*.csproj"))
-    root_csproj = list(project_root.glob("*.csproj"))
-    csproj = (subdir_csproj or root_csproj or [None])[0]
-
+    csproj = find_csproj(project_root, target.name)
     cmd = [dotnet_exe, "list", "package", "--outdated"]
     if csproj is not None:
         cmd.insert(2, str(csproj))
@@ -133,7 +120,7 @@ def _outdated_dotnet(config, target, json_output: bool) -> int:
     has_updates = "There are no updates given the current constraints" not in result.stdout
 
     if json_output:
-        _emit_raw_json("csharp", result.returncode, result.stdout + result.stderr)
+        emit_raw_json("csharp", result.returncode, result.stdout + result.stderr)
         return result.returncode if result.returncode != 0 else (1 if has_updates else 0)
 
     print(result.stdout, end="")
@@ -143,39 +130,21 @@ def _outdated_dotnet(config, target, json_output: bool) -> int:
         return result.returncode
     return 1 if has_updates else 0
 
-def _outdated_json_wrapped_external(language: str, exe_names, display_name: str, install_hint: str, cmd_builder, project_root, json_output: bool) -> int:
-    if not json_output:
-        return run_with_toolchain_or_hint(language, exe_names, display_name, cmd_builder, install_hint, project_root)
-
-    env = toolchain_env(language, project_root)
-    exe_name = exe_names[1] if sys.platform == "win32" and isinstance(exe_names, tuple) else (exe_names[0] if isinstance(exe_names, tuple) else exe_names)
-    exe = shutil.which(exe_name, path=env.get("PATH")) or shutil.which(exe_name)
-    if exe is None:
-        print(json.dumps({
-            "language": language, "structured": False,
-            "error": f"{display_name} not found. Install it with: {install_hint}",
-        }, indent=2))
-        return 1
-
-    result = subprocess.run(cmd_builder(exe), cwd=str(project_root), env=env, capture_output=True, text=True, errors="replace")
-    _emit_raw_json(language, result.returncode, result.stdout + result.stderr)
-    return result.returncode
-
 def _outdated_go(config, target, json_output: bool) -> int:
-    return _outdated_json_wrapped_external(
+    return json_wrapped_external(
         "go", ("go", "go.exe"), "Go", "stoke install go",
         lambda exe: [exe, "list", "-u", "-m", "all"], config.config_path.parent, json_output,
     )
 
 def _outdated_rust(config, target, json_output: bool) -> int:
-    return _outdated_json_wrapped_external(
+    return json_wrapped_external(
         "rust", "cargo-outdated", "cargo-outdated", "cargo install cargo-outdated",
         lambda exe: [exe, "outdated"], config.config_path.parent, json_output,
     )
 
 def _outdated_ruby(config, target, json_output: bool) -> int:
     bundle_name = "bundle.bat" if sys.platform == "win32" else "bundle"
-    return _outdated_json_wrapped_external(
+    return json_wrapped_external(
         "ruby", bundle_name, "Bundler", "gem install bundler",
         lambda exe: [exe, "outdated"], config.config_path.parent, json_output,
     )

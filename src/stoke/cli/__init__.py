@@ -37,6 +37,7 @@ from stoke.cli.doctor import cmd_doctor
 from stoke.cli.self_update import cmd_self_update
 from stoke.cli.completions import cmd_completions, cmd_complete_targets
 from stoke.cli.git_cmd import cmd_git
+from stoke.cli.cache_server import cmd_cache_server
 from stoke.cli.new_cmd import cmd_new
 from stoke.cli.workspace import run_across_workspace
 from stoke.init import cmd_init, cmd_init_noninteractive, cmd_init_workspace
@@ -299,6 +300,17 @@ def _build_parser():
     # stoke git -- interactive add/commit/push menu
     subparsers.add_parser("git", help=_("git.help"), formatter_class=_help_formatter)
 
+    # stoke cache-server [--port] [--dir] [--user] [--password]
+    cache_server_parser = subparsers.add_parser("cache-server", help=_("cache-server.help"), formatter_class=_help_formatter)
+    cache_server_parser.add_argument("--port", type=int, default=8080, help=_("cache-server.port"))
+    cache_server_parser.add_argument("--dir", default="./stoke-cache", help=_("cache-server.dir"))
+    cache_server_parser.add_argument("--user", help=_("cache-server.user"))
+    cache_server_parser.add_argument("--password", help=_("cache-server.password"))
+    cache_server_parser.add_argument("--host", default="127.0.0.1", help=_("cache-server.host"))
+    cache_server_parser.add_argument("--cert", help=_("cache-server.cert"))
+    cache_server_parser.add_argument("--key", help=_("cache-server.key"))
+    cache_server_parser.add_argument("--max-upload-mb", type=int, default=200, help=_("cache-server.max_upload_mb"))
+
     # stoke ide-sync
     subparsers.add_parser("ide-sync", help=_("ide-sync.help"), formatter_class=_help_formatter)
 
@@ -327,6 +339,9 @@ def main():
 def _dispatch(args):
     if args.command == "build":
         profile_name = resolve_profile_from_args(args)
+        if args.all and args.target:
+            print("Error: cannot use --all together with a target name", file=sys.stderr)
+            sys.exit(1)
         if args.all:
             config = load_config_or_exit()
             run_across_workspace(config, lambda: cmd_build(None, force=args.force, profile=profile_name, verbose=args.verbose))
@@ -433,11 +448,16 @@ def _dispatch(args):
         cmd_complete_targets()
     elif args.command == "git":
         cmd_git()
+    elif args.command == "cache-server":
+        cmd_cache_server(args.port, args.dir, args.user, args.password, args.host, args.cert, args.key, args.max_upload_mb)
     elif args.command == "run":
         profile_name = resolve_profile_from_args(args)
         cmd_run(args.target, entry_file=args.entry_file, profile=profile_name)
     elif args.command == "test":
         profile_name = resolve_profile_from_args(args)
+        if args.all and args.target:
+            print("Error: cannot use --all together with a target name", file=sys.stderr)
+            sys.exit(1)
         if args.all:
             config = load_config_or_exit()
             run_across_workspace(config, lambda: cmd_test(None, profile=profile_name, verbose=args.verbose))

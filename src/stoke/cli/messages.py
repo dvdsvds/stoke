@@ -137,6 +137,17 @@ MESSAGES = {
         # git
         "git.help": "Interactive menu to add/commit/push (requires an existing git repo)",
 
+        # cache-server
+        "cache-server.help": "Run a reference HTTP server for STOKE_REMOTE_CACHE_URL (a simple key-value blob store, file-backed)",
+        "cache-server.port": "Port to listen on (default: 8080)",
+        "cache-server.dir": "Directory to store cache entries in (default: ./stoke-cache)",
+        "cache-server.user": "Require HTTP Basic Auth with this username (matches STOKE_REMOTE_CACHE_USER on the client)",
+        "cache-server.password": "Password for --user (matches STOKE_REMOTE_CACHE_PASSWORD on the client)",
+        "cache-server.host": "Address to bind to (default: 127.0.0.1, localhost only -- pass 0.0.0.0 to accept connections from other machines)",
+        "cache-server.cert": "TLS certificate file (with --key, serves HTTPS instead of plain HTTP)",
+        "cache-server.key": "TLS private key file (with --cert)",
+        "cache-server.max_upload_mb": "Reject uploads larger than this many MB (default: 200)",
+
         # new
         "new.help": "Create a new service as its own subdirectory (for a monorepo -- adds it to the workspace's members if run inside one)",
         "new.name": "Service name (also the subdirectory name)",
@@ -279,6 +290,17 @@ MESSAGES = {
 
         # git
         "git.help": "add/commit/push 대화형 메뉴 (기존 git 저장소 필요)",
+
+        # cache-server
+        "cache-server.help": "STOKE_REMOTE_CACHE_URL용 레퍼런스 HTTP 서버 실행 (파일 기반 단순 키-값 저장소)",
+        "cache-server.port": "리스닝할 포트 (기본값: 8080)",
+        "cache-server.dir": "캐시 항목을 저장할 디렉토리 (기본값: ./stoke-cache)",
+        "cache-server.user": "이 사용자명으로 HTTP Basic Auth 요구 (클라이언트의 STOKE_REMOTE_CACHE_USER와 매칭)",
+        "cache-server.password": "--user의 비밀번호 (클라이언트의 STOKE_REMOTE_CACHE_PASSWORD와 매칭)",
+        "cache-server.host": "바인딩할 주소 (기본값: 127.0.0.1, localhost 전용 -- 다른 머신에서 접속받으려면 0.0.0.0 지정)",
+        "cache-server.cert": "TLS 인증서 파일 (--key와 같이 주면 평문 HTTP 대신 HTTPS로 서빙)",
+        "cache-server.key": "TLS 개인키 파일 (--cert와 같이)",
+        "cache-server.max_upload_mb": "이 MB보다 큰 업로드는 거부 (기본값: 200)",
 
         # new
         "new.help": "새 서비스를 독립된 서브디렉토리로 생성 (모노레포용 -- 워크스페이스 안에서 실행하면 members에 자동 추가)",

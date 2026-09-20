@@ -4,10 +4,10 @@ import shutil
 import subprocess
 import sys
 
+from stoke.cli._dep_check import emit_raw_json, find_csproj, find_dotnet, json_wrapped_external
 from stoke.cli.utils import load_config_or_exit, resolve_target_or_exit
 from stoke.lock import load_lock
 from stoke.osv import query_batch
-from stoke.tool_install import run_with_toolchain_or_hint, toolchain_env
 
 _UNSUPPORTED = {
     "kotlin": "no single standard CLI for this yet (see the OWASP Dependency-Check Gradle plugin: https://github.com/dependency-check/dependency-check-gradle)",
@@ -41,16 +41,6 @@ def _print_osv_result(ecosystem: str, found: dict) -> bool:
             print(f"  {name}: {vuln.id}{summary}")
             print(f"    https://osv.dev/vulnerability/{vuln.id}")
     return True
-
-def _emit_raw_json(language: str, returncode: int, stdout: str) -> None:
-    """dotnet/go/rust/ruby -- 구조화 안 하고 원본 출력을 감싸서 반환 (--json이지만 반쪽짜리임을 명시)."""
-    print(json.dumps({
-        "language": language,
-        "structured": False,
-        "note": "stoke doesn't parse this tool's own output yet -- see 'raw_output'",
-        "exit_code": returncode,
-        "raw_output": stdout,
-    }, indent=2))
 
 def _audit_python(config, target, json_output: bool) -> int:
     lock = load_lock(config.config_path.parent, config.project.lock_mode)
@@ -112,8 +102,7 @@ def _audit_composer(config, target, json_output: bool) -> int:
 
 def _audit_dotnet(config, target, json_output: bool) -> int:
     project_root = config.config_path.parent
-    env = toolchain_env("csharp", project_root)
-    dotnet_exe = shutil.which("dotnet", path=env.get("PATH")) or shutil.which("dotnet")
+    dotnet_exe, env = find_dotnet(project_root)
     if dotnet_exe is None:
         msg = "dotnet not found.\n  Install .NET SDK from: https://dotnet.microsoft.com/download"
         if json_output:
@@ -122,10 +111,7 @@ def _audit_dotnet(config, target, json_output: bool) -> int:
             print(f"Error: {msg}", file=sys.stderr)
         return 1
 
-    subdir_csproj = list((project_root / target.name).glob("*.csproj"))
-    root_csproj = list(project_root.glob("*.csproj"))
-    csproj = (subdir_csproj or root_csproj or [None])[0]
-
+    csproj = find_csproj(project_root, target.name)
     cmd = [dotnet_exe, "list", "package", "--vulnerable", "--include-transitive"]
     if csproj is not None:
         cmd.insert(2, str(csproj))
@@ -134,7 +120,7 @@ def _audit_dotnet(config, target, json_output: bool) -> int:
     vulnerable = "has the following vulnerable packages" in result.stdout
 
     if json_output:
-        _emit_raw_json("csharp", result.returncode, result.stdout + result.stderr)
+        emit_raw_json("csharp", result.returncode, result.stdout + result.stderr)
         return result.returncode if result.returncode != 0 else (1 if vulnerable else 0)
 
     print(result.stdout, end="")
@@ -144,39 +130,21 @@ def _audit_dotnet(config, target, json_output: bool) -> int:
         return result.returncode
     return 1 if vulnerable else 0
 
-def _audit_json_wrapped_external(language: str, exe_names, display_name: str, install_hint: str, cmd_builder, project_root, json_output: bool) -> int:
-    if not json_output:
-        return run_with_toolchain_or_hint(language, exe_names, display_name, cmd_builder, install_hint, project_root)
-
-    env = toolchain_env(language, project_root)
-    exe_name = exe_names[1] if sys.platform == "win32" and isinstance(exe_names, tuple) else (exe_names[0] if isinstance(exe_names, tuple) else exe_names)
-    exe = shutil.which(exe_name, path=env.get("PATH")) or shutil.which(exe_name)
-    if exe is None:
-        print(json.dumps({
-            "language": language, "structured": False,
-            "error": f"{display_name} not found. Install it with: {install_hint}",
-        }, indent=2))
-        return 1
-
-    result = subprocess.run(cmd_builder(exe), cwd=str(project_root), env=env, capture_output=True, text=True, errors="replace")
-    _emit_raw_json(language, result.returncode, result.stdout + result.stderr)
-    return result.returncode
-
 def _audit_go(config, target, json_output: bool) -> int:
-    return _audit_json_wrapped_external(
+    return json_wrapped_external(
         "go", "govulncheck", "govulncheck", "go install golang.org/x/vuln/cmd/govulncheck@latest",
         lambda exe: [exe, "./..."], config.config_path.parent, json_output,
     )
 
 def _audit_rust(config, target, json_output: bool) -> int:
-    return _audit_json_wrapped_external(
+    return json_wrapped_external(
         "rust", "cargo-audit", "cargo-audit", "cargo install cargo-audit",
         lambda exe: [exe, "audit"], config.config_path.parent, json_output,
     )
 
 def _audit_ruby(config, target, json_output: bool) -> int:
     bundle_name = "bundle.bat" if sys.platform == "win32" else "bundle"
-    return _audit_json_wrapped_external(
+    return json_wrapped_external(
         "ruby", bundle_name, "bundler-audit", "gem install bundler-audit",
         lambda exe: [exe, "exec", "bundle-audit", "check", "--update"], config.config_path.parent, json_output,
     )

@@ -6,6 +6,7 @@ from pathlib import Path
 
 from stoke.prompts import resolve_project_name
 from stoke.npm_check import warn_npm_health
+from stoke.languages._node_tools import write_dev_server_stoke_toml
 
 def cmd_init_sveltekit():
     """stoke init sveltekit 명령어."""
@@ -49,7 +50,7 @@ def cmd_init_sveltekit():
         print("Error: sveltekit creation failed", file=sys.stderr)
         sys.exit(1)
 
-    _write_stoke_toml(project_path, project_name)
+    write_dev_server_stoke_toml(project_path, project_name)
 
     print(f"\nSvelteKit project created at: {project_path}")
     print()
@@ -60,15 +61,3 @@ def cmd_init_sveltekit():
     print(f"  stoke run")
     print()
     print("After running, open: http://localhost:5173/")
-
-def _write_stoke_toml(project_path: Path, project_name: str) -> None:
-    content = f'''[project]
-name = "{project_name}"
-version = "0.1.0"
-lock_mode = "commit"
-
-[targets.{project_name}]
-language = "typescript"
-run_script = "dev"
-'''
-    (project_path / "stoke.toml").write_text(content, encoding="utf-8")

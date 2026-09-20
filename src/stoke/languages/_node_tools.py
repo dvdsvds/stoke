@@ -3,6 +3,21 @@ import shutil
 import sys
 from pathlib import Path
 
+def write_dev_server_stoke_toml(project_path: Path, project_name: str, run_script: str = "dev") -> None:
+    """npx 기반 dev-server 프레임워크(Vite/Nuxt/SvelteKit/Hono/Next.js/NestJS) 스캐폴더 공용 stoke.toml 생성.
+    run_script는 package.json의 scripts.<run_script>를 `stoke run`이 대신 실행하게 하는 값 (프레임워크마다 다름,
+    예: 대부분 "dev", NestJS는 "start:dev")."""
+    content = f'''[project]
+name = "{project_name}"
+version = "0.1.0"
+lock_mode = "commit"
+
+[targets.{project_name}]
+language = "typescript"
+run_script = "{run_script}"
+'''
+    (project_path / "stoke.toml").write_text(content, encoding="utf-8")
+
 def find_local_node_dir(project_root: Path):
     """.stoke/toolchains/nodejs-*/ 에서 stoke install로 받은 Node.js 폴더 찾기."""
     toolchains = project_root / ".stoke" / "toolchains"

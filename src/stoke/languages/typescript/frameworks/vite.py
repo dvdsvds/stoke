@@ -6,6 +6,7 @@ from pathlib import Path
 
 from stoke.prompts import resolve_project_name
 from stoke.npm_check import resolve_npm_command
+from stoke.languages._node_tools import write_dev_server_stoke_toml
 
 def cmd_init_vite():
     """stoke init vite 명령어."""
@@ -45,7 +46,7 @@ def cmd_init_vite():
         print("Error: vite creation failed", file=sys.stderr)
         sys.exit(1)
 
-    _write_stoke_toml(project_path, project_name)
+    write_dev_server_stoke_toml(project_path, project_name)
 
     print(f"\nVite project created at: {project_path}")
     print()
@@ -56,15 +57,3 @@ def cmd_init_vite():
     print(f"  stoke run")
     print()
     print("After running, open the URL shown by Vite.")
-
-def _write_stoke_toml(project_path: Path, project_name: str) -> None:
-    content = f'''[project]
-name = "{project_name}"
-version = "0.1.0"
-lock_mode = "commit"
-
-[targets.{project_name}]
-language = "typescript"
-run_script = "dev"
-'''
-    (project_path / "stoke.toml").write_text(content, encoding="utf-8")

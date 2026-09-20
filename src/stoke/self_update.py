@@ -141,7 +141,7 @@ def apply_update_unix(url: str, install_dir: Path) -> None:
         with tarfile.open(archive) as tf:
             for member in tf.getmembers():
                 member_path = (extract_dir / member.name).resolve()
-                if not str(member_path).startswith(str(extract_dir.resolve())):
+                if not member_path.is_relative_to(extract_dir.resolve()):
                     raise RuntimeError(f"Refusing to extract unsafe archive member: {member.name}")
             tf.extractall(extract_dir)
 

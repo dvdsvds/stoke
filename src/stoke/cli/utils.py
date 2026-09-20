@@ -44,6 +44,10 @@ def resolve_target_or_exit(
 ) -> str:
     """타겟 이름 결정 (없으면 첫 번째 타겟, 존재하지 않으면 에러 종료)."""
     if target_name is None:
+        if not config.targets:
+            print("Error: this stoke.toml has no targets (it's a workspace root).", file=sys.stderr)
+            print("  Run this command inside a member directory, or use --target/--all.", file=sys.stderr)
+            sys.exit(1)
         target_name = next(iter(config.targets))
         if verbose:
             print(f"No target specified, {verb} default: {target_name}")
@@ -65,6 +69,9 @@ def check_profile_or_exit(config: Config, profile: str):
 def resolve_cpp_target(config: Config, target_name: str | None, *, announce: bool = True, show_available: bool = True):
     """vcpkg 명령어 전용 타겟 해석: 기본 타겟 선택 -> 존재 확인 -> c/cpp 언어 확인"""
     if target_name is None:
+        if not config.targets:
+            print("Error: this stoke.toml has no targets (it's a workspace root).", file=sys.stderr)
+            sys.exit(1)
         target_name = next(iter(config.targets))
         if announce:
             print(f"No target specified, using: {target_name}")

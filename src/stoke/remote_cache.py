@@ -215,7 +215,7 @@ def _http_fetch_dir(backend: HttpCacheBackend, fingerprint: str, output_dir: Pat
         with tarfile.open(fileobj=io.BytesIO(tar_bytes)) as tf:
             for member in tf.getmembers():
                 member_path = (output_dir / member.name).resolve()
-                if not str(member_path).startswith(str(output_dir.resolve())):
+                if not member_path.is_relative_to(output_dir.resolve()):
                     return False  # zip-slip 방지
             tf.extractall(output_dir)
         return True
