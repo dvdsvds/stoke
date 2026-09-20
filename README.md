@@ -47,6 +47,21 @@ stoke build
 stoke run
 ```
 
+## Why stoke?
+
+Most polyglot codebases end up gluing together each language's own tool (`pip`/`venv`, `npm`, `cargo`, `go build`, `mvn`/`gradle`, ...) by hand, with a README full of "install X, then Y, then Z" instructions. stoke doesn't replace those tools — it still shells out to `cargo`, `npm`, `go`, etc. for the languages it doesn't manage directly — it replaces the glue holding them together with one config format and one CLI.
+
+| | stoke | Hand-glued native tools |
+|---|---|---|
+| Config | one `stoke.toml` for every language | one format per language (`pyproject.toml`, `package.json`, `Cargo.toml`, `pom.xml`, ...) |
+| New machine setup | `stoke build` | read the README, install N tools in the right order |
+| Toolchain install | `stoke install`, project-local (`.stoke/toolchains/`), no global state | each language's own installer, usually global (pyenv, nvm, rustup, sdkman, ...) |
+| CVE scanning | `stoke audit`, same command every language | a different scanner per ecosystem, if anyone remembers to run it |
+| SBOM | `stoke sbom` (CycloneDX/SPDX) | usually nothing |
+| Build cache | built-in, directory- or HTTP-based, shared across the team/CI | per-tool, or none |
+| Monorepo | `stoke init --workspace` + `stoke new`, one lock file per service | hand-rolled |
+| Self-update | `stoke self-update` | per-tool |
+
 ## Features
 - **Multi-language** — Python, Java, C, C++, Go, Rust, Kotlin, C#, Ruby, PHP, JavaScript, TypeScript with a single stoke.toml
 - **Language installation** — install Python/JDK/gcc/Go/Node.js/Rust/C#/Ruby/PHP via `stoke install` (Kotlin has no separate toolchain — it builds through Gradle on top of a JDK)

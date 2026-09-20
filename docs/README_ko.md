@@ -65,6 +65,21 @@ stoke build
 stoke run
 ```
 
+## 왜 stoke인가
+
+여러 언어를 쓰는 코드베이스는 보통 각 언어의 네이티브 도구(`pip`/`venv`, `npm`, `cargo`, `go build`, `mvn`/`gradle` 등)를 손으로 이어붙이고, README에 "X 설치하고 Y 설치하고 Z 설치하세요" 같은 안내를 잔뜩 적어두는 식으로 굴러감. stoke는 이 도구들을 대체하는 게 아님 — 직접 관리 안 하는 언어(Go, Rust, Kotlin, C#, Ruby, PHP, JS/TS)는 여전히 내부적으로 `cargo`, `npm`, `go` 등을 그대로 호출함 — 그 도구들을 이어붙이던 접착제를 설정 파일 하나 + CLI 하나로 대체하는 것.
+
+| | stoke | 네이티브 도구를 손으로 이어붙임 |
+|---|---|---|
+| 설정 | 모든 언어에 `stoke.toml` 하나 | 언어마다 다른 포맷(`pyproject.toml`, `package.json`, `Cargo.toml`, `pom.xml`, ...) |
+| 새 머신 세팅 | `stoke build` | README 읽고 N개 도구를 순서대로 설치 |
+| 툴체인 설치 | `stoke install`, 프로젝트 로컬(`.stoke/toolchains/`), 전역 상태 없음 | 언어마다 다른 설치기, 보통 전역(pyenv, nvm, rustup, sdkman, ...) |
+| CVE 스캔 | `stoke audit`, 모든 언어 동일 명령 | 생태계마다 다른 스캐너, 누가 기억하고 돌려야 함 |
+| SBOM | `stoke sbom` (CycloneDX/SPDX) | 보통 없음 |
+| 빌드 캐시 | 내장, 디렉토리 또는 HTTP 기반, 팀/CI 전체 공유 | 도구마다 다르거나 아예 없음 |
+| 모노레포 | `stoke init --workspace` + `stoke new`, 서비스마다 독립 lock 파일 | 직접 구축 |
+| 자체 업데이트 | `stoke self-update` | 도구마다 다름 |
+
 ## 지원 언어
 
 | 언어 | stoke가 위임하는 빌드 도구 | 버전 pin |
