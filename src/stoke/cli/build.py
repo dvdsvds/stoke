@@ -1,6 +1,8 @@
 """빌드, 실행, watch, hot-reload 명령어."""
 import dataclasses
 import re
+import shutil
+import subprocess
 import sys
 from pathlib import Path
 from stoke.adapters import make_adapter
@@ -57,6 +59,38 @@ def _run_adhoc_cpp_entry(config, project_root, target_name: str, owner_target, s
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
 
+def _find_adhoc_go_entry(project_root: Path, path_str: str) -> Path | None:
+    """target으로 선언 안 된 값이 실제 .go 파일 경로면 반환. C/C++와 달리 파일 내용은 안 보고
+    그대로 'go run <부모 디렉토리>'에 넘김 -- main() 유무/중복 검사는 go 컴파일러가 알아서 함."""
+    candidate = project_root / path_str
+    if candidate.is_file() and candidate.suffix == ".go":
+        return candidate
+    return None
+
+def _run_adhoc_go_entry(project_root: Path, entry_file: Path) -> None:
+    """go run <entry_file의 부모 디렉토리>를 그 자리에서 실행. stoke.toml에 Go 타겟 선언 여부와 무관."""
+    from stoke.tool_install import toolchain_env
+
+    env = toolchain_env("go", project_root)
+    go_exe = shutil.which("go", path=env.get("PATH")) or shutil.which("go")
+    if go_exe is None:
+        print(
+            "Error: go not found.\n  Install with: stoke install --language=go --version=latest",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    package_dir = entry_file.parent
+    rel = package_dir.relative_to(project_root)
+    package_path = f"./{rel}".replace("\\", "/") if str(rel) != "." else "."
+
+    print(f"Ad hoc: go run {package_path}", flush=True)
+    try:
+        result = subprocess.run([go_exe, "run", package_path], cwd=str(project_root), env=env)
+    except KeyboardInterrupt:
+        sys.exit(130)
+    sys.exit(result.returncode)
+
 def _build_one(config, target_name: str, project_root, profile_obj, force: bool, verbose: bool) -> None:
     """의존성 해석 없이 타겟 하나만 빌드. 실패 시 RuntimeError 전파."""
     target = config.targets[target_name]
@@ -94,6 +128,13 @@ def cmd_run(target_name, entry_file: str | None = None, profile: str = "debug"):
         if found is not None:
             owner_target, source_files, entry_source = found
             _run_adhoc_cpp_entry(config, project_root, target_name, owner_target, source_files, entry_source, profile)
+            return
+
+        # 또는 실제 존재하는 .go 파일 경로면 (예: 'stoke run cmd/colorpicker-preview/main.go')
+        # 그 패키지 디렉토리를 그대로 go run에 위임 -- Go 타겟 선언 여부와 무관하게 동작.
+        go_entry = _find_adhoc_go_entry(project_root, target_name)
+        if go_entry is not None:
+            _run_adhoc_go_entry(project_root, go_entry)
             return
 
     # run은 verbose=True로 항상 표시 (기존 동작 유지)

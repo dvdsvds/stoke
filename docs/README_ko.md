@@ -269,6 +269,8 @@ language = "go"
 
 의존성은 `stoke.toml`이 아니라 `go.mod`로 관리합니다. `stoke init`에서 선택적으로 `go_version`을 `go.mod`의 `go`/`toolchain` 지시문에 pin할 수 있습니다.
 
+`cmd/*/main.go` 같은 멀티 바이너리 구조라면, 타겟 이름을 `cmd/<이름>/`에 매핑하는 규칙 덕분에 `[targets.<이름>]`을 서브디렉토리 개수만큼 선언하면 각각 `stoke run <이름>`으로 실행됩니다. 타겟을 아직 안 만들었어도 `stoke run cmd/colorpicker-preview/main.go`처럼 **실제 `.go` 파일 경로**를 그냥 주면, 그 파일이 들어있는 디렉토리를 그대로 `go run`에 넘겨서 즉석으로 실행합니다(파일 내용을 훑어서 `main()`을 찾진 않음 — 그건 Go 컴파일러가 알아서 검사).
+
 ### Rust
 
 ```toml
