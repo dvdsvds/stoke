@@ -190,6 +190,17 @@ stoke build
 
 한 머신이 뭔가 컴파일하면 공유 캐시에 채워지고, 같은 env var가 설정된 다른 머신/CI 러너가 같은 소스로 빌드하면 재컴파일 대신 캐시 히트를 받음. 별도 캐시 서버를 돌릴 필요 없음 — 그냥 디렉토리 하나임. Fail-open 방식: 접근 안 되거나 잘못 설정된 디렉토리는 조용히 로컬 컴파일로 넘어감, 빌드를 절대 깨뜨리지 않음.
 
+**공유 네트워크 드라이브가 없는 원격 팀/클라우드 CI** — 대신 HTTP 캐시 서버를 가리키면 됨:
+
+```bash
+export STOKE_REMOTE_CACHE_URL=https://cache.mycompany.com
+export STOKE_REMOTE_CACHE_USER=ci       # 선택, HTTP Basic Auth
+export STOKE_REMOTE_CACHE_PASSWORD=***
+stoke build
+```
+
+캐시 키도 동일하고 fail-open 동작도 동일함(서버가 안 되거나 잘못 설정됐거나 업로드가 실패해도 그냥 로컬 컴파일로 넘어감) — 공유 파일시스템이 없는 팀(원격 근무자, GitHub 호스팅 CI 러너 등)을 위한 `STOKE_REMOTE_CACHE_DIR`의 대체제. 둘 다 설정돼 있으면 `STOKE_REMOTE_CACHE_URL`이 우선함. 서버는 stoke가 보내는 바이트를 `/objects/<key>`, `/dirs/<key>.tar`에서 `GET`/`PUT`으로 응답하기만 하면 됨 — stoke 자체는 서버 구현체를 제공하지 않음.
+
 **파일 단위 병렬 컴파일** (C/C++만 해당): 한 타겟 안의 소스 파일 여러 개가 자동으로 병렬 컴파일됨. `stoke.toml`에 `project.jobs`가 설정돼 있으면 그걸로, 아니면 CPU 개수로 병렬 수 제한.
 
 ### 6.5 폐쇄망/사내망 환경

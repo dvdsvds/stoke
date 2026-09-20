@@ -256,7 +256,7 @@ class CBaseAdapter(BaseAdapter):
             profile_flags.extend(raw_flags)
             profile_flags.extend(f"{define_prefix}{define}" for define in self.profile.defines)
 
-        remote_dir = remote_cache.get_remote_cache_dir()
+        remote_dir = remote_cache.get_remote_cache_backend()
         if remote_dir is not None:
             source_hash = get_file_stat(file).content_hash
             compiler_id = f"{compiler.kind}-{compiler.family}-{compiler.version}"

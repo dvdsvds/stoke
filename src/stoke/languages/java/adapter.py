@@ -230,7 +230,7 @@ class JavaAdapter(BaseAdapter):
         # 원격 캐시 확인: 소스 전체 세트가 이전에 컴파일된 적 있으면
         # javac 호출 자체를 생략하고 classes_dir을 통째로 받아옴
         # (새 체크아웃/CI처럼 로컬 캐시가 비어있어 모든 파일이 대상일 때 특히 유효)
-        remote_dir = remote_cache.get_remote_cache_dir()
+        remote_dir = remote_cache.get_remote_cache_backend()
         fingerprint = None
         if remote_dir is not None:
             fingerprint = self._target_fingerprint(jdk, files)

@@ -190,6 +190,17 @@ stoke build
 
 One machine compiling something populates the shared cache; every other machine/CI runner with the same source and the same env var set gets a cache hit instead of recompiling. No cache-server to run — it's just a directory. Fails open: an unreachable or misconfigured directory silently falls back to normal local compilation, never breaks a build.
 
+**Remote team / cloud CI without a shared network drive** — point at an HTTP cache server instead:
+
+```bash
+export STOKE_REMOTE_CACHE_URL=https://cache.mycompany.com
+export STOKE_REMOTE_CACHE_USER=ci       # optional, HTTP Basic Auth
+export STOKE_REMOTE_CACHE_PASSWORD=***
+stoke build
+```
+
+Same cache keys, same fail-open behavior (an unreachable/misconfigured server or a failed upload just falls back to local compilation) — this is a drop-in alternative to `STOKE_REMOTE_CACHE_DIR` for teams without a shared filesystem (remote workers, GitHub-hosted CI runners, etc). If both are set, `STOKE_REMOTE_CACHE_URL` wins. The server just needs to answer `GET`/`PUT` on `/objects/<key>` and `/dirs/<key>.tar` with the bytes stoke sends it — stoke doesn't ship a server implementation.
+
 **Parallel file compilation** (C/C++ only): multiple source files in one target compile in parallel automatically, capped by `project.jobs` in `stoke.toml` if set, otherwise CPU count.
 
 ### 6.5 Locked-down / air-gapped networks

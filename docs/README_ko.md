@@ -18,7 +18,7 @@ Spring Boot, FastAPI, Flask, Django, 그리고 Go/Rust/Kotlin/C#/Ruby/PHP/JavaSc
 - **자동 의존성 관리** — stoke가 직접 관리하는 언어는 pip, Maven Central, vcpkg / 나머지는 Cargo, Gradle, NuGet, Bundler, Composer, npm이 각자 처리
 - **팀 일관성을 위한 버전 pin** — 이제 모든 언어에 pin 메커니즘 존재 (아래 [버전 pin](#팀-일관성을-위한-버전-pin) 참고)
 - **사설 레지스트리 / 미러 지원** — 툴체인 설치와 Java의 Maven 의존성 다운로드를 사내 미러로 돌릴 수 있음, 선택적 Basic Auth 지원 (아래 [사설 레지스트리와 미러](#사설-레지스트리와-미러) 참고)
-- **빌드 캐시** — content-hash 기반 캐시 무효화(mtime 기반과 달리 머신/CI 간에도 정확히 동작), C/C++·Java용 선택적 공유/원격 캐시 (아래 [빌드 캐시](#빌드-캐시) 참고)
+- **빌드 캐시** — content-hash 기반 캐시 무효화(mtime 기반과 달리 머신/CI 간에도 정확히 동작), C/C++·Java용 선택적 공유/원격 캐시. 공유 디렉토리(`STOKE_REMOTE_CACHE_DIR`) 또는 HTTP 캐시 서버(`STOKE_REMOTE_CACHE_URL`, 공유 파일시스템 없는 원격 팀/클라우드 CI용) 둘 다 지원 (아래 [빌드 캐시](#빌드-캐시) 참고)
 - **C/C++용 CMake 위임** — 타겟에 `build_system = "cmake"`를 지정하면 stoke 자체 컴파일 모델 대신 `cmake`의 configure/build로 `build`/`run`/`watch`/`hot-reload`/`clean`을 그대로 위임. 이미 `CMakeLists.txt`가 있는 프로젝트용
 - **C/C++용 Meson 위임** — 타겟에 `build_system = "meson"`을 지정하면 stoke 자체 컴파일 모델 대신 `meson setup`/`meson compile`로 `build`/`run`/`watch`/`hot-reload`/`clean`을 그대로 위임. 이미 `meson.build`가 있는 프로젝트용
 - **`stoke test`** — 각 생태계의 표준 도구로 타겟 테스트 실행: pytest/unittest(Python), 번들된 콘솔 런처로 JUnit 5(Java), `go test`, `cargo test`, `dotnet test`, `gradle test`, `npm test`, RSpec/rake, PHPUnit, `build_system = "cmake"/"meson"`이면 `ctest`/`meson test`. 순수 C/C++ 빌드는 `test_sources` + 번들된 헤더 하나짜리 [doctest](https://github.com/doctest/doctest)(현재는 C++만)
@@ -401,7 +401,7 @@ export STOKE_VERSION_API_PASSWORD=***    # stoke install용
 ## 빌드 캐시
 
 - **Content-hash 무효화 (캐시를 쓰는 모든 언어)** — `.stoke/cache.json`이 mtime/size 대신 파일의 SHA-256 content hash로 무효화 여부를 판단해서, 다른 머신에서 새로 체크아웃해도(내용은 같은데 mtime만 다름) 캐시를 정상적으로 재사용함.
-- **원격/공유 캐시 (C/C++, Java)** — 여러 머신에서 접근 가능한 디렉토리(네트워크 공유, NAS, 매핑된 드라이브)를 `STOKE_REMOTE_CACHE_DIR`로 지정하면, 별도 캐시 서버 프로토콜 없이 `stoke build`가 컴파일된 오브젝트를 그 디렉토리에서 가져오거나 올림. C/C++은 컴파일된 `.o` 파일 단위(hit마다 헤더 content 매니페스트로 재검증), Java는 타겟 전체 단위(`javac`가 한 번의 호출로 배치 컴파일하기 때문에 파일 1:1 매핑이 없음)로 캐싱. 캐시 디렉토리가 없거나 접근 불가능하거나 오류가 나도 fail open — 빌드를 절대 깨뜨리지 않고 속도 향상만 못 받음.
+- **원격/공유 캐시 (C/C++, Java)** — 여러 머신에서 접근 가능한 디렉토리(네트워크 공유, NAS, 매핑된 드라이브)를 `STOKE_REMOTE_CACHE_DIR`로 지정하면, 별도 캐시 서버 프로토콜 없이 `stoke build`가 컴파일된 오브젝트를 그 디렉토리에서 가져오거나 올림. 공유 파일시스템이 없는 원격 팀/클라우드 CI라면 `STOKE_REMOTE_CACHE_URL`로 HTTP 캐시 서버를 대신 지정 가능(`GET`/`PUT /objects/<key>`, `/dirs/<key>.tar` 지원하는 서버만 있으면 됨, `STOKE_REMOTE_CACHE_USER`/`PASSWORD`로 Basic Auth). 둘 다 설정돼 있으면 URL이 우선. C/C++은 컴파일된 `.o` 파일 단위(hit마다 헤더 content 매니페스트로 재검증), Java는 타겟 전체 단위(`javac`가 한 번의 호출로 배치 컴파일하기 때문에 파일 1:1 매핑이 없음)로 캐싱. 캐시 디렉토리/서버가 없거나 접근 불가능하거나 오류가 나도 fail open — 빌드를 절대 깨뜨리지 않고 속도 향상만 못 받음.
 - **범위** — C/C++, Java 컴파일만 해당. Python은 캐싱할 만한 컴파일 단계가 없음. Rust/Kotlin/C#/Ruby/PHP/Go/JS/TS는 각자 자기 빌드 도구(Cargo, Gradle, dotnet 등)에 위임하는 구조라, stoke 캐시 모듈과는 완전히 별개의 캐싱 스토리를 가짐.
 
 ## 빌드 전/후 훅
