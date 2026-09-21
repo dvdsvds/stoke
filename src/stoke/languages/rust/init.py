@@ -4,14 +4,27 @@ import shutil
 import sys
 from pathlib import Path
 
-from stoke.prompts import _prompt
+from stoke.prompts import _prompt, _prompt_choice
+from stoke.languages.rust.versions import RustInstall
 from stoke.tool_install import ensure_cargo
 
-def _select_rust_version() -> str:
-    """선택적 Rust 툴체인 버전 pin (빈 입력이면 pin 안 함)."""
-    return _prompt(
-        "Pin Rust toolchain version? (e.g. 1.75.0, blank to skip)", default=""
-    ).strip()
+def _select_rust_version(installs: list[RustInstall]) -> str:
+    """감지된 Rust 툴체인 중 하나 선택 (또는 직접 입력/생략). 반환값은 rust-toolchain.toml의 channel로 씀."""
+    choices = ["Don't pin - use whatever toolchain is active"]
+    for install in installs:
+        default_mark = " (installed default)" if install.is_default else ""
+        label = install.channel
+        if install.exact_version != install.channel:
+            label += f" ({install.exact_version})"
+        choices.append(f"{label}{default_mark}")
+    choices.append("Enter manually")
+
+    selected = _prompt_choice("Pin Rust toolchain version?", choices, default_index=0)
+    if selected == 0:
+        return ""
+    if selected == len(choices) - 1:
+        return _prompt("Rust toolchain version (e.g. 1.75.0)", default="").strip()
+    return installs[selected - 1].channel
 
 def _write_rust_toolchain(project_root: Path, version: str) -> None:
     """rust-toolchain.toml 생성 (rustup이 자동으로 읽어서 버전 강제)."""

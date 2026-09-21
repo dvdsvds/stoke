@@ -170,6 +170,16 @@ def github_repo_exists(owner: str, name: str) -> bool:
     result = subprocess.run(["gh", "repo", "view", f"{owner}/{name}"], capture_output=True, text=True)
     return result.returncode == 0
 
+def list_github_repos(owner: str) -> list[str]:
+    """owner 소유의 저장소 이름 목록 (최근 업데이트 순, 최대 100개) -- 실패하면 빈 리스트."""
+    result = subprocess.run(
+        ["gh", "repo", "list", owner, "--limit", "100", "--json", "name", "-q", ".[].name"],
+        capture_output=True, text=True,
+    )
+    if result.returncode != 0:
+        return []
+    return [line.strip() for line in result.stdout.splitlines() if line.strip()]
+
 def create_github_remote(project_dir: Path, owner: str, name: str, private: bool) -> str | None:
     """빈 GitHub 저장소 생성(커밋/푸시 없이) + origin으로 연결. 성공하면 URL 반환, 실패하면 None."""
     visibility = "--private" if private else "--public"
@@ -180,12 +190,18 @@ def create_github_remote(project_dir: Path, owner: str, name: str, private: bool
     if result.returncode != 0:
         print(f"Warning: failed to create GitHub repo: {result.stderr.strip()}")
         return None
+    return _add_origin_remote(project_dir, owner, name)
 
+def link_github_remote(project_dir: Path, owner: str, name: str) -> str | None:
+    """이미 존재하는 GitHub 저장소를 origin으로 연결 (생성하지 않음). 성공하면 URL 반환, 실패하면 None."""
+    return _add_origin_remote(project_dir, owner, name)
+
+def _add_origin_remote(project_dir: Path, owner: str, name: str) -> str | None:
     url = f"https://github.com/{owner}/{name}.git"
     remote_result = subprocess.run(
         ["git", "remote", "add", "origin", url], cwd=str(project_dir), capture_output=True, text=True,
     )
     if remote_result.returncode != 0:
-        print(f"Warning: repo created but failed to add git remote: {remote_result.stderr.strip()}")
+        print(f"Warning: failed to add git remote: {remote_result.stderr.strip()}")
         return None
     return url

@@ -38,6 +38,7 @@ from stoke.languages.go.init import (
     _write_stoke_toml_go,
     _write_example_go,
 )
+from stoke.languages.rust.versions import detect_all as detect_rust
 from stoke.languages.rust.init import (
     _select_rust_version,
     _write_rust_toolchain,
@@ -156,8 +157,8 @@ def _print_banner() -> None:
     print(f" https://dvdsvds.github.io/stoke/\033[0m\n")
 
 def _prompt_git_setup(cwd: Path, project_name: str) -> dict:
-    """git init + GitHub 원격 생성 여부를 미리 물어봄 (실제 실행은 파일 다 쓴 뒤 맨 마지막에, _apply_git_setup)."""
-    choice = {"init_git": False, "owner": None, "repo_name": None, "private": True}
+    """git init + GitHub 원격 생성/연결 여부를 미리 물어봄 (실제 실행은 파일 다 쓴 뒤 맨 마지막에, _apply_git_setup)."""
+    choice = {"init_git": False, "remote_mode": None, "owner": None, "repo_name": None, "private": True}
 
     parent_repo = git_setup.find_parent_git_repo(cwd)
     if parent_repo is not None:
@@ -176,31 +177,64 @@ def _prompt_git_setup(cwd: Path, project_name: str) -> dict:
         return choice
     choice["init_git"] = True
 
-    if not _prompt_yes_no("Create a GitHub remote?", default=False):
+    remote_choices = [
+        "Skip     - don't set up a GitHub remote",
+        "Create   - create a new GitHub repo",
+        "Link     - connect to an existing GitHub repo",
+    ]
+    remote_selection = _prompt_choice("GitHub remote", remote_choices, default_index=0)
+    if remote_selection == 0:
         return choice
 
     if not git_setup.is_gh_available():
-        print("GitHub CLI ('gh') not installed or not logged in -- skipping remote creation.")
+        print("GitHub CLI ('gh') not installed or not logged in -- skipping remote setup.")
         print("  Install: https://cli.github.com, then run 'gh auth login'.")
         return choice
 
-    private = _prompt_choice("Repository visibility", ["Private", "Public"], default_index=0) == 0
-
     owners = git_setup.list_github_owners()
     if not owners:
-        print("Warning: couldn't determine your GitHub account/orgs -- skipping remote creation.")
+        print("Warning: couldn't determine your GitHub account/orgs -- skipping remote setup.")
         return choice
-    owner_index = _prompt_choice("Create under which account/organization?", owners, default_index=0)
+
+    if remote_selection == 1:
+        private = _prompt_choice("Repository visibility", ["Private", "Public"], default_index=0) == 0
+
+        owner_index = _prompt_choice("Create under which account/organization?", owners, default_index=0)
+        owner = owners[owner_index]
+
+        repo_name = project_name
+        while git_setup.github_repo_exists(owner, repo_name):
+            print(f"'{owner}/{repo_name}' already exists on GitHub.")
+            repo_name = _prompt("Repository name", default=f"{repo_name}-2")
+
+        choice["remote_mode"] = "create"
+        choice["owner"] = owner
+        choice["repo_name"] = repo_name
+        choice["private"] = private
+        return choice
+
+    # remote_selection == 2: 기존 저장소에 연결
+    owner_index = _prompt_choice("Which account/organization owns the repo?", owners, default_index=0)
     owner = owners[owner_index]
 
-    repo_name = project_name
-    while git_setup.github_repo_exists(owner, repo_name):
-        print(f"'{owner}/{repo_name}' already exists on GitHub.")
-        repo_name = _prompt("Repository name", default=f"{repo_name}-2")
+    repos = git_setup.list_github_repos(owner)
+    if repos:
+        repo_choices = repos + ["(enter a name manually)"]
+        repo_index = _prompt_choice("Which repository?", repo_choices, default_index=0)
+        if repo_index == len(repos):
+            repo_name = _prompt("Repository name")
+        else:
+            repo_name = repos[repo_index]
+    else:
+        repo_name = _prompt("Repository name")
 
+    if not git_setup.github_repo_exists(owner, repo_name):
+        print(f"Warning: '{owner}/{repo_name}' doesn't exist on GitHub -- skipping remote setup.")
+        return choice
+
+    choice["remote_mode"] = "link"
     choice["owner"] = owner
     choice["repo_name"] = repo_name
-    choice["private"] = private
     return choice
 
 def _write_readme(cwd: Path, project_name: str) -> None:
@@ -233,9 +267,14 @@ def _apply_git_setup(cwd: Path, choice: dict, project_name: str) -> None:
 
     if choice["owner"] is None:
         return
-    url = git_setup.create_github_remote(cwd, choice["owner"], choice["repo_name"], choice["private"])
-    if url:
-        print(f"Created GitHub repo and added as 'origin': {url}")
+    if choice["remote_mode"] == "link":
+        url = git_setup.link_github_remote(cwd, choice["owner"], choice["repo_name"])
+        if url:
+            print(f"Linked existing GitHub repo as 'origin': {url}")
+    else:
+        url = git_setup.create_github_remote(cwd, choice["owner"], choice["repo_name"], choice["private"])
+        if url:
+            print(f"Created GitHub repo and added as 'origin': {url}")
 
 def cmd_init() -> None:
     """대화형 프로젝트 초기화."""
@@ -281,7 +320,8 @@ def cmd_init() -> None:
         go_version = _select_go_version()
         go_module_name = _select_go_module_name(project_name)
     elif language == "rust":
-        rust_version = _select_rust_version()
+        rust_installs = detect_rust()
+        rust_version = _select_rust_version(rust_installs)
     elif language == "kotlin":
         kotlin_jdk_version = _select_kotlin_jdk()
     elif language == "csharp":
