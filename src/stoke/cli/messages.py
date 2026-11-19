@@ -104,6 +104,11 @@ MESSAGES = {
         "exec.command": "Command to run (put -- before it to separate from stoke's own flags)",
         "exec.target": "Target name (default: first target)",
 
+        # env
+        "env.help": "Print a script that puts the project-local toolchains on PATH, so you can run 'go mod tidy' etc. without 'stoke exec' (apply with: eval \"$(stoke env)\" / stoke env | Out-String | Invoke-Expression)",
+        "env.shell": "Shell to generate for (default: powershell on Windows, bash elsewhere)",
+        "env.off": "Print a script that removes what 'stoke env' added",
+
         # audit
         "audit.help": "Check the target's dependencies for known vulnerabilities (CVEs)",
         "audit.target": "Target name (default: first target)",
@@ -257,6 +262,11 @@ MESSAGES = {
         "exec.help": "타겟의 프로젝트 로컬 툴체인을 PATH에 얹은 채로 명령 실행 (예: 'stoke exec -- go mod tidy')",
         "exec.command": "실행할 명령 (stoke 자체 플래그와 구분하려면 앞에 -- 를 붙일 것)",
         "exec.target": "타겟 이름 (기본값: 첫 번째 타겟)",
+
+        # env
+        "env.help": "프로젝트 로컬 툴체인을 PATH에 올리는 스크립트 출력 ('stoke exec' 없이 'go mod tidy' 등을 바로 실행; 적용: eval \"$(stoke env)\" / stoke env | Out-String | Invoke-Expression)",
+        "env.shell": "생성할 셸 (기본: Windows는 powershell, 그 외 bash)",
+        "env.off": "'stoke env'가 추가한 항목을 제거하는 스크립트 출력",
 
         # audit
         "audit.help": "타겟의 의존성을 알려진 취약점(CVE)과 대조 확인",

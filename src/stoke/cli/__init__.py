@@ -261,6 +261,11 @@ def _build_parser():
     exec_parser.add_argument("--target", help=_("exec.target"))
     exec_parser.add_argument("command_args", nargs=argparse.REMAINDER, help=_("exec.command"), metavar="command")
 
+    # stoke env [--shell=X] [--off]
+    env_parser = subparsers.add_parser("env", help=_("env.help"), formatter_class=_help_formatter)
+    env_parser.add_argument("--shell", choices=["bash", "zsh", "sh", "powershell", "pwsh"], help=_("env.shell"))
+    env_parser.add_argument("--off", action="store_true", help=_("env.off"))
+
     # stoke audit [--target=X]
     audit_parser = subparsers.add_parser("audit", help=_("audit.help"), formatter_class=_help_formatter)
     audit_parser.add_argument("--target", help=_("audit.target"))
@@ -335,6 +340,9 @@ def main():
     except KeyboardInterrupt:
         print("\nAborted.", file=sys.stderr)
         sys.exit(130)
+
+    from stoke.update_check import maybe_notify
+    maybe_notify(args.command)
 
 def _dispatch(args):
     if args.command == "build":
@@ -432,6 +440,9 @@ def _dispatch(args):
         cmd_hot_reload(args.target, profile=profile_name, verbose=args.verbose)
     elif args.command == "exec":
         cmd_exec(args.command_args, args.target)
+    elif args.command == "env":
+        from stoke.cli.env import cmd_env
+        cmd_env(args.shell, args.off)
     elif args.command == "audit":
         cmd_audit(args.target, args.json)
     elif args.command == "outdated":
