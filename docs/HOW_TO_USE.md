@@ -124,6 +124,7 @@ stoke hot-reload [target]             # rebuild + restart the running process
 stoke clean [target] [--all]          # deletes build artifacts; --all also deletes the lock file
 stoke ide-sync                        # regenerate VSCode/Eclipse/IntelliJ config files
 stoke exec [--target=X] -- <command>  # run a command with the target's project-local toolchain on PATH
+stoke env [--off]                     # put the project-local toolchains on this shell's PATH (see below)
 ```
 
 **`stoke exec`** — `stoke install`/`stoke init` install language toolchains into `.stoke/toolchains/` without touching your system PATH, so `stoke build`/`run` work even if the language isn't installed system-wide, but a native tool command you type yourself (`go mod tidy`, `cargo add serde`, `bundle add rails`, `composer require monolog/monolog`, `dotnet add package Newtonsoft.Json`) only looks at PATH and fails if that's the only place the language lives. `stoke exec` runs the given command with that project-local toolchain's `bin/` prepended to PATH (and, for Rust, `RUSTUP_HOME`/`CARGO_HOME` set) instead:
@@ -132,6 +133,26 @@ stoke exec [--target=X] -- <command>  # run a command with the target's project-
 stoke exec -- go mod tidy
 stoke exec --target=api -- cargo add serde
 ```
+
+**`stoke env`** — if typing `stoke exec --` before every command is tedious, activate the project's toolchains in your shell once and then run the native commands directly. stoke can't change its parent shell's environment, so `stoke env` prints a script and you apply it:
+
+```bash
+# Linux / macOS (bash, zsh)
+eval "$(stoke env)"
+
+# Windows PowerShell
+stoke env | Out-String | Invoke-Expression
+
+go mod tidy              # now works without a prefix
+cargo add serde
+
+# undo (removes only what stoke env added)
+eval "$(stoke env --off)"
+```
+
+It uses the same lookup as `stoke exec` (project-local `.stoke/toolchains/`), so both always agree. Running it again doesn't duplicate `PATH` entries, and moving to another project replaces the previous project's entries. Use `--shell=bash|zsh|sh|powershell` to override shell detection. Bash/zsh on Windows (Git Bash) isn't supported yet.
+
+**Update notice** — after a command finishes, stoke checks the latest GitHub release at most once a day and, if a newer version exists, prints one line to stderr pointing at `stoke self-update`. It never installs anything on its own. Set `STOKE_NO_UPDATE_CHECK=1` to turn it off; it is already off in CI and whenever stderr isn't a terminal.
 
 `stoke init` asks which IDE to integrate with for Python/Java/C/C++ projects (`vscode`, the default, writes `.vscode/settings.json` plus `compile_commands.json`/`c_cpp_properties.json` for C/C++; `eclipse` writes `.classpath`/`.project` for Java; `intellij` writes `pom.xml` for Java, or just `compile_commands.json` for C/C++ (also what CLion, clangd, and clangd-based Vim/Neovim/Emacs setups read directly); `none` writes nothing on every `stoke build`). It's stored as `ide = "..."` under `[project]` in `stoke.toml` — edit it by hand any time. This is separate from `stoke ide-sync` above, which always generates a VSCode multi-root workspace file across every stoke project it finds, regardless of this setting.
 

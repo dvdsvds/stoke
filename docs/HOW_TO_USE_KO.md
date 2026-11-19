@@ -124,6 +124,7 @@ stoke hot-reload [target]             # 재빌드 + 실행 중인 프로세스 �
 stoke clean [target] [--all]          # 빌드 산출물 삭제, --all이면 lock 파일도 같이 삭제
 stoke ide-sync                        # VSCode/Eclipse/IntelliJ 설정 파일 재생성
 stoke exec [--target=X] -- <command>  # 타겟의 프로젝트 로컬 툴체인을 PATH에 얹은 채로 명령 실행
+stoke env [--off]                     # 프로젝트 로컬 툴체인을 이 셸의 PATH에 올림 (아래 설명)
 ```
 
 **`stoke exec`** — `stoke install`/`stoke init`은 언어 툴체인을 시스템 PATH를 안 건드리고 `.stoke/toolchains/`에만 설치하므로, 그 언어가 시스템에 전혀 없어도 `stoke build`/`run`은 잘 됩니다. 하지만 사용자가 직접 치는 네이티브 도구 명령(`go mod tidy`, `cargo add serde`, `bundle add rails`, `composer require monolog/monolog`, `dotnet add package Newtonsoft.Json`)은 PATH만 보기 때문에, 그 언어가 프로젝트 로컬로만 설치돼 있으면 실패합니다. `stoke exec`는 그 프로젝트 로컬 툴체인의 `bin/`을 PATH 맨 앞에 얹은(Rust는 `RUSTUP_HOME`/`CARGO_HOME`도 같이 설정) 상태로 명령을 대신 실행해줍니다:
@@ -132,6 +133,26 @@ stoke exec [--target=X] -- <command>  # 타겟의 프로젝트 로컬 툴체인�
 stoke exec -- go mod tidy
 stoke exec --target=api -- cargo add serde
 ```
+
+**`stoke env`** — 명령마다 `stoke exec --`를 붙이는 게 번거롭다면, 프로젝트 툴체인을 셸에 한 번 활성화하고 네이티브 명령을 바로 실행하세요. stoke는 부모 셸의 환경을 바꿀 수 없으므로 `stoke env`가 스크립트를 출력하고 사용자가 적용합니다:
+
+```bash
+# Linux / macOS (bash, zsh)
+eval "$(stoke env)"
+
+# Windows PowerShell
+stoke env | Out-String | Invoke-Expression
+
+go mod tidy              # 이제 접두어 없이 동작
+cargo add serde
+
+# 해제 (stoke env가 추가한 것만 제거)
+eval "$(stoke env --off)"
+```
+
+`stoke exec`과 같은 탐색(프로젝트 로컬 `.stoke/toolchains/`)을 쓰므로 두 명령의 결과는 항상 같습니다. 다시 실행해도 `PATH` 항목이 중복되지 않고, 다른 프로젝트로 옮기면 이전 프로젝트 항목이 교체됩니다. `--shell=bash|zsh|sh|powershell`로 셸 자동 감지를 바꿀 수 있습니다. Windows의 bash/zsh(Git Bash)는 아직 지원하지 않습니다.
+
+**업데이트 알림** — 명령이 끝난 뒤 하루에 한 번까지만 GitHub 최신 릴리스를 확인하고, 새 버전이 있으면 stderr에 `stoke self-update`를 안내하는 한 줄을 출력합니다. 스스로 설치하지는 않습니다. `STOKE_NO_UPDATE_CHECK=1`로 끌 수 있고, CI와 stderr가 터미널이 아닐 때는 이미 꺼져 있습니다.
 
 `stoke init`에서 Python/Java/C/C++ 프로젝트는 어떤 IDE와 연동할지 물어봅니다 (`vscode`가 기본값이고 `.vscode/settings.json` + C/C++는 `compile_commands.json`/`c_cpp_properties.json`도 씀, `eclipse`는 Java용 `.classpath`/`.project`, `intellij`는 Java용 `pom.xml` 또는 C/C++용 `compile_commands.json`만 (CLion, clangd, clangd 기반 Vim/Neovim/Emacs 설정도 이 파일을 직접 읽음), `none`은 `stoke build`할 때 아무 파일도 안 씀). `stoke.toml`의 `[project]`에 `ide = "..."`로 저장되고 직접 수정해도 됩니다. 위에서 설명한 `stoke ide-sync`는 이거랑 별개로, 이 설정과 무관하게 찾은 모든 stoke 프로젝트를 묶는 VSCode 멀티루트 워크스페이스 파일을 항상 만듭니다.
 
