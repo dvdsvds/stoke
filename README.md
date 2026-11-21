@@ -23,11 +23,13 @@ Supports Python, Java, C, C++, Go, Rust, Kotlin, C#, Ruby, PHP, JavaScript, and 
 Download the installer from [Releases](https://github.com/dvdsvds/stoke/releases/latest). Python is bundled — no prerequisites.
 
 ### macOS / Linux
-Download `stoke-X.Y.Z-macos-<arch>.tar.gz` or `stoke-X.Y.Z-linux-<arch>.tar.gz` from [Releases](https://github.com/dvdsvds/stoke/releases/latest), extract it, and add it to your `PATH`. Python is bundled — no prerequisites.
+Download `stoke-X.Y.Z-macos-<arch>.tar.gz` or `stoke-X.Y.Z-linux-<arch>.tar.gz` from [Releases](https://github.com/dvdsvds/stoke/releases/latest), extract it to a fixed location, and add that to your `PATH` permanently. Python is bundled — no prerequisites.
 ```bash
-tar xzf stoke-*.tar.gz
-export PATH="$PWD/stoke:$PATH"
+mkdir -p ~/.local/share
+tar xzf stoke-*.tar.gz -C ~/.local/share
+echo 'export PATH="$HOME/.local/share/stoke:$PATH"' >> ~/.bashrc   # zsh: ~/.zshrc
 ```
+Open a new terminal (or `source ~/.bashrc`) and `stoke --version` should work. A bare `export PATH=...` only lasts for the current shell session.
 Not code-signed: on macOS, Gatekeeper will block the first run. Right-click (or Ctrl-click) the `stoke` binary, choose "Open", and confirm once.
 
 ### Verifying a download (optional)

@@ -44,11 +44,13 @@ Spring Boot, FastAPI, Flask, Django, 그리고 Go/Rust/Kotlin/C#/Ruby/PHP/JavaSc
 [Releases](https://github.com/dvdsvds/stoke/releases/latest)에서 인스톨러 다운로드. Python 포함되어 있어 별도 설치 필요 없음.
 
 ### macOS / Linux
-[Releases](https://github.com/dvdsvds/stoke/releases/latest)에서 `stoke-X.Y.Z-macos-<arch>.tar.gz` 또는 `stoke-X.Y.Z-linux-<arch>.tar.gz` 다운로드 후 압축 풀고 `PATH`에 추가. Python 포함되어 있어 별도 설치 필요 없음.
+[Releases](https://github.com/dvdsvds/stoke/releases/latest)에서 `stoke-X.Y.Z-macos-<arch>.tar.gz` 또는 `stoke-X.Y.Z-linux-<arch>.tar.gz` 다운로드 후 고정된 위치에 압축 풀고 `PATH`에 영구 등록. Python 포함되어 있어 별도 설치 필요 없음.
 ```bash
-tar xzf stoke-*.tar.gz
-export PATH="$PWD/stoke:$PATH"
+mkdir -p ~/.local/share
+tar xzf stoke-*.tar.gz -C ~/.local/share
+echo 'export PATH="$HOME/.local/share/stoke:$PATH"' >> ~/.bashrc   # zsh는 ~/.zshrc
 ```
+새 터미널을 열거나 `source ~/.bashrc` 후 `stoke --version`이 되면 성공. `export PATH=...`만 따로 입력하면 현재 셸 세션에서만 유지됨.
 서명이 안 돼 있어서 macOS는 처음 실행 시 Gatekeeper가 막음 — `stoke` 실행 파일을 우클릭 → "열기"로 한 번만 허용하면 됨.
 
 ### 다운로드 검증 (선택)
